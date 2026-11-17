@@ -436,3 +436,354 @@ def test_review_requires_delivery_signal_even_when_database_says_approved(
     )
     assert accepted is False
     assert note == "review notification not confirmed"
+
+
+def test_typed_stage_projection_excludes_agent_internals():
+    """Pydantic enforces the read-only progress boundary on the live watcher."""
+    from uuid import uuid4
+
+    from pydantic import ValidationError
+
+    from capstone.api.runs import SafeStageSnapshot, safe_stage
+
+    state = SimpleNamespace(
+        investigation_id=uuid4(),
+        mode="triage",
+        stage="investigate",
+        iteration_count=3,
+        tool_call_count=2,
+        evidence=[object(), object()],
+        hypotheses=[object()],
+        unanswered_questions=[SimpleNamespace(id="q4")],
+        termination_reason=None,
+        conclusion=None,
+        private_provider_prompt="DO-NOT-EXPOSE",
+        simulator_ground_truth={"secret": True},
+    )
+    projected = safe_stage(state)
+    assert projected["tool_calls"] == 2
+    assert projected["mode"] == "triage"
+    assert projected["unresolved_question_ids"] == ["q4"]
+    assert "DO-NOT-EXPOSE" not in json.dumps(projected)
+    assert "simulator_ground_truth" not in projected
+    with pytest.raises(ValidationError):
+        SafeStageSnapshot.model_validate(
+            {**projected, "private_provider_prompt": "oops"}
+        )
+    with pytest.raises(ValidationError):
+        SafeStageSnapshot.model_validate({**projected, "tool_calls": -1})
+
+
+def test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event(
+    tmp_path,
+):
+    """Triage survives deep, review transitions and reconnectable snapshot reads."""
+    from uuid import uuid4
+
+    cfg = config(tmp_path)
+    client = TestClient(create_app(cfg))
+    runner = SimulatorRuns(cfg.run_db)
+    run_id = str(uuid4())
+    with runner._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "phase-progress-test-key",
+                RunRequest(seed=3).model_dump_json(),
+                "queued",
+                json.dumps({"status": "queued", "mode": "triage"}),
+                "2026-11-17T12:00:00Z",
+                "2026-11-17T12:00:00Z",
+            ),
+        )
+
+    triage = {
+        "investigation_id": str(uuid4()),
+        "mode": "triage",
+        "stage": "investigate",
+        "iteration_count": 2,
+        "tool_calls": 3,
+        "evidence_count": 38,
+        "hypothesis_count": 1,
+        "unresolved_question_ids": ["Q5"],
+        "termination_reason": None,
+        "conclusion_available": False,
+    }
+    deep = {
+        **triage,
+        "investigation_id": str(uuid4()),
+        "mode": "deep",
+        "stage": "hypothesize",
+        "iteration_count": 1,
+        "tool_calls": 5,
+        "evidence_count": 42,
+        "hypothesis_count": 2,
+    }
+    runner._emit(run_id, "run.started", {"status": "running"}, state="running")
+    runner._emit(run_id, "stage.updated", triage)
+    status_url = f"/api/v1/lab/runs/{run_id}"
+    live = client.get(status_url, headers=auth(TOKEN)).json()
+    assert live["state"] == "running"
+    assert live["snapshot"]["progress"]["latest"] == "triage"
+    assert live["snapshot"]["progress"]["triage"]["evidence_count"] == 38
+
+    runner._emit(run_id, "stage.updated", deep)
+    runner._emit(
+        run_id,
+        "review.requested",
+        {"status": "awaiting_review", "mode": "deep"},
+        state="awaiting_review",
+    )
+    during_review = client.get(status_url, headers=auth(OPERATOR)).json()["snapshot"]
+    assert (
+        during_review["progress"]["triage"]["investigation_id"]
+        == triage["investigation_id"]
+    )
+    assert during_review["progress"]["deep"]["tool_calls"] == 5
+    assert during_review["progress"]["latest"] == "deep"
+
+    runner._emit(
+        run_id,
+        "run.completed",
+        {"status": "completed", "mode": "triage", "diagnosis": "unverified"},
+        state="completed",
+    )
+    final = client.get(status_url, headers=auth(REVIEWER)).json()
+    assert final["state"] == "completed"
+    assert final["snapshot"]["diagnosis"] == "unverified"
+    assert final["snapshot"]["progress"]["triage"]["evidence_count"] == 38
+    assert final["snapshot"]["progress"]["deep"]["hypothesis_count"] == 2
+    assert (
+        client.get(f"{status_url}/events?since=2", headers=auth(TOKEN)).status_code
+        == 200
+    )
+
+    recovered = SimulatorRuns(cfg.run_db)
+    persisted = recovered.get(run_id)
+    assert persisted is not None and persisted["state"] == "completed"
+    assert persisted["snapshot"]["progress"]["latest"] == "deep"
+    assert "DO-NOT-EXPOSE" not in json.dumps(persisted)
+
+
+def test_completed_phase_audits_expose_only_reviewed_result_fields(tmp_path):
+    """Triage and deep use server-owned IDs; no hidden truth or raw agent logs."""
+    from uuid import uuid4
+
+    cfg = config(tmp_path)
+    manager = SimulatorRuns(cfg.run_db)
+    run_id = str(uuid4())
+    triage_id, deep_id = str(uuid4()), str(uuid4())
+    completed = {
+        "status": "completed",
+        "mode": "triage",
+        "deep_ran": True,
+        "investigation": {"investigation_id": deep_id, "mode": "deep"},
+        "progress": {
+            "triage": {"investigation_id": triage_id, "mode": "triage"},
+            "deep": {"investigation_id": deep_id, "mode": "deep"},
+            "latest": "deep",
+        },
+    }
+    with manager._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "result-contract-test-key",
+                RunRequest(seed=3).model_dump_json(),
+                "completed",
+                json.dumps(completed),
+                "2026-11-17T12:00:00Z",
+                "2026-11-17T12:01:00Z",
+            ),
+        )
+
+    def audit(investigation_id, phase):
+        return {
+            "completed": {
+                "investigation_id": investigation_id,
+                "run_id": run_id,
+                "anomaly": {
+                    "summary": "CNC load increased",
+                    "symptoms": ["temperature_rising"],
+                },
+                "conclusion": {
+                    "diagnosis": phase + " bearing hypothesis",
+                    "confidence": 0.65,
+                    "evidence_ids": ["E1", "E2"],
+                },
+                "evidence": [
+                    {
+                        "id": "E1",
+                        "source_id": "get_temperature",
+                        "content": "Spindle hot",
+                        "observed_tick": 30,
+                    }
+                ],
+                "hypotheses": [
+                    {
+                        "id": "H1",
+                        "claim": "bearing wear",
+                        "confidence": 0.65,
+                        "supporting_evidence_ids": ["E1"],
+                        "unexplained_evidence_ids": ["E2"],
+                        "status": "unverified",
+                    }
+                ],
+                "proposed_action": {
+                    "action": "inspect_bearing",
+                    "machine_id": "CNC-01",
+                    "reason": "Temperature elevated",
+                    "evidence_ids": ["E1"],
+                },
+                "verification": {
+                    "status": "unverified",
+                    "outcome": "unknown",
+                    "summary": "Further check required",
+                    "observed_tick": 41,
+                    "evidence_ids": ["E2"],
+                },
+                "iterations_used": 4,
+                "tool_calls_used": 6,
+                "termination_reason": "diagnosis_supported",
+            },
+            "conclusion": {
+                "assessment": "unresolved",
+                "hypothesis_id": "H1",
+                "next_check": "inspect spindle",
+                "unresolved_questions": ["Q3"],
+                "action_rationale": "read-only preliminary diagnosis",
+            },
+            "proposal": {
+                "proposal_id": 2,
+                "status": "rejected",
+                "note": "PRIVATE_REVIEW_NOTE",
+            },
+            "action_started_tick": None,
+            "action_finish_tick": None,
+            "decisions": [
+                {
+                    "sequence": 1,
+                    "agent": "investigator",
+                    "phase": "test",
+                    "tick": 40,
+                    "tool": "get_temperature",
+                    "outcome": "observed",
+                    "arguments": {"secret": "PRIVATE_ARGS"},
+                    "evidence_ids": ["E1"],
+                }
+            ],
+            "metrics": {
+                "iterations": 4,
+                "tool_calls": 6,
+                "repeated_calls": 0,
+                "failed_tool_calls": 1,
+                "malformed_results": 0,
+                "interpretation_failures": 0,
+                "hypothesis_revisions": 2,
+            },
+            "provider_prompt": "PRIVATE_MODEL_PROMPT",
+            "simulator_ground_truth": {"fault": "PRIVATE_ANSWER_KEY"},
+        }
+
+    path = manager.investigation_audit_path(run_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(audit(triage_id, "triage"))
+        + "\n"
+        + json.dumps(audit(deep_id, "deep"))
+        + "\n",
+        encoding="utf-8",
+    )
+    from capstone.api.readers import recent_lines, safe_investigations
+
+    assert len(recent_lines(path)) == 2, "Two complete audited phase records required"
+    assert len(safe_investigations(path)) == 2, "Both phase summaries must resolve"
+    client = TestClient(create_app(cfg))
+    base = f"/api/v1/lab/runs/{run_id}/investigation"
+
+    final = client.get(base, headers=auth(TOKEN))
+    assert final.status_code == 200
+    final_detail = final.json()["detail"]
+    assert final_detail["id"] == deep_id
+    assert final_detail["conclusion_detail"]["assessment"] == "unresolved"
+    assert final_detail["conclusion_detail"]["evidence_ids"] == ["E1", "E2"]
+    assert final_detail["proposal_status"] == "rejected"
+    assert final_detail["proposal_id"] == 2
+    assert final_detail["action_started_tick"] is None
+    assert final_detail["verification_detail"]["status"] == "unverified"
+    assert final_detail["verification_detail"]["outcome"] == "unknown"
+    assert final_detail["verification_detail"]["evidence_ids"] == ["E2"]
+    assert final_detail["reasoning_metrics"]["hypothesis_revisions"] == 2
+    assert final_detail["hypotheses"][0]["unexplained_evidence_ids"] == ["E2"]
+    assert final_detail["decision_trace"][0]["tool"] == "get_temperature"
+
+    triage = client.get(
+        base + "?phase=triage&investigation_id=" + deep_id, headers=auth(OPERATOR)
+    )
+    assert triage.status_code == 200
+    assert triage.json()["detail"]["id"] == triage_id
+    assert triage.json()["detail"]["diagnosis"] == "triage bearing hypothesis"
+    assert (
+        client.get(base + "?phase=deep", headers=auth(REVIEWER)).json()["detail"]["id"]
+        == deep_id
+    )
+    assert (
+        client.get(base + "?phase=../private", headers=auth(TOKEN)).status_code == 422
+    )
+    assert (
+        client.get(
+            base + "?phase=triage&workspace=pilot", headers=auth(TOKEN)
+        ).status_code
+        == 403
+    )
+    assert client.get(base + "?phase=deep").status_code == 401
+    combined = json.dumps([final.json(), triage.json()])
+    for secret in (
+        "PRIVATE_MODEL_PROMPT",
+        "PRIVATE_ANSWER_KEY",
+        "PRIVATE_REVIEW_NOTE",
+        "PRIVATE_ARGS",
+    ):
+        assert secret not in combined
+
+
+def test_legacy_final_audit_phase_fallback_is_explicit(tmp_path):
+    """No fabricated deep audit when an older run has no per-phase progress."""
+    from uuid import uuid4
+
+    cfg = config(tmp_path)
+    manager = SimulatorRuns(cfg.run_db)
+    run_id, triage_id = str(uuid4()), str(uuid4())
+    with manager._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "legacy-final-audit-test",
+                RunRequest(seed=3).model_dump_json(),
+                "completed",
+                json.dumps(
+                    {
+                        "investigation": {
+                            "investigation_id": triage_id,
+                            "mode": "triage",
+                        }
+                    }
+                ),
+                "2026-11-17T12:00:00Z",
+                "2026-11-17T12:01:00Z",
+            ),
+        )
+    client = TestClient(create_app(cfg))
+    base = f"/api/v1/lab/runs/{run_id}/investigation"
+    assert (
+        client.get(base + "?phase=triage", headers=auth(TOKEN)).json()["availability"]
+        == "not_recorded"
+    )
+    assert client.get(base + "?phase=deep", headers=auth(TOKEN)).json() == {
+        "availability": "not_recorded",
+        "detail": None,
+        "phase": "deep",
+    }

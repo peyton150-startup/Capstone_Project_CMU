@@ -45,21 +45,49 @@ class ReviewDecision(BaseModel):
     note: str = Field(default="", max_length=200)
 
 
+class SafeStageSnapshot(BaseModel):
+    """Bounded, typed public progress from the Pydantic Graph watcher.
+
+    No model messages, private evidence content, tool arguments or simulator
+    ground truth cross this boundary. Monitoring never invokes another model.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    investigation_id: str = Field(min_length=1, max_length=64)
+    mode: Literal["triage", "deep"]
+    stage: str | None = Field(default=None, max_length=64)
+    iteration_count: int = Field(ge=0)
+    tool_calls: int = Field(ge=0)
+    evidence_count: int = Field(ge=0)
+    hypothesis_count: int = Field(ge=0)
+    unresolved_question_ids: list[str] = Field(max_length=25)
+    termination_reason: str | None = Field(default=None, max_length=80)
+    conclusion_available: bool
+
+
+# Only fields from the checked Pydantic watcher projection enter persisted
+# per-phase progress; this is intentionally not a general serializer.
+SAFE_STAGE_FIELDS = frozenset(SafeStageSnapshot.model_fields)
+
+
 def safe_stage(state: Any) -> dict[str, Any]:
-    """Immutable, bounded operational fields only; never entire InvestigationState."""
+    """Project agent state into the validated, source-safe progress contract."""
     reason = state.termination_reason
-    return {
-        "investigation_id": str(state.investigation_id),
-        "mode": state.mode,
-        "stage": state.stage,
-        "iteration_count": state.iteration_count,
-        "tool_calls": state.tool_call_count,
-        "evidence_count": len(state.evidence),
-        "hypothesis_count": len(state.hypotheses),
-        "unresolved_question_ids": [q.id for q in state.unanswered_questions[:25]],
-        "termination_reason": None if reason is None else reason.value,
-        "conclusion_available": state.conclusion is not None,
-    }
+    return SafeStageSnapshot(
+        investigation_id=str(state.investigation_id),
+        mode=state.mode,
+        stage=state.stage,
+        iteration_count=state.iteration_count,
+        tool_calls=state.tool_call_count,
+        evidence_count=len(state.evidence),
+        hypothesis_count=len(state.hypotheses),
+        unresolved_question_ids=[
+            str(q.id)[:64] for q in state.unanswered_questions[:25]
+        ],
+        termination_reason=None if reason is None else reason.value,
+        conclusion_available=state.conclusion is not None,
+    ).model_dump(mode="json")
 
 
 class SimulatorRuns:
@@ -206,15 +234,49 @@ class SimulatorRuns:
                 "INSERT INTO run_events VALUES(?,?,?,?,?)",
                 (run_id, next_seq, event, json.dumps(payload), utc_now()),
             )
+            # The event journal contains immutable source events. The run
+            # snapshot additionally retains the latest safe progress for each
+            # investigation path, so a refresh or review event cannot erase
+            # the earlier triage state. Uses the same locked transaction on
+            # SQLite and on the PostgreSQL row-lock backend.
+            row = db.execute(
+                "SELECT snapshot FROM runs WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if row is None:
+                raise LookupError("Run not found")
+            previous = json.loads(row[0])
+            previous_progress = (
+                previous.get("progress") if isinstance(previous, dict) else None
+            )
+            progress = (
+                {
+                    k: v
+                    for k, v in previous_progress.items()
+                    if k in ("triage", "deep", "latest")
+                }
+                if isinstance(previous_progress, dict)
+                else {}
+            )
+            if (
+                event == "stage.updated"
+                and payload.get("mode") in ("triage", "deep")
+                and payload.get("investigation_id")
+            ):
+                mode = payload["mode"]
+                progress[mode] = {
+                    key: payload[key] for key in SAFE_STAGE_FIELDS if key in payload
+                }
+                progress["latest"] = mode
+            snapshot = {**payload, "progress": progress} if progress else payload
             if state is not None:
                 db.execute(
                     "UPDATE runs SET state=?, snapshot=?, updated_at=? WHERE run_id=?",
-                    (state, json.dumps(payload), utc_now(), run_id),
+                    (state, json.dumps(snapshot), utc_now(), run_id),
                 )
             else:
                 db.execute(
                     "UPDATE runs SET snapshot=?, updated_at=? WHERE run_id=?",
-                    (json.dumps(payload), utc_now(), run_id),
+                    (json.dumps(snapshot), utc_now(), run_id),
                 )
 
     def submit(self, request: RunRequest, request_key: str) -> dict[str, Any]:
@@ -372,7 +434,9 @@ class SimulatorRuns:
         def watch(state: Any) -> None:
             try:
                 progress.put_nowait(safe_stage(state))
-            except queue.Full:
+            except Exception:
+                # Observability is best-effort and must never abort an episode.
+                # Do not log exceptions here: they may carry private evidence.
                 missed[0] += 1
 
         def publish() -> None:

@@ -69,15 +69,6 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
         else:
             runner = SimulatorRuns(cfg.run_db)
-    ingest_router = None
-    if os.getenv("CAPSTONE_LIVE_INGEST_ENABLED") == "1":
-        # Import database dependencies only when cloud ingestion is enabled.
-        # Read-only frontend installs do not require the optional DB extra.
-        from capstone.api.live_ingest import router_from_env
-
-        ingest_router = router_from_env(
-            (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token)
-        )
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
     app = FastAPI(
@@ -87,9 +78,6 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
-
-    if ingest_router is not None:
-        app.include_router(ingest_router)
 
     @app.on_event("shutdown")
     def shutdown_runner() -> None:
@@ -629,23 +617,43 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/lab/runs/{run_id}/investigation", dependencies=[Access])
     def managed_run_investigation(
-        run_id: str, workspace: Workspace = "simulator"
+        run_id: str,
+        workspace: Workspace = "simulator",
+        phase: Literal["final", "triage", "deep"] = "final",
     ) -> dict:
+        """Retrieve one completed phase by server-owned investigation id only.
+
+        The legacy no-phase route remains the final investigation. Never accept
+        client-supplied audit paths, run internals, or arbitrary investigation IDs.
+        """
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot investigation access prohibited"
             )
         run = ensure_run(run_id)
+        snapshot = run["snapshot"]
+        final = snapshot.get("investigation") or {}
+        target = None
+        if phase == "final":
+            target = final.get("investigation_id")
+        else:
+            progress = snapshot.get("progress") or {}
+            stage = progress.get(phase) if isinstance(progress, dict) else None
+            if isinstance(stage, dict) and stage.get("mode") == phase:
+                target = stage.get("investigation_id")
+            # Legacy or triage-only records can have a final stage but no
+            # phase-specific progress map. Never infer an absent earlier phase.
+            if not isinstance(target, str) and final.get("mode") == phase:
+                target = final.get("investigation_id")
+        if not isinstance(target, str):
+            return {"availability": "not_recorded", "detail": None, "phase": phase}
         assert runner is not None
         path = runner.investigation_audit_path(run_id)
-        target = (run["snapshot"].get("investigation") or {}).get("investigation_id")
-        if not isinstance(target, str):
-            return {"availability": "not_recorded", "detail": None}
+        detail = safe_investigation_detail(path, target)
         return {
-            "availability": "available"
-            if (detail := safe_investigation_detail(path, target))
-            else "not_recorded",
+            "availability": "available" if detail is not None else "not_recorded",
             "detail": detail,
+            "phase": phase,
         }
 
     @app.get("/api/v1/lab/runs/{run_id}/observability", dependencies=[Access])

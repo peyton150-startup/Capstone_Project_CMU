@@ -35,15 +35,15 @@
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
   "capstone-code/capstone/api/__init__.py": "80048330132f513c0d31f990cf23d55d0d66b0363708fda5274cecd6b41e3e8a",
   "capstone-code/capstone/api/__main__.py": "d239de65298216c0e8a9545d5ce24ff080703639c1bb9cb10c6b9c38933ac372",
-  "capstone-code/capstone/api/app.py": "ad2fcb83198c2a351fb6004eb544cba16c22333057ffd7d375c70ba40c525c71",
+  "capstone-code/capstone/api/app.py": "745eda2f92eaeb805ff52c799f81343454eef2487a2003765abbc08da442fd99",
   "capstone-code/capstone/api/config.py": "e7922bb891f35c3903928255980cbf10a14d69c124f3c1c2a48762008917129a",
   "capstone-code/capstone/api/import_sqlite.py": "62cf3619ca00747d13e22534fba0d65711f5e4cb5cec3094c21c6907cfceb138",
   "capstone-code/capstone/api/live_ingest.py": "48f593dd684ab8e70df0b5e7e515a88aea0e353a74e58cba505a9792ab8a0221",
   "capstone-code/capstone/api/postgres_runs.py": "2f4dcffd43a9760a39d4433efcd072938d38e68e90b8cc9858d3f579a17a84b9",
-  "capstone-code/capstone/api/readers.py": "35b16d73d7e438c0888753f0dfc623209ad1e5d0fa3d3d53286bc4da6e12e37b",
+  "capstone-code/capstone/api/readers.py": "0825005efd3367a42c44c4da371f795cd94ee0b3c1681a93461f31e44182c97b",
   "capstone-code/capstone/api/run_models.py": "e0f2e7e744b1401f686b309472caf260630fd30b74f6b3eea2141ccbe1282cf1",
   "capstone-code/capstone/api/run_repository.py": "b8d7123efe3cf8fe25b697795169f0be727a5ffb2c455e3e067ce30c02cb91e4",
-  "capstone-code/capstone/api/runs.py": "1314ce32795e2b1ca6defa70d3a5a77e9f8040feeb8cc674e924006e9fb85e4c",
+  "capstone-code/capstone/api/runs.py": "ae47d32387e1ecc745f9d2bb726d064f3f70c98198ba454bc9982f9945214362",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
   "capstone-code/capstone/console.py": "bded87a29a1781414d4486bf414a292dbbadcf1cae07125ea772cd511ccc7561",
@@ -316,31 +316,31 @@
   "tests/test_visit_log.py": "f540e22bb87d89338abfed58c9148ea86df9dcb6bdbd2464147a4b2a69d83f5c",
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_web_api.py": "0ee3db6c93211efb89300b12862d49c4bc8734361bf6c800e33dd4e52ce07577",
-  "tests/test_web_runs.py": "8aa12506600fd75b21ed3e0d4f4a6b4f3c1a21ebe31dc7251489f4e249a037d0",
+  "tests/test_web_runs.py": "9f9f42fbfc1e22fb6f9e993a628eb093b7e12f6fcf51b4b3d9d513d93d4a1e78",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "bcef58327146f3c09dedc6d906be73768688a121ed977790d3e247f6f7190656",
- "junit_sha256": "898b5fa4508aaa0d16101b110cfd533f2d164b3b234be47ccf1fd98f3890ba58",
+ "coverage_sha256": "d432e3a06a051074b379a0a509c30e562104e1247cc631465efd842f3d1b20d5",
+ "junit_sha256": "f888ff041a08e01680e13e3da55cde4b2d6df436bb73f80a720a5040fcbe4390",
  "counts": {
-  "functions": 1346,
+  "functions": 1349,
   "classes_note": "classes are listed through their methods",
-  "tests": 2481,
+  "tests": 2485,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 590,
+   "INSUFFICIENT EVIDENCE": 597,
    "NOT APPLICABLE": 29,
-   "NOT TESTED": 84,
+   "NOT TESTED": 80,
    "PARTIALLY VERIFIED": 598,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
    "direct": 627,
    "import-only": 6,
-   "indirect": 600,
+   "indirect": 607,
    "no-statements": 29,
-   "none": 84
+   "none": 80
   },
-  "functions_executed_in_tests": 1227,
+  "functions_executed_in_tests": 1234,
   "functions_with_direct_tests": 627,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
@@ -360,7 +360,6 @@
    "capstone.api.app:create_app.<locals>.simulator_memories",
    "capstone.api.app:create_app.<locals>.simulator_memory_promotions",
    "capstone.api.app:create_app.<locals>.knowledge",
-   "capstone.api.app:create_app.<locals>.managed_run_investigation",
    "capstone.api.app:create_app.<locals>.triage_result",
    "capstone.api.import_sqlite:apply",
    "capstone.api.import_sqlite:main",
@@ -379,8 +378,6 @@
    "capstone.api.postgres_runs:PostgresSimulatorRuns.investigation_event_path",
    "capstone.api.postgres_runs:PostgresSimulatorRuns.close",
    "capstone.api.readers:signal_samples",
-   "capstone.api.readers:safe_investigations",
-   "capstone.api.readers:safe_investigation_detail",
    "capstone.api.readers:safe_memory_promotions",
    "capstone.api.run_repository:RunRepository.close",
    "capstone.api.run_repository:RunRepository.ready",
@@ -393,7 +390,6 @@
    "capstone.api.run_repository:RunRepository.heartbeat",
    "capstone.api.run_repository:RunRepository.transition",
    "capstone.api.run_repository:RunRepository.recover_expired",
-   "capstone.api.runs:safe_stage",
    "capstone.api.runs:SimulatorRuns._execute",
    "capstone.api.runs:SimulatorRuns._execute.<locals>.watch",
    "capstone.api.runs:SimulatorRuns._execute.<locals>.publish",
@@ -460,7 +456,7 @@
    "capstone.agent.triage_requirements:ReadRequirement.valid_window (5/9)",
    "capstone.agent.triage_trace:TriageTraceEvent.validated_hash (2/3)",
    "capstone.agent.triage_trace:TriageTraceEvent.finite_duration (2/3)",
-   "capstone.api.app:create_app (214/327)",
+   "capstone.api.app:create_app (231/332)",
    "capstone.api.app:create_app.<locals>.ensure_run (4/6)",
    "capstone.api.app:create_app.<locals>.investigations (2/3)",
    "capstone.api.app:create_app.<locals>.evaluation_scorecards (3/4)",
@@ -470,9 +466,11 @@
    "capstone.api.app:create_app.<locals>.pending_simulator_reviews (2/3)",
    "capstone.api.config:UiConfig.__post_init__ (13/18)",
    "capstone.api.import_sqlite:artifacts (19/25)",
-   "capstone.api.readers:recent_lines (11/14)",
    "capstone.api.readers:capture_records (6/8)",
    "capstone.api.readers:iso_age (9/12)",
+   "capstone.api.readers:safe_investigations (15/20)",
+   "capstone.api.readers:safe_investigation_detail (44/59)",
+   "capstone.api.readers:safe_investigation_detail.<locals>.limited_strings (2/3)",
    "capstone.api.readers:safe_evaluations (7/10)",
    "capstone.api.run_repository:RunExecutionConfig.validate_strategy (2/5)",
    "capstone.api.run_repository:RunRepository.__init__ (6/14)",
@@ -522,13 +520,13 @@
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
    "evaluation.evaltools.snap_request:fitted_trace_skips (8/13)",
-   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)"
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2474,
+   "failed": 1,
+   "passed": 2477,
    "skipped": 7
   },
   "tests_with_no_assertion": [
@@ -872,7 +870,7 @@
   },
   "capstone.api.app": {
    "functions": 37,
-   "executed": 20,
+   "executed": 21,
    "direct": 1
   },
   "capstone.api.config": {
@@ -896,8 +894,8 @@
    "direct": 0
   },
   "capstone.api.readers": {
-   "functions": 12,
-   "executed": 8,
+   "functions": 15,
+   "executed": 13,
    "direct": 0
   },
   "capstone.api.run_repository": {
@@ -907,7 +905,7 @@
   },
   "capstone.api.runs": {
    "functions": 23,
-   "executed": 15,
+   "executed": 16,
    "direct": 0
   },
   "capstone.baseline": {
@@ -7709,7 +7707,7 @@
    "indirect": []
   },
   "capstone.api.app:create_app": {
-   "count": 12,
+   "count": 15,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7720,11 +7718,11 @@
     "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
-    "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event"
    ]
   },
   "capstone.api.app:create_app.<locals>.shutdown_runner": {
@@ -7734,7 +7732,7 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.authorize": {
-   "count": 12,
+   "count": 15,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7745,11 +7743,11 @@
     "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
-    "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event"
    ]
   },
   "capstone.api.app:create_app.<locals>.require_role": {
@@ -7767,12 +7765,15 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.ensure_run": {
-   "count": 5,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_run_roles_and_idempotency",
     "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
@@ -7953,20 +7954,24 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.managed_run": {
-   "count": 3,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.app:create_app.<locals>.managed_run_investigation": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit"
+   ]
   },
   "capstone.api.app:create_app.<locals>.managed_run_observability": {
    "count": 1,
@@ -7983,19 +7988,21 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.run_events": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_run_roles_and_idempotency",
     "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
    ]
   },
   "capstone.api.app:create_app.<locals>.run_events.<locals>.stream": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_run_roles_and_idempotency",
     "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
    ]
@@ -8019,7 +8026,7 @@
    ]
   },
   "capstone.api.config:UiConfig.__post_init__": {
-   "count": 17,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8034,7 +8041,7 @@
     "tests/test_web_api.py::test_private_file_requires_strong_token",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
-    "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision"
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
    ]
   },
   "capstone.api.config:UiConfig.from_env": {
@@ -8210,7 +8217,7 @@
    "indirect": []
   },
   "capstone.api.readers:recent_lines": {
-   "count": 11,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8224,7 +8231,8 @@
     "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_api.py::test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement",
-    "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked"
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit"
    ]
   },
   "capstone.api.readers:capture_records": {
@@ -8290,16 +8298,45 @@
    "indirect": []
   },
   "capstone.api.readers:safe_investigations": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
+   ]
   },
   "capstone.api.readers:safe_investigation_detail": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit"
+   ]
+  },
+  "capstone.api.readers:safe_investigation_detail.<locals>.limited_text": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
+   ]
+  },
+  "capstone.api.readers:safe_investigation_detail.<locals>.limited_strings": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
+   ]
+  },
+  "capstone.api.readers:safe_investigation_detail.<locals>.observed_tick": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
+   ]
   },
   "capstone.api.readers:safe_evaluations": {
    "count": 2,
@@ -8423,85 +8460,97 @@
    "indirect": []
   },
   "capstone.api.runs:utc_now": {
-   "count": 10,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.runs:safe_stage": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_web_runs.py::test_typed_stage_projection_excludes_agent_internals"
+   ]
   },
   "capstone.api.runs:SimulatorRuns.__init__": {
-   "count": 10,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.runs:SimulatorRuns._initialize_store": {
-   "count": 10,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.runs:SimulatorRuns._db": {
-   "count": 10,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.runs:SimulatorRuns.investigation_audit_path": {
-   "count": 2,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked"
    ]
   },
@@ -8514,13 +8563,16 @@
    ]
   },
   "capstone.api.runs:SimulatorRuns.get": {
-   "count": 7,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_run_roles_and_idempotency",
@@ -8537,10 +8589,11 @@
    ]
   },
   "capstone.api.runs:SimulatorRuns.events_since": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_run_roles_and_idempotency",
     "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
    ]
@@ -8582,12 +8635,13 @@
    "indirect": []
   },
   "capstone.api.runs:SimulatorRuns._emit": {
-   "count": 6,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
     "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved",
     "tests/test_web_runs.py::test_run_roles_and_idempotency",
@@ -68863,6 +68917,75 @@
     "capstone.api.runs:SimulatorRuns._db",
     "capstone.api.runs:SimulatorRuns._emit",
     "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now"
+   ]
+  },
+  "tests/test_web_runs.py::test_typed_stage_projection_excludes_agent_internals": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.runs:safe_stage"
+   ]
+  },
+  "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.managed_run",
+    "capstone.api.app:create_app.<locals>.run_events",
+    "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.events_since",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:utc_now"
+   ]
+  },
+  "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.managed_run_investigation",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:recent_lines",
+    "capstone.api.readers:safe_investigation_detail",
+    "capstone.api.readers:safe_investigation_detail.<locals>.limited_strings",
+    "capstone.api.readers:safe_investigation_detail.<locals>.limited_text",
+    "capstone.api.readers:safe_investigation_detail.<locals>.observed_tick",
+    "capstone.api.readers:safe_investigations",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:SimulatorRuns.investigation_audit_path",
+    "capstone.api.runs:utc_now"
+   ]
+  },
+  "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.managed_run_investigation",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:recent_lines",
+    "capstone.api.readers:safe_investigation_detail",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:SimulatorRuns.investigation_audit_path",
     "capstone.api.runs:utc_now"
    ]
   },
