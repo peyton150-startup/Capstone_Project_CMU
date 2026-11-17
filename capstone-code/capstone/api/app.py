@@ -101,7 +101,12 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "http://localhost:4173",
         ] + ([cfg.browser_origin] if cfg.browser_origin else []),
         allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "Last-Event-ID"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "Idempotency-Key",
+            "Last-Event-ID",
+        ],
         allow_credentials=False,
     )
 
@@ -430,7 +435,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/settings/effective", dependencies=[Access])
     def settings_effective() -> dict:
-        """A readonly whitelist; no API keys, certificates, filesystem paths or free text."""
+        """A read-only whitelist without keys, certificates, paths or free text."""
         return {
             "editable": False,
             "items": [
@@ -557,7 +562,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "availability": "not_integrated",
             "manuals": [],
             "memories": [],
-            "message": "Existing manual and memory providers have no authorized UI read adapter yet",
+            "message": (
+                "Existing manual and memory providers have no authorized "
+                "UI read adapter yet"
+            ),
         }
 
     @app.get("/api/v1/lab/runs", dependencies=[Access])
@@ -797,10 +805,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 current = await asyncio.to_thread(runner.get, run_id)
                 if (
                     current
-                    and current["state"] in {"completed", "failed", "interrupted", "expired"}
+                    and current["state"] in {
+                        "completed", "failed", "interrupted", "expired",
+                    }
                     and not events
                 ):
-                    yield 'event: stream.closed\ndata: {"reason":"terminal_replay_complete"}\n\n'
+                    yield (
+                        'event: stream.closed\n'
+                        'data: {"reason":"terminal_replay_complete"}\n\n'
+                    )
                     break
                 await asyncio.sleep(1)
 
