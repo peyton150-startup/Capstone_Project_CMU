@@ -100,6 +100,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
     return {
         "investigation_id": str(state.investigation_id),
         "mode": state.mode,
+        "triage_run_mode": state.triage_run_mode if state.mode == "triage" else None,
         "stage": state.stage,
         "iteration_count": state.iteration_count,
         "tool_calls": state.tool_call_count,
