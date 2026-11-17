@@ -73,6 +73,7 @@ from capstone.agent.state import (
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.agent.triage_evidence_validation import EvidenceQualification
+from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import RequirementResult, TriageDecisionRecord
 from capstone.agent.triage_trace import TriageTraceEvent
@@ -309,6 +310,11 @@ class TriageRecord(BaseModel):
     deterministic_stops: int = 0
     deterministic_decide_model_calls: int | None = None
     deterministic_trace: list[TriageDecisionRecord] | None = None
+    # Unscored candidate snapshots and typed Test plan; backward compatible.
+    deterministic_candidates: list[TriageCandidate] | None = None
+    deterministic_test_requirement_ids: tuple[str, ...] | None = None
+    deterministic_hypothesis_trace: list[TriageHypothesisTrace] | None = None
+    deterministic_hypothesis_logging_failures: int = 0
     # Pydantic-validated admission metadata and ordered payload-free diagnostics.
     evidence_qualifications: list[EvidenceQualification] | None = None
     diagnostic_trace: list[TriageTraceEvent] | None = None
@@ -550,6 +556,8 @@ def triage_record(
     #   calls: Every model question of the episode, triage and deep run;
     #     `triage_metrics` keeps the triage's own by their recorded mode.
     #   first.triage_packet: The Observe packet, kept whole for tracing.
+    #   first.triage_hypothesis_trace: Unscored candidate/Test snapshots saved
+    #     beside deterministic read outcomes for offline comparisons.
     #   first.observe_tool_calls_used: Observe's reads kept off research
     #     (TRIAGE_OBSERVE_CALLS=separate); 0 otherwise.
     #   first.compiled_reads_uninterpreted: Compiled reads made back to back
@@ -603,6 +611,12 @@ def triage_record(
             else None
         ),
         deterministic_trace=list(first.triage_decide_trace),
+        deterministic_candidates=list(first.triage_candidates),
+        deterministic_test_requirement_ids=first.triage_test_requirement_ids,
+        deterministic_hypothesis_trace=list(first.triage_hypothesis_trace),
+        deterministic_hypothesis_logging_failures=(
+            first.triage_hypothesis_logging_failures
+        ),
         evidence_qualifications=list(first.triage_evidence_checks),
         diagnostic_trace=list(first.triage_trace_events),
         diagnostic_logging_failures=first.triage_logging_failures,

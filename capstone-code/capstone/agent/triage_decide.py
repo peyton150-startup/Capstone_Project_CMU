@@ -626,6 +626,8 @@ def choose_next_triage_read(
     #   pending: Requirements still missing qualified evidence.
     #   grouped: One request may answer several requirements with one call.
     #   attempts: Count for the exact request at this stable cutoff.
+    #   order: Typed candidate-driven Test priority, rebuilt as observed
+    #     inspections reveal job-path requirements.
     cutoff = state.triage_observation_cutoff_tick
     assert cutoff is not None
     pending = [
@@ -633,6 +635,48 @@ def choose_next_triage_read(
         for r in state.triage_requirements.values()
         if state.triage_requirement_results[r.requirement_id].status != "satisfied"
     ]
+    if deps.triage_hypothesize == "deterministic":
+        if phase == "investigate":
+            # Collect one source for the event before compiling possibilities.
+            # Keep other sources for actual hypothesis-driven Test.
+            anchors = [
+                r
+                for r in pending
+                if r.question_id == "Q1" and r.qualification != "job_path"
+            ]
+            if not anchors:
+                anchors = [r for r in pending if r.requirement_id == "Q2:events"]
+            pending = anchors
+        elif phase == "test":
+            # New failed jobs can be discovered during Test, after Hypothesize
+            # compiled its initial packet. Refresh from typed requirements,
+            # but do not add another stage-level trace for each read.
+            from capstone.agent.triage_hypothesize import update_candidate_packet
+
+            update_candidate_packet(state, stage="test", deps=deps, record_trace=False)
+            order = {
+                rid: position
+                for position, rid in enumerate(state.triage_test_requirement_ids)
+            }
+            pending = [r for r in pending if r.requirement_id in order]
+            # Preserve stable candidate priority, not arbitrary lexicographic
+            # requirement IDs or an LLM-supplied test order.
+            pending.sort(key=lambda r: (order[r.requirement_id], r.requirement_id))
+            if not pending:
+                unsupported = tuple(
+                    sorted(
+                        {
+                            rid
+                            for candidate in state.triage_candidates
+                            for rid in candidate.unavailable_requirement_ids
+                        }
+                    )
+                )
+                if unsupported:
+                    return TriageStopDecision(
+                        reason="capability_unavailable",
+                        unresolved_requirement_ids=unsupported,
+                    )
     if not pending and not state.unanswered_questions:
         return TriageStopDecision(reason="requirements_complete")
     grouped: dict[str, tuple[ToolRequest, list[str]]] = {}
@@ -888,7 +932,10 @@ def run_deterministic_triage_loop(
             return finish(TriageStopDecision(reason="timeout"))
         reconcile()
         if phase == "test":
-            add_test_requirements(state)
+            # Typed candidate requirements only: never compile model-written
+            # test questions in the deterministic hypothesis arm.
+            if deps.triage_hypothesize != "deterministic":
+                add_test_requirements(state)
             reconcile()
         if not state.unanswered_questions:
             return finish(TriageStopDecision(reason="requirements_complete"))
@@ -899,6 +946,19 @@ def run_deterministic_triage_loop(
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
             return finish(decision)
+        if deps.triage_hypothesize == "deterministic":
+            from capstone.agent.triage_hypothesize import log_hypothesis_event
+
+            log_hypothesis_event(
+                state,
+                deps,
+                "triage.read.selected",
+                tool=decision.step.request.name,
+                counts={
+                    "requirements": len(decision.requirement_ids),
+                    "remaining_calls": state.remaining_tool_calls,
+                },
+            )
         state.iteration_count += 1
         cutoff = state.triage_observation_cutoff_tick
         assert cutoff is not None
@@ -1099,3 +1159,20 @@ def run_deterministic_triage_loop(
                 outcome=outcome,
             )
         )
+        if deps.triage_hypothesize == "deterministic":
+            # No raw result, provider exception, or free-text reason leaves
+            # the typed state through the operational logging channel.
+            from capstone.agent.triage_hypothesize import log_hypothesis_event
+
+            log_hypothesis_event(
+                state,
+                deps,
+                "triage.read.result",
+                tool=decision.step.request.name,
+                success=evidence is not None,
+                counts={
+                    "attempt": attempts + 1,
+                    "qualified_response": int(evidence is not None),
+                    "failed_response": int(evidence is None),
+                },
+            )
