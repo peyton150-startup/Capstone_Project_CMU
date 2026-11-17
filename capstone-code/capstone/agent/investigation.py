@@ -416,6 +416,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
         # Never silently ask a model if deterministic preconditions are absent.
         if (
             not state.fixed_plan_used
+            or state.triage_clock_verified is not True
             or deps.triage_investigate != "deterministic"
             or not deps.triage_evidence_tests
         ):
@@ -597,6 +598,7 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
         and deps.triage_hypothesize == "deterministic"
         and (
             not state.fixed_plan_used
+            or state.triage_clock_verified is not True
             or deps.triage_investigate != "deterministic"
             or not deps.triage_evidence_tests
         )
