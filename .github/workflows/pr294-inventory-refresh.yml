@@ -92,10 +92,11 @@ jobs:
           fi
           unresolved=$(git diff --name-only --diff-filter=U)
           test -z "$unresolved" || { echo "Unresolved paths: $unresolved"; exit 1; }
-          git diff --cached --check
+          # Check source conflicts only: merged main includes intentionally formatted Markdown hard breaks.
+          git diff --cached --check -- capstone-code/capstone/api/runs.py frontend/src/pages/managed.tsx frontend/src/types.ts tests/test_web_runs.py
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
             commit -m 'merge(main): preserve PR293 durable journal and PR294 typed progress contracts'
-          git diff --check HEAD^1..HEAD
+          git diff --check HEAD^1..HEAD -- capstone-code/capstone/api/runs.py frontend/src/pages/managed.tsx frontend/src/types.ts tests/test_web_runs.py
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: '0.13.0'
