@@ -172,7 +172,21 @@ def test_observability_logs_safe_metadata_and_persists_reason_trace():
         "triage.test.completed",
     } <= names
     assert all(row["run_id"] == str(state.run_id) for row in rows)
-    assert all("counts" in row for row in rows)
+    # PR #284 also emits lower-level evidence admission/decision events,
+    # whose schema intentionally has no legacy aggregate counts.
+    hypothesis_events = [
+        row
+        for row in rows
+        if row["event"]
+        in {
+            "triage.hypothesize.compiled",
+            "triage.read.selected",
+            "triage.read.result",
+            "triage.test.completed",
+        }
+    ]
+    assert all("counts" in row for row in hypothesis_events)
+    assert any("sequence" in row for row in rows)
     assert (
         next(row for row in rows if row["event"] == "triage.test.completed")["success"]
         is False
