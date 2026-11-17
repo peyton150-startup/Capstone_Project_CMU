@@ -169,7 +169,9 @@ export function ManagedRunList() {
         <div className="incident-body"><strong>{run.run_id.slice(0, 13)}</strong>
           <p>Seed {run.requested.seed} · {run.requested.kind} · {run.requested.mode === 'triage' ?
             'Triage (deep if needed)' : 'Deep only'}</p>
-          <small>{formatStamp(run.updated_at)}</small></div>
+          <small>{formatStamp(run.updated_at)}
+            {run.requested.effective_configuration?.fingerprint ?
+              ' · config ' + run.requested.effective_configuration.fingerprint : ''}</small></div>
         <Pill text={run.state} tone={toneFor(run.state)}/>
       </Link>)}</div> : <Unavailable item="Managed run history"
       detail="No managed simulator runs have been submitted on this local installation."/>}
@@ -263,6 +265,8 @@ export function RunDetailPage() {
   const [section, setSection] = useState<'evidence'|'hypotheses'|'trace'>('evidence');
   const detail = audit.data?.detail;
   const run = resource.data;
+  const configuration = run?.requested.effective_configuration ||
+    run?.snapshot?.effective_configuration;
   const lastTriage = [...journal.events].reverse().find(event =>
     event.event === 'stage.updated' && event.data.mode === 'triage' &&
     event.data.hypothesis_progress != null
@@ -287,6 +291,37 @@ export function RunDetailPage() {
         detail="Open the Review & verification page with a reviewer token. Approval alone never executes an action."
         action={<Link className="text-link" to="/investigations/review">Review pending proposal</Link>}/>}
       {run?.snapshot?.error_class && <DataRow label="Failure classification" value={run.snapshot.error_class}/>}
+    </Panel>
+    <Panel title="Effective configuration for this run"
+      subtitle="Immutable at submission; compare with requested stage settings">
+      <DataRow label="Configuration fingerprint"
+        value={configuration?.fingerprint || 'Not recorded (older run)'}/>
+      <DataRow label="Triage applied"
+        value={configuration ? configuration.applied ? 'Yes' : 'No, deep-only' : 'Not recorded'}/>
+      <DataRow label="Conclude configured primary"
+        value={configuration?.configured_conclude_primary || 'Not recorded'}/>
+      <DataRow label="Model provider status"
+        value={configuration?.model_attempts || 'Check run model-call observability'}/>
+      {configuration?.effective_triage && ([
+        ['run_mode','Deterministic override'],
+        ['plan','Plan'],['investigate','Investigate / Decide / Interpret / Test'],
+        ['hypothesize','Hypothesize'],['evidence_tests','Evidence tests'],
+        ['packet','Observe packet'],['packet_prompt','Packet in model context'],
+        ['observe_calls','Observe calls'],['then_deep','Deep escalation'],
+        ['conclude_brief','Conclude evidence brief'],['conclude_cap','Conclude cap'],
+        ['seconds','Triage seconds'],['tool_calls','Research tool calls'],
+        ['hypothesis_seconds','Hypothesis reserve seconds'],
+      ] as const).map(([key,label])=>
+        <DataRow key={key} label={label}
+          value={String(configuration.effective_triage?.[key] ?? 'Unknown')}/>)}
+      {configuration?.overridden?.length ? <p className="body-copy">
+        Requested values overridden by deterministic profile: {configuration.overridden.join(', ')}
+      </p> : null}
+      {configuration && <DataRow label="Graph routing"
+        value={Object.entries(configuration.stages).map(([stage,method])=>
+          stage + ': ' + method).join(' · ')}/>}
+      <p className="body-copy">Settings are saved with the submission and cannot
+        retroactively change a run. Actual model attempts require the separate audit.</p>
     </Panel>
     <Panel title="Conclusion and validation" subtitle="Only values persisted by the existing investigator">
       <DataRow label="Diagnosis" value={run?.snapshot?.diagnosis || 'Not recorded'}/>
