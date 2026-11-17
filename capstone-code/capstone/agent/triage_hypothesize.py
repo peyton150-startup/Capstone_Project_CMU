@@ -172,8 +172,7 @@ def compile_candidates(
     observed = {
         provenance.evidence_id
         for provenance in state.provenance
-        if provenance.origin == "observable"
-        and provenance.evidence_id in evidence_ids
+        if provenance.origin == "observable" and provenance.evidence_id in evidence_ids
     }
     open_questions = {q.id for q in state.unanswered_questions}
     open_questions.update(state.triage_question_gaps)
@@ -206,8 +205,7 @@ def compile_candidates(
             if (
                 available[rid].qualification != "setting_change"
                 and (
-                    eligible_requirement_ids is None
-                    or rid in eligible_requirement_ids
+                    eligible_requirement_ids is None or rid in eligible_requirement_ids
                 )
                 and rid not in tests
             ):
@@ -257,9 +255,7 @@ def update_candidate_packet(
             for rid, requirement in state.triage_requirements.items()
             if permitted_triage_read(requirement, deps, state)
         )
-    candidates, test_ids = compile_candidates(
-        state, eligible_requirement_ids=eligible
-    )
+    candidates, test_ids = compile_candidates(state, eligible_requirement_ids=eligible)
     state.triage_candidates = list(candidates)
     state.triage_test_requirement_ids = test_ids
     if not record_trace:
@@ -293,11 +289,7 @@ def update_candidate_packet(
             }
         ),
         unresolved_questions=len(
-            {
-                qid
-                for candidate in candidates
-                for qid in candidate.open_question_ids
-            }
+            {qid for candidate in candidates for qid in candidate.open_question_ids}
         ),
     )
     state.triage_hypothesis_trace.append(trace)
