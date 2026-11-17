@@ -169,6 +169,14 @@ def test_real_graph_episode_uses_only_submitted_triage_settings(monkeypatch):
     assert first.budgets.max_tool_calls == 3
     assert first.triage_conclude_brief is False
     assert first.triage_conclude_cap is False
+    from capstone.api.runs import safe_executed_triage
+    actual = safe_executed_triage(first)
+    assert actual["run_mode"] == "deterministic"
+    assert actual["fixed_plan_executed"]
+    assert actual["deadline_seconds"] == 70
+    assert actual["research_tool_call_budget"] == 3
+    assert actual["conclude_brief_enabled"] is False
+    assert "diagnosis" not in actual and "api_key" not in actual
     assert policy.asked == ["conclude"]
     assert cfg.triage_seconds == 90 and cfg.triage_tool_calls == 6
 
