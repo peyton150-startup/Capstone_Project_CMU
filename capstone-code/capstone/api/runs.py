@@ -49,10 +49,10 @@ class ReviewDecision(BaseModel):
 
 # An LLM may suggest question IDs; reject free text, paths, tokens and prompts.
 # Only short generated question identifiers can appear in live progress.
-_SAFE_QUESTION_ID = re.compile(r"(?:[QqRrTt][0-9]{1,3})\\Z")
+_SAFE_QUESTION_ID = re.compile(r"(?:[QqRrTt][0-9]{1,3})\Z")
 
 
-_SAFE_REQUIREMENT_ID = re.compile(r"Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})\\Z")
+_SAFE_REQUIREMENT_ID = re.compile(r"Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})\Z")
 
 
 class SafeRequirementProgress(BaseModel):
