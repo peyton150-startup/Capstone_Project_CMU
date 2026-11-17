@@ -171,3 +171,45 @@ def test_real_graph_episode_uses_only_submitted_triage_settings(monkeypatch):
     assert first.triage_conclude_cap is False
     assert policy.asked == ["conclude"]
     assert cfg.triage_seconds == 90 and cfg.triage_tool_calls == 6
+
+
+def test_custom_profile_can_override_server_deterministic_default(monkeypatch):
+    """Turning the frontend switch OFF must actually restore model stages."""
+    from capstone import episode
+    from tests.test_episode import SEED, wear_policy
+    from tests.test_triage import ByMode
+
+    cfg = Settings(
+        _env_file=None,
+        triage_run_mode="deterministic",
+        triage_plan="fixed",
+        triage_investigate="deterministic",
+        triage_hypothesize="deterministic",
+        triage_evidence_tests=True,
+        critic=False,
+    )
+    monkeypatch.setattr(episode, "get_settings", lambda: cfg)
+    override = resolve_triage_run(
+        cfg, TriageRunOptions(
+            run_mode="custom",
+            plan="model", investigate="off",
+            hypothesize="model", evidence_tests=False,
+            then_deep=False, seconds=60, tool_calls=4,
+        )
+    )
+    policy = ByMode(wear_policy("escalate"), wear_policy())
+    result = episode.run_episode(
+        SEED, policy, triage=True, triage_configuration=override,
+        clock=lambda: 0.0,
+    )
+    first = result.triage
+    assert first is not None and result.state is first
+    assert first.triage_run_mode == "custom"
+    assert first.fixed_plan_used is False
+    assert first.budgets.timeout_seconds == 60
+    assert first.budgets.max_tool_calls == 4
+    assert "plan" in policy.triage.asked
+    assert "hypothesize" in policy.triage.asked
+    assert "conclude" in policy.triage.asked
+    # The source of defaults was never modified.
+    assert cfg.triage_run_mode == "deterministic"
