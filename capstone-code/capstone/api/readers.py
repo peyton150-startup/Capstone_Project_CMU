@@ -427,8 +427,67 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
                 )
         proposal = completed.get("proposed_action")
         verification = completed.get("verification")
+        runtime_conclusion = raw.get("conclusion") or {}
+        if not isinstance(runtime_conclusion, dict):
+            runtime_conclusion = {}
+        completed_conclusion = completed.get("conclusion") or {}
+        if not isinstance(completed_conclusion, dict):
+            completed_conclusion = {}
+        proposal_record = raw.get("proposal") or {}
+        if not isinstance(proposal_record, dict):
+            proposal_record = {}
+
+        def limited_text(value: Any, limit: int = 500) -> str | None:
+            return value[:limit] if isinstance(value, str) else None
+
+        def limited_strings(
+            values: Any, *, count: int = 40, length: int = 160
+        ) -> list[str]:
+            if not isinstance(values, (list, tuple)):
+                return []
+            return [
+                value[:length]
+                for value in values[:count]
+                if isinstance(value, str)
+            ]
+
+        def observed_tick(value: Any) -> int | None:
+            return value if type(value) is int and value >= 0 else None
+
+        status = proposal_record.get("status")
+        if status not in ("pending", "approved", "rejected", "not_submitted"):
+            status = None
+        proposal_id = proposal_record.get("proposal_id")
         return {
             **summary,
+            "conclusion_detail": {
+                "assessment": runtime_conclusion.get("assessment")
+                if runtime_conclusion.get("assessment") in ("supported", "unresolved")
+                else None,
+                "hypothesis_id": limited_text(
+                    runtime_conclusion.get("hypothesis_id"), 80
+                ),
+                "evidence_ids": limited_strings(
+                    completed_conclusion.get("evidence_ids"), length=80
+                ),
+                "unresolved_questions": limited_strings(
+                    runtime_conclusion.get("unresolved_questions"),
+                    count=20,
+                    length=250,
+                ),
+                "next_check": limited_text(runtime_conclusion.get("next_check")),
+                "action_rationale": limited_text(
+                    runtime_conclusion.get("action_rationale")
+                ),
+            },
+            "proposal_status": status,
+            "proposal_id": (
+                proposal_id
+                if type(proposal_id) is int and proposal_id > 0
+                else None
+            ),
+            "action_started_tick": observed_tick(raw.get("action_started_tick")),
+            "action_finish_tick": observed_tick(raw.get("action_finish_tick")),
             "evidence": evidence,
             "hypotheses": hypotheses,
             "decision_trace": decisions,
