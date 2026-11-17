@@ -103,12 +103,29 @@ def test_sqlite_model_journal_preserves_snapshot_across_restart(tmp_path):
     original = runner.get(run_id)["snapshot"]
     assert runner.model_calls(run_id)["availability"] == "not_recorded"
     runner._append_model_event(run_id, "model.monitor", {"schema_version": 1})
+    runner._append_model_event(
+        run_id, "model.config",
+        {"schema_version": 1, "outcome": "configured"},
+    )
     for index, call in enumerate(example_calls(), 1):
         runner.record_model_call(run_id, call, index)
+    runner._append_model_event(
+        run_id, "model.monitor.finished",
+        {
+            "schema_version": 1,
+            "questions_seen": 2,
+            "questions_persisted": 2,
+            "write_failures": 0,
+            "complete": True,
+        },
+    )
 
     assert runner.get(run_id)["snapshot"] == original
     calls = runner.model_calls(run_id)
     assert calls["availability"] == "available"
+    assert calls["configuration"] == "configured"
+    assert calls["summary"]["complete"] is True
+    assert calls["summary"]["questions_persisted"] == 2
     assert [x["question_index"] for x in calls["items"]] == [1, 2]
     assert calls["items"][0]["mode"] == "triage"
     assert calls["items"][1]["mode"] == "deep"
@@ -139,7 +156,21 @@ def test_model_call_http_endpoint_enforces_auth_and_pilot_isolation(tmp_path):
     runner = SimulatorRuns(root)
     run_id = seed_run(runner)
     runner._append_model_event(run_id, "model.monitor", {"schema_version": 1})
+    runner._append_model_event(
+        run_id, "model.config",
+        {"schema_version": 1, "outcome": "missing_credentials"},
+    )
     runner.record_model_call(run_id, example_calls()[0], 1)
+    runner._append_model_event(
+        run_id, "model.monitor.finished",
+        {
+            "schema_version": 1,
+            "questions_seen": 2,
+            "questions_persisted": 1,
+            "write_failures": 1,
+            "complete": False,
+        },
+    )
 
     token = "viewer-abcdefghijklmnopqrstuvwxyz"
     cfg = UiConfig(
@@ -158,5 +189,7 @@ def test_model_call_http_endpoint_enforces_auth_and_pilot_isolation(tmp_path):
     )
     assert response.status_code == 200
     assert response.json()["availability"] == "available"
+    assert response.json()["configuration"] == "missing_credentials"
+    assert response.json()["summary"]["complete"] is False
     assert response.json()["items"][0]["attempts"][0]["outcome"] == "unauthorized"
     assert "HTTP 401" not in response.text
