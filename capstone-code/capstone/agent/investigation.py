@@ -2157,7 +2157,10 @@ def run_investigation(
     state: InvestigationState, deps: InvestigationDeps
 ) -> InvestigationState:
     """Run one typed Graph; normalize the triage profile before any stage."""
-    if state.mode == "triage" and deps.triage_run_mode == "deterministic":
+    if state.mode == "triage" and (
+        deps.triage_run_mode == "deterministic"
+        or state.triage_run_mode == "deterministic"
+    ):
         # Second line of defense for direct/replay invocations. Only execution
         # knobs change: provider catalogs, clock, evidence and Conclude policy
         # are never fabricated or replaced.
