@@ -332,3 +332,35 @@ def test_worker_logs_only_allowlisted_failure_codes_and_build_sha(caplog, monkey
     assert "SECRET" not in caplog.records[-1].message
     with pytest.raises(ValueError):
         record("failed", failure_code="private provider exception")
+
+
+def test_worker_resolves_pr301_profile_without_reimplementing_it(monkeypatch):
+    """Two Render services must persist the true effective Graph control plane."""
+    import capstone.settings as settings
+
+    # Deliberately contradictory raw knobs: PR #301's profile wins.
+    original = SimpleNamespace(
+        triage_plan="model", triage_investigate="off",
+        triage_hypothesize="model", triage_evidence_tests=False,
+        effective_triage=SimpleNamespace(
+            run_mode="deterministic", plan="fixed",
+            investigate="deterministic", hypothesize="deterministic",
+            evidence_tests=True, packet=True, packet_prompt=True,
+            observe_calls="separate", hypothesis_seconds=0.0,
+            critic=False, critic_followup=False, critic_reinstate=False,
+        ),
+    )
+    monkeypatch.setattr(settings, "get_settings", lambda: original)
+    monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
+    monkeypatch.delenv("CAPSTONE_SOURCE_REVISION", raising=False)
+    effective = RunExecutionConfig.current()
+    assert effective.triage_run_mode == "deterministic"
+    assert effective.triage_plan == "fixed"
+    assert effective.triage_investigate == "deterministic"
+    assert effective.triage_hypothesize == "deterministic"
+    assert effective.triage_evidence_tests
+    assert effective.triage_packet
+    assert effective.triage_observe_calls == "separate"
+    assert effective.triage_hypothesis_seconds == 0.0
+    assert not effective.triage_critic
+    assert effective != RunExecutionConfig()

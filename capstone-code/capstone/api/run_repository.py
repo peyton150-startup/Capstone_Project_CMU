@@ -116,6 +116,18 @@ class RunExecutionConfig(BaseModel):
     triage_investigate: Literal["off", "advisory", "on", "deterministic"] = "advisory"
     triage_hypothesize: Literal["model", "deterministic"] = "model"
     triage_evidence_tests: bool = True
+    # #301 owns the one-switch control plane. Record its *resolved* values
+    # when available, never duplicate its Graph routing or raw setting logic.
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
+    triage_packet: bool | None = None
+    triage_packet_prompt: bool | None = None
+    triage_observe_calls: Literal["shared", "separate"] | None = None
+    triage_hypothesis_seconds: float | None = Field(
+        default=None, ge=0, allow_inf_nan=False
+    )
+    triage_critic: bool | None = None
+    triage_critic_followup: bool | None = None
+    triage_critic_reinstate: bool | None = None
     source_revision: str | None = Field(default=None, pattern=r"^[a-f0-9]{7,40}$")
 
     @classmethod
@@ -124,7 +136,28 @@ class RunExecutionConfig(BaseModel):
         from capstone.settings import get_settings
 
         settings = get_settings()
-        revision = os.getenv("CAPSTONE_SOURCE_REVISION") or os.getenv("RENDER_GIT_COMMIT") or None
+        revision = (
+            os.getenv("CAPSTONE_SOURCE_REVISION")
+            or os.getenv("RENDER_GIT_COMMIT")
+            or None
+        )
+        effective = getattr(settings, "effective_triage", None)
+        if effective is not None:
+            return cls(
+                triage_run_mode=effective.run_mode,
+                triage_plan=effective.plan,
+                triage_investigate=effective.investigate,
+                triage_hypothesize=effective.hypothesize,
+                triage_evidence_tests=effective.evidence_tests,
+                triage_packet=effective.packet,
+                triage_packet_prompt=effective.packet_prompt,
+                triage_observe_calls=effective.observe_calls,
+                triage_hypothesis_seconds=effective.hypothesis_seconds,
+                triage_critic=effective.critic,
+                triage_critic_followup=effective.critic_followup,
+                triage_critic_reinstate=effective.critic_reinstate,
+                source_revision=revision,
+            )
         return cls(
             triage_plan=settings.triage_plan,
             triage_investigate=settings.triage_investigate,
