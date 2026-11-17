@@ -3796,7 +3796,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 219,
+   "exercise_count": 220,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -17368,10 +17368,11 @@
     "capstone.evaluation.labels:LabelBook.__init__",
     "capstone.evaluation.labels:LabelBook.read",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.evaluation.auto_label",
     "capstone.evaluation.labels",
@@ -20302,10 +20303,11 @@
     "capstone.providers.chat:_capped",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
     "capstone.benchmark",
     "capstone.providers.chat",
@@ -20379,7 +20381,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20481,7 +20483,7 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20590,7 +20592,7 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20654,10 +20656,11 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.benchmark",
     "capstone.providers.chat",
@@ -20701,9 +20704,10 @@
     "capstone.providers.chat:_capped",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.benchmark",
     "capstone.providers.chat",
@@ -20776,7 +20780,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -23095,9 +23099,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23144,9 +23149,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23187,9 +23193,10 @@
     "capstone.providers.chat:_capped",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 5,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23228,9 +23235,10 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23262,9 +23270,10 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23339,10 +23348,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23389,10 +23399,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23437,10 +23448,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -23478,9 +23490,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -23518,9 +23531,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -24244,10 +24258,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24291,10 +24306,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24335,9 +24351,10 @@
     "capstone.providers.chat:_capped",
     "capstone.providers.chat:client_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 5,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24387,9 +24404,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24443,11 +24461,12 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 19,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24493,9 +24512,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24542,9 +24562,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24701,10 +24722,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -24952,9 +24974,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -25120,9 +25143,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -25168,9 +25192,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -25217,9 +25242,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -25264,9 +25290,10 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -25309,10 +25336,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:critic_client",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -25344,10 +25372,11 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.chat:critic_client",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models"
    ],
-   "exercise_count": 5,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -28027,10 +28056,11 @@
     "capstone.experiment:add_manual_options",
     "capstone.experiment:main",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.console",
     "capstone.experiment",
@@ -28296,10 +28326,11 @@
     "capstone.experiment:seeds_from",
     "capstone.experiment:stage_context_mismatches",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.console",
@@ -34195,10 +34226,11 @@
    "exercises": [
     "capstone.database.connection:check_database_connection",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.database.connection",
     "capstone.settings"
@@ -34235,10 +34267,11 @@
    "exercises": [
     "capstone.database.connection:check_database_connection",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.database.connection",
     "capstone.settings"
@@ -34825,9 +34858,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -35453,10 +35487,11 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 16,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -35502,10 +35537,11 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 16,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -35552,10 +35588,11 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 17,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -35600,10 +35637,11 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 16,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -35830,7 +35868,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -35928,7 +35966,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 176,
+   "exercise_count": 177,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36062,7 +36100,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 200,
+   "exercise_count": 201,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigate_compiler",
@@ -36163,7 +36201,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 173,
+   "exercise_count": 174,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36266,7 +36304,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 168,
+   "exercise_count": 169,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36364,7 +36402,7 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop"
    ],
-   "exercise_count": 202,
+   "exercise_count": 203,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36465,7 +36503,7 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop"
    ],
-   "exercise_count": 200,
+   "exercise_count": 201,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36605,7 +36643,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36704,7 +36742,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38077,9 +38115,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -38112,9 +38151,10 @@
     "capstone.providers.embeddings:NvidiaEmbedder.__init__",
     "capstone.providers.embeddings:embedders_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.providers.embeddings",
     "capstone.settings"
@@ -38147,9 +38187,10 @@
    "exercises": [
     "capstone.providers.embeddings:embedders_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.providers.embeddings",
     "capstone.settings"
@@ -38181,9 +38222,10 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.embeddings:embedders_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.providers.embeddings",
@@ -38282,9 +38324,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -38357,7 +38400,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38455,7 +38498,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 217,
+   "exercise_count": 218,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38553,7 +38596,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 217,
+   "exercise_count": 218,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38651,7 +38694,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38747,7 +38790,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38843,7 +38886,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38946,7 +38989,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -39054,7 +39097,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -39244,7 +39287,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -39536,7 +39579,7 @@
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 178,
+   "exercise_count": 179,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -39639,7 +39682,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -39704,11 +39747,12 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.chat:critic_client",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.episode",
     "capstone.providers.chat",
@@ -39788,7 +39832,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -39891,7 +39935,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -39994,7 +40038,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40097,7 +40141,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40201,7 +40245,7 @@
     "capstone.agent.investigation:investigate",
     "capstone.agent.investigation:manual_query"
    ],
-   "exercise_count": 242,
+   "exercise_count": 243,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40312,7 +40356,7 @@
     "capstone.agent.investigation:execute",
     "capstone.agent.investigation:factory_changed"
    ],
-   "exercise_count": 236,
+   "exercise_count": 237,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40377,9 +40421,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -40428,6 +40473,7 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings",
     "capstone.simulator.clock:SimulationClock.__init__",
@@ -40453,10 +40499,9 @@
     "capstone.simulator.scenarios:BearingDegradation.apply",
     "capstone.simulator.scenarios:LoadingDoor.__init__",
     "capstone.simulator.scenarios:LoadingDoor.apply",
-    "capstone.simulator.scenarios:ProductionLine.__init__",
-    "capstone.simulator.scenarios:ProductionLine._cut_from_batch"
+    "capstone.simulator.scenarios:ProductionLine.__init__"
    ],
-   "exercise_count": 99,
+   "exercise_count": 100,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.model_policy",
@@ -40554,7 +40599,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40721,7 +40766,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40856,7 +40901,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 195,
+   "exercise_count": 196,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40958,7 +41003,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 197,
+   "exercise_count": 198,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41059,7 +41104,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 187,
+   "exercise_count": 188,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41158,7 +41203,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 196,
+   "exercise_count": 197,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41261,7 +41306,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -41493,7 +41538,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 195,
+   "exercise_count": 196,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41729,7 +41774,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 193,
+   "exercise_count": 194,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41832,7 +41877,7 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop"
    ],
-   "exercise_count": 196,
+   "exercise_count": 197,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -42169,7 +42214,7 @@
     "capstone.agent.loop:gather.<locals>.audit_observe",
     "capstone.agent.loop:held_for_hypotheses"
    ],
-   "exercise_count": 198,
+   "exercise_count": 199,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -42279,7 +42324,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 192,
+   "exercise_count": 193,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -45618,7 +45663,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -45720,7 +45765,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -48813,7 +48858,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 193,
+   "exercise_count": 194,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -48908,10 +48953,11 @@
     "capstone.progress:print_progress",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -48983,10 +49029,11 @@
     "capstone.manual.sections:load_manual",
     "capstone.manual.sections:parse_manual",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -49065,7 +49112,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -49163,10 +49210,11 @@
     "capstone.progress:print_progress",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -49434,7 +49482,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 181,
+   "exercise_count": 182,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -49799,7 +49847,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 262,
+   "exercise_count": 263,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -49951,7 +49999,7 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop"
    ],
-   "exercise_count": 279,
+   "exercise_count": 280,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50244,7 +50292,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 248,
+   "exercise_count": 249,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -50410,7 +50458,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 273,
+   "exercise_count": 274,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -50575,7 +50623,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50687,7 +50735,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50798,7 +50846,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50941,7 +50989,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -51054,7 +51102,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 285,
+   "exercise_count": 286,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -51282,10 +51330,11 @@
     "capstone.progress:print_progress",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -51538,10 +51587,11 @@
     "capstone.progress:print_progress",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -51622,7 +51672,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -51842,7 +51892,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -51941,7 +51991,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -52047,7 +52097,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 218,
+   "exercise_count": 219,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -52181,10 +52231,11 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.experiment",
@@ -52258,10 +52309,11 @@
     "capstone.progress:print_progress",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -52337,10 +52389,11 @@
     "capstone.progress:print_progress",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -52384,9 +52437,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -52464,7 +52518,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 218,
+   "exercise_count": 219,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -52568,7 +52622,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -52676,7 +52730,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 221,
+   "exercise_count": 222,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -52972,7 +53026,7 @@
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather"
    ],
-   "exercise_count": 187,
+   "exercise_count": 188,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.incident_context",
@@ -53131,10 +53185,11 @@
     "capstone.manual.sections:load_manual",
     "capstone.manual.sections:parse_manual",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
@@ -53217,7 +53272,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 181,
+   "exercise_count": 182,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -53417,7 +53472,7 @@
     "capstone.agent.loop:gather.<locals>.audit_observe",
     "capstone.agent.loop:held_for_hypotheses"
    ],
-   "exercise_count": 217,
+   "exercise_count": 218,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -53480,9 +53535,10 @@
    "exercises": [
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.progress",
     "capstone.settings"
@@ -60846,7 +60902,7 @@
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 182,
+   "exercise_count": 183,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -60946,7 +61002,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -61563,7 +61619,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -63751,7 +63807,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -63887,7 +63943,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -63992,7 +64048,7 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify"
    ],
-   "exercise_count": 182,
+   "exercise_count": 183,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -64054,9 +64110,10 @@
    "exercises": [
     "capstone.providers.chat:late_clients",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64126,10 +64183,11 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:late_thinking_fields",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64170,10 +64228,11 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:late_thinking_fields",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64204,9 +64263,10 @@
    "exercises": [
     "capstone.providers.chat:late_clients",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64246,10 +64306,11 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:late_thinking_fields",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64716,9 +64777,10 @@
     "capstone.progress:late_thinking_words",
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.progress",
     "capstone.settings"
@@ -64759,10 +64821,11 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:late_thinking_fields",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64795,9 +64858,10 @@
    "exercises": [
     "capstone.providers.chat:late_thinking_fields",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64875,10 +64939,11 @@
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -64916,10 +64981,11 @@
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:clients_for_jobs",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -70787,7 +70853,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 220,
+   "exercise_count": 221,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -71131,10 +71197,11 @@
     "capstone.manual.sections:load_manual",
     "capstone.manual.sections:parse_manual",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
     "capstone.experiment",
     "capstone.manual.index",
@@ -72390,7 +72457,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72502,7 +72569,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72612,7 +72679,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72724,7 +72791,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 253,
+   "exercise_count": 254,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72836,7 +72903,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72945,7 +73012,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73056,7 +73123,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73168,7 +73235,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 266,
+   "exercise_count": 267,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73282,7 +73349,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 270,
+   "exercise_count": 271,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73430,7 +73497,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 260,
+   "exercise_count": 261,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73542,7 +73609,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 263,
+   "exercise_count": 264,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73654,7 +73721,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 268,
+   "exercise_count": 269,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73767,7 +73834,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73876,7 +73943,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73986,7 +74053,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -77712,9 +77779,10 @@
     "capstone.memory.recall:build_memory_recall",
     "capstone.memory.repository:SQLMemoryRepository.__init__",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 5,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.memory.recall",
     "capstone.memory.repository",
@@ -77767,9 +77835,10 @@
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.embeddings:embedders_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.memory.policy",
     "capstone.memory.recall",
@@ -78010,9 +78079,10 @@
     "capstone.memory.service:MemoryService.search",
     "capstone.memory.service:build_memory_service",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.memory.contracts",
     "capstone.memory.policy",
@@ -78325,9 +78395,10 @@
     "capstone.providers.embeddings:NvidiaEmbedder.__init__",
     "capstone.providers.embeddings:embedders_for",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 17,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.memory.policy",
     "capstone.memory.recall",
@@ -78438,9 +78509,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -78479,9 +78551,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -78520,9 +78593,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -78561,9 +78635,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -78601,9 +78676,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -78642,9 +78718,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -80431,7 +80508,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 242,
+   "exercise_count": 243,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80544,7 +80621,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80651,7 +80728,7 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls"
    ],
-   "exercise_count": 170,
+   "exercise_count": 171,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80752,7 +80829,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 242,
+   "exercise_count": 243,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80852,7 +80929,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80952,7 +81029,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 217,
+   "exercise_count": 218,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81052,7 +81129,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81152,7 +81229,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 217,
+   "exercise_count": 218,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81251,7 +81328,7 @@
     "capstone.agent.loop:notify",
     "capstone.agent.loop:question_held_open"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -82053,7 +82130,7 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls"
    ],
-   "exercise_count": 174,
+   "exercise_count": 175,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -82913,7 +82990,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88379,7 +88456,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88475,7 +88552,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88574,7 +88651,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88672,7 +88749,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88769,7 +88846,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 221,
+   "exercise_count": 222,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88866,7 +88943,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88964,7 +89041,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 225,
+   "exercise_count": 226,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89063,7 +89140,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89224,7 +89301,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89321,7 +89398,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89418,7 +89495,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89515,7 +89592,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89612,7 +89689,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -90318,7 +90395,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -93887,7 +93964,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 117,
+   "exercise_count": 118,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -100001,9 +100078,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100079,9 +100157,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100155,9 +100234,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100195,9 +100275,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100236,9 +100317,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100275,9 +100357,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100315,9 +100398,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100355,9 +100439,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100394,10 +100479,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100467,9 +100553,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100506,9 +100593,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100547,9 +100635,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100587,10 +100676,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100628,10 +100718,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100668,10 +100759,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100708,10 +100800,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:critic_models"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -100748,9 +100841,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -109398,7 +109492,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109501,7 +109595,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109579,10 +109673,11 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -109868,7 +109963,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -110517,6 +110612,7 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings",
     "capstone.simulator.clock:SimulationClock.__init__",
@@ -110543,10 +110639,9 @@
     "capstone.simulator.scenarios:LoadingDoor.__init__",
     "capstone.simulator.scenarios:LoadingDoor.apply",
     "capstone.simulator.scenarios:ProductionLine.__init__",
-    "capstone.simulator.scenarios:ProductionLine._cut_from_batch",
-    "capstone.simulator.scenarios:ProductionLine._move_jobs"
+    "capstone.simulator.scenarios:ProductionLine._cut_from_batch"
    ],
-   "exercise_count": 98,
+   "exercise_count": 99,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.monitor",
@@ -110639,7 +110734,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110741,7 +110836,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 249,
+   "exercise_count": 250,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111276,10 +111371,11 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -111356,7 +111452,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111660,7 +111756,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111841,10 +111937,11 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -112366,7 +112463,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -112798,10 +112895,11 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -112879,7 +112977,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113552,11 +113650,12 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 21,
+   "exercise_count": 22,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -113639,7 +113738,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113742,7 +113841,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -113853,7 +113952,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -113960,7 +114059,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114068,7 +114167,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114175,7 +114274,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114281,7 +114380,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 225,
+   "exercise_count": 226,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114388,7 +114487,7 @@
     "capstone.agent.investigation:propose",
     "capstone.agent.investigation:recheck"
    ],
-   "exercise_count": 220,
+   "exercise_count": 221,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114495,7 +114594,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114603,7 +114702,7 @@
     "capstone.agent.investigation:investigate",
     "capstone.agent.investigation:needs_deep_run"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -114712,7 +114811,7 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.state:InvestigationState.confidence"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -114889,7 +114988,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 269,
+   "exercise_count": 270,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114998,7 +115097,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -115135,7 +115234,7 @@
     "capstone.agent.investigation:hypothesize",
     "capstone.agent.investigation:investigate"
    ],
-   "exercise_count": 241,
+   "exercise_count": 242,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115243,7 +115342,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115350,7 +115449,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115457,7 +115556,7 @@
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -115562,7 +115661,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 221,
+   "exercise_count": 222,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115697,10 +115796,11 @@
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.experiment:stage_context_mismatches",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.console",
     "capstone.evaluation.scoring",
@@ -117251,7 +117351,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -117355,7 +117455,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 260,
+   "exercise_count": 261,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118915,9 +119015,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -118995,7 +119096,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119273,7 +119374,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119341,9 +119442,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -119421,7 +119523,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119528,7 +119630,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119637,7 +119739,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119744,7 +119846,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119850,7 +119952,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 218,
+   "exercise_count": 219,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -119897,7 +119999,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_no_decide_or_interpret_model_call_even_on_final_read",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_no_decide_or_interpret_model_call_even_on_final_read",
-   "line": 105,
+   "line": 102,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -119981,72 +120083,10 @@
    ]
   },
   {
-   "id": "tests/test_triage_deterministic_decide.py::test_missing_clock_verdict_fails_closed_before_decide",
-   "file": "tests/test_triage_deterministic_decide.py",
-   "name": "test_missing_clock_verdict_fails_closed_before_decide",
-   "line": 120,
-   "docstring": "A known anomaly tick or cached packet cannot replace the Observe clock.",
-   "parametrized": true,
-   "fixtures": [
-    "phase"
-   ],
-   "assertions": 8,
-   "assert_forms": {
-    "equality": 4,
-    "identity": 1,
-    "negation": 3
-   },
-   "raises_checks": 0,
-   "uses": [
-    "FakeProvider"
-   ],
-   "quality_flags": [],
-   "claims": "A known anomaly tick or cached packet cannot replace the Observe clock.",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.loop:InvestigationDeps.__post_init__",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.confidence",
-    "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.triage_decide:initialize_requirements",
-    "capstone.agent.triage_decide:run_deterministic_triage_loop",
-    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
-    "capstone.agent.triage_decide:stop",
-    "capstone.agent.triage_plan:fixed_plan",
-    "capstone.agent.triage_plan:fixed_predicates",
-    "capstone.agent.triage_plan:fixed_requirements",
-    "capstone.agent.triage_plan:fixed_requirements.<locals>.add",
-    "capstone.agent.triage_requirements:ReadRequirement.valid_window",
-    "capstone.agent.triage_trace:TriageTraceEvent.finite_duration",
-    "capstone.agent.triage_trace:TriageTraceEvent.validated_code",
-    "capstone.agent.triage_trace:TriageTraceEvent.validated_hash",
-    "capstone.agent.triage_trace:emit_triage_event"
-   ],
-   "exercise_count": 20,
-   "modules_exercised": [
-    "capstone.agent.loop",
-    "capstone.agent.state",
-    "capstone.agent.triage_decide",
-    "capstone.agent.triage_plan",
-    "capstone.agent.triage_requirements",
-    "capstone.agent.triage_trace"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
    "id": "tests/test_triage_deterministic_decide.py::test_shared_sensor_read_supports_two_requirements_once",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_shared_sensor_read_supports_two_requirements_once",
-   "line": 139,
+   "line": 116,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120130,7 +120170,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_temperature_without_load_keeps_q5_open",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_temperature_without_load_keeps_q5_open",
-   "line": 156,
+   "line": 133,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120216,7 +120256,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_failed_jobs_require_job_paths_and_reuse_inspections",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_failed_jobs_require_job_paths_and_reuse_inspections",
-   "line": 170,
+   "line": 147,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120298,7 +120338,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_current_settings_snapshot_does_not_prove_a_change",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_current_settings_snapshot_does_not_prove_a_change",
-   "line": 219,
+   "line": 194,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120382,7 +120422,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_transient_error_gets_one_real_retry",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_transient_error_gets_one_real_retry",
-   "line": 228,
+   "line": 203,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120465,7 +120505,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_permanent_tool_refusal_is_not_retried",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_permanent_tool_refusal_is_not_retried",
-   "line": 249,
+   "line": 224,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120548,7 +120588,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_empty_catalog_fails_before_a_provider_call",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_empty_catalog_fails_before_a_provider_call",
-   "line": 279,
+   "line": 254,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120590,7 +120630,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_older_response_does_not_move_authorized_cutoff",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_older_response_does_not_move_authorized_cutoff",
-   "line": 286,
+   "line": 261,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120673,7 +120713,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_tool_budget_stops_with_the_actual_reason",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_tool_budget_stops_with_the_actual_reason",
-   "line": 294,
+   "line": 269,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120757,7 +120797,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_no_candidate_stops_without_a_model_fallback",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_no_candidate_stops_without_a_model_fallback",
-   "line": 303,
+   "line": 278,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120841,7 +120881,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_test_phase_does_not_stall_on_unchanged_confidence",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_test_phase_does_not_stall_on_unchanged_confidence",
-   "line": 319,
+   "line": 294,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -120926,7 +120966,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_insufficient_samples_keep_trigger_open_without_same_read_loop",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_insufficient_samples_keep_trigger_open_without_same_read_loop",
-   "line": 340,
+   "line": 315,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121010,7 +121050,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_unavailable_sensor_is_never_sent_to_replay_provider",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_unavailable_sensor_is_never_sent_to_replay_provider",
-   "line": 356,
+   "line": 331,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121086,7 +121126,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_future_response_is_quarantined_without_moving_the_cutoff",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_future_response_is_quarantined_without_moving_the_cutoff",
-   "line": 365,
+   "line": 340,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121168,7 +121208,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_identical_inputs_choose_the_same_reads_and_stop",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_identical_inputs_choose_the_same_reads_and_stop",
-   "line": 383,
+   "line": 358,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121251,7 +121291,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_invalid_plan_setting_is_rejected",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_invalid_plan_setting_is_rejected",
-   "line": 392,
+   "line": 367,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121266,9 +121306,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -121284,7 +121325,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_different_batches_are_reported_as_different_not_shared",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_different_batches_are_reported_as_different_not_shared",
-   "line": 403,
+   "line": 378,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121365,7 +121406,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_missing_batch_id_keeps_comparison_unresolved",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_missing_batch_id_keeps_comparison_unresolved",
-   "line": 447,
+   "line": 422,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121447,7 +121488,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_unequal_summary_windows_cannot_settle_vibration_q5",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_unequal_summary_windows_cannot_settle_vibration_q5",
-   "line": 483,
+   "line": 458,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121531,7 +121572,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_different_endpoint_directions_are_explicitly_not_co_movement",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_different_endpoint_directions_are_explicitly_not_co_movement",
-   "line": 503,
+   "line": 478,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -121614,7 +121655,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_q1_requires_real_time_span_not_only_sample_count",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_q1_requires_real_time_span_not_only_sample_count",
-   "line": 521,
+   "line": 496,
    "docstring": "Too many readings packed into a short interval cannot settle the trigger.",
    "parametrized": false,
    "fixtures": [],
@@ -121697,7 +121738,7 @@
    "id": "tests/test_triage_deterministic_decide.py::test_qualified_aggregate_deltas_do_not_prove_q5_comovement",
    "file": "tests/test_triage_deterministic_decide.py",
    "name": "test_qualified_aggregate_deltas_do_not_prove_q5_comovement",
-   "line": 536,
+   "line": 511,
    "docstring": "Three independently valid summaries cannot establish synchronous movement.",
    "parametrized": false,
    "fixtures": [],
@@ -121768,6 +121809,1547 @@
     "capstone.agent.triage_trace",
     "capstone.contracts.tools",
     "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_candidate_compiler_is_unscored_and_repeatable",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_candidate_compiler_is_unscored_and_repeatable",
+   "line": 55,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 8,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 5,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "candidate compiler is unscored and repeatable",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick",
+    "capstone.agent.triage_evidence_validation:validate_triage_result"
+   ],
+   "exercise_count": 59,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_model_hypothesize_is_never_called_and_test_reads_are_compiled",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_model_hypothesize_is_never_called_and_test_reads_are_compiled",
+   "line": 68,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 8,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3,
+    "membership": 3,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "model hypothesize is never called and test reads are compiled",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick"
+   ],
+   "exercise_count": 60,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_model_revalue_is_not_invoked_after_deterministic_test",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_model_revalue_is_not_invoked_after_deterministic_test",
+   "line": 83,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "model revalue is not invoked after deterministic test",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick"
+   ],
+   "exercise_count": 60,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_test_packet_reflects_new_evidence_without_causal_claims",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_test_packet_reflects_new_evidence_without_causal_claims",
+   "line": 96,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 2,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "test packet reflects new evidence without causal claims",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.model_policy:cited_ids",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_lines",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.model_policy:shortened_note",
+    "capstone.agent.model_policy:shown",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint"
+   ],
+   "exercise_count": 74,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.agent.untrusted",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_existing_candidate_ids_are_allowed_but_not_fake_hypotheses",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_existing_candidate_ids_are_allowed_but_not_fake_hypotheses",
+   "line": 110,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1,
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "existing candidate ids are allowed but not fake hypotheses",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for"
+   ],
+   "exercise_count": 67,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_no_action_still_requires_scored_hypotheses_and_clearance",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_no_action_still_requires_scored_hypotheses_and_clearance",
+   "line": 134,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "no action still requires scored hypotheses and clearance",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements"
+   ],
+   "exercise_count": 74,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_deep_mode_still_uses_original_model_hypothesize",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_deep_mode_still_uses_original_model_hypothesize",
+   "line": 153,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "ScriptedPolicy"
+   ],
+   "quality_flags": [],
+   "claims": "deep mode still uses original model hypothesize",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:record",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_observability_logs_safe_metadata_and_persists_reason_trace",
+   "line": 161,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 9,
+   "assert_forms": {
+    "call_truthiness": 3,
+    "equality": 2,
+    "identity_constant": 1,
+    "membership": 2,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "observability logs safe metadata and persists reason trace",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick"
+   ],
+   "exercise_count": 64,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.observability",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_failed_read_has_diagnostic_result_event_without_exception_text",
+   "line": 200,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "membership": 1,
+    "truthiness": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "failed read has diagnostic result event without exception text",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_hypothesize:compile_candidates",
+    "capstone.agent.triage_hypothesize:log_hypothesis_event",
+    "capstone.agent.triage_hypothesize:rule_specs",
+    "capstone.agent.triage_hypothesize:update_candidate_packet"
+   ],
+   "exercise_count": 58,
+   "modules_exercised": [
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.observability",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_old_serialized_records_have_empty_candidate_defaults",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_old_serialized_records_have_empty_candidate_defaults",
+   "line": 220,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "old serialized records have empty candidate defaults",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.agent.state",
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_settings_reject_unsafe_hypothesize_combination",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_settings_reject_unsafe_hypothesize_combination",
+   "line": 232,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "settings reject unsafe hypothesize combination",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_compiling_requires_no_model_or_extra_provider_reads",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_compiling_requires_no_model_or_extra_provider_reads",
+   "line": 248,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "compiling requires no model or extra provider reads",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick",
+    "capstone.agent.triage_evidence_validation:validate_triage_result",
+    "capstone.agent.triage_evidence_validation:validate_triage_result.<locals>.checked"
+   ],
+   "exercise_count": 58,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_job_paths_discovered_during_test_are_scheduled",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_job_paths_discovered_during_test_are_scheduled",
+   "line": 261,
+   "docstring": "An inspection discovered during Test must schedule every failed job path.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1,
+    "negation": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "An inspection discovered during Test must schedule every failed job path.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick",
+    "capstone.agent.triage_evidence_validation:validate_triage_result",
+    "capstone.agent.triage_evidence_validation:validate_triage_result.<locals>.checked",
+    "capstone.agent.triage_hypothesize:compile_candidates",
+    "capstone.agent.triage_hypothesize:log_hypothesis_event",
+    "capstone.agent.triage_hypothesize:rule_specs",
+    "capstone.agent.triage_hypothesize:update_candidate_packet"
+   ],
+   "exercise_count": 54,
+   "modules_exercised": [
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_unsupported_channels_remain_missing_but_are_not_scheduled",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_unsupported_channels_remain_missing_but_are_not_scheduled",
+   "line": 322,
+   "docstring": "Missing recorded channels must not become executable Test requests.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 8,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1,
+    "membership": 4,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Missing recorded channels must not become executable Test requests.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick",
+    "capstone.agent.triage_evidence_validation:validate_triage_result",
+    "capstone.agent.triage_evidence_validation:validate_triage_result.<locals>.checked",
+    "capstone.agent.triage_hypothesize:compile_candidates"
+   ],
+   "exercise_count": 58,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_qualified_summaries_do_not_close_composite_q5",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_qualified_summaries_do_not_close_composite_q5",
+   "line": 350,
+   "docstring": "Source sufficiency is not time-aligned covariation or a confirmed cause.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 2,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Source sufficiency is not time-aligned covariation or a confirmed cause.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick"
+   ],
+   "exercise_count": 60,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_logging_transport_failure_does_not_change_decision_or_test_plan",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_logging_transport_failure_does_not_change_decision_or_test_plan",
+   "line": 363,
+   "docstring": "Optional JSON logging can fail without changing deterministic behavior.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Optional JSON logging can fail without changing deterministic behavior.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick"
+   ],
+   "exercise_count": 60,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_candidate_archive_contract_is_backward_compatible",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_candidate_archive_contract_is_backward_compatible",
+   "line": 388,
+   "docstring": "The experiment stores candidate traces without breaking old runs.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "The experiment stores candidate traces without breaking old runs.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick",
+    "capstone.agent.triage_evidence_validation:validate_triage_result"
+   ],
+   "exercise_count": 59,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_full_graph_deterministic_triage_reaches_checked_conclude",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_full_graph_deterministic_triage_reaches_checked_conclude",
+   "line": 422,
+   "docstring": "The actual Graph uses one model stage and preserves unresolved telemetry.",
+   "parametrized": true,
+   "fixtures": [
+    "broken_summary"
+   ],
+   "assertions": 16,
+   "assert_forms": {
+    "equality": 5,
+    "inequality": 1,
+    "is_none": 1,
+    "is_not_none": 2,
+    "membership": 2,
+    "truthiness": 5
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "The actual Graph uses one model stage and preserves unresolved telemetry.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation"
+   ],
+   "exercise_count": 100,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_three_test_reads_survive_unchanged_model_confidence",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_three_test_reads_survive_unchanged_model_confidence",
+   "line": 490,
+   "docstring": "No model confidence-stall heuristic can stop deterministic evidence tests.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1,
+    "negation": 2,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "No model confidence-stall heuristic can stop deterministic evidence tests.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:gather.<locals>.audit_observe",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_decide:choose_next_triage_read",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_decide:fingerprint",
+    "capstone.agent.triage_decide:initialize_requirements",
+    "capstone.agent.triage_decide:matching_evidence",
+    "capstone.agent.triage_decide:permitted_triage_read",
+    "capstone.agent.triage_decide:qualify",
+    "capstone.agent.triage_decide:reconcile_question_comparison",
+    "capstone.agent.triage_decide:request_for",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.finish",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.precommit",
+    "capstone.agent.triage_decide:run_deterministic_triage_loop.<locals>.reconcile",
+    "capstone.agent.triage_decide:stop",
+    "capstone.agent.triage_evidence_validation:EvidenceQualification.consistent_verdict",
+    "capstone.agent.triage_evidence_validation:_bad_number_or_tick"
+   ],
+   "exercise_count": 60,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.tools",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_deterministic_hypothesize.py::test_zero_candidate_plan_falls_through_to_conclude_without_model",
+   "file": "tests/test_triage_deterministic_hypothesize.py",
+   "name": "test_zero_candidate_plan_falls_through_to_conclude_without_model",
+   "line": 510,
+   "docstring": "An empty authorized requirement packet never invokes fallback reasoning.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 6
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "An empty authorized requirement packet never invokes fallback reasoning.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:record",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.triage_decide:evaluate_triage_requirements",
+    "capstone.agent.triage_decide:expand_job_requirements",
+    "capstone.agent.triage_hypothesize:compile_candidates",
+    "capstone.agent.triage_hypothesize:log_hypothesis_event",
+    "capstone.agent.triage_hypothesize:rule_specs",
+    "capstone.agent.triage_hypothesize:update_candidate_packet",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_plan"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -124303,7 +125885,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 271,
+   "exercise_count": 272,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -124418,9 +126000,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -124601,7 +126184,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -126053,7 +127636,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -126161,7 +127744,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -126231,9 +127814,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -126628,7 +128212,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -127933,9 +129517,10 @@
    "exercises": [
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.settings"
@@ -127973,9 +129558,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -128143,7 +129729,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 269,
+   "exercise_count": 270,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128251,7 +129837,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128359,7 +129945,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128427,9 +130013,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -128577,7 +130164,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128684,7 +130271,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128792,7 +130379,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128898,7 +130485,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129006,7 +130593,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 205,
+   "exercise_count": 206,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigate_compiler",
@@ -129111,7 +130698,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 205,
+   "exercise_count": 206,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigate_compiler",
@@ -129218,7 +130805,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129325,7 +130912,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 218,
+   "exercise_count": 219,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130493,9 +132080,10 @@
    "exercises": [
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.settings"
@@ -130622,7 +132210,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130764,7 +132352,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -131416,7 +133004,7 @@
     "capstone.agent.investigation:close_screening_questions",
     "capstone.agent.investigation:conclude"
    ],
-   "exercise_count": 233,
+   "exercise_count": 234,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -131524,7 +133112,7 @@
     "capstone.agent.investigation:critique",
     "capstone.agent.investigation:gathered_in"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -131633,7 +133221,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 229,
+   "exercise_count": 230,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -131742,7 +133330,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 229,
+   "exercise_count": 230,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -131851,7 +133439,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 229,
+   "exercise_count": 230,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -132091,7 +133679,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 236,
+   "exercise_count": 237,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -132202,7 +133790,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 219,
+   "exercise_count": 220,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -132310,7 +133898,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -132820,7 +134408,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 269,
+   "exercise_count": 270,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -132917,9 +134505,10 @@
    "exercises": [
     "capstone.providers.chat:triage_clients",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -132951,9 +134540,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.settings"
    ],
@@ -132991,10 +134581,11 @@
     "capstone.providers.chat:triage_clients",
     "capstone.providers.chat:triage_key",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -133034,10 +134625,11 @@
     "capstone.providers.chat:triage_clients",
     "capstone.providers.chat:triage_key",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -133076,10 +134668,11 @@
     "capstone.providers.chat:triage_clients",
     "capstone.providers.chat:triage_key",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -133118,10 +134711,11 @@
     "capstone.providers.chat:triage_clients",
     "capstone.providers.chat:triage_key",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -133168,10 +134762,11 @@
     "capstone.providers.chat:triage_clients",
     "capstone.providers.chat:triage_key",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 17,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -133378,10 +134973,11 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:late_thinking_fields",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:fallback_models"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.settings"
@@ -133415,9 +135011,10 @@
    "exercises": [
     "capstone.progress:run_header",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.progress",
     "capstone.settings"
@@ -133570,7 +135167,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -133677,7 +135274,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -133785,7 +135382,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -133891,7 +135488,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 218,
+   "exercise_count": 219,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -134304,7 +135901,7 @@
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critic_view"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -134412,7 +136009,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -134519,7 +136116,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -134621,7 +136218,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 227,
+   "exercise_count": 228,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -134728,7 +136325,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 233,
+   "exercise_count": 234,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -134874,7 +136471,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -134980,7 +136577,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -135089,7 +136686,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -135197,7 +136794,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -135305,7 +136902,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -135413,7 +137010,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -135517,7 +137114,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -135623,7 +137220,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -135953,7 +137550,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 218,
+   "exercise_count": 219,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -136565,7 +138162,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -136941,7 +138538,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 227,
+   "exercise_count": 228,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -137049,7 +138646,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 227,
+   "exercise_count": 228,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -137156,7 +138753,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 227,
+   "exercise_count": 228,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -137264,7 +138861,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 197,
+   "exercise_count": 198,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.investigation",
@@ -137369,7 +138966,7 @@
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critic_view"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -138082,9 +139679,10 @@
     "capstone.providers.typesafe:JudgmentClient.__init__",
     "capstone.providers.typesafe:judgment_client",
     "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ],
-   "exercise_count": 5,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.providers.chat",
     "capstone.providers.typesafe",

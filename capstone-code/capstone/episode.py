@@ -420,6 +420,7 @@ def run_episode(
         # Triage only; a deep run never reads it.
         triage_investigate=settings.triage_investigate,
         triage_allowed_sources=("simulator",),
+        triage_hypothesize=settings.triage_hypothesize,
         triage_tool_specs=tuple(
             spec
             for spec in research_tools()

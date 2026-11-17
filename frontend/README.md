@@ -19,6 +19,16 @@ React 19 + TypeScript + Vite with a loopback-only FastAPI service and the existi
 
 **Pilot safety:** The Prestige pilot is read-only. React/FastAPI cannot start or stop physical Siemens recordings, call OPC UA methods, write to a CNC, reset faults, acknowledge alarms, or approve physical machine interventions. Data collection is a separate approved local operation.
 
+## Switching between Local and Render APIs
+
+The top toolbar **Local / Render** button changes the API used across the console, including reads, simulator run launches, review decisions, and run-event streams. Changing backend remounts the active page and invalidates pending read results. Tokens remain in memory and are separate per backend; only the non-sensitive backend preference is kept in browser session storage.
+
+- **Locally served frontend:** On `127.0.0.1:5173`, Local (default) reaches loopback FastAPI at `127.0.0.1:8000` through Vite's `/api` proxy. Render routes through Vite's independent `/render-api` proxy to `https://capstone-project-cmu.onrender.com/api`.
+- **Vercel-hosted frontend:** Render (default) reaches the hosted FastAPI via Vercel's existing `/api` rewrite. Local mode is explicitly unavailable, rather than silently showing Render data. A cloud frontend cannot proxy your laptop's loopback service, and FastAPI does not authorize arbitrary hosted origins with CORS. Open the locally served frontend to use Local.
+- The switch does not bypass authorization, activate simulator execution, or grant any CNC control permissions. Enter a token only for the currently selected backend.
+
+Before deployment sign-off, verify API health, authorized/unauthorized requests, simulator role gating, and the run-event stream through the selected proxy. Static tests are not live integration proof.
+
 ## Local PowerShell setup
 
 Prerequisites: `uv`, the repository's pinned Python version, and Node.js 22. Run from the repository root:

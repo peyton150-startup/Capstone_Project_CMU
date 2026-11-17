@@ -390,6 +390,14 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
         )
         if state.hypothesis_reserve_used:
             return "continue"
+    if (
+        state.mode == "triage"
+        and deps.triage_hypothesize == "deterministic"
+        and reason is not TerminationReason.TIMEOUT
+    ):
+        # The alarm is enough to enumerate unscored possibilities; missing
+        # sensor evidence is then recorded as missing, never inferred healthy.
+        return "continue"
     if reason is TerminationReason.TIMEOUT or not gathered:
         return "conclude"
     return "continue"
@@ -401,7 +409,39 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     #   outcome: How the question ended: decided, stopped (out of time) or
     #     invalid_decision.
     #   reason: Set only when time ran out, so the record can say why it stopped.
+    #   last: Typed candidate compilation counters; not a diagnosis or score.
     state.stage = "hypothesize"
+    if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
+        from capstone.agent.triage_decide import evaluate_triage_requirements
+        from capstone.agent.triage_hypothesize import (
+            log_hypothesis_event,
+            update_candidate_packet,
+        )
+
+        evaluate_triage_requirements(state)
+        update_candidate_packet(state, stage="hypothesize", deps=deps)
+        last = state.triage_hypothesis_trace[-1]
+        log_hypothesis_event(
+            state,
+            deps,
+            "triage.hypothesize.compiled",
+            success=bool(state.triage_candidates),
+            counts={
+                "candidates": len(state.triage_candidates),
+                "tests": len(state.triage_test_requirement_ids),
+                "qualified": last.qualified_sources,
+                "missing": last.missing_sources,
+                "unavailable": last.unavailable_sources,
+                "unresolved_questions": last.unresolved_questions,
+            },
+        )
+        record(
+            state,
+            "hypothesize",
+            "decided",
+            information_needed="fixed, unscored candidate and test plan",
+        )
+        return "continue" if state.triage_candidates else "conclude"
     outcome, reason = "decided", None
     try:
         apply_interpretation(
@@ -530,8 +570,40 @@ def reconsider(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Gather evidence that tells the explanations apart, then re-rate them (P5)."""
+    # Variables:
+    #   state.termination_reason: A bounded deterministic Test stop, not proof
+    #     of any particular cause or permission to clear a machine.
+    #   last: Stable candidate, capability and unresolved-question counts
+    #     kept in the optional diagnostic event after Test.
     state.stage = "test"
     state.termination_reason = run_inner_loop(state, deps, "test")
+    if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
+        from capstone.agent.triage_decide import evaluate_triage_requirements
+        from capstone.agent.triage_hypothesize import (
+            log_hypothesis_event,
+            update_candidate_packet,
+        )
+
+        evaluate_triage_requirements(state)
+        update_candidate_packet(state, stage="test", deps=deps)
+        last = state.triage_hypothesis_trace[-1]
+        log_hypothesis_event(
+            state,
+            deps,
+            "triage.test.completed",
+            # A bounded stop with missing evidence is not successful proof.
+            success=state.termination_reason is TerminationReason.EVIDENCE_SUFFICIENT,
+            counts={
+                "candidates": len(state.triage_candidates),
+                "tests": len(state.triage_test_requirement_ids),
+                "qualified": last.qualified_sources,
+                "missing": last.missing_sources,
+                "unavailable": last.unavailable_sources,
+                "unresolved_questions": last.unresolved_questions,
+            },
+        )
+        # TOT_REVALUE would otherwise make another model call after Test.
+        return
     revalue(state, deps)
 
 
@@ -982,6 +1054,34 @@ def conclusion_gaps(
         if q.hypothesis_id in current
     )
     chosen = next((h for h in state.hypotheses if h.id == selected), None)
+    if state.mode == "triage" and state.triage_candidates and selected is not None:
+        candidate = next(
+            (item for item in state.triage_candidates if item.id == selected), None
+        )
+        if candidate is not None:
+            for rid in candidate.missing_requirement_ids:
+                found.append(
+                    GapRecord(
+                        kind="unanswered_question",
+                        text=f"Candidate {selected} has unqualified check {rid}.",
+                        question_id=rid.partition(":")[0],
+                        role="selected_check",
+                    )
+                )
+            selected_questions = {
+                rid.partition(":")[0]
+                for rid in candidate.discriminating_requirement_ids
+            }
+            for question_id, reason in sorted(state.triage_question_gaps.items()):
+                if question_id in selected_questions:
+                    found.append(
+                        GapRecord(
+                            kind="unanswered_question",
+                            text=f"Candidate {selected}, {question_id}: {reason}",
+                            question_id=question_id,
+                            role="selected_check",
+                        )
+                    )
     if chosen and (
         chosen.contradicting_evidence_ids or chosen.unexplained_evidence_ids
     ):
@@ -1341,6 +1441,10 @@ def check_conclusion(
     if not {e.id for e in state.evidence}.issuperset(conclusion.evidence_ids):
         raise ValueError("the conclusion cites evidence that was not gathered")
     known_hypotheses = {h.id for h in state.hypotheses}
+    # Triage candidates are typed, unscored possibilities; recognizing a
+    # reference is not proof of the cause or permission to clear the alarm.
+    if state.mode == "triage":
+        known_hypotheses.update(c.id for c in state.triage_candidates)
     if (
         conclusion.hypothesis_id is not None
         and conclusion.hypothesis_id not in known_hypotheses
