@@ -40,7 +40,7 @@ def record(
         "ready", "claimed", "finished", "failed", "lease_lost", "recovered",
         "review_requested", "review_decided", "poll_failed", "progress_dropped",
         "model_telemetry_unavailable", "model_telemetry_dropped",
-        "worker_pulse_failed", "worker_stopped",
+        "worker_pulse_failed", "worker_stopped", "contracts_checked",
     }:
         raise ValueError("Unknown worker event")
     if failure_code is not None and failure_code not in _FAILURE_CODES:
@@ -460,6 +460,12 @@ def serve_worker(
     )
     health_thread.start()
     record("ready")
+    # This is only a safe count of missing source contracts, not run data.
+    # Independent workers can start while dependent PRs are still reconciling.
+    from capstone.api.integration_status import inspect_hosted_contracts
+
+    contracts = inspect_hosted_contracts()
+    record("contracts_checked", count=len(contracts.missing))
     while not stop.is_set():
         try:
             recovered = repository.recover_expired()
