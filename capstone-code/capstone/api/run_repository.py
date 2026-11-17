@@ -1173,6 +1173,11 @@ class RunRepository:
                 ):
                     review.status = "expired"
                     review.version += 1
-                self._append(session, run, "run.interrupted", run.snapshot)
+                # The terminal run snapshot retains prior safe progress, but
+                # the replay event keeps its original small allowlisted payload.
+                self._append(
+                    session, run, "run.interrupted",
+                    {"status": "interrupted", "reason": "worker_lease_expired"},
+                )
                 interrupted.append(str(run.run_id))
         return interrupted
