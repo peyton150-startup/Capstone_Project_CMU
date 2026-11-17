@@ -59,9 +59,7 @@ def _atomic_save(path: Path, state: Cursor) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + "." + uuid4().hex + ".tmp")
     try:
-        descriptor = os.open(
-            temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
-        )
+        descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(descriptor, "wb") as output:
             output.write(state.model_dump_json().encode("utf-8"))
             output.flush()
@@ -92,8 +90,12 @@ def load_cursor(capture: Path, path: Path) -> Cursor:
         return state
     count = min(capture.stat().st_size, 256)
     state = Cursor(
-        source_path=source, stream_id=uuid4(), next_line=0, offset=0,
-        prefix_count=count, prefix_sha256=_prefix(capture, count),
+        source_path=source,
+        stream_id=uuid4(),
+        next_line=0,
+        offset=0,
+        prefix_count=count,
+        prefix_sha256=_prefix(capture, count),
     )
     _atomic_save(path, state)
     return state
@@ -113,7 +115,9 @@ def exclusive_cursor(path: Path):
 
 
 def read_batch(
-    capture: Path, state: Cursor, scope: CloudScope,
+    capture: Path,
+    state: Cursor,
+    scope: CloudScope,
 ) -> tuple[IngestBatch | None, int]:
     """Bounded memory; an incomplete final line is never submitted or skipped."""
     records: list[dict] = []
@@ -135,17 +139,17 @@ def read_batch(
                 break
             if not line.strip():
                 raise ValueError("blank line in Siemens capture")
-            payload = validate_record(
-                scope, json.loads(line.decode("utf-8"))
-            )
+            payload = validate_record(scope, json.loads(line.decode("utf-8")))
             records.append(payload)
             used += len(line)
             end = source.tell()
     if not records:
         return None, end
     return IngestBatch.build(
-        scope=scope, stream_id=state.stream_id,
-        first_line=state.next_line, records=records,
+        scope=scope,
+        stream_id=state.stream_id,
+        first_line=state.next_line,
+        records=records,
     ), end
 
 
@@ -158,10 +162,13 @@ def send_batch(endpoint: str, token: str, batch: IngestBatch) -> dict:
     """HTTPS only, redirects forbidden to avoid bearer-token leakage."""
     url = urlsplit(endpoint)
     if (
-        url.scheme != "https" or not url.hostname or url.username
-        or url.password or url.query or url.fragment or not endpoint.endswith(
-            "/api/v1/ingest/siemens/batches"
-        )
+        url.scheme != "https"
+        or not url.hostname
+        or url.username
+        or url.password
+        or url.query
+        or url.fragment
+        or not endpoint.endswith("/api/v1/ingest/siemens/batches")
     ):
         raise ValueError("Uploader requires a trusted HTTPS ingest endpoint")
     if len(token) < 32:
@@ -170,7 +177,9 @@ def send_batch(endpoint: str, token: str, batch: IngestBatch) -> dict:
     if len(data) > 256 * 1024:
         raise ValueError("serialized capture batch exceeds ingress limit")
     request = Request(
-        endpoint, data=data, method="POST",
+        endpoint,
+        data=data,
+        method="POST",
         headers={
             "Authorization": "Bearer " + token,
             "Content-Type": "application/json",
@@ -183,7 +192,9 @@ def send_batch(endpoint: str, token: str, batch: IngestBatch) -> dict:
     except HTTPError as error:
         raise UploadError(f"Cloud receiver returned HTTP {error.code}") from None
     except (URLError, TimeoutError, OSError, ValueError):
-        raise UploadError("Cloud receiver unreachable or sent invalid receipt") from None
+        raise UploadError(
+            "Cloud receiver unreachable or sent invalid receipt"
+        ) from None
     if not isinstance(result, dict) or (
         result.get("digest") != batch.digest
         or result.get("next_line") != batch.first_line + len(batch.records)
@@ -194,7 +205,9 @@ def send_batch(endpoint: str, token: str, batch: IngestBatch) -> dict:
 
 
 def upload_once(
-    capture: Path, cursor_path: Path, scope: CloudScope,
+    capture: Path,
+    cursor_path: Path,
+    scope: CloudScope,
     send: Callable[[IngestBatch], dict],
 ) -> int:
     """Safe to rerun after timeout/crash; only committed cloud data is ACKed."""
@@ -237,11 +250,12 @@ def validate_collector_scope(config_path: Path, scope: CloudScope) -> None:
     ):
         raise ValueError("collector config must be a private bounded file")
     config = json.loads(config_path.read_text(encoding="utf-8"))
-    if not isinstance(config, dict) or config.get("expected_server_uri") != scope.server_uri:
+    if (
+        not isinstance(config, dict)
+        or config.get("expected_server_uri") != scope.server_uri
+    ):
         raise PermissionError("collector source differs from cloud approval")
-    observed = {
-        NodeRef.model_validate(node).key for node in config.get("nodes", [])
-    }
+    observed = {NodeRef.model_validate(node).key for node in config.get("nodes", [])}
     allowed = {item.node.key for item in scope.nodes}
     if not observed or not observed <= allowed:
         raise PermissionError("collector includes unapproved subscribed nodes")
@@ -263,7 +277,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.interval < 1:
         parser.error("polling interval must be at least one second")
     for name, path in (
-        ("--capture", args.capture), ("--cursor", args.cursor),
+        ("--capture", args.capture),
+        ("--cursor", args.cursor),
         ("--scope", args.scope),
         ("--collector-config", args.collector_config),
     ):
@@ -279,7 +294,9 @@ def main(argv: list[str] | None = None) -> int:
             scope = scope_from_file(args.scope)
             validate_collector_scope(args.collector_config, scope)
             count = upload_once(
-                args.capture, args.cursor, scope,
+                args.capture,
+                args.cursor,
+                scope,
                 lambda batch: send_batch(endpoint, token, batch),
             )
             print(f"cloud Siemens records acknowledged: {count}", flush=True)
