@@ -131,6 +131,61 @@ jobs:
               else:
                   raise AssertionError("Out-of-order writes succeeded")
 
+              # Exercise the actual on-site JSONL -> uploader ->
+              # authenticated Render HTTP route -> disposable Supabase DB.
+              # The first response is lost after a committed transaction.
+              # Replaying the same digest must not insert duplicate records.
+              import json
+              from tempfile import TemporaryDirectory
+              from fastapi import FastAPI
+              from fastapi.testclient import TestClient
+              from capstone.api.live_ingest import router_for
+              from capstone.ingestion.cloud_uplink import (
+                  UploadError, load_cursor, upload_once
+              )
+              with TemporaryDirectory() as scratch:
+                  capture = Path(scratch) / "siemens.jsonl"
+                  cursor = Path(scratch) / "upload-cursor.json"
+                  capture.write_text(
+                      json.dumps(change()) + "\n"
+                      + json.dumps(marker(gap=True)) + "\n",
+                      encoding="utf-8",
+                  )
+                  app = FastAPI()
+                  app.include_router(
+                      router_for("s" * 48, lambda: s, repository)
+                  )
+                  acknowledgements = []
+                  first_response_lost = [True]
+                  with TestClient(app) as http:
+                      def transmit(batch):
+                          response = http.post(
+                              "/api/v1/ingest/siemens/batches",
+                              json=batch.model_dump(mode="json"),
+                              headers={"Authorization": "Bearer " + "s" * 48},
+                          )
+                          assert response.status_code == 200, response.text
+                          data = response.json()
+                          acknowledgements.append(data)
+                          if first_response_lost[0]:
+                              first_response_lost[0] = False
+                              raise UploadError("synthetic ACK lost after commit")
+                          return data
+                      try:
+                          upload_once(capture, cursor, s, transmit)
+                      except UploadError:
+                          pass
+                      else:
+                          raise AssertionError("lost receipt did not stop cursor")
+                      assert load_cursor(capture, cursor).next_line == 0
+                      assert upload_once(capture, cursor, s, transmit) == 2
+                      assert acknowledgements[1]["replayed"] is True
+                      assert load_cursor(capture, cursor).next_line == 2
+                  with supabase.connect() as check:
+                      assert check.execute(text("""
+                          SELECT count(*) FROM capstone_ingest.records
+                      """)).scalar_one() == 4
+
               m = approval()
               published = OEMKnowledgeRepository(neon)
               assert published.publish(m, m.object_key) == 1
