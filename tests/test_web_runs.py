@@ -696,6 +696,10 @@ def test_completed_phase_audits_expose_only_reviewed_result_fields(tmp_path):
         + "\\n",
         encoding="utf-8",
     )
+    from capstone.api.readers import recent_lines, safe_investigations
+
+    assert len(recent_lines(path)) == 2, "Two complete audited phase records required"
+    assert len(safe_investigations(path)) == 2, "Both phase summaries must resolve"
     client = TestClient(create_app(cfg))
     base = f"/api/v1/lab/runs/{run_id}/investigation"
 
