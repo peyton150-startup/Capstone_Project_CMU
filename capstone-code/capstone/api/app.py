@@ -60,11 +60,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   cfg: Immutable, validated server-side path and authentication authority.
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
-    runner = (
-        SimulatorRuns(cfg.run_db)
-        if cfg.runs_enabled and cfg.run_db is not None
-        else None
-    )
+    runner = None
+    if cfg.runs_enabled and cfg.run_db is not None:
+        if cfg.run_backend == "postgres":
+            from capstone.api.postgres_runs import PostgresSimulatorRuns
+
+            assert cfg.run_database_url is not None
+            runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
+        else:
+            runner = SimulatorRuns(cfg.run_db)
     ingest_router = None
     if os.getenv("CAPSTONE_LIVE_INGEST_ENABLED") == "1":
         # Import database dependencies only when cloud ingestion is enabled.
@@ -83,8 +87,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+
     if ingest_router is not None:
         app.include_router(ingest_router)
+
+    @app.on_event("shutdown")
+    def shutdown_runner() -> None:
+        if runner is not None:
+            runner.close()
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[

@@ -71,11 +71,16 @@ class SimulatorRuns:
 
     def __init__(self, database: Path, *, approval_timeout_seconds: float = 240):
         self.database = database
+        self.artifact_root = database.parent
         self.approval_timeout_seconds = approval_timeout_seconds
         self.lock = threading.RLock()
         self.waiters: dict[tuple[str, int], threading.Event] = {}
         self.active: set[str] = set()
-        database.parent.mkdir(parents=True, exist_ok=True)
+        self.artifact_root.mkdir(parents=True, exist_ok=True)
+        self._initialize_store()
+
+    def _initialize_store(self) -> None:
+        """Create or recover the local journal; remote stores override this."""
         with self._db() as db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS runs (
@@ -116,7 +121,7 @@ class SimulatorRuns:
         """Private, server-owned path derived from an existing UUID run id."""
         if str(uuid.UUID(run_id)) != run_id:
             raise ValueError("Invalid run identifier")
-        return self.database.parent / "simulator-investigations" / (run_id + ".jsonl")
+        return self.artifact_root / "simulator-investigations" / (run_id + ".jsonl")
 
     def investigation_event_path(self, run_id: str) -> Path:
         """Server-owned safe operational event log, separate from private audits."""
@@ -167,6 +172,22 @@ class SimulatorRuns:
             for n, name, payload in rows
         ]
 
+    def _lock_event_sequence(self, db: Any, run_id: str) -> None:
+        """SQLite uses its existing transaction lock; remote stores may lock a row."""
+
+    def _lock_submission(self, db: Any) -> None:
+        """Remote stores may enforce cross-process admission before insertion."""
+
+    def _store_has_active_run(self, db: Any) -> bool:
+        """Local admission is guarded by the process lock and restart recovery."""
+        return False
+
+    def _persist_artifacts(self, run_id: str) -> None:
+        """SQLite keeps the original private JSONL files locally."""
+
+    def close(self) -> None:
+        """Local SQLite connections are closed after each transaction."""
+
     def _emit(
         self,
         run_id: str,
@@ -176,6 +197,7 @@ class SimulatorRuns:
         state: RunState | None = None,
     ) -> None:
         with self.lock, self._db() as db:
+            self._lock_event_sequence(db, run_id)
             next_seq = db.execute(
                 "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
                 (run_id,),
@@ -200,6 +222,7 @@ class SimulatorRuns:
         serialized = request.model_dump_json()
         with self.lock:
             with self._db() as db:
+                self._lock_submission(db)
                 existing = db.execute(
                     "SELECT run_id, requested FROM runs WHERE request_key=?",
                     (request_key,),
@@ -210,7 +233,7 @@ class SimulatorRuns:
                             "idempotency key reused for different settings"
                         )
                     return self.get(existing[0])
-                if self.active:
+                if self.active or self._store_has_active_run(db):
                     raise RuntimeError("one simulator run is already active")
                 id_ = str(uuid.uuid4())
                 initial = {"stage": None, "mode": request.mode, "status": "queued"}
@@ -328,10 +351,16 @@ class SimulatorRuns:
         status = row[0] if row else "expired"
         if status == "pending":
             status = "expired"
-        if status == "approve":
+        # A committed approval is not enough to resume an episode: the
+        # in-process reviewer waiter must also have received the signal.
+        # If event delivery failed after the DB update, fail closed rather
+        # than treating a stale "approve" as permission to act.
+        if status == "approve" and accepted:
             return True, json.loads(row[1]).get(
                 "note", ""
             ) or "approved by simulator reviewer"
+        if status == "approve":
+            return False, "review notification not confirmed"
         return False, "review timed out" if status == "expired" else (
             json.loads(row[1]).get("note", "") or "rejected by simulator reviewer"
         )
@@ -354,7 +383,7 @@ class SimulatorRuns:
                         return
                     try:
                         self._emit(run_id, "stage.updated", row)
-                    except (OSError, sqlite3.Error):
+                    except (OSError, sqlite3.Error, RuntimeError):
                         # Observer storage must never crash or block the agent.
                         missed[0] += 1
                 finally:
@@ -364,14 +393,14 @@ class SimulatorRuns:
             target=publish, name="run-events-" + run_id[:8], daemon=True
         )
         writer.start()
-        self._emit(
-            run_id,
-            "run.started",
-            {"status": "running", "mode": request.mode},
-            state="running",
-        )
         manual = None
         try:
+            self._emit(
+                run_id,
+                "run.started",
+                {"status": "running", "mode": request.mode},
+                state="running",
+            )
             from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
@@ -424,6 +453,9 @@ class SimulatorRuns:
                 if triage is None or triage.triage_report is None
                 else (triage.triage_report.model_dump(mode="json"))
             )
+            # A completed run must have a durable audit before it can report
+            # success on a hosted backend; SQLite's artifact hook is a no-op.
+            self._persist_artifacts(run_id)
             final = {
                 "status": "completed",
                 "mode": request.mode,
@@ -446,16 +478,20 @@ class SimulatorRuns:
             self._emit(run_id, "run.completed", final, state="completed")
         except Exception as error:
             # Never persist exception messages: providers may include private details.
-            self._emit(
-                run_id,
-                "run.failed",
-                {
-                    "status": "failed",
-                    "error_class": type(error).__name__,
-                    "mode": request.mode,
-                },
-                state="failed",
-            )
+            try:
+                self._emit(
+                    run_id,
+                    "run.failed",
+                    {
+                        "status": "failed",
+                        "error_class": type(error).__name__,
+                        "mode": request.mode,
+                    },
+                    state="failed",
+                )
+            except Exception:
+                # An interrupted run is marked by the next exclusive owner.
+                pass
         finally:
             if manual is not None and hasattr(manual, "close"):
                 try:

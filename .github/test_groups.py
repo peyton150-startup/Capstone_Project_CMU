@@ -176,7 +176,7 @@ GROUPS: dict[str, list[str]] = {
     # The line screening against everything around it (PR 202, not merged).
     "Detector side effects": ["detector_side_effects"],
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
-    "Industrial frontend API": ["web_api", "web_runs", "cloud_ingest_api"],
+    "Industrial frontend API": ["web_api", "web_runs", "postgres_journal", "cloud_ingest_api"],
     "Live telemetry": [
         "cloud_pilot",
         "oem_manual",

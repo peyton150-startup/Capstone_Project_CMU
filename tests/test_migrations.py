@@ -36,8 +36,8 @@ def use_database_url(monkeypatch, value):
 def test_memory_revision_works_outside_repository(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     directory = script.ScriptDirectory.from_config(configuration())
-    assert directory.get_heads() == ["0001_episodic_memory"]
-    assert len(list(directory.walk_revisions())) == 1
+    assert directory.get_heads() == ["0002_simulator_journal"]
+    assert len(list(directory.walk_revisions())) == 2
     assert Path(directory.env_py_location).is_file()
 
 
@@ -104,6 +104,11 @@ def test_postgresql_offline_url_uses_psycopg_and_preserves_ssl(monkeypatch, sche
     sql = config.output_buffer.getvalue()
     assert "payload JSONB NOT NULL" in sql
     assert "memory_id UUID NOT NULL" in sql
+    assert "CREATE SCHEMA IF NOT EXISTS capstone_private" in sql
+    assert "CREATE TABLE capstone_private.runs" in sql
+    assert "one_active_simulator_run" in sql
+    assert "CREATE TABLE capstone_private.run_artifacts" in sql
+    assert "ENABLE ROW LEVEL SECURITY" in sql
     assert secret not in sql
 
 
@@ -164,7 +169,7 @@ def test_autogeneration_without_schema_is_refused_before_engine_creation(
     with pytest.raises(util.CommandError, match="schema"):
         command.revision(config, message="unsafe comparison", autogenerate=True)
     assert script.ScriptDirectory.from_config(config).get_heads() == [
-        "0001_episodic_memory"
+        "0002_simulator_journal"
     ]
 
 
@@ -187,7 +192,7 @@ def test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table(
                 connection.exec_driver_sql(
                     "SELECT version_num FROM alembic_version"
                 ).scalar_one()
-                == "0001_episodic_memory"
+                == "0002_simulator_journal"
             )
             assert (
                 connection.exec_driver_sql(

@@ -78535,10 +78535,10 @@
     "monkeypatch",
     "scheme"
    ],
-   "assertions": 7,
+   "assertions": 12,
    "assert_forms": {
     "equality": 4,
-    "membership": 3
+    "membership": 8
    },
    "raises_checks": 0,
    "uses": [
@@ -78570,7 +78570,7 @@
    "id": "tests/test_migrations.py::test_unconfigured_or_invalid_url_has_safe_error",
    "file": "tests/test_migrations.py",
    "name": "test_unconfigured_or_invalid_url_has_safe_error",
-   "line": 118,
+   "line": 123,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -78612,7 +78612,7 @@
    "id": "tests/test_migrations.py::test_online_connection_error_is_safe_and_engine_is_disposed",
    "file": "tests/test_migrations.py",
    "name": "test_online_connection_error_is_safe_and_engine_is_disposed",
-   "line": 127,
+   "line": 132,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -78654,7 +78654,7 @@
    "id": "tests/test_migrations.py::test_autogeneration_without_schema_is_refused_before_engine_creation",
    "file": "tests/test_migrations.py",
    "name": "test_autogeneration_without_schema_is_refused_before_engine_creation",
-   "line": 152,
+   "line": 157,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -78695,7 +78695,7 @@
    "id": "tests/test_migrations.py::test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table",
    "file": "tests/test_migrations.py",
    "name": "test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table",
-   "line": 171,
+   "line": 176,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -86847,6 +86847,251 @@
     "capstone.ingestion.pilot_preflight",
     "capstone.ingestion.privacy"
    ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_remote_configuration_requires_url_and_staging_directory",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_remote_configuration_requires_url_and_staging_directory",
+   "line": 34,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "membership": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "remote configuration requires url and staging directory",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_remote_backend_does_not_open_a_database_by_default",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_remote_backend_does_not_open_a_database_by_default",
+   "line": 49,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "remote backend does not open a database by default",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_postgres_adapter_preserves_parameterized_sql_without_interpolating",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_postgres_adapter_preserves_parameterized_sql_without_interpolating",
+   "line": 61,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "postgres adapter preserves parameterized sql without interpolating",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.postgres_runs:_PostgresDB.__init__",
+    "capstone.api.postgres_runs:_PostgresDB.execute"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.postgres_runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+   "line": 82,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "sqlite import preview is read only and includes private artifacts",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.import_sqlite:artifacts",
+    "capstone.api.import_sqlite:preview",
+    "capstone.api.import_sqlite:read_source",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:SimulatorRuns.investigation_audit_path",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.api.import_sqlite",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_remote_idempotency_events_and_reopen",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_remote_idempotency_events_and_reopen",
+   "line": 171,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "localhost_postgres",
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 2,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "remote idempotency events and reopen",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_remote_artifacts_are_private_durable_and_checked",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_remote_artifacts_are_private_durable_and_checked",
+   "line": 202,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "localhost_postgres"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "remote artifacts are private durable and checked",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_postgres_journal.py::test_import_preflight_does_not_interrupt_existing_remote_runs",
+   "file": "tests/test_postgres_journal.py",
+   "name": "test_import_preflight_does_not_interrupt_existing_remote_runs",
+   "line": 259,
+   "docstring": "An import must reject a nonempty target before changing its run states.",
+   "parametrized": false,
+   "fixtures": [
+    "localhost_postgres"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "An import must reject a nonempty target before changing its run states.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -142043,9 +142288,10 @@
     "capstone.api.readers:safe_scorecards",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -142282,10 +142528,11 @@
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
     "capstone.api.runs:SimulatorRuns.list_runs",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -142338,12 +142585,14 @@
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
     "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns._store_has_active_run",
     "capstone.api.runs:SimulatorRuns.events_since",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 16,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -142398,13 +142647,15 @@
     "capstone.api.runs:SimulatorRuns._await_review",
     "capstone.api.runs:SimulatorRuns._db",
     "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns._store_has_active_run",
     "capstone.api.runs:SimulatorRuns.decide",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.pending_reviews",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 18,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -142442,11 +142693,12 @@
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.list_runs",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.api.config",
     "capstone.api.runs"
@@ -142500,13 +142752,15 @@
     "capstone.api.runs:SimulatorRuns._await_review",
     "capstone.api.runs:SimulatorRuns._db",
     "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns._store_has_active_run",
     "capstone.api.runs:SimulatorRuns.decide",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.pending_reviews",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 18,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -142557,13 +142811,15 @@
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
     "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns._store_has_active_run",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.investigation_audit_path",
     "capstone.api.runs:SimulatorRuns.investigation_event_path",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 16,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -142616,15 +142872,62 @@
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
     "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns._store_has_active_run",
     "capstone.api.runs:SimulatorRuns.events_since",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 15,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved",
+   "file": "tests/test_web_runs.py",
+   "name": "test_review_requires_delivery_signal_even_when_database_says_approved",
+   "line": 391,
+   "docstring": "Lost post-commit wakeup cannot turn a timed-out review into an action.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Lost post-commit wakeup cannot turn a timed-out review into an action.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._await_review",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
     "capstone.api.runs"
    ],
    "judgment": "NOT ASSESSED",
