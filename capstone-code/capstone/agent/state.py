@@ -27,8 +27,8 @@ from capstone.agent.artifacts import (
     VerificationCheck,
 )
 from capstone.agent.evidence_packet import EvidencePacket
-from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
 from capstone.agent.triage_evidence_validation import EvidenceQualification
+from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import (
     ReadRequirement,
