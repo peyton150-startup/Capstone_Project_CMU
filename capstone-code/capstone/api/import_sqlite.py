@@ -24,6 +24,8 @@ MAX_ARTIFACT_BYTES = 8 * 1024 * 1024
 
 def read_source(source: Path):
     """Read a consistent local snapshot without writing to the source file."""
+    if source.is_symlink():
+        raise ValueError("Symlinked SQLite journal not allowed")
     if not source.is_file():
         raise ValueError("SQLite journal not found")
     uri = source.resolve().as_uri() + "?mode=ro"
@@ -56,6 +58,14 @@ def read_source(source: Path):
         ids = {r[0] for r in runs}
         if any(r[0] not in ids for r in events + reviews):
             raise ValueError("SQLite journal contains orphan event/review rows")
+        # A malformed legacy ID would be accepted by PostgreSQL but could
+        # never be safely opened by the UUID-scoped audit API.
+        for run_id in ids:
+            try:
+                if str(uuid.UUID(run_id)) != run_id:
+                    raise ValueError("not canonical")
+            except (ValueError, TypeError, AttributeError):
+                raise ValueError("SQLite journal contains invalid run identifiers") from None
         return runs, events, reviews
     finally:
         db.close()
@@ -66,15 +76,11 @@ def artifacts(source: Path, runs):
     records = []
     missing = 0
     base = source.parent / "simulator-investigations"
+    if base.is_symlink():
+        raise ValueError("Symlinked simulator artifacts directory refused")
     trusted_base = base.resolve()
     for row in runs:
         run_id = row[0]
-        try:
-            if str(uuid.UUID(run_id)) != run_id:
-                raise ValueError("Noncanonical run ID")
-        except (ValueError, TypeError):
-            missing += 1
-            continue
         for kind, suffix in (
             ("audit", ".jsonl"),
             ("observability", ".events.jsonl"),
@@ -121,7 +127,17 @@ def apply(source: Path, url: str, project_ref: str) -> dict:
         raise ValueError("A Supabase project ref is required")
     host = target.host or ""
     user = target.username or ""
-    if host != f"db.{ref}.supabase.co" and user != f"postgres.{ref}":
+    # Direct connections identify the project by host. Session pooler
+    # connections identify it by both the Supabase-owned host *and* role.
+    # Checking the username alone could send an import to localhost or an
+    # unrelated database where that role was created.
+    is_direct = host == f"db.{ref}.supabase.co"
+    is_pooler = (
+        host.endswith(".pooler.supabase.com")
+        and user.endswith(f".{ref}")
+        and len(user) > len(ref) + 1
+    )
+    if not (is_direct or is_pooler):
         raise ValueError("Database URL does not match the confirmed Supabase project")
     if target.drivername not in ("postgres", "postgresql", "postgresql+psycopg"):
         raise ValueError("Expected PostgreSQL for the Supabase journal")
