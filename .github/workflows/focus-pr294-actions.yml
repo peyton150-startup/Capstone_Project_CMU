@@ -1,4 +1,4 @@
-# One-time queue relief; isolated branch, no application code or PR changes.
+# Queue relief rerun after PR294 evaluator evidence correction; preserve exact current head.
 name: Focus PR294 actions queue
 on:
   push:
