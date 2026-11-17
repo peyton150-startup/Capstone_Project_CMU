@@ -277,7 +277,8 @@ function LiveProgress({ run }: { run: ManagedRun | null }) {
             <DataRow label="Tool calls" value={phase.data.tool_calls}/>
             <DataRow label="Evidence records" value={phase.data.evidence_count}/>
             <DataRow label="Hypotheses" value={phase.data.hypothesis_count}/>
-            <DataRow label="Unresolved questions" value={phase.data.unresolved_question_ids.length}/>
+            <DataRow label="Unresolved questions" value={Math.max(
+              phase.data.unresolved_question_count ?? 0, phase.data.unresolved_question_ids.length)}/>
             {phase.data.unresolved_question_ids.length > 0 &&
               <p className="body-copy">Open question IDs: {phase.data.unresolved_question_ids.join(', ')}</p>}
             {phase.data.termination_reason &&
