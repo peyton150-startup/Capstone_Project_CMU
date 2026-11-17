@@ -239,3 +239,78 @@ def test_storage_migration_is_private_and_separate_from_simulator_journal():
     assert "FOREIGN KEY" in source and "ENABLE ROW LEVEL SECURITY" in source
     assert "REVOKE ALL" in source and "retained_until" in source
     assert "capstone_private" not in source  # Independent from PR #289.
+
+
+def test_uplink_refuses_changes_outside_first_256_acknowledged_bytes(tmp_path):
+    """Resume must detect changed historical data anywhere in ACKed prefix."""
+    capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
+    source = json.dumps(change()).encode() + b"\\n"
+    assert len(source) > 300
+    capture.write_bytes(source)
+
+    def ack(batch):
+        return {
+            "digest": batch.digest,
+            "next_line": batch.first_line + len(batch.records),
+            "accepted": len(batch.records),
+        }
+
+    assert upload_once(capture, cursor, scope(), ack) == 1
+    original = capture.read_bytes()
+    tampered = bytearray(original)
+    tampered[300] ^= 1
+    capture.write_bytes(tampered)
+    with pytest.raises(ValueError, match="ACKed capture contents changed"):
+        load_cursor(capture, cursor)
+
+
+def test_uplink_refuses_in_place_mutation_between_validation_and_http(
+    tmp_path, monkeypatch
+):
+    """Never send rows validated from bytes that no longer match on disk."""
+    from capstone.ingestion import cloud_uplink
+
+    capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
+    capture.write_text(json.dumps(change()) + "\\n")
+    assert capture.stat().st_size > 300
+    original = cloud_uplink.read_batch
+    called = []
+
+    def altered(*args, **kwargs):
+        result = original(*args, **kwargs)
+        payload = bytearray(capture.read_bytes())
+        payload[300] ^= 1
+        capture.write_bytes(payload)
+        return result
+
+    monkeypatch.setattr(cloud_uplink, "read_batch", altered)
+
+    def send(batch):
+        called.append(batch)
+        raise AssertionError("modified capture must never reach the network")
+
+    with pytest.raises(UploadError, match="capture changed after validation"):
+        upload_once(capture, cursor, scope(), send)
+    assert not called
+    assert load_cursor(capture, cursor).next_line == 0
+
+
+def test_uplink_refuses_mutation_while_cloud_ack_is_in_flight(tmp_path):
+    """A valid remote ACK must not advance a checkpoint for modified bytes."""
+    capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
+    capture.write_text(json.dumps(change()) + "\\n")
+    assert capture.stat().st_size > 300
+
+    def send(batch):
+        payload = bytearray(capture.read_bytes())
+        payload[300] ^= 1
+        capture.write_bytes(payload)
+        return {
+            "digest": batch.digest,
+            "next_line": batch.first_line + len(batch.records),
+            "accepted": len(batch.records),
+        }
+
+    with pytest.raises(UploadError, match="capture changed during upload"):
+        upload_once(capture, cursor, scope(), send)
+    assert load_cursor(capture, cursor).next_line == 0
