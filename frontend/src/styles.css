@@ -96,10 +96,12 @@ button:disabled{cursor:not-allowed;opacity:.47}
 .search-results button{display:flex;align-items:center;justify-content:space-between;width:100%;
   border:0;border-radius:6px;text-align:left;color:var(--text);background:transparent;padding:11px;font-size:12px}
 .search-results button:hover{background:var(--accent-soft)}
-.preview-toggle,.access-button{height:38px;border:1px solid var(--line);border-radius:9px;
+.backend-switch,.preview-toggle,.access-button{height:38px;border:1px solid var(--line);border-radius:9px;
   background:var(--surface);color:var(--text-muted);padding:0 12px;display:flex;
   align-items:center;gap:8px;white-space:nowrap;font-size:11px;font-weight:700}
-.preview-toggle:hover,.access-button:hover{border-color:var(--accent);color:var(--text)}
+.backend-switch:hover,.preview-toggle:hover,.access-button:hover{border-color:var(--accent);color:var(--text)}
+.backend-switch{min-width:86px;justify-content:center;color:var(--text)}
+.backend-render{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .preview-active{border-color:rgba(234,206,33,.45);color:var(--warning)}
 .preview-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim)}
 .preview-active .preview-dot{background:var(--warning)}
@@ -524,6 +526,7 @@ input:focus,select:focus{border-color:var(--accent)}
   .topbar{height:66px;flex-basis:66px;padding:0 18px}
   .topbar-right{gap:7px}
   .preview-toggle{padding:0 9px}
+  .backend-switch{min-width:74px;padding:0 9px}
   .access-button span,.header-environment{display:none}
   .content{padding:25px 18px 55px}
   .banner{padding:10px 18px}

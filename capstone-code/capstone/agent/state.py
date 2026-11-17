@@ -28,6 +28,7 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.triage_evidence_validation import EvidenceQualification
+from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import (
     ReadRequirement,
@@ -503,6 +504,12 @@ class InvestigationState(BaseModel):
     triage_observation_cutoff_tick: int | None = Field(default=None, ge=0)
     triage_deterministic_reads: int = Field(default=0, ge=0)
     triage_deterministic_stops: int = Field(default=0, ge=0)
+    # Typed, unscored possibilities and source-linked tests; no diagnosis or prior.
+    triage_candidates: list[TriageCandidate] = Field(default_factory=list)
+    triage_test_requirement_ids: tuple[str, ...] = ()
+    triage_hypothesis_trace: list[TriageHypothesisTrace] = Field(default_factory=list)
+    # Audit-only counter: optional logging faults do not change read selection.
+    triage_hypothesis_logging_failures: int = Field(default=0, ge=0)
     # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
     # attached to a question, by question id: with one, a successful call
     # closes the question only on a "true" or "false" verdict. Empty: every

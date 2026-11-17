@@ -1,107 +1,70 @@
-# One-time snapshot only; delete this workflow after the PR inventory is committed.
+# One-time, source-matched inventory regeneration for the integrated Supabase journal.
+# All actual tests must pass; only the stale file-inventory scope assertion may fail in bootstrap.
 name: Rebuild PR289 evaluation inventory
-
 on:
   push:
-    branches:
-      - feature/supabase-postgres-simulator-journal
-    paths:
-      - ".github/workflows/rebuild-pr289-inventory.yml"
-
+    branches: [feature/supabase-postgres-simulator-journal]
+    paths: [.github/workflows/rebuild-pr289-inventory.yml]
 permissions:
-  contents: read
-
+  contents: write
+concurrency:
+  group: pr289-integrated-inventory-final
+  cancel-in-progress: false
 jobs:
-  rebuild:
-    name: Generate complete inventories without write credentials
+  refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-        with:
-          version: "0.13.0"
-      - run: uv python install
-      - run: uv sync --locked --all-extras
-      - run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
-      - name: Collect complete coverage even when pre-rebuild inventory test fails
-        run: |
-          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
-            --junitxml=junit.xml --cov-report=term-missing || true
-      - name: Rebuild all four canonical evaluation inventories
-        run: |
-          cd evaluation
-          uv run --no-sync python -m evaltools.build_inventory \
-            --coverage ../.coverage --junit ../junit.xml
-      - name: Rerun full suite against refreshed inventory (must pass)
-        run: |
-          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
-            --junitxml=junit.xml --cov-report=term-missing
-      - name: Rebuild final inventory with passing test outcomes
-        run: |
-          cd evaluation
-          uv run --no-sync python -m evaltools.build_inventory \
-            --coverage ../.coverage --junit ../junit.xml
-      - name: Upload just the reviewed inventory files
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr289-inventory-rebuilt
-          if-no-files-found: error
-          retention-days: 1
-          path: |
-            evaluation/inventory/FUNCTION_INVENTORY.json
-            evaluation/inventory/TEST_INVENTORY.json
-            evaluation/inventory/TOOL_INVENTORY.json
-            evaluation/inventory/VERIFICATION_MATRIX.json
-
-  commit:
-    name: Update only PR289 inventory files
-    needs: rebuild
-    if: github.ref == 'refs/heads/feature/supabase-postgres-simulator-journal'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: feature/supabase-postgres-simulator-journal
           persist-credentials: true
-      - uses: actions/download-artifact@v4
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
-          name: pr289-inventory-rebuilt
-          path: ${{ runner.temp }}/inventory
-      - name: Copy generated inventories only
+          version: '0.13.0'
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
+      - name: Bootstrap complete source-matched coverage
+        shell: bash
+        run: |
+          set +e
+          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
+            --junitxml=junit.xml --cov-report=term-missing > bootstrap.log 2>&1
+          status=$?
+          set -e
+          tail -n 110 bootstrap.log
+          if [ "$status" -ne 0 ]; then
+            python - <<'PY'
+          import xml.etree.ElementTree as ET
+          cases = ET.parse("junit.xml").getroot().iter("testcase")
+          failures = [(case.attrib.get("classname",""),case.attrib.get("name",""))
+                      for case in cases if any(n.tag in ("failure","error") for n in case)]
+          allowed = {"test_the_repository_has_no_unexplained_python_file"}
+          if not failures or any(name not in allowed for _,name in failures):
+              raise SystemExit("Non-inventory test failure: " + repr(failures))
+          print("Only obsolete inventory file scope failed; rebuilding")
+          PY
+          fi
+      - name: Build first source-matched inventory
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Verify full test suite against refreshed inventory
+        run: uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test --junitxml=junit.xml --cov-report=term-missing
+      - name: Build final inventory from passing tests
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Commit inventories and delete one-time workflow
+        shell: bash
         run: |
           set -euo pipefail
-          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
-            source="$RUNNER_TEMP/inventory/evaluation/inventory/$name"
-            if [ ! -f "$source" ]; then
-              source="$RUNNER_TEMP/inventory/$name"
-            fi
-            test -f "$source"
-            python -m json.tool "$source" >/dev/null
-            cp "$source" "evaluation/inventory/$name"
-          done
-      - name: Commit inventory snapshot to the same PR branch
-        run: |
-          set -euo pipefail
-          # A later push supersedes this snapshot. Never commit stale test
-          # results to a newer source tree.
-          if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
-            echo "Newer branch head exists; no stale inventory commit"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- evaluation/inventory/FUNCTION_INVENTORY.json \
-            evaluation/inventory/TEST_INVENTORY.json \
-            evaluation/inventory/TOOL_INVENTORY.json \
-            evaluation/inventory/VERIFICATION_MATRIX.json
-          if git diff --cached --quiet; then
-            echo "No inventory changes were needed"
-            exit 0
-          fi
-          git commit -m "evaluation: rebuild inventory for Supabase journal changes"
-          git push origin HEAD:refs/heads/feature/supabase-postgres-simulator-journal
+          branch=feature/supabase-postgres-simulator-journal
+          git fetch origin "$branch"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse FETCH_HEAD)" || {
+            echo 'Branch changed while rebuilding; refusing to commit stale coverage'
+            exit 1
+          }
+          rm .github/workflows/rebuild-pr289-inventory.yml
+          git add -A -- evaluation/inventory/ .github/workflows/rebuild-pr289-inventory.yml
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'chore(eval): regenerate Supabase journal inventories on integrated main'
+          git push origin HEAD:refs/heads/"$branch"

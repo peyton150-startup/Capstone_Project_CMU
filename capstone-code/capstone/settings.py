@@ -360,6 +360,26 @@ class Settings(BaseSettings):
         default="model", validation_alias="TRIAGE_PLAN"
     )
 
+    # Opt-in model-free Hypothesize; the existing controller stays the default.
+    triage_hypothesize: Literal["model", "deterministic"] = Field(
+        default="model", validation_alias="TRIAGE_HYPOTHESIZE"
+    )
+
+    @model_validator(mode="after")
+    def deterministic_hypothesize_requires_guarded_triage(self):
+        """Do not run unscored candidates without the safe fixed evidence path."""
+        if self.triage_hypothesize == "deterministic" and (
+            self.triage_investigate != "deterministic"
+            or self.triage_plan != "fixed"
+            or not self.triage_evidence_tests
+        ):
+            raise ValueError(
+                "TRIAGE_HYPOTHESIZE=deterministic requires "
+                "TRIAGE_INVESTIGATE=deterministic, TRIAGE_PLAN=fixed "
+                "and TRIAGE_EVIDENCE_TESTS=on"
+            )
+        return self
+
     @model_validator(mode="after")
     def deterministic_triage_needs_fixed_plan(self):
         """A deterministic Decide cannot quietly use a model-backed Plan."""
