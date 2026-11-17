@@ -16,6 +16,28 @@ from tests.test_triage_deterministic_decide import (
 )
 
 
+def test_triage_mode_selects_run_unless_caller_explicitly_requests_deep():
+    from capstone.episode import triage_requested
+
+    deterministic = Settings(
+        _env_file=None, triage_run_mode="deterministic", triage=False
+    )
+    assert triage_requested(deterministic, None)
+    assert triage_requested(deterministic, True)
+    assert not triage_requested(deterministic, False)
+
+    custom = Settings(_env_file=None, triage_run_mode="custom", triage=False)
+    assert not triage_requested(custom, None)
+    assert triage_requested(custom, True)
+    assert not triage_requested(custom, False)
+
+    custom_enabled = Settings(
+        _env_file=None, triage_run_mode="custom", triage=True
+    )
+    assert triage_requested(custom_enabled, None)
+    assert not triage_requested(custom_enabled, False)
+
+
 def test_deterministic_profile_overrides_conflicting_raw_knobs():
     cfg = Settings(
         _env_file=None,
