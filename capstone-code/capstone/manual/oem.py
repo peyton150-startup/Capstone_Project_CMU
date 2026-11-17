@@ -4,6 +4,7 @@ PDF extraction and OCR are deliberately not delegated to an LLM. An operator
 must review/approve the text and page numbers in the manifest before --apply.
 No OEM document or source is placed into the public Git repository.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -30,8 +31,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 
 from capstone.ingestion.privacy import refusal
-from capstone.manual.sections import ManualSection
 from capstone.manual.neon import open_neon_manual
+from capstone.manual.sections import ManualSection
 
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 MAX_PDF_BYTES = 12 * 1024 * 1024

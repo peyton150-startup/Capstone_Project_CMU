@@ -1,15 +1,16 @@
 """Collector-only FastAPI ingress security, bounded body and ACK contract."""
+
 from uuid import uuid4
 
 import pytest
 
 pytest.importorskip("sqlalchemy")
 fastapi = pytest.importorskip("fastapi")
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
-from capstone.api.live_ingest import router_for
-from capstone.ingestion.cloud_contract import IngestBatch, validate_record
-from tests.test_cloud_pilot import change, scope
+from capstone.api.live_ingest import router_for  # noqa: E402
+from capstone.ingestion.cloud_contract import IngestBatch, validate_record  # noqa: E402
+from tests.test_cloud_pilot import change, scope  # noqa: E402
 
 
 class FakeRepository:

@@ -4,6 +4,7 @@ The recorder writes an independent durable local spool. This process reads
 only complete JSONL lines, validates the approved scope before egress, and
 advances a fsynced local cursor ONLY after the cloud transaction ACK.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -21,10 +22,14 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from capstone.ingestion.cloud_contract import scope_from_file
-from capstone.ingestion.cloud_contract import CloudScope, IngestBatch, validate_record
-from capstone.ingestion.siemens_opcua_record import NodeRef
+from capstone.ingestion.cloud_contract import (
+    CloudScope,
+    IngestBatch,
+    scope_from_file,
+    validate_record,
+)
 from capstone.ingestion.privacy import refusal
+from capstone.ingestion.siemens_opcua_record import NodeRef
 
 MAX_LINE_BYTES = 64 * 1024
 MAX_BATCH_BYTES = 120 * 1024

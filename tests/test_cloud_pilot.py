@@ -1,4 +1,5 @@
 """Offline authenticated Siemens cloud ingest, authorization and replay tests."""
+
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -16,17 +17,17 @@ from capstone.ingestion.cloud_contract import (
     validate_record,
 )
 from capstone.ingestion.cloud_store import postgres_engine
-from capstone.ingestion.siemens_opcua_record import (
-    NodeRef,
-    OpcUaGap,
-    OpcUaSessionMarker,
-    data_change,
-)
 from capstone.ingestion.cloud_uplink import (
     UploadError,
     load_cursor,
     read_batch,
     upload_once,
+)
+from capstone.ingestion.siemens_opcua_record import (
+    NodeRef,
+    OpcUaGap,
+    OpcUaSessionMarker,
+    data_change,
 )
 
 T0 = datetime(2026, 11, 17, 14, 0, tzinfo=UTC)
