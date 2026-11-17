@@ -51,16 +51,25 @@ def safe_hypothesis_progress(state: Any) -> dict[str, Any] | None:
         return None
     from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
 
-    candidates = tuple(
-        c for c in state.triage_candidates if isinstance(c, TriageCandidate)
-    )
-    last = next(
-        (
-            t for t in reversed(state.triage_hypothesis_trace)
-            if isinstance(t, TriageHypothesisTrace)
-        ),
-        None,
-    )
+    candidates = []
+    for value in state.triage_candidates:
+        if not isinstance(value, TriageCandidate):
+            continue
+        try:
+            # Do not trust Pydantic instances produced by unchecked model_copy
+            # updates or mutated nested references. Validate actual values.
+            candidates.append(TriageCandidate.model_validate(value.model_dump()))
+        except (TypeError, ValueError):
+            continue
+    last = None
+    for value in reversed(state.triage_hypothesis_trace):
+        if not isinstance(value, TriageHypothesisTrace):
+            continue
+        try:
+            last = TriageHypothesisTrace.model_validate(value.model_dump())
+            break
+        except (TypeError, ValueError):
+            continue
     return {
         "rule_version": None if last is None else last.rule_version,
         "candidate_count": len(candidates),
