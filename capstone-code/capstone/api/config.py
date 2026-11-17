@@ -60,9 +60,7 @@ class UiConfig:
             and self.run_backend == "postgres"
             and not self.run_database_url
         ):
-            raise ValueError(
-                "PostgreSQL journal requires CAPSTONE_UI_RUN_DATABASE_URL"
-            )
+            raise ValueError("PostgreSQL journal requires CAPSTONE_UI_RUN_DATABASE_URL")
         if self.runs_enabled:
             if (
                 self.run_db is None
