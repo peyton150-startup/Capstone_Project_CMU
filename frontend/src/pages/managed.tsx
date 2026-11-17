@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { postJson, useResource } from '../api';
+import { resolveApiUrl } from '../backend.mjs';
+import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
 import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
@@ -17,7 +19,7 @@ function useManagedRuns(pollMs = 5000) {
 }
 
 export function ManagedRunLauncher() {
-  const { workspace, preview, token } = useUi();
+  const { workspace, preview, token, backend } = useUi();
   const capability = useResource<Capabilities>('/api/v1/capabilities', token, preview);
   const navigate = useNavigate();
   const [seed, setSeed] = useState('3');
@@ -41,7 +43,7 @@ export function ManagedRunLauncher() {
     if (!key.current) key.current = crypto.randomUUID().replaceAll('-', '');
     try {
       const run = await postJson<ManagedRun>('/api/v1/lab/runs?workspace=simulator', token,
-        { seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual }, key.current);
+        { seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual }, backend, key.current);
       navigate('/lab/runs/' + encodeURIComponent(run.run_id));
     } catch (problem) {
       setError(problem instanceof Error ? problem.message : 'Unable to start run');
@@ -103,14 +105,14 @@ export function ManagedRunList() {
   </Panel>;
 }
 
-function useJournal(runId: string | undefined, token: string, enabled: boolean) {
+function useJournal(runId: string | undefined, token: string, enabled: boolean, backend: ApiBackend) {
   const [events, setEvents] = useState<RunEvent[]>([]);
   const [status, setStatus] = useState('not_connected');
   const cursor = useRef(0);
   useEffect(() => {
     setEvents([]);
     cursor.current = 0;
-    if (!enabled || !runId || !token) return;
+    if (!enabled || !runId) return;
     let closed = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
     const abort = new AbortController();
@@ -119,9 +121,11 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean) 
       if (closed || !runId) return;
       try {
         setStatus('connecting');
-        const response = await fetch('/api/v1/lab/runs/' + encodeURIComponent(runId) +
-            '/events?workspace=simulator&since=' + cursor.current, {
-          headers: { Authorization: 'Bearer ' + token }, signal: abort.signal, cache: 'no-store',
+        const url = resolveApiUrl('/api/v1/lab/runs/' + encodeURIComponent(runId) +
+          '/events?workspace=simulator&since=' + cursor.current, backend, window.location.hostname);
+        const response = await fetch(url, {
+          headers: token ? { Authorization: 'Bearer ' + token } : {},
+          signal: abort.signal, cache: 'no-store',
         });
         if (!response.ok || !response.body) throw new Error('Event stream unavailable (' + response.status + ')');
         setStatus('connected');
@@ -162,19 +166,19 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean) 
     }
     void connect();
     return () => { closed = true; abort.abort(); if (retry) clearTimeout(retry); };
-  }, [runId, token, enabled]);
+  }, [runId, token, enabled, backend]);
   return {events, status};
 }
 
 export function RunDetailPage() {
   const { runId } = useParams();
-  const { workspace, preview, token } = useUi();
+  const { workspace, preview, token, backend } = useUi();
   const enabled = workspace === 'simulator' && !preview && Boolean(runId);
   const resource = useResource<ManagedRun>(
     enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) + '?workspace=simulator' : null,
     token, !enabled, 3000,
   );
-  const journal = useJournal(runId, token, enabled);
+  const journal = useJournal(runId, token, enabled, backend);
   const audit = useResource<{availability:string; detail:InvestigationDetail|null}>(
     enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) +
       '/investigation?workspace=simulator' : null,
@@ -310,7 +314,7 @@ export function ManagedTriageOverview() {
 }
 
 export function ManagedReviewDesk() {
-  const {workspace, preview, token} = useUi();
+  const {workspace, preview, token, backend} = useUi();
   const authorized = workspace === 'simulator' && !preview;
   const resource = useResource<ListResponse<ReviewRequest>>(
     authorized ? '/api/v1/simulator/reviews?workspace=simulator' : null, token, !authorized, 2000,
@@ -327,7 +331,7 @@ export function ManagedReviewDesk() {
       await postJson('/api/v1/simulator/reviews/' + encodeURIComponent(item.run_id) +
         '?workspace=simulator', token, {
         proposal_id: item.proposal_id, decision: action, note: notes[key] || '',
-      });
+      }, backend);
       setMessage('Decision recorded. Execution and verification remain separate.');
     } catch (problem) {
       setMessage(problem instanceof Error ? problem.message : 'Review failed');

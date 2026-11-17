@@ -4,12 +4,13 @@ import {
   Activity, Archive, ArrowRight, Bell, BookOpen, Boxes, BrainCircuit, ChartNoAxesCombined,
   ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, ClipboardList, Database,
   FlaskConical, Gauge, GitCompareArrows, History, House, Layers, LockKeyhole,
-  Menu, Moon, RadioTower, Search, Settings2, ShieldCheck, Signal,
+  Menu, Moon, RadioTower, Search, Server, Settings2, ShieldCheck, Signal,
   SlidersHorizontal, Sun, TerminalSquare, Waypoints, X,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useUi } from './context';
 import { useResource } from './api';
+import { isLoopbackFrontend } from './backend.mjs';
 import { Pill } from './ui';
 import type { Capabilities } from './types';
 import {
@@ -101,14 +102,14 @@ function Sidebar({ expanded, setExpanded, mobileOpen, closeMobile }: {
 }
 
 function AccessDialog({ close }: { close: () => void }) {
-  const { token, setToken } = useUi();
+  const { token, setToken, backend } = useUi();
   const [value, setValue] = useState(token);
   return <div className="dialog-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
     <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="access-title">
       <div className="dialog-top"><span className="tile-icon"><LockKeyhole size={21}/></span>
         <button className="icon-button" aria-label="Close" onClick={close}><X size={20}/></button></div>
-      <h2 id="access-title">Local API access</h2>
-      <p>Enter the token configured on the local FastAPI service. It stays in browser memory and is never saved to a file or local storage.</p>
+      <h2 id="access-title">{backend === 'local' ? 'Local' : 'Render'} API access</h2>
+      <p>Enter the token configured for the selected FastAPI service. Tokens stay in browser memory, separated by backend, and are never persisted.</p>
       <label className="field-label" htmlFor="api-token">Session token</label>
       <input id="api-token" type="password" autoComplete="off" value={value}
         placeholder="CAPSTONE_UI_TOKEN" onChange={e => setValue(e.target.value)} />
@@ -119,7 +120,7 @@ function AccessDialog({ close }: { close: () => void }) {
 }
 
 function Topbar({ openMenu }: { openMenu: () => void }) {
-  const { workspace, preview, setPreview, theme, setTheme, token } = useUi();
+  const { workspace, preview, setPreview, theme, setTheme, token, backend, setBackend } = useUi();
   const location = useLocation(), navigate = useNavigate();
   const [showAccess, setShowAccess] = useState(false);
   const [search, setSearch] = useState('');
@@ -149,6 +150,13 @@ function Topbar({ openMenu }: { openMenu: () => void }) {
             }}>{item.title}<ArrowRight size={15}/></button>)}
           </div>}
         </div>
+        <button className={'backend-switch ' + (backend === 'render' ? 'backend-render' : '')}
+          onClick={() => setBackend(backend === 'local' ? 'render' : 'local')}
+          aria-label={'API backend: ' + backend + '. Switch to ' + (backend === 'local' ? 'Render' : 'Local')}
+          aria-pressed={backend === 'render'}
+          title={backend === 'local' ? 'Local FastAPI at 127.0.0.1:8000' : 'Render FastAPI'}>
+          <Server size={16}/><span>{backend === 'local' ? 'Local' : 'Render'}</span>
+        </button>
         <button className={'preview-toggle ' + (preview ? 'preview-active' : '')}
           onClick={() => setPreview(!preview)} title="Switch between real sources and labeled synthetic interface preview">
           <span className="preview-dot"/>{preview ? 'Exit preview' : 'Preview UI'}
@@ -167,10 +175,14 @@ function Topbar({ openMenu }: { openMenu: () => void }) {
 }
 
 function Banner() {
-  const { preview, workspace } = useUi();
+  const { preview, workspace, backend } = useUi();
   if (preview) return <div className="banner banner-demo">
     <Bell size={17}/><strong>SYNTHETIC INTERFACE PREVIEW</strong>
     <span>Illustrative data only. Not connected to a controller, live agent, or recorded factory data.</span>
+  </div>;
+  if (backend === 'local' && !isLoopbackFrontend(window.location.hostname)) return <div className="banner banner-pilot">
+    <ShieldCheck size={17}/><strong>LOCAL API UNAVAILABLE</strong>
+    <span>A Vercel-hosted frontend cannot access your laptop's loopback API. Open the local frontend or switch to Render.</span>
   </div>;
   if (workspace === 'pilot') return <div className="banner banner-pilot">
     <ShieldCheck size={17}/><strong>READ-ONLY PILOT</strong>
@@ -182,7 +194,7 @@ function Banner() {
 export function App() {
   const [expanded, setExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { preview, token } = useUi();
+  const { preview, token, backend } = useUi();
   const capability = useResource<Capabilities>('/api/v1/capabilities', token, preview);
   const location = useLocation();
   useEffect(() => { window.scrollTo({ top: 0 }); }, [location.pathname]);
@@ -194,10 +206,10 @@ export function App() {
       <Banner />
       {!preview && capability.error && <div className="api-warning">
         <LockKeyhole size={17}/>{capability.error}
-        <span>Data panels remain unavailable until access is configured.</span>
+        <span>Check the selected API, connectivity, and access credentials.</span>
       </div>}
       <main id="main-content" className="content">
-        <Routes>
+        <Routes key={backend}>
           <Route path="/" element={<HomePage/>}/>
           <Route path="/overview" element={<OverviewPage/>}/>
           <Route path="/investigations" element={<InvestigationListPage/>}/>
@@ -227,7 +239,7 @@ export function App() {
         </Routes>
       </main>
       <footer className="footer"><span>FORGE / Manufacturing Research Assistant</span><span><Pill text={preview ? 'SYNTHETIC' : 'SOURCE-BOUND'} tone={preview ? 'warning' : 'neutral'}/>
-        <span>v0.1 · local industrial console</span></span></footer>
+        <span>v0.1 · {backend.toUpperCase()} API</span></span></footer>
     </div>
   </div>;
 }
