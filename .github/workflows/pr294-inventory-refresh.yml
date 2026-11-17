@@ -109,7 +109,11 @@ jobs:
           set -euo pipefail
           # Build real per-test coverage/JUnit evidence without rerunning all
           # 3,000+ tests; the final CI gates full-suite verification.
-          uv run --no-sync pytest -q tests/test_web_runs.py tests/test_run_repository.py \
+          uv run --no-sync pytest -q \
+            tests/test_web_runs.py::test_typed_stage_projection_excludes_agent_internals \
+            tests/test_web_runs.py::test_render_progress_contract_rejects_secret_fields_and_free_text \
+            tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy \
+            tests/test_run_repository.py::test_event_contract_refuses_unapproved_fields \
             --cov=capstone --cov=evaltools --cov-context=test \
             --junitxml=junit.xml --cov-report=term-missing
       - name: Build coverage-backed source-matched inventory
