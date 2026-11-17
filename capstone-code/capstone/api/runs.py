@@ -462,17 +462,20 @@ class SimulatorRuns:
             except (ValueError, TypeError):
                 pass
         items = []
+        invalid_rows = 0
         for seq, raw in reversed(rows[:MAX_CALLS]):
             try:
                 # Revalidate on reads: storage is NOT an API serializer.
                 clean = SafeModelCall.model_validate_json(raw).model_dump(mode="json")
             except (ValueError, TypeError):
+                invalid_rows += 1
                 continue
             items.append({"seq": seq, **clean})
         return {
             "availability": "available" if marker is not None else "not_recorded",
             "window_scope": "latest_200",
             "truncated": len(rows) > MAX_CALLS,
+            "invalid_rows": invalid_rows,
             "configuration": configuration,
             "summary": summary,
             "items": items,
