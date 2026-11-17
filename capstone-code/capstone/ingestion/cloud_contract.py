@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Literal
 from uuid import UUID
 
@@ -111,7 +112,9 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(raw, dict) or raw.get("schema_version") != 2:
         raise ValueError("only Siemens OPC UA schema v2 is authorized")
     if raw.get("record_type") == "data_change":
-        record = OpcUaDataChange.model_validate(raw)
+        record = OpcUaDataChange.model_validate(
+            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "verified_unit")}
+        )
         if record.server_uri != scope.server_uri:
             raise PermissionError("OPC UA server identity changed")
         permission = scope.approved(record.node)
@@ -132,7 +135,9 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         payload["verified_unit"] = permission.unit if eligible else None
         return payload
     if raw.get("record_type") == "opcua_session":
-        record = OpcUaSessionMarker.model_validate(raw)
+        record = OpcUaSessionMarker.model_validate(
+            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "verified_unit")}
+        )
         if record.server_uri != scope.server_uri:
             raise PermissionError("OPC UA server identity changed")
         if record.gap is not None and record.gap.node is not None:
@@ -142,6 +147,16 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         payload["analysis_eligible"] = False
         return payload
     raise ValueError("unsupported OPC UA record type")
+
+
+def scope_from_file(path: Path) -> CloudScope:
+    """Reload current approval every batch to honor revocation/expiry."""
+    try:
+        if not path.is_absolute() or path.stat().st_size > 32_768:
+            raise ValueError
+        return CloudScope.model_validate_json(path.read_bytes())
+    except (OSError, ValueError):
+        raise RuntimeError("Approved Siemens source profile unavailable") from None
 
 
 class IngestBatch(BaseModel):

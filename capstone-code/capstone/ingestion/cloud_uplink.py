@@ -21,7 +21,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from capstone.api.live_ingest import scope_from_file
+from capstone.ingestion.cloud_contract import scope_from_file
 from capstone.ingestion.cloud_contract import CloudScope, IngestBatch, validate_record
 from capstone.ingestion.privacy import refusal
 

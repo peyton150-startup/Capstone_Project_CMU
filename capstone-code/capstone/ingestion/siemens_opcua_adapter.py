@@ -830,13 +830,15 @@ def load_config(path: Path) -> SiemensOpcUaConfig:
     return SiemensOpcUaConfig.model_validate_json(path.read_text(encoding="utf-8"))
 
 
-def file_sink(path: Path) -> Callable[[OpcUaLine], None]:
+def file_sink(path: Path, *, durable: bool = False) -> Callable[[OpcUaLine], None]:
     """A sink that appends each line to a JSONL file and flushes it."""
 
     def write(line: OpcUaLine) -> None:
         with path.open("a", encoding="utf-8") as out:
             out.write(to_json_line(line) + "\n")
             out.flush()
+            if durable:
+                os.fsync(out.fileno())
 
     return write
 
@@ -876,6 +878,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--audit", type=Path, default=None)
+    parser.add_argument(
+        "--durable", action="store_true",
+        help="fsync each captured change/marker before returning from the sink",
+    )
     args = parser.parse_args(argv)
     trail = args.audit or args.out.with_name(args.out.stem + ".audit.jsonl")
     try:
@@ -884,7 +890,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"config: {type(error).__name__}: {error}", file=sys.stderr)
         return 2
     collector = SiemensOpcUaCollector(
-        config, file_sink(args.out), audit=audit_file(trail)
+        config, file_sink(args.out, durable=args.durable), audit=audit_file(trail)
     )
 
     async def collect() -> None:

@@ -65,6 +65,11 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         if cfg.runs_enabled and cfg.run_db is not None
         else None
     )
+    from capstone.api.live_ingest import router_from_env
+
+    ingest_router = router_from_env(
+        (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token)
+    )
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
     app = FastAPI(
@@ -74,6 +79,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+    if ingest_router is not None:
+        app.include_router(ingest_router)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[

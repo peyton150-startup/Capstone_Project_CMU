@@ -6,7 +6,6 @@ The verified on-site collector remains an independent read-only process.
 from __future__ import annotations
 
 import hmac
-import json
 import os
 from collections.abc import Callable
 from pathlib import Path
@@ -14,7 +13,7 @@ from pathlib import Path
 from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import ValidationError
 
-from capstone.ingestion.cloud_contract import CloudScope, IngestBatch
+from capstone.ingestion.cloud_contract import CloudScope, IngestBatch, scope_from_file
 from capstone.ingestion.cloud_store import (
     IngestConflict,
     SiemensCloudRepository,
@@ -22,16 +21,6 @@ from capstone.ingestion.cloud_store import (
 )
 
 MAX_UPLOAD_BYTES = 256 * 1024
-
-
-def scope_from_file(path: Path) -> CloudScope:
-    """Read on every batch: revoke or expire without restarting Render."""
-    try:
-        if not path.is_absolute() or path.stat().st_size > 32_768:
-            raise ValueError
-        return CloudScope.model_validate_json(path.read_bytes())
-    except (OSError, ValidationError, ValueError):
-        raise RuntimeError("Approved Siemens source profile unavailable") from None
 
 
 def router_for(
