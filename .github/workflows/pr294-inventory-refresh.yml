@@ -1,4 +1,4 @@
-# Fast PR294 source-matched inventory rebuild; targeted test evidence, full final CI separately.
+# Fast PR294 source-matched inventory rebuild; rerun after ID validation correction.
 name: PR 294 source-matched inventory refresh
 on:
   push:
