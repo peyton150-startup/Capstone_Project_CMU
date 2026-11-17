@@ -145,12 +145,16 @@ class PrivatePDFStorage:
         self.bucket = bucket
 
     def _request(self, key: str, payload: bytes | None, method: str):
-        url = (
-            self.origin
-            + "/storage/v1/object/"
-            + quote(self.bucket, safe="")
-            + "/"
-            + quote(key, safe="/")
+        # Supabase private downloads require the authenticated route; the
+        # upload route is POST /object/<bucket>/<key> and must not be reused
+        # for checking a 409 response. No signed/public URL is generated.
+        route = (
+            "/storage/v1/object/authenticated/"
+            if method == "GET"
+            else "/storage/v1/object/"
+        )
+        url = self.origin + route + quote(self.bucket, safe="") + "/" + quote(
+            key, safe="/"
         )
         request = Request(
             url,
