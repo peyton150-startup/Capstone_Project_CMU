@@ -85,7 +85,9 @@ class EffectiveTriageRun(BaseModel):
             or self.observe_calls != "separate"
             or self.hypothesis_seconds != 0
         ):
-            raise ValueError("deterministic run override must control all triage stages")
+            raise ValueError(
+                "deterministic run override must control all triage stages"
+            )
         if self.seconds <= self.hypothesis_seconds:
             raise ValueError("hypothesis reserve must leave triage research time")
         return self
