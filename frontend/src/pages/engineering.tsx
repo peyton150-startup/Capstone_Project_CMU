@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Activity, ArrowRight, Database, Gauge, LockKeyhole,
   RadioTower, SlidersHorizontal, TerminalSquare } from 'lucide-react';
 import { useResource } from '../api';
@@ -121,8 +122,8 @@ export function SettingsPage() {
     [data.data,filter]);
   return <>
     <PageHeading eyebrow="ENGINEERING / CONFIGURATION" title="Settings"
-      description="Validated server-owned values. No secret keys or implicit changes to running experiments."
-      right={<Pill text="READ ONLY" tone="neutral"/>}/>
+      description="Server-wide environment is read-only. Simulator experiments can edit and freeze their own validated settings when launched."
+      right={<Pill text="GLOBAL SETTINGS READ ONLY" tone="neutral"/>}/>
     <div className="two-column uneven">
       <Panel title="Effective runtime settings" subtitle="Strict allowlist; not an editable .env browser">
         <div className="settings-toolbar"><input aria-label="Filter settings" placeholder="Filter by variable name..."
@@ -141,16 +142,19 @@ export function SettingsPage() {
             onClick={()=>setTheme('light')}>Light</button></div>}/>
         <div className="divider-soft"/>
         <h3>Engineering boundaries</h3>
-        <p className="body-copy">The backend owns model selection, time budgets, critic and triage enforcement.
-          A future settings editor must validate proposed changes and snapshot them at run creation.
-          This release does not expose any runtime-mutation endpoint.</p>
+        <p className="body-copy">The server owns credentials and model-provider routing.
+          The simulator launch editor can select triage mode, stage routes, time/tool budgets
+          and Conclude controls for each new run. Those values are validated by the API
+          and saved at submission; global settings and existing runs do not change.</p>
+        <Link className="button-primary" to="/lab">Open per-run triage settings</Link>
       </Panel>
     </div>
-    <Panel title="Configuration groups" subtitle="Organized for future validated run settings">
+    <Panel title="Configuration groups" subtitle="Global controls remain server-owned; experiment controls can change per run">
       <div className="settings-categories">{['Investigation & triage','Model routing','Critic & review',
         'Manuals & retrieval','Runtime budgets','Recording & privacy'].map((g,i)=>
         <div className="settings-category" key={g}><span>{'0'+(i+1)}</span><strong>{g}</strong>
-          <Pill text="Server controlled" tone="neutral"/></div>)}</div>
+          <Pill text={g==='Investigation & triage'||g==='Runtime budgets'?
+            'Editable per simulator run':'Server controlled'} tone="neutral"/></div>)}</div>
     </Panel>
   </>;
 }
