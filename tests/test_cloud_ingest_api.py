@@ -20,8 +20,10 @@ class FakeRepository:
     def accept(self, batch, approved_scope):
         self.accepted.append((batch, approved_scope))
         return {
-            "digest": batch.digest, "next_line": batch.first_line + len(batch.records),
-            "accepted": len(batch.records), "replayed": False,
+            "digest": batch.digest,
+            "next_line": batch.first_line + len(batch.records),
+            "accepted": len(batch.records),
+            "replayed": False,
         }
 
 
@@ -29,7 +31,9 @@ def client(repository, source=None):
     app = fastapi.FastAPI()
     app.include_router(
         router_for(
-            "s" * 48, source or scope, repository,
+            "s" * 48,
+            source or scope,
+            repository,
         )
     )
     return TestClient(app)
@@ -46,7 +50,10 @@ def good_batch():
 def test_unauthenticated_upload_is_refused_before_repository():
     store = FakeRepository()
     app = client(store)
-    assert app.post("/api/v1/ingest/siemens/batches", content=b"invalid").status_code == 401
+    assert (
+        app.post("/api/v1/ingest/siemens/batches", content=b"invalid").status_code
+        == 401
+    )
     assert store.accepted == []
 
 
@@ -56,12 +63,14 @@ def test_collector_token_produces_receipt_and_ui_token_cannot_upload():
     payload = good_batch()
     endpoint = "/api/v1/ingest/siemens/batches"
     invalid = app.post(
-        endpoint, json=payload.model_dump(mode="json"),
+        endpoint,
+        json=payload.model_dump(mode="json"),
         headers={"Authorization": "Bearer viewer-not-collector"},
     )
     assert invalid.status_code == 401
     result = app.post(
-        endpoint, json=payload.model_dump(mode="json"),
+        endpoint,
+        json=payload.model_dump(mode="json"),
         headers={"Authorization": "Bearer " + "s" * 48},
     )
     assert result.status_code == 200
@@ -75,9 +84,15 @@ def test_oversized_batch_and_invalid_digest_fail_before_write():
     app = client(store)
     auth = {"Authorization": "Bearer " + "s" * 48}
     endpoint = "/api/v1/ingest/siemens/batches"
-    assert app.post(endpoint, content=b"x" * (256 * 1024 + 1), headers=auth).status_code == 413
+    assert (
+        app.post(endpoint, content=b"x" * (256 * 1024 + 1), headers=auth).status_code
+        == 413
+    )
     batch = good_batch().model_copy(update={"digest": "a" * 64})
-    assert app.post(endpoint, json=batch.model_dump(mode="json"), headers=auth).status_code == 422
+    assert (
+        app.post(endpoint, json=batch.model_dump(mode="json"), headers=auth).status_code
+        == 422
+    )
     assert store.accepted == []
 
 
@@ -86,16 +101,24 @@ def test_scope_revocation_blocks_future_batches_without_server_restart():
     flag = {"enabled": True}
 
     def approved():
-        return scope().model_copy(
-            update={"cloud_transfer_approved": flag["enabled"]}
-        )
+        return scope().model_copy(update={"cloud_transfer_approved": flag["enabled"]})
 
     app = client(store, source=approved)
     flags = {"Authorization": "Bearer " + "s" * 48}
     batch = good_batch().model_dump(mode="json")
-    assert app.post("/api/v1/ingest/siemens/batches", json=batch, headers=flags).status_code == 200
+    assert (
+        app.post(
+            "/api/v1/ingest/siemens/batches", json=batch, headers=flags
+        ).status_code
+        == 200
+    )
     flag["enabled"] = False
-    assert app.post("/api/v1/ingest/siemens/batches", json=batch, headers=flags).status_code == 403
+    assert (
+        app.post(
+            "/api/v1/ingest/siemens/batches", json=batch, headers=flags
+        ).status_code
+        == 403
+    )
     assert len(store.accepted) == 1  # Route stops revoked data before storage.
 
 
