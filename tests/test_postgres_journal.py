@@ -79,6 +79,50 @@ def test_postgres_adapter_preserves_parameterized_sql_without_interpolating():
     ]
 
 
+def test_sqlite_import_preview_is_read_only_and_includes_private_artifacts(tmp_path):
+    import json
+    import uuid
+
+    from capstone.api.import_sqlite import preview
+    from capstone.api.runs import SimulatorRuns
+
+    db_path = tmp_path / "local-runs.sqlite"
+    source = SimulatorRuns(db_path)
+    run_id = str(uuid.uuid4())
+    with source._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                run_id, "preview-import-key-0001", '{"seed":1}', "running",
+                '{"status":"running"}', "2026-11-16T00:00:00Z",
+                "2026-11-16T00:00:00Z",
+            ),
+        )
+        db.execute(
+            "INSERT INTO run_events VALUES (?, ?, ?, ?, ?)",
+            (
+                run_id, 1, "run.started", json.dumps({"status": "running"}),
+                "2026-11-16T00:00:00Z",
+            ),
+        )
+        db.execute(
+            "INSERT INTO run_reviews VALUES (?, ?, ?, ?)",
+            (run_id, 1, "pending", '{"proposal_id":1}'),
+        )
+    path = source.investigation_audit_path(run_id)
+    path.parent.mkdir(parents=True)
+    path.write_bytes(b'{"record_type":"audit"}\\n')
+    before = hashlib.sha256(db_path.read_bytes()).digest()
+    result = preview(db_path)
+    assert result == {
+        "runs": 1, "events": 1, "reviews": 1, "artifacts": 1,
+        "missing_artifacts": 1, "will_interrupt_incomplete_runs": 1,
+        "source_unchanged": True,
+    }
+    assert hashlib.sha256(db_path.read_bytes()).digest() == before
+    assert source.get(run_id)["state"] == "running"
+
+
 @pytest.fixture
 def localhost_postgres(monkeypatch, tmp_path):
     url = os.environ.get("CAPSTONE_TEST_POSTGRES_URL")
