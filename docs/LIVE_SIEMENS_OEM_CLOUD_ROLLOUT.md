@@ -11,7 +11,8 @@ Approved Siemens OPC UA server  [on OT network; NO internet exposure]
   └─ SiemensOpcUaCollector --durable ── approved v2 JSONL + audit
       └─ cloud_uplink --scope --collector-config --cursor
           ├─ exact server/node/approval/time/quality gate before egress
-          ├─ durable atomic cursor; complete lines only; bounded batches
+          ├─ durable cursor; SHA-256 of ALL ACKed source bytes, complete lines
+          │   only, bounded batches; refuse mutation before/during upload
           ├─ HTTPS POST /api/v1/ingest/siemens/batches (collector-only bearer)
           │   └─ Render FastAPI → independent Supabase PostgreSQL session pool
           │       └─ capstone_ingest.streams, batches, records (transaction)
@@ -132,7 +133,15 @@ the source file underneath a cursor is a fatal, visible failure.
 
 **Failure behavior:** 401/403/409/413/422/503 do not advance the cursor;
 a lost ACK resubmits the same digest and gets the same receipt. Rows and stream
-cursor commit atomically. No partial-line skip, silent cross-node scope
+cursor commit atomically. The cursor now records the SHA-256 of its entire
+ACKed file prefix (not just the first 256 bytes). On resume, the complete
+ACKed prefix is hashed in bounded chunks; before dispatch, the exact source
+bytes used to validate each batch are rechecked; after a successful receipt,
+those same bytes are checked again before advancing the durable cursor.
+A recorder rewrite/truncation halts export rather than skipping silently.
+**Older experimental cursor files without `committed_sha256` are not
+compatible**: do not delete/recreate them after cloud acceptance without
+reconciling the remote stream receipt with the original source first. No partial-line skip, silent cross-node scope
 merging, or automatic deletion on failure. App restart does not lose DB rows.
 The uploader must not be deployed inside ephemeral Render storage.
 
@@ -163,7 +172,9 @@ python -m capstone.manual.oem \
 
 The uploader creates immutable private object
 `site/machine/document/revision/sha256.pdf`. If the object already exists,
-retry performs a byte-for-byte hash check instead of overwriting it. Neon
+retry performs a byte-for-byte hash check through Supabase's authenticated
+private-download endpoint (`/storage/v1/object/authenticated/`), not a
+public URL or the upload endpoint, instead of overwriting it. Neon
 publishes reviewed sections and machine/controller eligibility in one
 transaction. A partial cross-provider failure may leave an **unpublished
 orphan PDF** that must be reconciled by an authorized operator; never silently
@@ -217,7 +228,11 @@ stale data, missing source timestamps, gap-marker redaction, auth/revocation,
 multipart/oversize rejection, ACK replay, truncation/corruption, PDF hash,
 actual bucket privacy and machine/controller retrieval scope. Disposable
 PostgreSQL 17 (Supabase) and PostgreSQL 18/pgvector (Neon) integration workflow
-exercises the actual migrations and transactional behavior.
+exercises the actual migrations and transactional behavior. The synthetic
+end-to-end acceptance additionally runs a complete approved capture through
+`cloud_uplink`, the authenticated FastAPI collector route, and disposable
+PostgreSQL, then simulates an ACK lost after commit to prove idempotent replay
+and cursor advancement only on the verified response.
 
 **This PR does NOT yet verify** real Siemens licensing, a field-captured
 seven-day soak, on-site disk exhaustion behavior, production credentials,
