@@ -412,7 +412,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     def settings_effective() -> dict:
         """Validated global scalars, including .env defaults; never credentials."""
         settings = get_settings()
-        profile = settings.effective_triage
+        effective = resolve_triage_run(settings)
         return {
             "editable": False,
             "items": [
@@ -428,7 +428,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 for name, attr in PUBLIC_SETTING_FIELDS.items()
                 for value in (getattr(settings, attr),)
             ],
-            "triage_profile": profile.model_dump(mode="json"),
+            "triage_profile": effective.model_dump(mode="json"),
+            "triage_stage_modes": effective.stage_modes(),
             "conclude": "model-backed",
         }
 
