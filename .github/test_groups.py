@@ -181,6 +181,7 @@ GROUPS: dict[str, list[str]] = {
         "web_runs",
         "postgres_journal",
         "run_repository",
+        "hosted_worker",
     ],
     "Live telemetry": [
         "mtconnect_ingestion",
