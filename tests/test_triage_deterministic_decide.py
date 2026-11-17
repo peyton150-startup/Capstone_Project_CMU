@@ -177,6 +177,8 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
     state.last_tick = 45
     state.unanswered_questions = list(fixed_plan(anomaly))
     state.fixed_plan_used = True
+    # Independent post-Observe fixture: the source clock has been admitted.
+    state.triage_clock_verified = True
 
     def records(request):
         if request.name == "get_inspections":
