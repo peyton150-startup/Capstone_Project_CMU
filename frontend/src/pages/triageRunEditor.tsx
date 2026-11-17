@@ -141,6 +141,12 @@ export function TriageRunEditor({
       <p className="body-copy">The server has not confirmed an effective configuration.</p>}
     {preview && <>
       <DataRow label="Configuration ID" value={preview.fingerprint}/>
+      <DataRow label="Scenario" value={preview.run_inputs.kind +
+        ', seed ' + String(preview.run_inputs.seed)}/>
+      <DataRow label="Tools & research" value={
+        'Hazards: ' + (preview.run_inputs.hazards?'on':'off') +
+        ' · Tree-of-Thought: ' + (preview.run_inputs.tree_of_thought?'on':'off') +
+        ' · Manual: ' + preview.run_inputs.manual}/>
       <DataRow label="Conclude model (configured primary)" value={preview.configured_conclude_primary}/>
       <DataRow label="Model execution" value={preview.model_attempts}/>
       {!preview.applied && <p className="body-copy">
