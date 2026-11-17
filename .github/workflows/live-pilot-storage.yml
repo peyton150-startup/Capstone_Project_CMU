@@ -53,6 +53,8 @@ jobs:
           version: "0.13.0"
       - run: uv python install
       - run: uv sync --locked --all-extras
+      - name: Install pinned FastAPI test boundary
+        run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
       - name: Migrate only disposable databases and exercise real transactions
         env:
           SUPABASE_TEST_URL: postgresql://postgres:synthetic_ci_password@localhost:5432/capstone_test
