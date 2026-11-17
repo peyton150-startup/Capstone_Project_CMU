@@ -33,6 +33,10 @@ RunState = Literal[
 ]
 
 
+class StaleRunConfiguration(ValueError):
+    """Preview and admission resolved different server settings."""
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -388,7 +392,9 @@ class SimulatorRuns:
             request.configuration_fingerprint is not None
             and request.configuration_fingerprint != configuration["fingerprint"]
         ):
-            raise ValueError("preview fingerprint does not match effective settings")
+            raise StaleRunConfiguration(
+                "preview fingerprint does not match effective settings"
+            )
         # Stored alongside the request for durable replay and UI inspection.
         # Do not reconstruct effective settings from a future process environment.
         serialized = json.dumps(
