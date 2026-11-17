@@ -1,4 +1,5 @@
 """Offline authorized OEM PDF import and scoped manual search tests."""
+
 import hashlib
 from datetime import UTC, datetime
 from io import BytesIO
@@ -35,13 +36,15 @@ def approval(**changes):
         "pdf_sha256": hashlib.sha256(PDF).hexdigest(),
         "cloud_storage_approved": True,
         "retrieval_approved": True,
-        "sections": [{
-            "section_id": "5.2",
-            "title": "Read-only fault reference",
-            "text": "Read the approved spindle status, inspect the alarm condition, and verify the reading.",
-            "page_start": 12,
-            "page_end": 13,
-        }],
+        "sections": [
+            {
+                "section_id": "5.2",
+                "title": "Read-only fault reference",
+                "text": "Read the approved spindle status, inspect the alarm condition, and verify the reading.",
+                "page_start": 12,
+                "page_end": 13,
+            }
+        ],
     }
     values.update(changes)
     return OEMApproval.model_validate(values)
@@ -71,11 +74,17 @@ def test_pdf_hash_and_repo_isolation_before_any_cloud_io(tmp_path):
 def test_same_revision_section_hash_captures_reviewed_page_edits():
     entry = approval()
     text = entry.sections[0].text
-    edited = approval(sections=[{
-        "section_id": "5.2", "title": "Read-only fault reference",
-        "text": text + " This changes the reviewed text.",
-        "page_start": 12, "page_end": 13,
-    }])
+    edited = approval(
+        sections=[
+            {
+                "section_id": "5.2",
+                "title": "Read-only fault reference",
+                "text": text + " This changes the reviewed text.",
+                "page_start": 12,
+                "page_end": 13,
+            }
+        ]
+    )
     assert edited.section_digest != entry.section_digest
     assert entry.object_key.endswith(entry.pdf_sha256 + ".pdf")
 
@@ -84,7 +93,8 @@ class FakeStorage(PrivatePDFStorage):
     def __init__(self):
         super().__init__(
             origin="https://testproject.supabase.co",
-            bucket="private-oem-documents", token="x" * 48,
+            bucket="private-oem-documents",
+            token="x" * 48,
         )
         self.saved = None
         self.attempts = 0
@@ -138,12 +148,15 @@ class FakeResult:
         return self
 
     def all(self):
-        return [{
-            "document_id": "plant1.machine1.si-840d-maintenance",
-            "revision": "v2", "section_id": "5.2",
-            "title": "Approved Siemens maintenance reference",
-            "body": "A matching authorized procedure from a reviewed page.",
-        }]
+        return [
+            {
+                "document_id": "plant1.machine1.si-840d-maintenance",
+                "revision": "v2",
+                "section_id": "5.2",
+                "title": "Approved Siemens maintenance reference",
+                "body": "A matching authorized procedure from a reviewed page.",
+            }
+        ]
 
 
 class FakeEngine:
@@ -167,16 +180,22 @@ class FakeEngine:
 def test_oem_search_uses_exact_machine_and_controller_and_no_simulator():
     engine = FakeEngine()
     search = ScopedOEMManualSearch(
-        engine, site_id="plant1", machine_id="machine1",
-        controller_family="840D sl", controller_fingerprint="ncu-verified-1337",
+        engine,
+        site_id="plant1",
+        machine_id="machine1",
+        controller_family="840D sl",
+        controller_fingerprint="ncu-verified-1337",
     )
     found = search.search("spindle alarm", limit=3)
     assert found[0].document_id.startswith("plant1.machine1.")
     statement, params = engine.calls[0]
     for term in (
-        "d.source_scope='pilot'", "d.is_published=TRUE",
-        "a.expires_at > now()", "a.controller_fingerprint=:fingerprint",
-        "a.site_id=:site", "a.machine_id=:machine",
+        "d.source_scope='pilot'",
+        "d.is_published=TRUE",
+        "a.expires_at > now()",
+        "a.controller_fingerprint=:fingerprint",
+        "a.site_id=:site",
+        "a.machine_id=:machine",
     ):
         assert term in statement
     assert params["fingerprint"] == "ncu-verified-1337"
@@ -190,19 +209,22 @@ def test_oem_publication_requires_exact_private_object_and_unexpired_approval():
     with pytest.raises(ValueError, match="key differs"):
         store.publish(approval(), "unapproved/public.pdf")
     with pytest.raises(PermissionError):
-        store.publish(
-            approval(expires_at=datetime(2020, 1, 1, tzinfo=UTC)), "bad"
-        )
+        store.publish(approval(expires_at=datetime(2020, 1, 1, tzinfo=UTC)), "bad")
 
 
 def test_oem_sql_migration_preserves_private_scope_and_lineage():
     source = (
-        Path(__file__).resolve().parents[1]
-        / "migrations/neon/0002_oem_approvals.sql"
+        Path(__file__).resolve().parents[1] / "migrations/neon/0002_oem_approvals.sql"
     ).read_text()
     for fragment in (
-        "manual_approvals", "controller_fingerprint", "approval_reference",
-        "pdf_sha256", "section_sha256", "page_start", "page_end",
-        "ENABLE ROW LEVEL SECURITY", "REVOKE ALL",
+        "manual_approvals",
+        "controller_fingerprint",
+        "approval_reference",
+        "pdf_sha256",
+        "section_sha256",
+        "page_start",
+        "page_end",
+        "ENABLE ROW LEVEL SECURITY",
+        "REVOKE ALL",
     ):
         assert fragment in source
