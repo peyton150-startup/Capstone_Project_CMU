@@ -1052,8 +1052,9 @@ def test_deterministic_boundary_survives_a_full_episode(monkeypatch, then_deep):
             raise AssertionError("deterministic Interpret must not invoke the model")
 
     monkeypatch.setenv("TRIAGE", "on")
-    monkeypatch.setenv("TRIAGE_PLAN", "fixed")
-    monkeypatch.setenv("TRIAGE_INVESTIGATE", "deterministic")
+    # Exercise the production default, not explicit deterministic overrides.
+    monkeypatch.delenv("TRIAGE_PLAN", raising=False)
+    monkeypatch.delenv("TRIAGE_INVESTIGATE", raising=False)
     monkeypatch.setenv("TRIAGE_PACKET", "on")
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "on" if then_deep else "off")

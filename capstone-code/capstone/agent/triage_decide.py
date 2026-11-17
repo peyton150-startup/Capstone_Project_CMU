@@ -801,6 +801,10 @@ def run_deterministic_triage_loop(
     """Collect only prevalidated evidence, with reproducible decision diagnostics."""
     from capstone.agent.loop import gather, held_for_hypotheses, notify
 
+    # Guard direct/replayed entry as well as the Pydantic Graph routing edge:
+    # reject an invalid phase or deep state before any read or state mutation.
+    if state.mode != "triage" or phase not in ("investigate", "test"):
+        raise ValueError("deterministic triage requires triage Investigate/Test")
     if not deps.triage_tool_specs:
         raise ValueError("deterministic triage requires an authorized tool catalog")
     if not deps.triage_allowed_sources or any(

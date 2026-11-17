@@ -63,7 +63,9 @@ def test_a_fixed_plan_is_printed_once_with_its_predicate(monkeypatch):
 
 
 def test_a_model_plan_prints_no_fixed_plan_line(monkeypatch):
-    monkeypatch.delenv("TRIAGE_PLAN", raising=False)
+    # Model planning remains available as an explicit comparison arm.
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
     lines = watched(monkeypatch, ByMode(wear_policy("intervene"), wear_policy()))
     assert not any(line.startswith("PLAN fixed table") for line in lines)
 

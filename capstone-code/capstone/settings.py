@@ -338,14 +338,13 @@ class Settings(BaseSettings):
     triage_conclude_cap: bool = Field(
         default=True, validation_alias="TRIAGE_CONCLUDE_CAP"
     )
-    # TRIAGE_INVESTIGATE (Block 4, Investigate), triage only: "advisory" (the
-    # default) ranks the reads the open questions allow and records them
-    # beside the model's own decide choice, changing nothing the run does;
-    # "on" makes the best compiled read instead of asking a standalone decide
-    # question, asking the model only when nothing compiles; "off" skips the
-    # compiler. A deep run never uses it.
+    # TRIAGE_INVESTIGATE (Block 4, Investigate/Test): deterministic by
+    # default. Pydantic Graph routes these phases to typed, model-free read
+    # and stop choices. Legacy "advisory" compares model decisions, "on"
+    # compiles when possible but can fall back to a model, and "off" disables
+    # the compiler. Deep investigations remain model-backed.
     triage_investigate: Literal["off", "advisory", "on", "deterministic"] = Field(
-        default="advisory", validation_alias="TRIAGE_INVESTIGATE"
+        default="deterministic", validation_alias="TRIAGE_INVESTIGATE"
     )
     # TRIAGE_EVIDENCE_TESTS (Block 3, Test): in a triage only, count support by
     # physical sensor, hold a diagnosis open while a rival-separating question
@@ -355,13 +354,13 @@ class Settings(BaseSettings):
     triage_evidence_tests: bool = Field(
         default=True, validation_alias="TRIAGE_EVIDENCE_TESTS"
     )
-    # TRIAGE_PLAN (Block 1, Plan): where a triage's first questions come from.
-    # "model" (the default) asks the plan question, as a deep run does;
-    # "fixed" takes them, with measured predicates where one fits, from a
-    # table keyed on the anomaly (`agent.triage_plan`), with no model call.
-    # Plan averaged 37 s a triage in the 2026-11-13 PR 251 runs.
+    # TRIAGE_PLAN (Block 1, Plan): fixed by default so deterministic Decide
+    # always receives a verified, typed question set instead of model text.
+    # "model" is an explicit legacy comparison mode and requires setting
+    # TRIAGE_INVESTIGATE to "advisory", "on", or "off" as well.
+    # Deep runs retain model-backed planning regardless of this setting.
     triage_plan: Literal["model", "fixed"] = Field(
-        default="model", validation_alias="TRIAGE_PLAN"
+        default="fixed", validation_alias="TRIAGE_PLAN"
     )
 
     # Opt-in model-free Hypothesize; the existing controller stays the default.

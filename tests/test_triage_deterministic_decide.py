@@ -280,6 +280,13 @@ def test_empty_catalog_fails_before_a_provider_call():
     provider = FakeProvider(answer, tick=45)
     with pytest.raises(ValueError, match="authorized tool catalog"):
         run_inner_loop(state_for(), deps_for(provider, tools=()), "investigate")
+    # Direct callers cannot route deterministic reads into an invalid Graph phase
+    # or a deep-state investigation, even with a valid provider catalog.
+    from capstone.agent.triage_decide import run_deterministic_triage_loop
+
+    for state, phase in ((state_for(), "conclude"), (state_for(mode="deep"), "test")):
+        with pytest.raises(ValueError, match="requires triage Investigate/Test"):
+            run_deterministic_triage_loop(state, deps_for(provider), phase)
     assert provider.calls == []
 
 
