@@ -96,6 +96,8 @@ class JobClaim:
     lease_token: uuid.UUID
     request: RunRequest
     effective_config: RunExecutionConfig
+    queue_wait_ms: int = 0
+    attempt: int = 1
 
 
 class LostLease(RuntimeError):
@@ -223,7 +225,21 @@ class RunRepository:
                            to_regclass('capstone_private.sim_run_artifacts')
                 """)
             ).one()
-        return all(table is not None for table in tables)
+        if not all(table is not None for table in tables):
+            return False
+        with self.engine.connect() as connection:
+            from sqlalchemy import text
+
+            return bool(
+                connection.execute(
+                    text(
+                        "SELECT 1 FROM information_schema.columns "
+                        "WHERE table_schema='capstone_private' "
+                        "AND table_name='sim_run_artifacts' "
+                        "AND column_name='content'"
+                    )
+                ).scalar_one_or_none()
+            )
 
     @staticmethod
     def _view(run: SimRun) -> dict[str, Any]:
@@ -437,6 +453,8 @@ class RunRepository:
                 token,
                 RunRequest.model_validate(run.request),
                 RunExecutionConfig.model_validate(run.effective_config),
+                max(0, int((now - job.enqueued_at).total_seconds() * 1000)),
+                job.attempt,
             )
 
     def heartbeat(
@@ -694,11 +712,18 @@ class RunRepository:
                 )
                 .with_for_update()
             )
+            active_job = session.scalar(
+                select(SimJob).where(SimJob.run_id == ident)
+            )
             if (
                 review is None
                 or run.state != "awaiting_review"
                 or review.status != "pending"
                 or review.deadline_at <= now
+                or active_job is None
+                or active_job.status != "claimed"
+                or active_job.lease_until is None
+                or active_job.lease_until <= now
             ):
                 raise ValueError("Review is no longer pending")
             review.status = decision.decision
