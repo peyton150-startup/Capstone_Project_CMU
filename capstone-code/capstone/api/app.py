@@ -424,7 +424,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 ) from None
             finally:
                 if store is not None:
-                    store.engine.dispose()
+                    store.close()
         else:
             from capstone.manual.index import KeywordManualSearch
             from capstone.manual.sections import load_manual
@@ -568,6 +568,23 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=422,
                 detail="A unique 16-96 character Idempotency-Key is required",
             )
+        # Refuse a 202 if the explicitly selected manual is not published.
+        # The worker must never begin relying on an empty or broken knowledge store.
+        if request.manual == "neon":
+            from capstone.manual.neon import open_neon_manual
+
+            knowledge = None
+            try:
+                knowledge = open_neon_manual()
+                if not knowledge.list_sections(limit=1):
+                    raise LookupError("No published simulator manual")
+            except Exception:
+                raise HTTPException(
+                    status_code=503, detail="Approved manual store unavailable"
+                ) from None
+            finally:
+                if knowledge is not None:
+                    knowledge.close()
         assert runner is not None
         try:
             return runner.submit(request, idempotency_key)

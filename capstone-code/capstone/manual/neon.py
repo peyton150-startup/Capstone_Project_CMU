@@ -111,12 +111,12 @@ class NeonManualSearch:
         self.embedding_model = embedding_model
         self.embed_query = embed_query
 
-    def _rows(self, query, **params) -> tuple[ManualSection, ...]:
+    def _rows(self, statement, **params) -> tuple[ManualSection, ...]:
         try:
             with self.engine.connect() as connection:
                 rows = (
                     connection.execute(
-                        query,
+                        statement,
                         {
                             "document_id": self.document_id,
                             "scope": self.scope,
@@ -139,6 +139,10 @@ class NeonManualSearch:
             )
             for row in rows
         )
+
+    def close(self) -> None:
+        """Dispose pooled connections after a simulator run or UI request."""
+        self.engine.dispose()
 
     def list_sections(self, *, limit: int = 35) -> tuple[ManualSection, ...]:
         if not 1 <= limit <= 35:

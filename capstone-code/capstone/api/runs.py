@@ -370,6 +370,7 @@ class SimulatorRuns:
             {"status": "running", "mode": request.mode},
             state="running",
         )
+        manual = None
         try:
             from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
@@ -456,6 +457,11 @@ class SimulatorRuns:
                 state="failed",
             )
         finally:
+            if manual is not None and hasattr(manual, "close"):
+                try:
+                    manual.close()
+                except Exception:
+                    pass  # Cleanup failure must not change the recorded outcome.
             try:
                 progress.put(None, timeout=2)
             except queue.Full:
