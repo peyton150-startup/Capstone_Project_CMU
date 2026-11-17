@@ -332,6 +332,33 @@ export function RunDetailPage() {
       <p className="body-copy">Settings are saved with the submission and cannot
         retroactively change a run. Actual model attempts require the separate audit.</p>
     </Panel>
+    {run?.snapshot?.triage_execution && <Panel title="Observed triage execution"
+      subtitle="Stage flags captured from the completed Graph, even if a deep investigation followed">
+      {([
+        ['run_mode','Executed profile'],
+        ['fixed_plan_executed','Fixed Plan completed'],
+        ['packet_enabled','Evidence packet enabled'],
+        ['packet_collected','Evidence packet collected'],
+        ['observe_calls_separate','Separate Observe allowance'],
+        ['conclude_brief_enabled','Conclude evidence brief enabled'],
+        ['conclude_cap_enabled','Conclude time cap enabled'],
+        ['hypothesis_reserve_seconds','Effective hypothesis reserve (seconds)'],
+        ['deadline_seconds','Triage deadline (seconds)'],
+        ['research_tool_call_budget','Research tool-call limit'],
+        ['actual_research_tool_calls','Research tool calls used'],
+        ['deterministic_decide_reads','Deterministic Decide reads'],
+        ['compiled_candidates','Compiled candidate count'],
+        ['conclusion_available','Conclude stage completed'],
+        ['deep_recommended','Deep investigation recommended'],
+      ] as const).map(([key,label])=>{
+        const value = run.snapshot.triage_execution?.[key];
+        const shown = typeof value === 'boolean' ? value ? 'On' : 'Off' :
+          value == null ? 'Unknown' : String(value);
+        return <DataRow key={key} label={label} value={shown}/>;
+      })}
+      <p className="body-copy">These fields describe actual Graph state, not
+        model-call success. See model-call observability for provider attempts.</p>
+    </Panel>}
     <Panel title="Conclusion and validation" subtitle="Only values persisted by the existing investigator">
       <DataRow label="Diagnosis" value={run?.snapshot?.diagnosis || 'Not recorded'}/>
       <DataRow label="Recommendation" value={run?.snapshot?.recommendation || 'Not recorded'}/>
