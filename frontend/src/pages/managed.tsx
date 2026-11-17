@@ -61,7 +61,10 @@ export function ManagedRunLauncher() {
     ...(mode === 'triage' && controls ? {triage_settings: controls} : {}),
   } : null;
   const requestSignature = JSON.stringify(requested);
-  const previewIdentity = JSON.stringify([requestSignature, token, backend, sourceKey]);
+  const [previewRevision, setPreviewRevision] = useState(0);
+  const previewIdentity = JSON.stringify([
+    requestSignature, token, backend, sourceKey, previewRevision,
+  ]);
   const [resolved, setResolved] = useState<{
     identity: string; value: TriageRunPreview;
   } | null>(null);
@@ -107,7 +110,15 @@ export function ManagedRunLauncher() {
         backend, key.current);
       navigate('/lab/runs/' + encodeURIComponent(run.run_id));
     } catch (problem) {
-      setError(problem instanceof Error ? problem.message : 'Unable to start run');
+      const message = problem instanceof Error ?
+        problem.message : 'Unable to start run';
+      setError(message);
+      if (message.includes('409') || message.includes('Settings changed')) {
+        // The server may have changed after validation. Re-fetch a fresh
+        // authoritative preview and avoid reusing a stale idempotency key.
+        key.current = null;
+        setPreviewRevision(previous => previous + 1);
+      }
     } finally {
       setPending(false);
     }
