@@ -60,11 +60,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   cfg: Immutable, validated server-side path and authentication authority.
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
-    runner = (
-        SimulatorRuns(cfg.run_db)
-        if cfg.runs_enabled and cfg.run_db is not None
-        else None
-    )
+    runner = None
+    if cfg.runs_enabled and cfg.run_db is not None:
+        if cfg.run_backend == "postgres":
+            from capstone.api.postgres_runs import PostgresSimulatorRuns
+
+            assert cfg.run_database_url is not None
+            runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
+        else:
+            runner = SimulatorRuns(cfg.run_db)
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
     app = FastAPI(
@@ -74,6 +78,12 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+
+    @app.on_event("shutdown")
+    def shutdown_runner() -> None:
+        if runner is not None:
+            runner.close()
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[
