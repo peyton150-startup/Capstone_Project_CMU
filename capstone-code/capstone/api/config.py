@@ -23,17 +23,17 @@ class UiConfig:
     audit: Path | None = None
     experiment: Path | None = None
     investigations: Path | None = None
-    token: str | None = None
+    token: str | None = field(default=None, repr=False)
     evaluator: bool = False
     show_values: bool = False
     machine_label: str = "Authorized CNC"
     run_db: Path | None = None
     run_backend: Literal['sqlite', 'postgres'] = 'sqlite'
     run_database_url: str | None = field(default=None, repr=False)
-    run_token: str | None = None
-    review_token: str | None = None
+    run_token: str | None = field(default=None, repr=False)
+    review_token: str | None = field(default=None, repr=False)
     runs_enabled: bool = False
-    evaluator_token: str | None = None
+    evaluator_token: str | None = field(default=None, repr=False)
     memory_enabled: bool = False
 
     def __post_init__(self) -> None:
