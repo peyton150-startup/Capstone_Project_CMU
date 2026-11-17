@@ -46,7 +46,7 @@ jobs:
             -keyout "$RUNNER_TEMP/postgres-tls/server.key" \
             -out "$RUNNER_TEMP/postgres-tls/server.crt" >/dev/null 2>&1
           sudo chown 999:999 "$RUNNER_TEMP/postgres-tls/server.key"
-          chmod 600 "$RUNNER_TEMP/postgres-tls/server.key"
+          sudo chmod 600 "$RUNNER_TEMP/postgres-tls/server.key"
           chmod 644 "$RUNNER_TEMP/postgres-tls/server.crt"
           docker run --rm -d --name capstone-test-postgres \
             -e POSTGRES_PASSWORD=capstone-test \
