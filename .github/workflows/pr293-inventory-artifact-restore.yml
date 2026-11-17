@@ -1,0 +1,75 @@
+# One-time restore from PR293's successful full-suite coverage run.
+# The SHA-matched artifact was produced by run 44140032824.
+# Self-removes in the inventory commit.
+name: PR293 restore source-matched evaluator inventories
+on:
+  push:
+    branches:
+      - feat/managed-run-live-progress-20261117
+    paths:
+      - ".github/workflows/pr293-inventory-artifact-restore.yml"
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: pr293-source-matched-inventories
+  cancel-in-progress: true
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feat/managed-run-live-progress-20261117
+          persist-credentials: true
+      - name: Confirm identical source revision to successful coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD^)" = "9dcebba217951ee21c0fee97ad86153b2deee74e" || { echo "Unexpected predecessor; regenerate coverage for changed source"; exit 1; }
+      - name: Download inventory from completed full coverage suite
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pr293-inventory"
+          gh run download 44140032824 --repo "${{ github.repository }}" --name evaluator-inventory --dir "$RUNNER_TEMP/pr293-inventory"
+          cp "$RUNNER_TEMP"/pr293-inventory/{FUNCTION_INVENTORY,TEST_INVENTORY,TOOL_INVENTORY,VERIFICATION_MATRIX}.json evaluation/inventory/
+      - name: Verify all four inventories and source hashes match checkout
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          root = Path.cwd()
+          names = ("FUNCTION_INVENTORY.json", "TEST_INVENTORY.json", "TOOL_INVENTORY.json", "VERIFICATION_MATRIX.json")
+          for name in names:
+              p = root / "evaluation" / "inventory" / name
+              assert p.is_file() and p.stat().st_size, name
+              json.loads(p.read_text())
+          matrix = json.loads((root / "evaluation/inventory/VERIFICATION_MATRIX.json").read_text())
+          fingerprints = matrix.get("source_sha256") or {}
+          assert len(fingerprints) > 10, "Inventory source fingerprint missing"
+          mismatches = [
+              str(path) for path, expected in fingerprints.items()
+              if not (root / path).is_file() or hashlib.sha256((root / path).read_bytes()).hexdigest() != expected
+          ]
+          assert not mismatches, "Stale inventory source hashes: " + repr(mismatches[:15])
+          assert matrix.get("coverage_available") and matrix.get("junit_available"), "Expected coverage-backed evidence"
+          print(f"Verified four coverage-backed inventories and {len(fingerprints)} source fingerprints")
+          PY
+      - name: Commit inventories and remove one-time workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin feat/managed-run-live-progress-20261117
+          test "$(git rev-parse HEAD)" = "$(git rev-parse FETCH_HEAD)" || { echo "Branch advanced; refuse stale commit"; exit 1; }
+          rm .github/workflows/pr293-inventory-artifact-restore.yml
+          git add -A -- evaluation/inventory/ .github/workflows/pr293-inventory-artifact-restore.yml
+          git diff --cached --quiet && { echo "Already source-matched"; exit 0; }
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'chore(eval): restore PR293 coverage-backed inventories from passing full CI'
+          git push origin HEAD:refs/heads/feat/managed-run-live-progress-20261117
