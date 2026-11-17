@@ -83,7 +83,7 @@ class SafeStageSnapshot(BaseModel):
     raw tool results, tool arguments, hypothesis text and provider content.
     """
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
     investigation_id: str = Field(
         pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
@@ -703,14 +703,19 @@ class SimulatorRuns:
             if progress.unfinished_tasks:
                 missed[0] += 1
             if missed[0]:
-                self._emit(
-                    run_id,
-                    "resync.required",
-                    {
-                        "dropped_ui_updates": missed[0],
-                        "mode": request.mode,
-                    },
-                )
+                try:
+                    self._emit(
+                        run_id,
+                        "resync.required",
+                        {
+                            "dropped_ui_updates": missed[0],
+                            "mode": request.mode,
+                        },
+                    )
+                except Exception:
+                    # A failed optional warning must not turn a valid episode
+                    # into run.failed; the terminal snapshot still reconciles.
+                    pass
             triage = (
                 result.triage
                 if result.triage is not None
