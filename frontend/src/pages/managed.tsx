@@ -6,6 +6,7 @@ import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
 import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, StageProgress, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
+import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
   tick?: number; tool?: string; success?: boolean; counts?: Record<string,number> };
@@ -252,11 +253,18 @@ export function RunDetailPage() {
     token, !enabled, 3000,
   );
   const journal = useJournal(runId, token, enabled, backend);
-  const audit = useResource<{availability:string; detail:InvestigationDetail|null}>(
-    enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) +
-      '/investigation?workspace=simulator' : null,
-    token, !enabled, 5000,
+  const [auditPhase, setAuditPhase] = useState<'final' | 'triage' | 'deep'>('final');
+  useEffect(() => { setAuditPhase('final'); }, [runId]);
+  const baseAuditPath = enabled ? '/api/v1/lab/runs/' +
+    encodeURIComponent(runId!) + '/investigation?workspace=simulator' : null;
+  const finalAudit = useResource<{availability:string; detail:InvestigationDetail|null}>(
+    baseAuditPath, token, !enabled, 5000,
   );
+  const phaseAudit = useResource<{availability:string; detail:InvestigationDetail|null}>(
+    baseAuditPath && auditPhase !== 'final' ? baseAuditPath + '&phase=' + auditPhase : null,
+    token, !enabled || auditPhase === 'final', 5000,
+  );
+  const audit = auditPhase === 'final' ? finalAudit : phaseAudit;
   const operational = useResource<{availability:string;window_scope?:string;items:OperationalEvent[]}>(
     enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) +
       '/observability?workspace=simulator' : null,
@@ -264,6 +272,7 @@ export function RunDetailPage() {
   );
   const [section, setSection] = useState<'evidence'|'hypotheses'|'trace'>('evidence');
   const detail = audit.data?.detail;
+  const finalDetail = finalAudit.data?.detail ?? null;
   const run = resource.data;
   const packet = operational.data?.items.slice().reverse().find(
     item => item.event === 'triage_packet_built',
@@ -300,31 +309,42 @@ export function RunDetailPage() {
       </> : <InfoState title="Triage packet not reported"
         detail="The collector has not published an approved packet summary for this run yet."/>}
     </Panel>}
-    <Panel title="Conclusion and validation"
-      subtitle={run?.state === 'running' || run?.state === 'awaiting_review' ?
-        'Results will appear when the investigator records a conclusion or verification' :
-        'Only values persisted by the existing investigator'}>
-      <DataRow label="Diagnosis" value={run?.snapshot?.diagnosis || 'Not recorded'}/>
-      <DataRow label="Recommendation" value={run?.snapshot?.recommendation || 'Not recorded'}/>
-      <DataRow label="Intervention executed" value={run?.snapshot?.action_executed == null ?
-        'Not established' : run.snapshot.action_executed ? 'Yes, simulator only' : 'No'}/>
-      <DataRow label="Verification outcome" value={run?.snapshot?.verification_outcome || 'Not verified'}/>
-      <DataRow label="Escalated to deep" value={run?.snapshot?.deep_ran == null ?
-        'Unknown' : run.snapshot.deep_ran ? 'Yes' : 'No'}/>
-    </Panel>
+    {finalAudit.error && <InfoState kind="warning" title="Final audit request failed"
+      detail={finalAudit.error}/>}
+    <FinalRunOutcome run={run} detail={finalDetail}/>
     {run?.snapshot?.triage_report && <TriageReportView report={run.snapshot.triage_report}/>}
-    <Panel title="Audited technical investigation" subtitle="Safe projection of the real completed Python audit">
+    <Panel title="Audited technical investigation"
+      subtitle="Select a completed phase; the viewer never receives simulator hidden truth">
+      <div className="content-tabs" role="tablist" aria-label="Completed audit phase">
+        <button role="tab" aria-selected={auditPhase === 'final'}
+          className={auditPhase === 'final' ? 'current' : ''}
+          onClick={() => setAuditPhase('final')}>Final audit</button>
+        {run?.requested.mode === 'triage' && <button role="tab"
+          aria-selected={auditPhase === 'triage'}
+          className={auditPhase === 'triage' ? 'current' : ''}
+          onClick={() => setAuditPhase('triage')}>Triage audit</button>}
+        {run?.requested.mode === 'triage' &&
+          (run?.snapshot.progress?.deep || run?.snapshot.deep_ran === true) && <button
+            role="tab" aria-selected={auditPhase === 'deep'}
+            className={auditPhase === 'deep' ? 'current' : ''}
+            onClick={() => setAuditPhase('deep')}>Deep audit</button>}
+      </div>
+      {audit.error && <InfoState kind="warning" title="Selected audit request failed"
+        detail={audit.error}/>}
+      {detail && <AuditPhaseOutcome detail={detail} phase={auditPhase}/>}
       <div className="content-tabs" role="tablist" aria-label="Managed investigation details">
         {(['evidence','hypotheses','trace'] as const).map(tab=>
           <button key={tab} role="tab" aria-selected={section===tab}
             className={section===tab?'current':''} onClick={()=>setSection(tab)}>{tab}</button>)}
       </div>
-      {!detail && <InfoState
-        title={run?.state === 'running' || run?.state === 'awaiting_review' ?
-          'Detailed audit pending' : 'Authorized audit unavailable'}
-        detail={run?.state === 'running' || run?.state === 'awaiting_review' ?
-          'Audited evidence and hypotheses are not available yet. Watch the live counters and stages above.' :
-          'A completed authorized investigation audit is not available for this run.'}/>}
+      {!detail && !audit.error && <InfoState
+        title={audit.loading ? 'Loading authorized audit' :
+          run?.state === 'running' || run?.state === 'awaiting_review' ?
+            'Selected phase audit pending' : 'Selected phase audit not recorded'}
+        detail={audit.loading ? 'Reading the selected completed investigation record.' :
+          run?.state === 'running' || run?.state === 'awaiting_review' ?
+            'A phase audit appears only after the corresponding investigation is completed and recorded.' :
+            'No permitted audit was recorded for this phase. Earlier runs may lack separate triage/deep identifiers.'}/>}
       {detail && section==='evidence' && (detail.evidence.length ?
         detail.evidence.map(e=><div className="hypothesis-card" key={e.id}>
           <strong>{e.id} · {e.source_id || 'Unknown source'}</strong>
@@ -334,25 +354,38 @@ export function RunDetailPage() {
         detail.hypotheses.map(h=><div className="hypothesis-card" key={h.id}>
           <h3>{h.id} · {h.description || h.claim || 'Hypothesis'}</h3>
           <Pill text={h.status || 'unverified'} tone={toneFor(h.status)}/>
+          <DataRow label="Model rating" value={h.confidence == null ?
+            'Not recorded' : Math.round(h.confidence * 100) + '/100 (uncalibrated)'}/>
+          <DataRow label="Unexplained evidence" value={(h.unexplained_evidence_ids || []).join(', ') || 'None recorded'}/>
           <DataRow label="Supporting evidence" value={(h.supporting_evidence_ids || []).join(', ') || 'None'}/>
           <DataRow label="Contradicting evidence" value={(h.contradicting_evidence_ids || []).join(', ') || 'None'}/>
           <DataRow label="Discriminating check" value={h.discriminating_check || 'Not recorded'}/>
         </div>) : <Unavailable item="Recorded hypotheses"/>)}
       {detail && section==='trace' && <>
-        <DataRow label="Rejected/repeated calls" value={detail.reasoning_metrics?.repeated_calls ?? 'Unknown'}/>
-        <DataRow label="Failed calls" value={detail.reasoning_metrics?.failed_tool_calls ?? 'Unknown'}/>
-        <DataRow label="Uninterpreted evidence" value={detail.reasoning_metrics?.interpretation_failures ?? 'Unknown'}/>
+        <DataRow label="Iterations" value={detail.reasoning_metrics?.iterations ?? 'Not recorded'}/>
+        <DataRow label="Tool calls" value={detail.reasoning_metrics?.tool_calls ?? 'Not recorded'}/>
+        <DataRow label="Repeated calls" value={detail.reasoning_metrics?.repeated_calls ?? 'Not recorded'}/>
+        <DataRow label="Failed calls" value={detail.reasoning_metrics?.failed_tool_calls ?? 'Not recorded'}/>
+        <DataRow label="Malformed results" value={detail.reasoning_metrics?.malformed_results ?? 'Not recorded'}/>
+        <DataRow label="Interpretation failures" value={detail.reasoning_metrics?.interpretation_failures ?? 'Not recorded'}/>
+        <DataRow label="Hypothesis revisions" value={detail.reasoning_metrics?.hypothesis_revisions ?? 'Not recorded'}/>
         {detail.decision_trace?.length ? detail.decision_trace.map(d=>
           <DataRow key={d.sequence} label={String(d.sequence)+' · '+d.phase}
-            extra={'Evidence: '+(d.evidence_ids || []).join(', ')}
-            value={(d.tool || 'No tool')+' · '+d.outcome}/>) :
+            extra={'Tick: ' + (d.tick ?? 'unknown') +
+              ' · Question: ' + (d.question_id || 'not recorded') +
+              ' · Hypothesis: ' + (d.hypothesis_id || 'not recorded') +
+              ' · Evidence: ' + (d.evidence_ids || []).join(', ')}
+            value={(d.tool || 'No tool')+' · '+d.outcome +
+              (d.termination_reason ? ' · stopped: ' + d.termination_reason : '')}/>) :
           <Unavailable item="Decision trace"/>}
         {detail.pruned_candidates?.length ? <div className="soft-note">
           <strong>Pruned Tree-of-Thought candidates:</strong>
           {detail.pruned_candidates.map(candidate =>
             <DataRow key={candidate.id} label={candidate.id}
               value={(candidate.status || 'unjudged') + ' · model rating ' +
-                (candidate.confidence == null ? 'unknown' : String(candidate.confidence))}/>)}
+                (candidate.confidence == null ? 'unknown' : String(candidate.confidence)) +
+                ' · supporting: ' + ((candidate.supporting_evidence_ids || []).join(', ') || 'not recorded') +
+                ' · contradicting: ' + ((candidate.contradicting_evidence_ids || []).join(', ') || 'not recorded')}/>)}
         </div> : null}
         <p className="body-copy">Decision outcomes and pruned alternatives are documented verdicts, not hidden chain-of-thought. Tool arguments and raw provider responses are intentionally excluded.</p>
       </>}
