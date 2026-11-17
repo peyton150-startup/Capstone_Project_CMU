@@ -130,7 +130,7 @@ def apply(source: Path, url: str, project_ref: str) -> dict:
 
     from capstone.api.postgres_runs import PostgresSimulatorRuns
 
-    journal = PostgresSimulatorRuns(url, source.parent)
+    journal = PostgresSimulatorRuns(url, source.parent, recover_existing=False)
     try:
         with journal._db() as db:
             if db.execute("SELECT 1 FROM runs LIMIT 1").fetchone():
