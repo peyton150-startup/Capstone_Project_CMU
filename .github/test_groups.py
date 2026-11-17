@@ -179,6 +179,8 @@ GROUPS: dict[str, list[str]] = {
     "Industrial frontend API": ["web_api", "web_runs"],
     "Live telemetry": [
         "cloud_pilot",
+        "cloud_ingest_api",
+        "oem_manual",
         "mtconnect_ingestion",
         "siemens_opcua_record",
         "siemens_opcua_adapter",
