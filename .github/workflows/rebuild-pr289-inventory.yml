@@ -1,3 +1,4 @@
+# One-time snapshot only; delete this workflow after the PR inventory is committed.
 name: Rebuild PR289 evaluation inventory
 
 on:
