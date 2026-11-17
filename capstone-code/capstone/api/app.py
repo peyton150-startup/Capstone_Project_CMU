@@ -393,6 +393,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "storage": "not_monitored",
         }
 
+    @app.get("/api/v1/system/integrations", dependencies=[Access])
+    def integration_contracts() -> dict:
+        """Report exact Pydantic source-contract coverage, not deployment health."""
+        from capstone.api.integration_status import inspect_hosted_contracts
+
+        return inspect_hosted_contracts().model_dump(mode="json")
+
     @app.get("/api/v1/system/audit", dependencies=[Access])
     def system_audit() -> dict:
         """Return only safe lifecycle fields, not endpoint, account or error text."""
