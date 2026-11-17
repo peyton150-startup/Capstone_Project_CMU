@@ -412,6 +412,22 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     #   last: Typed candidate compilation counters; not a diagnosis or score.
     state.stage = "hypothesize"
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
+        # Direct/replayed graph calls cannot bypass the guarded fixed path.
+        # Never silently ask a model if deterministic preconditions are absent.
+        if (
+            not state.fixed_plan_used
+            or deps.triage_investigate != "deterministic"
+            or not deps.triage_evidence_tests
+        ):
+            state.triage_candidates = []
+            state.triage_test_requirement_ids = ()
+            record(
+                state,
+                "hypothesize",
+                "invalid_decision",
+                information_needed="guarded deterministic triage required",
+            )
+            return "conclude"
         from capstone.agent.triage_decide import evaluate_triage_requirements
         from capstone.agent.triage_hypothesize import (
             log_hypothesis_event,
@@ -576,6 +592,26 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   last: Stable candidate, capability and unresolved-question counts
     #     kept in the optional diagnostic event after Test.
     state.stage = "test"
+    if (
+        state.mode == "triage"
+        and deps.triage_hypothesize == "deterministic"
+        and (
+            not state.fixed_plan_used
+            or deps.triage_investigate != "deterministic"
+            or not deps.triage_evidence_tests
+        )
+    ):
+        # Bad direct/replayed Test entry must not fall through to a model.
+        state.triage_test_requirement_ids = ()
+        state.termination_reason = TerminationReason.NO_USEFUL_ACTION
+        record(
+            state,
+            "test",
+            "stopped",
+            information_needed="guarded deterministic triage required",
+            termination_reason=state.termination_reason,
+        )
+        return
     state.termination_reason = run_inner_loop(state, deps, "test")
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
         from capstone.agent.triage_decide import evaluate_triage_requirements
