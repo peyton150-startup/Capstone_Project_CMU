@@ -1,5 +1,5 @@
 # One-time evaluator snapshot for PR291. Delete after committing artifacts.
-# Refresh after opt-in API dependency isolation (latest app source revision).
+# Rebuild on latest PR291 source after verified uploader and private OEM fixes.
 name: Rebuild PR291 evaluation inventory
 
 on:
