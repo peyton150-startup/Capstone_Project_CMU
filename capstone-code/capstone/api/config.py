@@ -6,8 +6,9 @@ All paths come from the trusted server process environment, never from HTTP.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,8 @@ class UiConfig:
     show_values: bool = False
     machine_label: str = "Authorized CNC"
     run_db: Path | None = None
+    run_backend: Literal['sqlite', 'postgres'] = 'sqlite'
+    run_database_url: str | None = field(default=None, repr=False)
     run_token: str | None = None
     review_token: str | None = None
     runs_enabled: bool = False
@@ -38,12 +41,16 @@ class UiConfig:
         # Variables:
         #   configured: Set when any private evidence source was supplied.
         configured = any(
-            (self.capture, self.audit, self.experiment, self.investigations)
+            (self.capture, self.mtconnect, self.audit, self.experiment, self.investigations)
         )
         if configured and (not self.token or len(self.token) < 24):
             raise ValueError(
                 "CAPSTONE_UI_TOKEN must be at least 24 characters for configured files"
             )
+        if self.run_backend not in ('sqlite', 'postgres'):
+            raise ValueError('Unsupported simulator journal backend')
+        if self.runs_enabled and self.run_backend == 'postgres' and not self.run_database_url:
+            raise ValueError('PostgreSQL journal requires CAPSTONE_UI_RUN_DATABASE_URL or DATABASE_URL')
         if self.runs_enabled:
             if (
                 self.run_db is None
@@ -105,6 +112,12 @@ class UiConfig:
             show_values=os.getenv("CAPSTONE_UI_SHOW_VALUES") == "1",
             machine_label=os.getenv("CAPSTONE_UI_MACHINE_LABEL", "Authorized CNC")[:80],
             run_db=path("CAPSTONE_UI_RUN_DB"),
+            run_backend=os.getenv("CAPSTONE_UI_RUN_BACKEND", "sqlite"),
+            run_database_url=(
+                os.getenv("CAPSTONE_UI_RUN_DATABASE_URL")
+                or os.getenv("DATABASE_URL")
+                or None
+            ),
             run_token=os.getenv("CAPSTONE_UI_RUN_TOKEN") or None,
             review_token=os.getenv("CAPSTONE_UI_REVIEW_TOKEN") or None,
             runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
