@@ -48,6 +48,10 @@ jobs:
         run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       - name: Verify inventory scope against refreshed source
         run: uv run --no-sync pytest tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file -q
+      - name: Verify full suite against rebuilt inventories
+        run: uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test --junitxml=junit.xml --cov-report=term-missing
+      - name: Generate final inventory from passing evidence
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       - name: Commit inventory and remove one-time workflow
         shell: bash
         run: |
