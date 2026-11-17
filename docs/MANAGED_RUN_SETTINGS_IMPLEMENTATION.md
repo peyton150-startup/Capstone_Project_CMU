@@ -23,3 +23,38 @@ Draft PR stacked on **#301 → #299 → #295**. Preserve #293/#294/#296 Render e
 Pydantic references: https://pydantic.dev/docs/ai/graph/builder/ ; https://pydantic.dev/docs/validation/latest/concepts/models/ ; https://pydantic.dev/docs/validation/latest/concepts/validators/ ; https://pydantic.dev/docs/ai/integrations/logfire/ . GraphBuilder state persistence is owned by the existing journal, not Pydantic Graph.
 
 **Do not merge** until PR #301 dependency is integrated, CI and frontend pass, and concurrent Render/managed-progress changes are reconciled.
+
+## Implemented data flow and fixed source-of-truth boundaries
+
+1. Managed launcher reads `GET /api/v1/lab/runs/configuration`, edits an explicit typed allowlist, and POSTs full launch input to `/api/v1/lab/runs/preview`. A change to any input (seed, mode, hazards, Tree-of-Thought, manual, or triage switches) invalidates the confirmed preview and idempotency key. Launch requires a matching preview fingerprint.
+2. The server resolves `RunRequest.triage_settings` through `TriageRunOptions` and `EffectiveTriageRun`. Strict Pydantic schemas reject unknown keys and invalid interstage combinations. Deterministic mode forces fixed Plan, deterministic Investigate/Decide/Interpret/Hypothesize/Test and qualified evidence; model-backed Conclude and its independently editable brief/cap are retained.
+3. `SimulatorRuns.submit` freezes the effective configuration inside the existing durable `runs.requested` JSON (same SQLite/PostgreSQL schema), with a short SHA-256 correlation fingerprint in the initial snapshot and run-start event. The worker receives the already-resolved private Pydantic object, not a newly resolved environment state, and injects it into `run_episode` and `run_triage_then_deep`. The final record includes both the immutable submitted manifest and sanitized observed triage stage flags.
+4. The completed-run view distinguishes requested, effective, overridden, and observed values. Settings page displays validated **global** scalars and an actual stage-routing matrix; it links to the **per-run editor**. Global .env mutation, machine control, arbitrary provider credentials, and pilot execution are not exposed.
+
+### Four static review passes
+- **Contract/authorization:** viewer-only preview; operator-only launch; pilot denied; unknown settings rejected; exact per-run immutable capture; stale-preview 409; explicit idempotency; CORS POST preflight and allowlisted conflict messages.
+- **Variable-level execution:** `RunRequest` → Pydantic resolver → durable journal → private worker request → `run_episode` → Graph state/deps; triage-only budgets, packet, plan, evidence gates, Conclude flags and deep escalation. No process-wide Settings changes.
+- **Frontend correctness:** forced fields visibly display effective choices while preserving custom selections; whole launcher input in hash; stale preview invalidated when edited; confirmed preview required for launch; deep-only ignores triage controls; run list/detail make the true escalation mode, active fingerprint, and observed stage flags explicit.
+- **Reliability/privacy:** no exception/provider details or arbitrary env keys in the public manifest; safe timing/status metadata only; Graph trace is not claimed to be a successful model provider call. A changed configuration after preview is rejected and the frontend revalidates. Local CORS origin and Idempotency-Key preflight are covered by tests.
+
+### Verification not yet established
+Tests were **authored but have not been executed in this connector-only session**:
+`tests/test_triage_run_controls.py` and
+`tests/test_web_run_controls.py`, plus preexisting
+`tests/test_web_runs.py`, triage suites, and frontend tests/build.
+GitHub Actions statuses were queued for recent heads. Do not merge/deploy
+until CI, Ruff, frontend TypeScript build, PostgreSQL journal integration,
+and scenario-based Graph tests pass at the *exact final head SHA*.
+
+The older concurrent #293/#294/#296 Render progress stack modifies managed
+run API and React files. Reconcile that stack explicitly rather than
+overwriting durable live progress, role-based Access, sanitized model-call
+observability, or startup/reconnect safety.
+
+### Scope limitations
+Actual fallback model attempts, credentials, provider latency and complete
+model-call history remain under the separate observability work.
+The configured Conclude model name is a *route*, not a claim that a request
+was sent or answered. Frontend editing is scoped to safe per-run simulator
+settings, not unrestricted server model/provider/OT variables. Running
+investigations and global environment are never mutated.
