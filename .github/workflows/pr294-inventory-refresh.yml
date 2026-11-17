@@ -1,4 +1,4 @@
-# Temporary branch-only inventory refresh; self-removes after two full green passes.
+# Temporary PR294 source-matched inventory rebuild; reconcile merged PR293 first and self-remove.
 name: PR 294 source-matched inventory refresh
 on:
   push:
@@ -20,13 +20,29 @@ jobs:
         with:
           ref: feature/render-safe-complete-triage-progress-20261117
           persist-credentials: true
+          fetch-depth: 0
+      - name: Reconcile PR294 with merged PR293 on latest main (no silent conflict resolution)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA" || { echo "Ref changed; unsafe to proceed"; exit 1; }
+          git fetch origin main
+          echo "MAIN_BASE_SHA=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_ENV"
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            merge --no-ff --no-edit -m 'merge(main): reconcile PR294 with merged PR293 before inventory rebuild' FETCH_HEAD || {
+              echo 'PR294 conflicts with main; leaving source untouched and refusing inventory'
+              git status --short
+              git diff --name-only --diff-filter=U
+              exit 1
+            }
+          git diff --check HEAD^1..HEAD
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: '0.13.0'
       - run: uv python install
       - run: uv sync --locked --all-extras
       - run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
-      - name: Bootstrap test coverage (only inventory scope may fail)
+      - name: Full merged-source test coverage (only stale inventory scope may fail)
         shell: bash
         run: |
           set +e
@@ -49,18 +65,21 @@ jobs:
           fi
       - name: Build coverage-backed source-matched inventory
         run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
-      - name: Verify full suite against new inventory
-        run: uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test --junitxml=junit.xml --cov-report=term-missing
-      - name: Generate final inventory from verified coverage
-        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Verify rebuilt inventory against merged Python sources
+        run: uv run --no-sync pytest -q tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file
       - name: Commit inventories and delete this temporary workflow
         shell: bash
         run: |
           set -euo pipefail
           branch=feature/render-safe-complete-triage-progress-20261117
-          git fetch origin "$branch"
-          test "$(git rev-parse HEAD)" = "$(git rev-parse FETCH_HEAD)" || {
-            echo 'Head changed while testing; refusing stale inventory commit'
+          remote_head=$(git ls-remote origin "refs/heads/$branch" | awk '{print $1}')
+          remote_main=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+          test "$remote_head" = "$GITHUB_SHA" || {
+            echo 'PR294 branch changed during testing; refusing stale inventory commit'
+            exit 1
+          }
+          test "$remote_main" = "$MAIN_BASE_SHA" || {
+            echo 'Main moved during testing; refusing to commit stale reconciliation'
             exit 1
           }
           rm .github/workflows/pr294-inventory-refresh.yml
