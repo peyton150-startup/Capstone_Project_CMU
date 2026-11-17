@@ -721,11 +721,19 @@ def test_completed_phase_audits_expose_only_reviewed_result_fields(tmp_path):
     assert triage.status_code == 200
     assert triage.json()["detail"]["id"] == triage_id
     assert triage.json()["detail"]["diagnosis"] == "triage bearing hypothesis"
-    assert client.get(base + "?phase=deep", headers=auth(REVIEWER)).json()[
-        "detail"
-    ]["id"] == deep_id
-    assert client.get(base + "?phase=../private", headers=auth(TOKEN)).status_code == 422
-    assert client.get(base + "?phase=triage&workspace=pilot", headers=auth(TOKEN)).status_code == 403
+    assert (
+        client.get(base + "?phase=deep", headers=auth(REVIEWER)).json()["detail"]["id"]
+        == deep_id
+    )
+    assert (
+        client.get(base + "?phase=../private", headers=auth(TOKEN)).status_code == 422
+    )
+    assert (
+        client.get(
+            base + "?phase=triage&workspace=pilot", headers=auth(TOKEN)
+        ).status_code
+        == 403
+    )
     assert client.get(base + "?phase=deep").status_code == 401
     combined = json.dumps([final.json(), triage.json()])
     for secret in (
@@ -766,9 +774,10 @@ def test_legacy_final_audit_phase_fallback_is_explicit(tmp_path):
         )
     client = TestClient(create_app(cfg))
     base = f"/api/v1/lab/runs/{run_id}/investigation"
-    assert client.get(base + "?phase=triage", headers=auth(TOKEN)).json()[
-        "availability"
-    ] == "not_recorded"
+    assert (
+        client.get(base + "?phase=triage", headers=auth(TOKEN)).json()["availability"]
+        == "not_recorded"
+    )
     assert client.get(base + "?phase=deep", headers=auth(TOKEN)).json() == {
         "availability": "not_recorded",
         "detail": None,
