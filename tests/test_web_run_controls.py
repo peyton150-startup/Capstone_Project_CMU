@@ -198,3 +198,39 @@ def test_deep_only_does_not_apply_triage_controls(tmp_path, monkeypatch):
     assert config["effective_triage"] is None
     assert config["stages"]["triage"] == "not run"
     assert config["not_applied"] == ["run_mode", "then_deep"]
+
+
+def test_submission_rejects_settings_drift_between_route_and_journal(
+    tmp_path, monkeypatch
+):
+    """A race after preview is a stale configuration, not a reused key."""
+    from capstone.settings import Settings
+
+    monkeypatch.setattr(SimulatorRuns, "_execute", _worker)
+    old = Settings(
+        _env_file=None, triage_tool_calls=6, triage_run_mode="custom"
+    )
+    changed = Settings(
+        _env_file=None, triage_tool_calls=3, triage_run_mode="custom"
+    )
+    monkeypatch.setattr("capstone.api.app.get_settings", lambda: old)
+    monkeypatch.setattr("capstone.api.runs.get_settings", lambda: changed)
+    client = TestClient(create_app(config(tmp_path)))
+    payload = {"seed": 17, "mode": "triage"}
+    original = client.post(
+        "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload
+    )
+    assert original.status_code == 200
+    rejected = client.post(
+        "/api/v1/lab/runs",
+        headers={**auth(OPERATOR), "Idempotency-Key": KEY},
+        json={
+            **payload,
+            "configuration_fingerprint": original.json()["fingerprint"],
+        },
+    )
+    assert rejected.status_code == 409
+    assert "Settings changed" in rejected.json()["detail"]
+    assert client.get(
+        "/api/v1/lab/runs", headers=auth(TOKEN)
+    ).json()["items"] == []
