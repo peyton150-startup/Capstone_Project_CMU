@@ -306,7 +306,10 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     assert repository.get(queued["run_id"], actor_id="someone-else") is None
     repository.store_artifacts(
         claim, "worker-one",
-        {"audit": b'{"private":"audit"}\n', "observability": b'{"event":"worker.started"}\n'},
+        {
+            "audit": b'{"private":"audit"}\n',
+            "observability": b'{"event":"worker.started"}\n',
+        },
     )
     assert repository.read_artifact(
         queued["run_id"], "audit", actor_id="hosted-simulator"
@@ -323,7 +326,9 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     assert repository.get(queued["run_id"])["state"] == "completed"
 
 
-def test_worker_uses_pydantic_graph_episode_without_a_web_thread(repository, monkeypatch):
+def test_worker_uses_pydantic_graph_episode_without_a_web_thread(
+    repository, monkeypatch
+):
     """Fixture policy exercises a real job claim, audit persistence and completion."""
     from types import SimpleNamespace
     from uuid import uuid4
