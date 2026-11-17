@@ -84,12 +84,12 @@ export function TriageRunEditor({
     </p>
     <div className="form-grid">
       <div><label className="field-label" htmlFor="triage-plan">Plan</label>
-        <select id="triage-plan" disabled={off||forced} value={value.plan}
+        <select id="triage-plan" disabled={off||forced} value={forced?'fixed':value.plan}
           onChange={e=>update('plan',e.target.value as TriageRunOptions['plan'])}>
           <option value="fixed">Fixed rules (no model)</option><option value="model">Model-backed</option>
         </select></div>
       <div><label className="field-label" htmlFor="triage-investigate">Investigate / Decide / Interpret / Test</label>
-        <select id="triage-investigate" disabled={off||forced} value={value.investigate}
+        <select id="triage-investigate" disabled={off||forced} value={forced?'deterministic':value.investigate}
           onChange={e=>update('investigate',e.target.value as TriageRunOptions['investigate'])}>
           <option value="deterministic">Deterministic (no model)</option>
           <option value="advisory">Advisory (model + advice)</option>
@@ -97,12 +97,12 @@ export function TriageRunEditor({
           <option value="off">Model-backed</option>
         </select></div>
       <div><label className="field-label" htmlFor="triage-hypothesize">Hypothesize</label>
-        <select id="triage-hypothesize" disabled={off||forced} value={value.hypothesize}
+        <select id="triage-hypothesize" disabled={off||forced} value={forced?'deterministic':value.hypothesize}
           onChange={e=>update('hypothesize',e.target.value as TriageRunOptions['hypothesize'])}>
           <option value="deterministic">Rule-based candidates</option><option value="model">Model-backed</option>
         </select></div>
       <div><label className="field-label" htmlFor="triage-observe-calls">Observe tool-call budget</label>
-        <select id="triage-observe-calls" disabled={off||forced} value={value.observe_calls}
+        <select id="triage-observe-calls" disabled={off||forced} value={forced?'separate':value.observe_calls}
           onChange={e=>update('observe_calls',e.target.value as TriageRunOptions['observe_calls'])}>
           <option value="separate">Separate from research</option>
           <option value="shared">Shared with research</option>
@@ -117,7 +117,7 @@ export function TriageRunEditor({
           onChange={e=>update('tool_calls',Number(e.target.value))}/></div>
       <div><label className="field-label" htmlFor="triage-hypothesis-seconds">Hypothesis reserve (seconds)</label>
         <input id="triage-hypothesis-seconds" type="number" min="0" max="300" step="1"
-          disabled={off||forced} value={value.hypothesis_seconds}
+          disabled={off||forced} value={forced?0:value.hypothesis_seconds}
           onChange={e=>update('hypothesis_seconds',Number(e.target.value))}/></div>
     </div>
     <div className="quality-check">
@@ -129,7 +129,7 @@ export function TriageRunEditor({
         ['conclude_brief','Include evidence coverage in model Conclude',false],
         ['conclude_cap','Cap the model Conclude time window',false],
       ] as const).map(([key,label,locked])=>
-        <label key={key}><input type="checkbox" checked={value[key]}
+        <label key={key}><input type="checkbox" checked={forced&&locked?true:value[key]}
           disabled={off||locked} onChange={e=>update(key,e.target.checked)}/> {label}
           {locked && forced ? ' (forced on)' : ''}</label>)}
     </div>
