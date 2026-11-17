@@ -201,9 +201,9 @@ def run_recorded_investigation(
     )
     state.triage_run_mode = profile.run_mode
     state.triage_observe_separate = profile.observe_calls == "separate"
-    state.triage_hypothesis_seconds = 0.0 if profile.run_mode == "deterministic" else (
-        profile.hypothesis_seconds
-    )
+    # Preserve the recording's prior zero-reserve behavior in custom mode.
+    # Deterministic mode likewise needs no model Hypothesize time reserve.
+    state.triage_hypothesis_seconds = 0.0
     step_questions = (
         settings.step_questions
         if callable(getattr(policy, "interpret_and_decide", None))
