@@ -10,7 +10,7 @@ on:
       - "tests/test_migrations.py"
       - ".github/workflows/postgres-journal.yml"
   push:
-    branches: [main, feature/siemens-supabase-ingest-oem-manuals]
+    branches: [main]
     paths:
       - "capstone-code/capstone/api/**"
       - "migrations/**"
