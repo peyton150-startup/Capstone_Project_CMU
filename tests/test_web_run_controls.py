@@ -39,6 +39,21 @@ def _worker(self, run_id, request):
             self.active.discard(run_id)
 
 
+def test_local_browser_preflight_allows_authenticated_post(tmp_path):
+    client = TestClient(create_app(config(tmp_path)))
+    response = client.options(
+        "/api/v1/lab/runs/preview",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "authorization,content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert "POST" in response.headers["access-control-allow-methods"]
+    assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
 def test_viewer_preview_operator_submit_and_persisted_configuration(
     tmp_path, monkeypatch
 ):
