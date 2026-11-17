@@ -48,7 +48,7 @@ class TriageCandidate(Contract):
 class TriageHypothesisPacket(Contract):
     """Unscored, validated decision input for deterministic Test planning."""
 
-    rule_version: Literal["1.1"] = "1.1"
+    rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
     candidates: tuple[TriageCandidate, ...] = ()
     test_requirement_ids: tuple[str, ...] = ()
@@ -67,6 +67,10 @@ class TriageHypothesisPacket(Contract):
         if not set(self.test_requirement_ids) <= relevant:
             raise ValueError("test requirements must derive from known candidates")
         for candidate in self.candidates:
+            # A Pydantic model_copy(update=...) bypasses validation. Round-trip
+            # nested typed instances to reject forged family/status/IDs before
+            # any candidate or Test target enters Graph state.
+            TriageCandidate.model_validate(candidate.model_dump())
             targets = set(candidate.discriminating_requirement_ids)
             if not set(candidate.missing_requirement_ids) <= targets:
                 raise ValueError("candidate missing requirements are not targeted")
@@ -87,9 +91,9 @@ class TriageHypothesisTrace(Contract):
     """A bounded, replayable record of the fixed candidate compiler."""
 
     stage: Literal["hypothesize", "test"]
-    rule_version: Literal["1.1"] = "1.1"
+    rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
-    action: Literal["compiled", "refreshed", "no_candidates"]
+    action: Literal["compiled", "refreshed", "no_candidates", "rejected"]
     candidate_ids: tuple[str, ...] = ()
     requirement_ids: tuple[str, ...] = ()
     qualified_sources: int = Field(default=0, ge=0)
@@ -334,6 +338,7 @@ def update_candidate_packet(
             if permitted_triage_read(requirement, deps, state)
         )
     candidates, test_ids = compile_candidates(state, eligible_requirement_ids=eligible)
+    rejected = False
     try:
         packet = TriageHypothesisPacket(
             source_cutoff_tick=state.triage_observation_cutoff_tick,
@@ -357,6 +362,7 @@ def update_candidate_packet(
         if packet.source_cutoff_tick is None and packet.candidates:
             raise ValueError("candidate packet requires a fixed source horizon")
     except ValueError:
+        rejected = True
         # Fail closed: no provisional Test reads; Conclude may still report
         # unresolved evidence. Never include provider text in this record.
         packet = TriageHypothesisPacket(
@@ -366,12 +372,18 @@ def update_candidate_packet(
     state.triage_test_requirement_ids = packet.test_requirement_ids
     if not record_trace:
         return
+    if rejected:
+        action = "rejected"
+    elif not packet.candidates:
+        action = "no_candidates"
+    elif stage == "hypothesize":
+        action = "compiled"
+    else:
+        action = "refreshed"
     trace = TriageHypothesisTrace(
         source_cutoff_tick=packet.source_cutoff_tick,
         stage=stage,
-        action=("compiled" if stage == "hypothesize" else "refreshed")
-        if candidates
-        else "no_candidates",
+        action=action,
         candidate_ids=tuple(candidate.id for candidate in candidates),
         requirement_ids=test_ids,
         qualified_sources=len(

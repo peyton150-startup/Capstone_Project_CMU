@@ -72,6 +72,7 @@ def safe_hypothesis_progress(state: Any) -> dict[str, Any] | None:
             continue
     return {
         "rule_version": None if last is None else last.rule_version,
+        "last_action": None if last is None else last.action,
         "candidate_count": len(candidates),
         "candidates_truncated": len(candidates) > 12,
         "candidates": [
@@ -99,7 +100,6 @@ def safe_stage(state: Any) -> dict[str, Any]:
     return {
         "investigation_id": str(state.investigation_id),
         "mode": state.mode,
-        "triage_run_mode": state.triage_run_mode if state.mode == "triage" else None,
         "stage": state.stage,
         "iteration_count": state.iteration_count,
         "tool_calls": state.tool_call_count,

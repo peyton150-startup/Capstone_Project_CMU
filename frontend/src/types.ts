@@ -69,7 +69,9 @@ export type ApiResource<T> = { data: T | null; loading: boolean; error: string |
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
 export type SafeHypothesisProgress = {
-  rule_version: '1.1' | null; candidate_count: number; candidates_truncated: boolean;
+  rule_version: '1.1' | null;
+  last_action: 'compiled' | 'refreshed' | 'no_candidates' | 'rejected' | null;
+  candidate_count: number; candidates_truncated: boolean;
   candidates: Array<{
     id: string; family: string; status: 'unconfirmed';
     qualified_sources: number; required_tests: number; missing_tests: number;
@@ -85,8 +87,7 @@ export type ManagedRun = {
     triage_report?: TriageReport | null; investigation?: { stage: string | null;
       tool_calls: number; evidence_count: number; hypothesis_count: number;
       termination_reason: string | null; unresolved_question_ids: string[];
-      hypothesis_progress?: SafeHypothesisProgress | null;
-      triage_run_mode?: 'custom' | 'deterministic' | null };
+      hypothesis_progress?: SafeHypothesisProgress | null };
     diagnosis?: string | null; recommendation?: string | null;
     action_executed?: boolean; verification_outcome?: string | null;
     deep_ran?: boolean; error_class?: string };

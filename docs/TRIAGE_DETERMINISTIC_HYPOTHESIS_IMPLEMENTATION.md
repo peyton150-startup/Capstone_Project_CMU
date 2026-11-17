@@ -22,3 +22,50 @@ Open as draft; do not merge. Merge/rebase only after #295 and any conflicting up
 
 ## Scope boundary
 The single later triage-run profile override is implemented in the separate follow-up PR, not here.
+
+
+## Calibration and reproducible comparison (P2)
+Keep the fixed Plan, deterministic Investigate/Test, source catalogs, and
+verified clock identical across arms. Change **only** the Hypothesize mode.
+Run from `capstone-code/` with your approved model credentials for Conclude.
+The experiment records both the model-call timeline and hypothesis rule trace.
+
+**Arm H0 (historical model-based Hypothesize):**
+```sh
+TRIAGE_PLAN=fixed TRIAGE_INVESTIGATE=deterministic \
+TRIAGE_EVIDENCE_TESTS=on TRIAGE_HYPOTHESIZE=model \
+uv run python -m capstone.experiment run --known --name h0-model --out h0.jsonl
+```
+
+**Arm H1 (deterministic Hypothesize):**
+```sh
+TRIAGE_PLAN=fixed TRIAGE_INVESTIGATE=deterministic \
+TRIAGE_EVIDENCE_TESTS=on TRIAGE_HYPOTHESIZE=deterministic \
+uv run python -m capstone.experiment run --known --name h1-fixed --out h1.jsonl
+```
+
+Compare equal seeds, source horizons, tool budgets, noise profiles, and model
+versions. Report p50/p95 triage latency, provider calls by job, hypothesize
+attempts (H1 must be zero), valid Test requirements, missing/unsupported
+sources, escalation, unresolved/incorrect clearance, and verified outcomes.
+Do not interpret a faster but less accurate triage as an unconditional win.
+Record whether the model-based Conclude answered; without that, a run cannot
+establish parity of final decisions. Reproduce unusual results on separate
+development seeds before touching held-out evaluation data.
+
+## Public field boundary
+The live `hypothesis_progress` projection contains only a rule version,
+fixed compiler action code, bounded candidate IDs, allowlisted candidate
+family/status, and numeric counts of evidence references, missing, unsupported
+and open requirements. No candidate prose, machine identifier, observation
+value, ground truth, model messages, or token is serialized to the browser.
+`last_action=rejected` marks a failed typed compiler guard; it is **not**
+a valid empty hypothesis list.
+
+## Dependency for frontend progress rebase
+This PR is based on #295. The concurrently open #293/#294/#296 live progress
+stack updates `api/runs.py`, `frontend/src/types.ts` and `managed.tsx`.
+Before merge, preserve both the field-level `SafeStageSnapshot` allowlist
+and this typed hypothesis projection (and its React rendering), rather than
+accepting either side wholesale on a conflict. No assertion is made that
+these separate PR branches are already integrated or deployed to Render.

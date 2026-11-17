@@ -209,9 +209,6 @@ export function RunDetailPage() {
       <DataRow label="State" value={<Pill text={run?.state || 'Unknown'} tone={toneFor(run?.state)}/>}/>
       <DataRow label="Scenario" value={run ? run.requested.kind + ', seed ' + run.requested.seed : 'Unconfirmed'}/>
       <DataRow label="Mode" value={run?.requested.mode === 'triage' ? 'Triage then deep if needed' : 'Deep only'}/>
-      {run?.requested.mode === 'triage' && <DataRow label="Effective triage profile"
-        value={(lastTriage?.data.triage_run_mode as string | undefined) ||
-          run?.snapshot?.investigation?.triage_run_mode || 'Not recorded'}/>}
       <DataRow label="Updated" value={formatStamp(run?.updated_at)}/>
       {run?.state === 'awaiting_review' && <InfoState title="Human decision required" kind="warning"
         detail="Open the Review & verification page with a reviewer token. Approval alone never executes an action."
@@ -231,6 +228,7 @@ export function RunDetailPage() {
     {run?.requested.mode === 'triage' && <Panel title="Deterministic hypothesis candidates"
       subtitle="Model-free, unscored possibilities and their evidence gaps">
       <DataRow label="Rule version" value={hypothesis?.rule_version || 'Not recorded'}/>
+      <DataRow label="Compiler outcome" value={hypothesis?.last_action || 'Not recorded'}/>
       <DataRow label="Candidates" value={hypothesis?.candidate_count ?? 'Not recorded'}/>
       <DataRow label="Test requirements" value={hypothesis?.test_requirements ?? 'Not recorded'}/>
       <DataRow label="Trace records" value={hypothesis?.trace_records ?? 'Not recorded'}/>
