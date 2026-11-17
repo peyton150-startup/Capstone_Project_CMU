@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-import threading
 import time
 from pathlib import Path
 from types import SimpleNamespace
@@ -85,7 +84,7 @@ def localhost_postgres(monkeypatch, tmp_path):
     url = os.environ.get("CAPSTONE_TEST_POSTGRES_URL")
     if not url:
         pytest.skip("Optional ephemeral PostgreSQL integration environment missing")
-    sqlalchemy = pytest.importorskip("sqlalchemy")
+    pytest.importorskip("sqlalchemy")
     pytest.importorskip("psycopg")
     from sqlalchemy.engine import make_url
 
