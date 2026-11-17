@@ -244,7 +244,7 @@ def test_storage_migration_is_private_and_separate_from_simulator_journal():
 def test_uplink_refuses_changes_outside_first_256_acknowledged_bytes(tmp_path):
     """Resume must detect changed historical data anywhere in ACKed prefix."""
     capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
-    source = json.dumps(change()).encode() + b"\\n"
+    source = json.dumps(change()).encode() + b"\n"
     assert len(source) > 300
     capture.write_bytes(source)
 
@@ -271,7 +271,7 @@ def test_uplink_refuses_in_place_mutation_between_validation_and_http(
     from capstone.ingestion import cloud_uplink
 
     capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
-    capture.write_text(json.dumps(change()) + "\\n")
+    capture.write_text(json.dumps(change()) + "\n")
     assert capture.stat().st_size > 300
     original = cloud_uplink.read_batch
     called = []
@@ -298,7 +298,7 @@ def test_uplink_refuses_in_place_mutation_between_validation_and_http(
 def test_uplink_refuses_mutation_while_cloud_ack_is_in_flight(tmp_path):
     """A valid remote ACK must not advance a checkpoint for modified bytes."""
     capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
-    capture.write_text(json.dumps(change()) + "\\n")
+    capture.write_text(json.dumps(change()) + "\n")
     assert capture.stat().st_size > 300
 
     def send(batch):
