@@ -456,7 +456,7 @@ def run_episode(
         triage_evidence_tests=settings.triage_evidence_tests,
     )
     research = state.budgets.timeout_seconds - state.budgets.followup_seconds
-    if deps.hypothesis_seconds >= research:
+    if not selecting_triage and deps.hypothesis_seconds >= research:
         raise ValueError(
             "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
             f"(research has {research:g} s)"
@@ -606,5 +606,11 @@ def run_triage_then_deep(
         line_context_enabled=first.line_context_enabled,
         stage_context=first.stage_context,
     )
+    deep_research = deep.budgets.timeout_seconds - deep.budgets.followup_seconds
+    if deps.hypothesis_seconds >= deep_research:
+        raise ValueError(
+            "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
+            f"(research has {deep_research:g} s)"
+        )
     run_investigation(deep, deps)
     return first, deep, seconds, deps.critic
