@@ -132,20 +132,89 @@ class RunExecutionConfig(BaseModel):
 
 
 
-class StagePayload(BaseModel):
-    """Strict operator-visible progress, never a raw graph or tool state."""
+class SafeRequirementProgress(BaseModel):
+    """Exact safe requirement identity and disposition; no evidence payload."""
 
     model_config = ConfigDict(extra="forbid", strict=True)
-    investigation_id: str = Field(pattern=r"^[0-9a-f-]{36}$", max_length=36)
+    requirement_id: str = Field(
+        pattern=r"^Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})$"
+    )
+    status: Literal[
+        "pending", "satisfied", "partial", "insufficient", "stale",
+        "unavailable", "unsupported", "failed",
+    ]
+    evidence_count: int = Field(ge=0, le=100_000)
+
+
+class StagePayload(BaseModel):
+    """Source-matched safe progress for #294, with legacy fields optional."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+    investigation_id: str = Field(
+        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    )
     mode: Literal["triage", "deep"]
-    stage: str = Field(pattern=r"^[a-z_]{1,48}$")
+    stage: Literal[
+        "observe", "manual", "plan", "investigate", "hypothesize",
+        "test", "critique", "recheck", "conclude", "decide",
+        "propose", "execute", "verify",
+    ] | None = None
     iteration_count: int = Field(ge=0, le=100_000)
     tool_calls: int = Field(ge=0, le=100_000)
     evidence_count: int = Field(ge=0, le=100_000)
     hypothesis_count: int = Field(ge=0, le=100_000)
     unresolved_question_ids: list[str] = Field(max_length=25)
-    termination_reason: str | None = Field(default=None, max_length=80)
+    unresolved_question_count: int = Field(default=0, ge=0)
+    termination_reason: str | None = Field(
+        default=None, pattern=r"^[a-z][a-z_]{0,63}$"
+    )
     conclusion_available: bool
+
+    # The following are only Graph-derived counts and booleans. Raw tool
+    # responses, provider content and simulator ground truth are excluded.
+    answered_question_count: int = Field(default=0, ge=0)
+    decision_count: int = Field(default=0, ge=0)
+    remaining_iterations: int = Field(default=0, ge=0)
+    remaining_tool_calls: int = Field(default=0, ge=0)
+    repeated_calls: int = Field(default=0, ge=0)
+    failed_tool_calls: int = Field(default=0, ge=0)
+    malformed_results: int = Field(default=0, ge=0)
+    interpretation_failures: int = Field(default=0, ge=0)
+    unproductive_steps: int = Field(default=0, ge=0)
+    followup_tool_calls: int = Field(default=0, ge=0)
+    screening_tool_calls: int = Field(default=0, ge=0)
+    observe_tool_calls: int = Field(default=0, ge=0)
+    last_observed_tick: int | None = Field(default=None, ge=0)
+    observation_cutoff_tick: int | None = Field(default=None, ge=0)
+    clock_verified: bool | None = None
+    triage_requirement_total: int = Field(default=0, ge=0)
+    triage_requirement_satisfied: int = Field(default=0, ge=0)
+    triage_requirement_open: int = Field(default=0, ge=0)
+    triage_question_gaps: int = Field(default=0, ge=0)
+    triage_evidence_accepted: int = Field(default=0, ge=0)
+    triage_evidence_rejected: int = Field(default=0, ge=0)
+    triage_decide_reads: int = Field(default=0, ge=0)
+    triage_decide_stops: int = Field(default=0, ge=0)
+    triage_candidates: int = Field(default=0, ge=0)
+    triage_test_requirements: int = Field(default=0, ge=0)
+    triage_trace_events: int = Field(default=0, ge=0)
+    triage_logging_failures: int = Field(default=0, ge=0)
+    deep_recommended: bool | None = None
+    packet_roster_verified: bool | None = None
+    packet_roster_size: int = Field(default=0, ge=0)
+    packet_screened_machines: int = Field(default=0, ge=0)
+    packet_missing_machines: int = Field(default=0, ge=0)
+    packet_calls_mandatory: int = Field(default=0, ge=0)
+    packet_calls_optional: int = Field(default=0, ge=0)
+    packet_calls_qualified: int = Field(default=0, ge=0)
+    packet_calls_unavailable: int = Field(default=0, ge=0)
+    packet_items_qualified: int = Field(default=0, ge=0)
+    packet_items_missing: int = Field(default=0, ge=0)
+    triage_test_records: int = Field(default=0, ge=0)
+    requirement_statuses: list[SafeRequirementProgress] = Field(
+        default_factory=list, max_length=32
+    )
+    requirement_statuses_truncated: bool = False
 
     @model_validator(mode="after")
     def check_ids(self) -> "StagePayload":
@@ -154,11 +223,12 @@ class StagePayload(BaseModel):
             for item in self.unresolved_question_ids
         ):
             raise ValueError("Unapproved question identifier")
-        if self.termination_reason is not None and not re.fullmatch(
-            r"[a-z_]{1,80}", self.termination_reason
-        ):
-            raise ValueError("Unapproved termination reason")
         return self
+
+
+# Durable event allowlist evolves with the exact typed safe contract.
+# No raw state/model dumps are accepted, even when the frontend expands.
+_EVENT_FIELDS["stage.updated"] = frozenset(StagePayload.model_fields)
 
 
 class ReviewProposal(BaseModel):
@@ -568,7 +638,9 @@ class RunRepository:
         # Variables:
         #   safe: The only graph-derived payload allowed into the public journal.
         #   phase_progress: Previous other-phase progress, preserved during updates.
-        safe = StagePayload.model_validate(progress).model_dump(mode="json")
+        safe = StagePayload.model_validate(progress).model_dump(
+            mode="json", exclude_unset=True
+        )
         with Session(self.engine) as session, session.begin():
             self._fenced_job(session, claim, owner)
             run = session.scalar(
