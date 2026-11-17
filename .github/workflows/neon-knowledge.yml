@@ -8,7 +8,7 @@ on:
       - "migrations/neon/**"
       - "capstone-code/capstone/settings.py"
   push:
-    branches: [main]
+    branches: [main, feature/siemens-supabase-ingest-oem-manuals]
     paths:
       - ".github/workflows/neon-knowledge.yml"
       - "capstone-code/capstone/manual/**"
