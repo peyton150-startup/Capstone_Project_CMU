@@ -61,10 +61,17 @@ def test_document_requires_namespaced_id_and_actual_human_scope():
         approval(expires_at=datetime(2020, 1, 1, tzinfo=UTC)).assert_active()
 
 
-def test_pdf_hash_and_repo_isolation_before_any_cloud_io(tmp_path):
+def test_pdf_hash_and_repo_isolation_before_any_cloud_io(tmp_path, monkeypatch):
+    from capstone.manual import oem
+
     pdf = tmp_path / "source.pdf"
     pdf.write_bytes(PDF)
     entry = approval()
+    # The repository pytest temp directory is deliberately not an allowed
+    # production upload location. Preserve that check, then isolate hash tests.
+    with pytest.raises(ValueError, match="outside the public Git checkout"):
+        read_pdf(pdf, entry)
+    monkeypatch.setattr(oem, "refusal", lambda *_: None)
     assert read_pdf(pdf, entry) == PDF
     pdf.write_bytes(PDF + b"unexpected modification")
     with pytest.raises(ValueError, match="SHA-256"):
