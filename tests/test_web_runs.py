@@ -859,7 +859,7 @@ def test_render_progress_terminal_reconcile_and_late_event_fencing(tmp_path):
 
     from pydantic import ValidationError
 
-    from capstone.api.runs import SafeStageSnapshot, SimulatorRuns, RunRequest
+    from capstone.api.runs import RunRequest, SafeStageSnapshot, SimulatorRuns
 
     runner = SimulatorRuns(tmp_path / "progress.sqlite")
     run_id = str(uuid4())
