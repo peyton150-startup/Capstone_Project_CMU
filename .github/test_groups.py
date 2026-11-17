@@ -178,6 +178,7 @@ GROUPS: dict[str, list[str]] = {
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
     "Industrial frontend API": ["web_api", "web_runs"],
     "Live telemetry": [
+        "cloud_pilot",
         "mtconnect_ingestion",
         "siemens_opcua_record",
         "siemens_opcua_adapter",
