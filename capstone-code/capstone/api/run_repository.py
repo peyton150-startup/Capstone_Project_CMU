@@ -555,7 +555,7 @@ class RunRepository:
     def events_since(
         self, run_id: str, seq: int, *, actor_id: str | None = None, limit: int = 100
     ) -> list[dict[str, Any]]:
-        """Replay ordered safe events after the client's last cursor."""
+        """Replay operator-safe events only; private model.* has its own endpoint."""
         # Variables:
         #   seq: Last event the client observed; replay begins after it.
         #   actor_id: Optional owner filter; hosted API callers must supply it.
@@ -565,7 +565,11 @@ class RunRepository:
         with Session(self.engine) as session:
             events = session.scalars(
                 select(SimRunEvent)
-                .where(SimRunEvent.run_id == parsed, SimRunEvent.seq > seq)
+                .where(
+                    SimRunEvent.run_id == parsed,
+                    SimRunEvent.seq > seq,
+                    SimRunEvent.event_name.notin_(_MODEL_EVENTS),
+                )
                 .order_by(SimRunEvent.seq)
                 .limit(min(max(limit, 1), 100))
             )
