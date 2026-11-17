@@ -47,6 +47,11 @@ class RunRequest(BaseModel):
     manual: Literal["none", "keyword", "neon"] = "none"
     # Validated request-specific settings; no environment or credential edits.
     triage_settings: TriageRunOptions | None = None
+    # Optional optimistic concurrency token from the visible server preview.
+    # Legacy clients may omit it; the UI always includes it.
+    configuration_fingerprint: str | None = Field(
+        default=None, pattern=r"^[a-f0-9]{20}$"
+    )
     _effective_triage: EffectiveTriageRun | None = PrivateAttr(default=None)
 
 
@@ -332,6 +337,11 @@ class SimulatorRuns:
         configuration = public_run_configuration(
             request, settings, effective=effective
         )
+        if (
+            request.configuration_fingerprint is not None
+            and request.configuration_fingerprint != configuration["fingerprint"]
+        ):
+            raise ValueError("preview fingerprint does not match effective settings")
         # Stored alongside the request for durable replay and UI inspection.
         # Do not reconstruct effective settings from a future process environment.
         serialized = json.dumps(
@@ -522,6 +532,11 @@ class SimulatorRuns:
         writer.start()
         manual = None
         try:
+            submitted = self.get(run_id)
+            configuration = (
+                None if submitted is None
+                else submitted["requested"].get("effective_configuration")
+            )
             self._emit(
                 run_id,
                 "run.started",
@@ -529,9 +544,8 @@ class SimulatorRuns:
                     "status": "running",
                     "mode": request.mode,
                     "configuration_fingerprint": (
-                        public_run_configuration(
-                            request, get_settings(), effective=request._effective_triage
-                        )["fingerprint"]
+                        None if configuration is None
+                        else configuration.get("fingerprint")
                     ),
                 },
                 state="running",
