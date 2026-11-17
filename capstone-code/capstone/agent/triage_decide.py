@@ -819,10 +819,11 @@ def run_deterministic_triage_loop(
     def finish(decision: TriageStopDecision) -> TerminationReason:
         return stop(state, phase, decision, deps)
 
-    # The monitor's previous tick is not a verified Observe clock. If the
-    # mandatory read was attempted and rejected, do not issue further tools,
-    # and do not treat the earlier timestamp as an authorization horizon.
-    if state.triage_clock_verified is False:
+    # The monitor's previous tick is not a verified Observe clock.
+    # A missing verdict is not authorization: only the admitted get_time
+    # result can establish the source horizon. This also protects replay
+    # and direct loop entry points that bypass the Observe stage.
+    if state.triage_clock_verified is not True:
         return finish(
             TriageStopDecision(
                 reason="data_insufficient",
