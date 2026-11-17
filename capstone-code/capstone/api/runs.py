@@ -351,10 +351,16 @@ class SimulatorRuns:
         status = row[0] if row else "expired"
         if status == "pending":
             status = "expired"
-        if status == "approve":
+        # A committed approval is not enough to resume an episode: the
+        # in-process reviewer waiter must also have received the signal.
+        # If event delivery failed after the DB update, fail closed rather
+        # than treating a stale "approve" as permission to act.
+        if status == "approve" and accepted:
             return True, json.loads(row[1]).get(
                 "note", ""
             ) or "approved by simulator reviewer"
+        if status == "approve":
+            return False, "review notification not confirmed"
         return False, "review timed out" if status == "expired" else (
             json.loads(row[1]).get("note", "") or "rejected by simulator reviewer"
         )
