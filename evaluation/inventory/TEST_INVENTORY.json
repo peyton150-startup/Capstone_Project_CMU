@@ -84390,6 +84390,419 @@
    ]
   },
   {
+   "id": "tests/test_neon_manual.py::test_neon_keyword_only_returns_published_scoped_manual_sections",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_neon_keyword_only_returns_published_scoped_manual_sections",
+   "line": 79,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "neon keyword only returns published scoped manual sections",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_neon_semantic_uses_matching_model_and_valid_2048_vector",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_neon_semantic_uses_matching_model_and_valid_2048_vector",
+   "line": 95,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 7,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 4,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "neon semantic uses matching model and valid 2048 vector",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search",
+    "capstone.manual.neon:_vector"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_embedding_timeout_or_missing_vectors_degrades_within_same_document",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_embedding_timeout_or_missing_vectors_degrades_within_same_document",
+   "line": 112,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "embedding timeout or missing vectors degrades within same document",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search",
+    "capstone.manual.neon:_vector"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_db_outage_fails_closed_without_leaking_connection_strings",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_db_outage_fails_closed_without_leaking_connection_strings",
+   "line": 136,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 2
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "db outage fails closed without leaking connection strings",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_embedding_integrity_refuses_bad_vectors",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_embedding_integrity_refuses_bad_vectors",
+   "line": 145,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "invalid"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "embedding integrity refuses bad vectors",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:_vector"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_no_pilot_or_other_document_scope_can_be_retrieved",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_no_pilot_or_other_document_scope_can_be_retrieved",
+   "line": 150,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "no pilot or other document scope can be retrieved",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:NeonManualSearch.__init__"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_search_bounds_and_browse_limit_are_checked_before_database",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_search_bounds_and_browse_limit_are_checked_before_database",
+   "line": 157,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 3,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "search bounds and browse limit are checked before database",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch.list_sections",
+    "capstone.manual.neon:NeonManualSearch.search"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.manual.neon"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_publication_rejects_revision_mismatch_before_network",
+   "line": 169,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "publication rejects revision mismatch before network",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.index:section_document",
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch.publish_simulator",
+    "capstone.manual.neon:_digest",
+    "capstone.manual.neon:_vector",
+    "capstone.manual.sections:check_no_leaks"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.manual.index",
+    "capstone.manual.neon",
+    "capstone.manual.sections"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_neon_url_requires_tls_and_does_not_leak_secret",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_neon_url_requires_tls_and_does_not_leak_secret",
+   "line": 194,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "url"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "neon url requires tls and does not leak secret",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:open_neon_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.manual.neon",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_no_implicit_fallback_to_database_url",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_no_implicit_fallback_to_database_url",
+   "line": 201,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "no implicit fallback to database url",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.neon:open_neon_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.manual.neon",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_ui_neon_optin_requires_private_token",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_ui_neon_optin_requires_private_token",
+   "line": 210,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "negation": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "ui neon optin requires private token",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_neon_manual.py::test_isolated_sql_migration_has_no_browser_or_data_api_grants",
+   "file": "tests/test_neon_manual.py",
+   "name": "test_isolated_sql_migration_has_no_browser_or_data_api_grants",
+   "line": 218,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "membership": 5
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "isolated sql migration has no browser or data api grants",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_numeric_claim_metrics.py::test_a_hypothesis_citing_end_value_is_accepted",
    "file": "tests/test_numeric_claim_metrics.py",
    "name": "test_a_hypothesis_citing_end_value_is_accepted",
@@ -141777,6 +142190,106 @@
    "modules_exercised": [
     "capstone.api.readers",
     "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
+   "file": "tests/test_web_api.py",
+   "name": "test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
+   "line": 410,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 11,
+   "assert_forms": {
+    "equality": 7,
+    "truthiness": 4
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "opt in neon manual is private simulator only and disposed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.search_simulator_manual",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.manual.sections:ManualSection.citation",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.manual.sections"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+   "file": "tests/test_web_api.py",
+   "name": "test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+   "line": 453,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "neon manual api failure is sanitized and never accepted as run",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.list_managed_runs",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.search_simulator_manual",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns.list_runs",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
