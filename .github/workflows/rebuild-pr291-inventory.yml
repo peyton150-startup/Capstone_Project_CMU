@@ -1,5 +1,5 @@
 # One-time evaluator snapshot for PR291. Delete after committing artifacts.
-# Final source-matched regeneration after merging latest PR290 development branch and green three-DB acceptance.
+# Final source-matched regeneration after exact Ruff fixes on integrated PR289/290/291.
 name: Rebuild PR291 evaluation inventory
 
 on:
