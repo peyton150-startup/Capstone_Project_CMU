@@ -68,11 +68,23 @@ export type ListResponse<T> = { availability: Availability; items: T[]; message?
 export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
+/** Source-safe, per-phase values projected from the Python investigation watcher. */
+export type StageProgress = {
+  investigation_id: string; mode: 'triage' | 'deep'; stage: string | null;
+  iteration_count: number; tool_calls: number; evidence_count: number;
+  hypothesis_count: number; unresolved_question_ids: string[];
+  termination_reason: string | null; conclusion_available: boolean;
+};
+export type RunPhaseProgress = {
+  latest?: 'triage' | 'deep'; triage?: StageProgress; deep?: StageProgress;
+};
+
 export type ManagedRun = {
   run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
     tree_of_thought: boolean; manual: string };
   state: 'queued' | 'running' | 'awaiting_review' | 'completed' | 'failed' | 'interrupted';
   snapshot: { stage?: string | null; status?: string; mode?: string;
+    progress?: RunPhaseProgress;
     triage_report?: TriageReport | null; investigation?: { stage: string | null;
       tool_calls: number; evidence_count: number; hypothesis_count: number;
       termination_reason: string | null; unresolved_question_ids: string[] };
