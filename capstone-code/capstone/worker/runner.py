@@ -269,7 +269,9 @@ def execute_claim(
                 )
                 emit_model("model.config", {
                     "schema_version": 1,
-                    "outcome": "missing_credentials" if missing else "invalid_configuration",
+                    "outcome": (
+                        "missing_credentials" if missing else "invalid_configuration"
+                    ),
                 })
                 raise
             policy_holder[0] = policy
