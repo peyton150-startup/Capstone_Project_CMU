@@ -200,7 +200,10 @@ def test_direct_graph_entry_forces_stages_and_calls_only_conclude_model():
     assert policy.asked == ["conclude"]
     assert completed.conclusion is not None
     assert completed.proposed_action is None
-    assert all(candidate.status == "unconfirmed" for candidate in completed.triage_candidates)
+    assert all(
+        candidate.status == "unconfirmed"
+        for candidate in completed.triage_candidates
+    )
 
 
 def test_saved_profile_marker_and_deep_isolation():
