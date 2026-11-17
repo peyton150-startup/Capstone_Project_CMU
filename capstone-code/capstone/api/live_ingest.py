@@ -53,6 +53,7 @@ def router_for(
         try:
             batch = IngestBatch.model_validate_json(bytes(body))
             source = scope()
+            source.assert_active()
             return repository.accept(batch, source)
         except PermissionError:
             raise HTTPException(status_code=403, detail="Capture scope not authorized") from None

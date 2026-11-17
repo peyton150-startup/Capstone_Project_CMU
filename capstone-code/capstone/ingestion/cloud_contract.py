@@ -68,6 +68,7 @@ class CloudScope(BaseModel):
     approved_by: str = Field(min_length=2, max_length=120)
     expires_at: AwareDatetime
     retention_days: int = Field(ge=1, le=365)
+    max_sample_age_seconds: int | None = Field(default=None, ge=1, le=3600)
     nodes: tuple[ApprovedNode, ...] = Field(min_length=1, max_length=100)
     cloud_transfer_approved: bool = False
 
@@ -123,8 +124,15 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         if record.value_type == "String" and not permission.permit_text:
             raise PermissionError("sensitive text retention not approved")
         payload = record.model_dump(mode="json")
+        lag_seconds = (
+            (record.received_at - record.source_timestamp).total_seconds()
+            if record.source_timestamp is not None else None
+        )
         eligible = (
             permission.permit_numeric_analysis
+            and scope.max_sample_age_seconds is not None
+            and lag_seconds is not None
+            and 0 <= lag_seconds <= scope.max_sample_age_seconds
             and record.number() is not None
             and record.source_timestamp is not None
             and record.source_timestamp <= record.received_at

@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.ingestion.cloud_contract import scope_from_file
 from capstone.ingestion.cloud_contract import CloudScope, IngestBatch, validate_record
+from capstone.ingestion.siemens_opcua_record import NodeRef
 from capstone.ingestion.privacy import refusal
 
 MAX_LINE_BYTES = 64 * 1024
@@ -222,6 +223,25 @@ def upload_once(
             uploaded += len(batch.records)
 
 
+def validate_collector_scope(config_path: Path, scope: CloudScope) -> None:
+    """Stop cloud export if collector subscription exceeds approved nodes."""
+    if (
+        not config_path.is_absolute()
+        or refusal(config_path, "--collector-config") is not None
+        or config_path.stat().st_size > 32_768
+    ):
+        raise ValueError("collector config must be a private bounded file")
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    if not isinstance(config, dict) or config.get("expected_server_uri") != scope.server_uri:
+        raise PermissionError("collector source differs from cloud approval")
+    observed = {
+        NodeRef.model_validate(node).key for node in config.get("nodes", [])
+    }
+    allowed = {item.node.key for item in scope.nodes}
+    if not observed or not observed <= allowed:
+        raise PermissionError("collector includes unapproved subscribed nodes")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Upload already-approved on-site Siemens JSONL, never CNC commands"
@@ -229,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--capture", required=True, type=Path)
     parser.add_argument("--cursor", required=True, type=Path)
     parser.add_argument("--scope", required=True, type=Path)
+    parser.add_argument("--collector-config", required=True, type=Path)
     parser.add_argument("--endpoint", required=True)
     parser.add_argument("--token-env", default="CAPSTONE_LIVE_INGEST_TOKEN")
     parser.add_argument("--follow", action="store_true")
@@ -239,6 +260,7 @@ def main(argv: list[str] | None = None) -> int:
     for name, path in (
         ("--capture", args.capture), ("--cursor", args.cursor),
         ("--scope", args.scope),
+        ("--collector-config", args.collector_config),
     ):
         if not path.is_absolute() or refusal(path, name) is not None:
             parser.error(f"{name} must be an absolute path outside a Git checkout")
@@ -250,6 +272,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         while True:
             scope = scope_from_file(args.scope)
+            validate_collector_scope(args.collector_config, scope)
             count = upload_once(
                 args.capture, args.cursor, scope,
                 lambda batch: send_batch(endpoint, token, batch),

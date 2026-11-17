@@ -1,5 +1,4 @@
 """Offline authenticated Siemens cloud ingest, authorization and replay tests."""
-import hashlib
 import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -16,7 +15,7 @@ from capstone.ingestion.cloud_contract import (
     scope_from_file,
     validate_record,
 )
-from capstone.ingestion.cloud_store import IngestConflict, postgres_engine
+from capstone.ingestion.cloud_store import postgres_engine
 from capstone.ingestion.siemens_opcua_record import (
     NodeRef,
     OpcUaGap,
@@ -43,7 +42,8 @@ def scope(*, permit_text=False, approved=True):
         approval_reference="SIGNED-APPROVAL-TEST-001",
         approved_by="Authorized Test Operator",
         expires_at=datetime(2030, 1, 1, tzinfo=UTC),
-        retention_days=30, cloud_transfer_approved=approved,
+        retention_days=30, max_sample_age_seconds=10,
+        cloud_transfer_approved=approved,
         nodes=(
             ApprovedNode(
                 node=NODE, permit_numeric_analysis=True, unit="rpm",

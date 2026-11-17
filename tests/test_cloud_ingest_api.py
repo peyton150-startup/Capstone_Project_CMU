@@ -1,5 +1,4 @@
 """Collector-only FastAPI ingress security, bounded body and ACK contract."""
-from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -96,7 +95,7 @@ def test_scope_revocation_blocks_future_batches_without_server_restart():
     assert app.post("/api/v1/ingest/siemens/batches", json=batch, headers=flags).status_code == 200
     flag["enabled"] = False
     assert app.post("/api/v1/ingest/siemens/batches", json=batch, headers=flags).status_code == 403
-    assert len(store.accepted) == 2  # Fake was called; real store validates consent.
+    assert len(store.accepted) == 1  # Route stops revoked data before storage.
 
 
 def test_store_failure_response_is_sanitized():
