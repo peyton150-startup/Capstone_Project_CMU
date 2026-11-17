@@ -302,7 +302,7 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     )
     repository.publish_progress(claim, "worker-one", stage.model_dump(mode="json"))
     observed = repository.get(queued["run_id"], actor_id="hosted-simulator")
-    assert observed["snapshot"]["progress"]["latest"]["stage"] == "conclude"
+    assert observed["snapshot"]["progress"]["triage"]["stage"] == "conclude"
     assert repository.get(queued["run_id"], actor_id="someone-else") is None
     repository.store_artifacts(
         claim, "worker-one",
@@ -514,7 +514,7 @@ def test_expiry_preserves_last_good_triage_and_never_replays(repository):
     assert repository.recover_expired() == [submitted["run_id"]]
     view = repository.get(submitted["run_id"])
     assert view["state"] == "interrupted"
-    assert view["snapshot"]["progress"]["latest"]["tool_calls"] == 1
+    assert view["snapshot"]["progress"]["triage"]["tool_calls"] == 1
     assert repository.claim("worker-two") is None
 
 
@@ -548,7 +548,7 @@ def test_terminal_progress_is_authoritative_over_late_queue_writer(repository):
     with pytest.raises(LostLease):
         repository.publish_progress(claim, "worker-one", early)
     row = repository.get(submitted["run_id"])
-    assert row["snapshot"]["progress"]["latest"]["stage"] == "conclude"
+    assert row["snapshot"]["progress"]["triage"]["stage"] == "conclude"
     assert [event["event"] for event in repository.events_since(
         submitted["run_id"], 0
     )][-2:] == ["stage.updated", "run.completed"]

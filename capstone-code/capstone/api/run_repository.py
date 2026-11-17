@@ -678,7 +678,7 @@ class RunRepository:
                         mode="json"
                     )
                     progress[final["mode"]] = final
-                    progress["latest"] = final
+                    progress["latest"] = final["mode"]
                     # Atomically journal stage(s) before terminal replay.
                     self._append(session, run, "stage.updated", final)
             run.state = state
@@ -739,7 +739,7 @@ class RunRepository:
                 raise LostLease("Run cannot receive progress")
             phase_progress = dict(run.snapshot.get("progress") or {})
             phase_progress[safe["mode"]] = safe
-            phase_progress["latest"] = safe
+            phase_progress["latest"] = safe["mode"]
             run.snapshot = {**run.snapshot, "progress": phase_progress}
             run.version += 1
             run.updated_at = datetime.now(timezone.utc)
