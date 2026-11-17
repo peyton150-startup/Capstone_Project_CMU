@@ -61,7 +61,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: pr289-inventory-rebuilt
-          path: "$RUNNER_TEMP/inventory"
+          path: ${{ runner.temp }}/inventory
       - name: Copy generated inventories only
         run: |
           set -euo pipefail
