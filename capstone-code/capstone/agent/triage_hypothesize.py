@@ -67,6 +67,10 @@ class TriageHypothesisPacket(Contract):
         if not set(self.test_requirement_ids) <= relevant:
             raise ValueError("test requirements must derive from known candidates")
         for candidate in self.candidates:
+            # A Pydantic model_copy(update=...) bypasses validation. Round-trip
+            # nested typed instances to reject forged family/status/IDs before
+            # any candidate or Test target enters Graph state.
+            TriageCandidate.model_validate(candidate.model_dump())
             targets = set(candidate.discriminating_requirement_ids)
             if not set(candidate.missing_requirement_ids) <= targets:
                 raise ValueError("candidate missing requirements are not targeted")
