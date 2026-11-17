@@ -48,7 +48,9 @@ class PostgresSimulatorRuns(SimulatorRuns):
         artifact_root: Path,
         *,
         approval_timeout_seconds: float = 240,
+        recover_existing: bool = True,
     ):
+        self._recover_existing = recover_existing
         try:
             from sqlalchemy import create_engine
             from sqlalchemy.engine import make_url
@@ -154,12 +156,15 @@ class PostgresSimulatorRuns(SimulatorRuns):
                         "PostgreSQL simulator schema missing; apply Alembic head "
                         "before enabling the remote journal"
                     )
-            db.execute(
-                "UPDATE runs SET state='interrupted', updated_at=? "
-                "WHERE state IN ('queued', 'running', 'awaiting_review')",
-                (self._now(),),
-            )
-            db.execute("UPDATE run_reviews SET status='expired' WHERE status='pending'")
+            if self._recover_existing:
+                db.execute(
+                    "UPDATE runs SET state='interrupted', updated_at=? "
+                    "WHERE state IN ('queued', 'running', 'awaiting_review')",
+                    (self._now(),),
+                )
+                db.execute(
+                    "UPDATE run_reviews SET status='expired' WHERE status='pending'"
+                )
 
     @staticmethod
     def _now() -> str:
