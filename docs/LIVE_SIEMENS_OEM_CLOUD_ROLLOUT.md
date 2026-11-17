@@ -86,7 +86,7 @@ Two independent strong tokens: the collector token is **not** a UI/operator
 token. Use a private secret manager; never place tokens in `.env.example`,
 the public repository, Vercel `VITE_*`, model prompts or client logs.
 
-Render service-only:
+Render service-only (install `capstone[database]` with FastAPI/uvicorn, or `uv sync --locked --all-extras` so SQLAlchemy + psycopg are present; the disabled route has no DB dependency):
 - `CAPSTONE_LIVE_INGEST_ENABLED=1`
 - `CAPSTONE_LIVE_INGEST_TOKEN=<distinct 32+ character secret>`
 - `CAPSTONE_LIVE_DB_URL=<explicit PostgreSQL TLS connection URL>`
