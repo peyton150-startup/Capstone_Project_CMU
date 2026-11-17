@@ -67,6 +67,23 @@ def public_run_configuration(
         {} if request.triage_settings is None
         else request.triage_settings.model_dump(exclude_none=True)
     )
+    stages = (
+        effective.stage_modes() if applied and effective
+        else {"deep": "model-backed Graph", "triage": "not run"}
+    )
+    if applied:
+        stages["manual"] = (
+            "off" if request.manual == "none"
+            else "dedicated lookup enabled" if settings.manual_step
+            else "manual tool available; dedicated lookup off"
+        )
+        if (
+            effective is not None
+            and effective.investigate == "deterministic"
+            and effective.hypothesize == "model"
+            and request.tree_of_thought
+        ):
+            stages["test"] = "deterministic reads; possible model revaluation"
     body = {
         "schema_version": 1,
         "applied": applied,
@@ -87,10 +104,7 @@ def public_run_configuration(
             if applied and effective else []
         ),
         "not_applied": sorted(desired) if not applied else [],
-        "stages": (
-            effective.stage_modes() if applied and effective
-            else {"deep": "model-backed Graph", "triage": "not run"}
-        ),
+        "stages": stages,
         "configured_conclude_primary": (
             settings.triage_model or settings.conclude_model or settings.default_model
             if applied else settings.conclude_model or settings.default_model
