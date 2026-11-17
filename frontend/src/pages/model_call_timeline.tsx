@@ -38,6 +38,7 @@ type ModelCallResponse = {
   availability: 'available' | 'not_recorded';
   window_scope: 'latest_200';
   truncated: boolean;
+  invalid_rows: number;
   configuration: 'configured' | 'missing_credentials' | 'invalid_configuration' | null;
   summary: {
     schema_version: 1;
@@ -100,6 +101,10 @@ export function ModelCallTimeline({ runId }: { runId: string | undefined }) {
     {resource.data?.configuration === 'invalid_configuration' && <InfoState
       kind="warning" title="Model provider configuration failed"
       detail="The backend could not construct its model client. Check the selected backend's model routing and provider settings; private exception details are never sent to the browser."/>}
+    {Boolean(resource.data?.invalid_rows) && <InfoState
+      kind="warning" title="Invalid model telemetry was discarded"
+      detail={String(resource.data?.invalid_rows) +
+        ' stored model entries failed schema validation and were not displayed.'}/>}
     {resource.data?.summary && !resource.data.summary.complete && <InfoState
       kind="warning" title="Model call history is incomplete"
       detail={'The worker observed ' + resource.data.summary.questions_seen +
