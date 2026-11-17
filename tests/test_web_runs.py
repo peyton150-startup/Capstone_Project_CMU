@@ -530,7 +530,8 @@ def test_progress_keeps_both_investigation_phases_through_restart_and_terminal_e
 
     runner._emit(run_id, "stage.updated", deep)
     runner._emit(
-        run_id, "review.requested",
+        run_id,
+        "review.requested",
         {"status": "awaiting_review", "mode": "deep"},
         state="awaiting_review",
     )
@@ -543,7 +544,8 @@ def test_progress_keeps_both_investigation_phases_through_restart_and_terminal_e
     assert during_review["progress"]["latest"] == "deep"
 
     runner._emit(
-        run_id, "run.completed",
+        run_id,
+        "run.completed",
         {"status": "completed", "mode": "triage", "diagnosis": "unverified"},
         state="completed",
     )
