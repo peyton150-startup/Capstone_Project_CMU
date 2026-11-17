@@ -156,8 +156,32 @@ class PrivatePDFStorage:
         )
         return build_opener(_NoRedirect()).open(request, timeout=25)
 
+    def _assert_private_bucket(self) -> None:
+        """Bucket naming is not an ACL: verify actual Supabase privacy."""
+        url = self.origin + "/storage/v1/bucket/" + quote(self.bucket, safe="")
+        request = Request(
+            url, method="GET",
+            headers={
+                "Authorization": "Bearer " + self.token,
+                "apikey": self.token,
+            },
+        )
+        try:
+            with build_opener(_NoRedirect()).open(request, timeout=15) as response:
+                metadata = json.loads(response.read(8192))
+        except (HTTPError, URLError, OSError, ValueError):
+            raise RuntimeError("Cannot verify private OEM bucket") from None
+        if not isinstance(metadata, dict) or metadata.get("public") is not False:
+            raise PermissionError("OEM bucket must be explicitly private")
+
     def publish(self, manifest: OEMApproval, pdf: bytes) -> str:
         """Immutable PDF key; a 409 retry checks exact bytes, never overwrites."""
+        if (
+            not pdf.startswith(b"%PDF-") or len(pdf) > MAX_PDF_BYTES
+            or hashlib.sha256(pdf).hexdigest() != manifest.pdf_sha256
+        ):
+            raise ValueError("private PDF differs from approved source")
+        self._assert_private_bucket()
         try:
             with self._request(manifest.object_key, pdf, "POST") as response:
                 response.read(1024)

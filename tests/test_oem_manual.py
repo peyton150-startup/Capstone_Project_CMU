@@ -89,6 +89,9 @@ class FakeStorage(PrivatePDFStorage):
         self.saved = None
         self.attempts = 0
 
+    def _assert_private_bucket(self):
+        pass  # Simulates a verified private bucket.
+
     def _request(self, key, payload, method):
         if method == "POST":
             self.attempts += 1
