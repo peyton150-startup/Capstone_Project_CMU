@@ -29,6 +29,30 @@ The top toolbar **Local / Render** button changes the API used across the consol
 
 Before deployment sign-off, verify API health, authorized/unauthorized requests, simulator role gating, and the run-event stream through the selected proxy. Static tests are not live integration proof.
 
+## Managed investigation progress
+
+The run-detail route `/lab/runs/:runId` now reads the existing authenticated
+`GET /api/v1/lab/runs/{run_id}` snapshot and `/events` SSE journal.
+The Python `safe_stage` watcher emits **typed, bounded metadata**: phase, step,
+iteration/tool/evidence/hypothesis counts, unresolved question IDs, termination
+reason and conclusion availability. A phase-specific `snapshot.progress` map
+retains the most recent **triage** and **deep** values even when the worker
+updates a review state or publishes a final run report. The UI reads the same
+journal after reconnection; it never invents progress or a percentage complete.
+
+The stage event journal labels each update with its triage/deep phase, stage
+and recorded counts. Operational diagnostics distinguish a skipped/unavailable
+sensor summary from a tool execution failure. The existing approved audit,
+triage report, final recommendation and verification remain separately
+qualified artifacts: **live counters do not mean diagnosis, OEM measurement,
+or machine acceptance**. Early runs may have no new phase snapshots.
+
+**Future work (not included here):**
+[Role-aware API Access](../docs/FRONTEND_ACCESS_FUTURE_WORK.md) proposes a
+viewer/operator/reviewer selector and role-specific memory-only credentials.
+No auth UI, secret storage or server permission changes are included in this
+live-progress change.
+
 ## Local PowerShell setup
 
 Prerequisites: `uv`, the repository's pinned Python version, and Node.js 22. Run from the repository root:
