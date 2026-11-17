@@ -64,8 +64,14 @@ class SafeRequirementProgress(BaseModel):
         pattern=r"^Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})$"
     )
     status: Literal[
-        "pending", "satisfied", "partial", "insufficient", "stale",
-        "unavailable", "unsupported", "failed",
+        "pending",
+        "satisfied",
+        "partial",
+        "insufficient",
+        "stale",
+        "unavailable",
+        "unsupported",
+        "failed",
     ]
     evidence_count: int = Field(ge=0)
 
@@ -83,11 +89,24 @@ class SafeStageSnapshot(BaseModel):
         pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     )
     mode: Literal["triage", "deep"]
-    stage: Literal[
-        "observe", "manual", "plan", "investigate", "hypothesize",
-        "test", "critique", "recheck", "conclude", "decide",
-        "propose", "execute", "verify",
-    ] | None = None
+    stage: (
+        Literal[
+            "observe",
+            "manual",
+            "plan",
+            "investigate",
+            "hypothesize",
+            "test",
+            "critique",
+            "recheck",
+            "conclude",
+            "decide",
+            "propose",
+            "execute",
+            "verify",
+        ]
+        | None
+    ) = None
     iteration_count: int = Field(ge=0)
     tool_calls: int = Field(ge=0)
     evidence_count: int = Field(ge=0)
@@ -174,7 +193,8 @@ def safe_stage(state: Any) -> dict[str, Any]:
         if rid in requirements and _SAFE_REQUIREMENT_ID.fullmatch(rid)
     ]
     ids = [
-        q.id for q in getattr(state, "unanswered_questions", ())[:25]
+        q.id
+        for q in getattr(state, "unanswered_questions", ())[:25]
         if isinstance(q.id, str) and _SAFE_QUESTION_ID.fullmatch(q.id)
     ]
     return SafeStageSnapshot(
@@ -213,9 +233,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
         triage_decide_reads=getattr(state, "triage_deterministic_reads", 0),
         triage_decide_stops=getattr(state, "triage_deterministic_stops", 0),
         triage_candidates=len(getattr(state, "triage_candidates", ())),
-        triage_test_requirements=len(
-            getattr(state, "triage_test_requirement_ids", ())
-        ),
+        triage_test_requirements=len(getattr(state, "triage_test_requirement_ids", ())),
         triage_trace_events=len(getattr(state, "triage_trace_events", ())),
         triage_logging_failures=getattr(state, "triage_logging_failures", 0),
         deep_recommended=getattr(state, "deep_recommended", None),
@@ -426,7 +444,11 @@ class SimulatorRuns:
                     latest = final_progress.get("latest")
                     if latest in ("triage", "deep") and latest in progress:
                         progress["latest"] = latest
-                    payload = {key: value for key, value in payload.items() if key != "progress"}
+                    payload = {
+                        key: value
+                        for key, value in payload.items()
+                        if key != "progress"
+                    }
             next_seq = db.execute(
                 "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
                 (run_id,),
@@ -743,7 +765,9 @@ class SimulatorRuns:
                         "progress": {
                             **latest_observed,
                             "latest": "deep" if "deep" in latest_observed else "triage",
-                        } if latest_observed else {},
+                        }
+                        if latest_observed
+                        else {},
                     },
                     state="failed",
                 )
