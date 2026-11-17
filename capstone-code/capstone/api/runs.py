@@ -82,7 +82,9 @@ def safe_stage(state: Any) -> dict[str, Any]:
         tool_calls=state.tool_call_count,
         evidence_count=len(state.evidence),
         hypothesis_count=len(state.hypotheses),
-        unresolved_question_ids=[str(q.id)[:64] for q in state.unanswered_questions[:25]],
+        unresolved_question_ids=[
+            str(q.id)[:64] for q in state.unanswered_questions[:25]
+        ],
         termination_reason=None if reason is None else reason.value,
         conclusion_available=state.conclusion is not None,
     ).model_dump(mode="json")
