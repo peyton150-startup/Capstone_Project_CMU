@@ -184,9 +184,9 @@ def main() -> None:
     else:
         if not args.confirm_project_ref:
             parser.error("--apply requires --confirm-project-ref")
-        url = os.getenv("CAPSTONE_UI_RUN_DATABASE_URL") or os.getenv("DATABASE_URL")
+        url = os.getenv("CAPSTONE_UI_RUN_DATABASE_URL")
         if not url:
-            parser.error("Set CAPSTONE_UI_RUN_DATABASE_URL or DATABASE_URL privately")
+            parser.error("Set CAPSTONE_UI_RUN_DATABASE_URL privately")
         result = apply(args.sqlite, url, args.confirm_project_ref)
     print(json.dumps(result, sort_keys=True))
 
