@@ -21,6 +21,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from capstone.api.deep_progress import (
+    SafeDeepCheckpoint,
+    SafeDeepSignals,
+    checkpoint_from_stage,
+    safe_deep_signals,
+)
+
 RunState = Literal[
     "queued", "running", "awaiting_review", "completed", "failed", "interrupted"
 ]
@@ -115,6 +122,9 @@ class SafeStageSnapshot(BaseModel):
     unresolved_question_count: int = Field(default=0, ge=0)
     termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
     conclusion_available: bool
+    # The additional deep lifecycle is a strict nested Pydantic contract.
+    # A triage state never has deep signals, even when escalation is expected.
+    deep_signals: SafeDeepSignals | None = None
 
     # Every additional field is a *derived count or authorization flag*, not
     # the underlying data. All values are bounded by the Pydantic contract.
@@ -209,6 +219,9 @@ def safe_stage(state: Any) -> dict[str, Any]:
         unresolved_question_count=len(getattr(state, "unanswered_questions", ())),
         termination_reason=reason,
         conclusion_available=state.conclusion is not None,
+        deep_signals=(
+            safe_deep_signals(state) if state.mode == "deep" else None
+        ),
         answered_question_count=len(getattr(state, "answers", {})),
         decision_count=len(getattr(state, "decisions", ())),
         remaining_iterations=getattr(state, "remaining_iterations", 0),
@@ -417,7 +430,10 @@ class SimulatorRuns:
                 {
                     key: val
                     for key, val in previous_progress.items()
-                    if key in ("triage", "deep", "latest")
+                    if key in (
+                        "triage", "deep", "latest",
+                        "deep_timeline", "deep_transition_total",
+                    )
                 }
                 if isinstance(previous_progress, dict)
                 else {}
@@ -453,6 +469,31 @@ class SimulatorRuns:
                 "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
                 (run_id,),
             ).fetchone()[0]
+            if event == "stage.updated" and payload["mode"] == "deep":
+                # The Pydantic Graph can revisit stages. Record each *observed*
+                # transition exactly once, using the same source sequence as
+                # the durable event journal. Never infer a skipped stage.
+                earlier = progress.get("deep_timeline")
+                timeline: list[dict[str, Any]] = []
+                if isinstance(earlier, list):
+                    for item in earlier[-48:]:
+                        try:
+                            checked = SafeDeepCheckpoint.model_validate(item)
+                        except ValueError:
+                            continue
+                        timeline.append(checked.model_dump(mode="json"))
+                current_stage = payload.get("stage")
+                if current_stage is not None and (
+                    not timeline or timeline[-1]["stage"] != current_stage
+                ):
+                    checkpoint = checkpoint_from_stage(next_seq, payload)
+                    timeline.append(checkpoint.model_dump(mode="json"))
+                    prev_total = progress.get("deep_transition_total")
+                    if type(prev_total) is not int or prev_total < 0:
+                        prev_total = len(timeline) - 1
+                    progress["deep_transition_total"] = prev_total + 1
+                if timeline:
+                    progress["deep_timeline"] = timeline[-48:]
             db.execute(
                 "INSERT INTO run_events VALUES(?,?,?,?,?)",
                 (run_id, next_seq, event, json.dumps(payload), utc_now()),
