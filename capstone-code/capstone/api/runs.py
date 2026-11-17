@@ -367,6 +367,71 @@ class SimulatorRuns:
             for n, name, payload in rows
         ]
 
+    def _append_model_event(
+        self, run_id: str, event: Literal["model.monitor", "model.call"],
+        payload: dict[str, Any],
+    ) -> None:
+        """Durably append safe telemetry WITHOUT changing the run snapshot.
+
+        The same transactional run_events journal is backed by local SQLite
+        or Render PostgreSQL, so reconnect and process restart cannot erase
+        committed model calls. Independent of the lossy stage progress queue.
+        """
+        from capstone.api.model_calls import SafeModelCall
+
+        payload = (
+            SafeModelCall.model_validate(payload).model_dump(mode="json")
+            if event == "model.call"
+            else {"schema_version": 1}
+        )
+        with self.lock, self._db() as db:
+            self._lock_event_sequence(db, run_id)
+            next_seq = db.execute(
+                "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
+                (run_id,),
+            ).fetchone()[0]
+            db.execute(
+                "INSERT INTO run_events VALUES(?,?,?,?,?)",
+                (run_id, next_seq, event, json.dumps(payload), utc_now()),
+            )
+
+    def record_model_call(self, run_id: str, call: Any, index: int) -> None:
+        """Persist only the allowlisted ModelCall/Attempt projection."""
+        from capstone.api.model_calls import project_model_call
+
+        self._append_model_event(run_id, "model.call", project_model_call(call, index))
+
+    def model_calls(self, run_id: str) -> dict[str, Any]:
+        """Latest bounded chronological calls, readable after reconnect."""
+        from capstone.api.model_calls import MAX_CALLS, SafeModelCall
+
+        if self.get(run_id) is None:
+            raise LookupError("Run not found")
+        with self.lock, self._db() as db:
+            marker = db.execute(
+                "SELECT 1 FROM run_events WHERE run_id=? "
+                "AND event='model.monitor' LIMIT 1", (run_id,),
+            ).fetchone()
+            rows = db.execute(
+                "SELECT seq, payload FROM run_events WHERE run_id=? "
+                "AND event='model.call' ORDER BY seq DESC LIMIT ?",
+                (run_id, MAX_CALLS + 1),
+            ).fetchall()
+        items = []
+        for seq, raw in reversed(rows[:MAX_CALLS]):
+            try:
+                # Revalidate on reads: storage is NOT an API serializer.
+                clean = SafeModelCall.model_validate_json(raw).model_dump(mode="json")
+            except (ValueError, TypeError):
+                continue
+            items.append({"seq": seq, **clean})
+        return {
+            "availability": "available" if marker is not None else "not_recorded",
+            "window_scope": "latest_200",
+            "truncated": len(rows) > MAX_CALLS,
+            "items": items,
+        }
+
     def _lock_event_sequence(self, db: Any, run_id: str) -> None:
         """SQLite uses its existing transaction lock; remote stores may lock a row."""
 
@@ -621,8 +686,29 @@ class SimulatorRuns:
         progress: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
         missed = [0]
         latest_observed: dict[str, dict[str, Any]] = {}
+        policy: Any = None
+        recorded_calls = [0]
+        telemetry_failures = [0]
+
+        def flush_model_calls() -> None:
+            """Persist each finished question once; retry after journal outages."""
+            if policy is None:
+                return
+            calls = getattr(policy, "calls", ())
+            while recorded_calls[0] < len(calls):
+                try:
+                    self.record_model_call(
+                        run_id, calls[recorded_calls[0]], recorded_calls[0] + 1
+                    )
+                except Exception:
+                    # An observer cannot abort a model decision or expose the
+                    # exception: provider messages may contain private content.
+                    telemetry_failures[0] += 1
+                    return
+                recorded_calls[0] += 1
 
         def watch(state: Any) -> None:
+            flush_model_calls()
             try:
                 snapshot = safe_stage(state)
                 if latest_observed.get(snapshot["mode"]) == snapshot:
@@ -662,6 +748,7 @@ class SimulatorRuns:
                 {"status": "running", "mode": request.mode},
                 state="running",
             )
+            self._append_model_event(run_id, "model.monitor", {"schema_version": 1})
             from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
@@ -694,6 +781,14 @@ class SimulatorRuns:
                     approver=lambda proposal: self._await_review(run_id, proposal),
                     run_key="ui/" + run_id,
                 )
+            flush_model_calls()
+            for critic_call in result.critic_calls:
+                try:
+                    self.record_model_call(run_id, critic_call, recorded_calls[0] + 1)
+                except Exception:
+                    telemetry_failures[0] += 1
+                else:
+                    recorded_calls[0] += 1
             # PostgreSQL is remote; a stalled publisher must not indefinitely
             # block the worker's terminal state. The terminal snapshot is
             # independently rebuilt from the returned Graph state below.
@@ -758,6 +853,7 @@ class SimulatorRuns:
             }
             self._emit(run_id, "run.completed", final, state="completed")
         except Exception as error:
+            flush_model_calls()
             # Never persist exception messages: providers may include private details.
             try:
                 self._emit(
