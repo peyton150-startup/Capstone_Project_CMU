@@ -61,7 +61,7 @@ class UiConfig:
             and not self.run_database_url
         ):
             raise ValueError(
-                "PostgreSQL journal requires CAPSTONE_UI_RUN_DATABASE_URL or DATABASE_URL"
+                "PostgreSQL journal requires CAPSTONE_UI_RUN_DATABASE_URL"
             )
         if self.runs_enabled:
             if (
@@ -125,11 +125,7 @@ class UiConfig:
             machine_label=os.getenv("CAPSTONE_UI_MACHINE_LABEL", "Authorized CNC")[:80],
             run_db=path("CAPSTONE_UI_RUN_DB"),
             run_backend=os.getenv("CAPSTONE_UI_RUN_BACKEND", "sqlite"),
-            run_database_url=(
-                os.getenv("CAPSTONE_UI_RUN_DATABASE_URL")
-                or os.getenv("DATABASE_URL")
-                or None
-            ),
+            run_database_url=os.getenv("CAPSTONE_UI_RUN_DATABASE_URL") or None,
             run_token=os.getenv("CAPSTONE_UI_RUN_TOKEN") or None,
             review_token=os.getenv("CAPSTONE_UI_REVIEW_TOKEN") or None,
             runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
