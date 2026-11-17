@@ -372,13 +372,18 @@ def update_candidate_packet(
     state.triage_test_requirement_ids = packet.test_requirement_ids
     if not record_trace:
         return
+    if rejected:
+        action = "rejected"
+    elif not packet.candidates:
+        action = "no_candidates"
+    elif stage == "hypothesize":
+        action = "compiled"
+    else:
+        action = "refreshed"
     trace = TriageHypothesisTrace(
         source_cutoff_tick=packet.source_cutoff_tick,
         stage=stage,
-        action=(
-            "rejected" if rejected
-            else "compiled" if stage == "hypothesize" else "refreshed"
-        ) if packet.candidates else ("rejected" if rejected else "no_candidates"),
+        action=action,
         candidate_ids=tuple(candidate.id for candidate in candidates),
         requirement_ids=test_ids,
         qualified_sources=len(
