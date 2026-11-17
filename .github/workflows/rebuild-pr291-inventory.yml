@@ -1,5 +1,5 @@
 # One-time evaluator snapshot for PR291. Delete after committing artifacts.
-# Final source-matched regeneration after exact Ruff fixes on integrated PR289/290/291.
+# Rebuild committed evaluator inventories before the standard clean-tree SNAP CI job.
 name: Rebuild PR291 evaluation inventory
 
 on:
@@ -45,18 +45,6 @@ jobs:
         run: |
           cd evaluation
           uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
-      - name: Full offline SNAP evaluation against regenerated source inventories
-        env:
-          SUBQ_API_KEY: ""
-        run: |
-          cd evaluation
-          uv run --no-sync python -m evaltools.full_evaluation \
-            --commit "$GITHUB_SHA" \
-            --provider snap --snap-full-context \
-            --archive ../docs/benchmarks/2026-11-01-tot13-pairs \
-            --archive ../docs/benchmarks/2026-11-02-audited-known-cases \
-            --archive ../docs/benchmarks/2026-11-10-snap-calibration-pair \
-            --out "$RUNNER_TEMP/snap-full-dry-run"
       - uses: actions/upload-artifact@v4
         with:
           name: pr291-inventory-rebuilt
