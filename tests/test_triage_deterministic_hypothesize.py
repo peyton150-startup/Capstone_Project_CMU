@@ -161,6 +161,9 @@ def test_invalid_compiled_packet_is_rejected_before_any_test_target(monkeypatch)
     assert state.triage_candidates == []
     assert state.triage_test_requirement_ids == ()
     assert state.triage_hypothesis_trace[-1].action == "rejected"
+    assert state.triage_hypothesis_trace[-1].candidate_ids == ()
+    assert state.triage_hypothesis_trace[-1].requirement_ids == ()
+    assert state.triage_hypothesis_trace[-1].qualified_sources == 0
 
 
 def test_unchecked_mutation_cannot_leak_fake_candidate_family():

@@ -384,31 +384,34 @@ def update_candidate_packet(
         source_cutoff_tick=packet.source_cutoff_tick,
         stage=stage,
         action=action,
-        candidate_ids=tuple(candidate.id for candidate in candidates),
-        requirement_ids=test_ids,
+        # Diagnostic counters must describe the admitted (validated) packet.
+        # Rejected candidates and their provisional Test plan are never logged
+        # as if they were accepted.
+        candidate_ids=tuple(candidate.id for candidate in packet.candidates),
+        requirement_ids=packet.test_requirement_ids,
         qualified_sources=len(
             {
                 eid
-                for candidate in candidates
+                for candidate in packet.candidates
                 for eid in candidate.observation_evidence_ids
             }
         ),
         missing_sources=len(
             {
                 rid
-                for candidate in candidates
+                for candidate in packet.candidates
                 for rid in candidate.missing_requirement_ids
             }
         ),
         unavailable_sources=len(
             {
                 rid
-                for candidate in candidates
+                for candidate in packet.candidates
                 for rid in candidate.unavailable_requirement_ids
             }
         ),
         unresolved_questions=len(
-            {qid for candidate in candidates for qid in candidate.open_question_ids}
+            {qid for candidate in packet.candidates for qid in candidate.open_question_ids}
         ),
     )
     state.triage_hypothesis_trace.append(trace)
