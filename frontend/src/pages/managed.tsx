@@ -56,7 +56,7 @@ export function ManagedRunLauncher() {
 
   if (workspace === 'pilot') return <InfoState kind="warning" title="Simulator controls unavailable in pilot"
     detail="Prestige remains a passive, read-only data acquisition environment."/>;
-  return <Panel title="Managed simulator experiment" subtitle="An authorized local worker runs the existing Python episode">
+  return <Panel title="Managed simulator experiment" subtitle="The selected backend runs the existing simulator episode">
     <div className="form-grid">
       <div><label className="field-label" htmlFor="managed-seed">Scenario seed</label>
         <input id="managed-seed" inputMode="numeric" value={seed} onChange={event=>{setSeed(event.target.value);resetKey();}}/></div>
@@ -84,8 +84,8 @@ export function ManagedRunLauncher() {
       {pending ? 'Submitting…' : 'Start authorized simulator run'}</button> :
       <Unavailable item="Managed simulator runner" detail={preview ?
         'Exit synthetic preview to run a real simulator episode.' :
-        capability.error || 'Enable CAPSTONE_UI_SIM_RUNS with approved local runner storage and operator credentials.'}/>}
-    <p className="body-copy">Requires an operator token in the local Access dialog. The reviewer uses a distinct token.</p>
+        capability.error || 'Enable CAPSTONE_UI_SIM_RUNS with approved server storage and operator credentials.'}/>}
+    <p className="body-copy">Requires an operator token for the selected backend in Access. The reviewer uses a distinct token.</p>
   </Panel>;
 }
 
@@ -93,7 +93,7 @@ export function ManagedRunList() {
   const { data, error } = useManagedRuns();
   const { workspace, preview } = useUi();
   if (workspace === 'pilot' || preview) return null;
-  return <Panel title="Managed local runs" subtitle="Durable status journal (simulator only)">
+  return <Panel title="Managed simulator runs" subtitle="Durable status journal on the selected backend">
     {error && <InfoState title="Managed run history unavailable" detail={error} kind="warning"/>}
     {data?.items?.length ? <div className="incident-list">{data.items.map(run =>
       <Link to={'/lab/runs/' + encodeURIComponent(run.run_id)} className="incident-row" key={run.run_id}>
@@ -103,7 +103,7 @@ export function ManagedRunList() {
           <small>{formatStamp(run.updated_at)}</small></div>
         <Pill text={run.state} tone={toneFor(run.state)}/>
       </Link>)}</div> : <Unavailable item="Managed run history"
-      detail="No managed simulator runs have been submitted on this local installation."/>}
+      detail="No managed simulator runs have been submitted to this backend."/>}
   </Panel>;
 }
 
@@ -137,7 +137,9 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean, 
         while (!closed) {
           const { done, value } = await reader.read();
           if (done) break;
-          buffer += decoder.decode(value, { stream: true }).replaceAll('\r\n', '\n');
+          // Normalize after concatenation: CR/LF can cross network chunks.
+          buffer = (buffer + decoder.decode(value, { stream: true })).replaceAll('\r\n', '\n');
+          if (buffer.length > 65536) throw new Error('Event frame exceeded safe size');
           let end = buffer.indexOf('\n\n');
           while (end >= 0) {
             const frame = buffer.slice(0, end);
@@ -148,7 +150,13 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean, 
               if (line.startsWith('event: ')) name = line.slice(7);
               if (line.startsWith('data: ')) data = line.slice(6);
             }
-            if (seq > cursor.current && data) {
+            // Terminal runs may have no explicit final journal event after
+            // recovery. The server marks a fully replayed terminal stream.
+            if (name === 'stream.closed') {
+              setStatus('finished');
+              closed = true;
+            }
+            if (seq > cursor.current && Number.isSafeInteger(seq) && data) {
               const parsed: unknown = JSON.parse(data);
               cursor.current = seq;
               if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed))
@@ -174,6 +182,68 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean, 
 
 function readableStage(value: string | null | undefined): string {
   return value ? value.replaceAll('_', ' ') : 'Not reported yet';
+}
+
+/** The approved metadata contract is complete; never render unknown payload keys. */
+const SAFE_METRIC_GROUPS: Array<{
+  title: string;
+  fields: Array<[keyof StageProgress, string]>;
+}> = [
+  {title: 'Decisions and budgets', fields: [
+    ['answered_question_count', 'Answered questions'],
+    ['decision_count', 'Recorded decisions'],
+    ['remaining_iterations', 'Iterations available'],
+    ['remaining_tool_calls', 'Tool calls available'],
+    ['repeated_calls', 'Repeated calls blocked'],
+    ['failed_tool_calls', 'Failed tool calls'],
+    ['malformed_results', 'Malformed results'],
+    ['interpretation_failures', 'Interpretation failures'],
+    ['unproductive_steps', 'Unproductive steps'],
+  ]},
+  {title: 'Evidence collection', fields: [
+    ['screening_tool_calls', 'Screening reads'],
+    ['observe_tool_calls', 'Observe reads'],
+    ['followup_tool_calls', 'Follow-up reads'],
+    ['last_observed_tick', 'Last source tick'],
+    ['observation_cutoff_tick', 'Authorized cutoff tick'],
+    ['clock_verified', 'Source clock verified'],
+    ['triage_evidence_accepted', 'Qualified evidence admissions'],
+    ['triage_evidence_rejected', 'Rejected evidence admissions'],
+  ]},
+  {title: 'Deterministic triage', fields: [
+    ['triage_requirement_total', 'Requirements compiled'],
+    ['triage_requirement_satisfied', 'Requirements satisfied'],
+    ['triage_requirement_open', 'Requirements still open'],
+    ['triage_question_gaps', 'Unresolved evidence gaps'],
+    ['triage_decide_reads', 'Deterministic Decide reads'],
+    ['triage_decide_stops', 'Deterministic Decide stops'],
+    ['triage_candidates', 'Unscored candidates'],
+    ['triage_test_requirements', 'Test requirements'],
+    ['triage_trace_events', 'Typed trace events'],
+    ['triage_logging_failures', 'Diagnostic log failures'],
+    ['triage_test_records', 'Evidence test records'],
+    ['deep_recommended', 'Deep escalation recommended'],
+  ]},
+  {title: 'Source coverage packet', fields: [
+    ['packet_roster_verified', 'Line roster verified'],
+    ['packet_roster_size', 'Machines in roster'],
+    ['packet_screened_machines', 'Machines screened'],
+    ['packet_missing_machines', 'Machines absent from screening'],
+    ['packet_calls_mandatory', 'Mandatory packet calls'],
+    ['packet_calls_optional', 'Optional packet calls'],
+    ['packet_calls_qualified', 'Qualified packet calls'],
+    ['packet_calls_unavailable', 'Skipped unavailable calls'],
+    ['packet_items_qualified', 'Qualified packet items'],
+    ['packet_items_missing', 'Missing packet items'],
+  ]},
+];
+
+function safeMetricValue(value: StageProgress[keyof StageProgress]): string | number {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  if (value === null || value === undefined) return 'Not recorded';
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  return 'Not recorded';
 }
 
 /** Only counts and IDs from the approved Python watcher, never raw evidence. */
@@ -213,6 +283,24 @@ function LiveProgress({ run }: { run: ManagedRun | null }) {
             {phase.data.termination_reason &&
               <DataRow label="Termination reason" value={readableStage(phase.data.termination_reason)}/>}
             <DataRow label="Conclusion formed" value={phase.data.conclusion_available ? 'Yes' : 'Not yet'}/>
+            {SAFE_METRIC_GROUPS.filter(group => phase.mode === 'triage' ||
+              !['Deterministic triage', 'Source coverage packet'].includes(group.title)).map(group =>
+              <div key={group.title}>
+                <h4>{group.title}</h4>
+                {group.fields.filter(([key]) => phase.data?.[key] !== undefined).map(([key, label]) =>
+                  <DataRow key={key} label={label} value={safeMetricValue(phase.data![key])}/>)}
+              </div>)}
+            {phase.data.requirement_statuses?.length ? <div>
+              <h4>Evidence requirements (read-only status)</h4>
+              {phase.data.requirement_statuses.map(requirement =>
+                <DataRow key={requirement.requirement_id}
+                  label={requirement.requirement_id}
+                  extra={'Qualified evidence references: ' + requirement.evidence_count}
+                  value={<Pill text={requirement.status} tone={toneFor(requirement.status)}/>}/>)}
+              {phase.data.requirement_statuses_truncated &&
+                <p className="body-copy">Showing the first 32 requirements.
+                  Total and open counts above include the full set.</p>}
+            </div> : null}
           </> : <p className="body-copy">No authenticated stage snapshot for this path yet.</p>}
         </div>)}
     </div>
@@ -280,7 +368,7 @@ export function RunDetailPage() {
   if (!enabled) return <Unavailable item="Managed simulator run" detail="Select Simulator Lab and exit synthetic preview."/>;
   return <>
     <PageHeading eyebrow="LAB / LIVE EXPERIMENT" title="Managed investigation"
-      description="The local Python worker owns execution, review, and final results." />
+      description="The selected backend owns the simulator investigation and durable progress journal." />
     {resource.error && <InfoState kind="warning" title="Run state unavailable" detail={resource.error}/>}
     <Panel title="Run status" subtitle={runId}>
       <DataRow label="State" value={<Pill text={run?.state || 'Unknown'} tone={toneFor(run?.state)}/>}/>
