@@ -632,7 +632,9 @@ class RunRepository:
         state: str,
         event_name: str,
         snapshot: dict[str, Any],
-        *, final_progress: dict[str, Any] | None = None,
+        *,
+        final_progress: dict[str, Any] | None = None,
+        final_phases: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Commit terminal progress and status atomically under the claim fence."""
         # Variables:
@@ -663,16 +665,22 @@ class RunRepository:
             # The public event payload remains the original allowlisted snapshot.
             previous_progress = (run.snapshot or {}).get("progress")
             progress = dict(previous_progress or {})
-            if final_progress is not None:
+            if final_progress is not None or final_phases:
                 if state not in _TERMINAL:
                     raise ValueError("Final stage requires a terminal transition")
-                final = StagePayload.model_validate(final_progress).model_dump(
-                    mode="json"
-                )
-                progress[final["mode"]] = final
-                progress["latest"] = final
-                # Staged in the same transaction, before terminal replay.
-                self._append(session, run, "stage.updated", final)
+                # Both phases are independently derived from the episode's
+                # returned states, never from lossy async stage watchers.
+                candidates = list((final_phases or {}).values())
+                if final_progress is not None:
+                    candidates.append(final_progress)
+                for candidate in candidates:
+                    final = StagePayload.model_validate(candidate).model_dump(
+                        mode="json"
+                    )
+                    progress[final["mode"]] = final
+                    progress["latest"] = final
+                    # Atomically journal stage(s) before terminal replay.
+                    self._append(session, run, "stage.updated", final)
             run.state = state
             run.snapshot = {
                 **snapshot,

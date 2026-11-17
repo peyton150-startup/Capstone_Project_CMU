@@ -91,6 +91,8 @@ def execute_claim(
     persisted_calls = [0]
     telemetry_failures = [0]
     monitor_enabled = [False]
+    critic_seen = [0]
+    critic_persisted = [0]
     started = time.monotonic()
 
     def emit_model(event_name: str, payload: dict[str, Any]) -> None:
@@ -128,10 +130,15 @@ def execute_claim(
             calls = getattr(policy_holder[0], "calls", ()) or ()
             emit_model("model.monitor.finished", {
                 "schema_version": 1,
-                "questions_seen": min(len(calls), 100_000),
-                "questions_persisted": min(persisted_calls[0], 100_000),
+                "questions_seen": min(len(calls) + critic_seen[0], 100_000),
+                "questions_persisted": min(
+                    persisted_calls[0] + critic_persisted[0], 100_000
+                ),
                 "write_failures": min(telemetry_failures[0], 100_000),
-                "complete": len(calls) == persisted_calls[0],
+                "complete": (
+                    len(calls) + critic_seen[0]
+                    == persisted_calls[0] + critic_persisted[0]
+                ),
             })
         if telemetry_failures[0]:
             record("model_telemetry_dropped", claim=claim,
@@ -279,6 +286,29 @@ def execute_claim(
                 )
             alive()
             flush_model_calls()
+            # #297's existing local implementation records independent critic
+            # calls. The hosted worker must use that same projector.
+            critic_calls = getattr(result, "critic_calls", ()) or ()
+            critic_seen[0] = len(critic_calls)
+            if monitor_enabled[0]:
+                from capstone.api.model_calls import project_model_call
+
+                research_count = len(getattr(policy, "calls", ()) or ())
+                for index, critic_call in enumerate(
+                    critic_calls, start=research_count + 1
+                ):
+                    try:
+                        safe = project_model_call(critic_call, index)
+                        repository.publish_model_event(
+                            claim, owner, "model.call", safe
+                        )
+                    except LostLease:
+                        lost.set()
+                        raise
+                    except Exception:
+                        telemetry_failures[0] += 1
+                    else:
+                        critic_persisted[0] += 1
             finish_model_monitor()
             # Audit and safe trace must be committed before completed status.
             repository.store_artifacts(
@@ -333,6 +363,15 @@ def execute_claim(
                     "review_count": len(result.desk.proposals()),
                 },
                 final_progress=final,
+                final_phases=(
+                    {
+                        "triage": StagePayload.model_validate(
+                            safe_stage(result.triage)
+                        ).model_dump(mode="json")
+                    }
+                    if result.triage is not None and result.triage is not result.state
+                    else None
+                ),
             )
         record("finished", claim=claim,
                duration_ms=int((time.monotonic() - started) * 1000))
