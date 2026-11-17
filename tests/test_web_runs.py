@@ -1086,7 +1086,7 @@ def test_deep_stage_transition_journal_survives_review_final_and_restart(tmp_pat
     assert progress["deep_timeline"][-1]["sequence"] == 6
     assert progress["deep_timeline"][-1]["observed_tick"] == 124
     assert progress["deep"]["deep_signals"]["proposal_status"] == "pending"
-    assert "deep_timeline" not in progress["triage"] if "triage" in progress else True
+    assert "triage" not in progress
 
     manager._emit(
         run_id, "run.completed", {"status": "completed"}, state="completed"
