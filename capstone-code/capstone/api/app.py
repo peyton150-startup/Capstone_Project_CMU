@@ -777,6 +777,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 events = await asyncio.to_thread(runner.events_since, run_id, cursor)
                 for event in events:
                     cursor = event["seq"]
+                    # #297 model-call envelopes are a separate, revalidated
+                    # endpoint. Do not stream private attempt metadata in SSE.
+                    if event["event"].startswith("model."):
+                        continue
                     import json
 
                     payload = json.dumps(event["data"], separators=(",", ":"))
