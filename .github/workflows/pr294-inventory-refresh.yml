@@ -21,27 +21,80 @@ jobs:
           ref: feature/render-safe-complete-triage-progress-20261117
           persist-credentials: true
           fetch-depth: 0
-      - name: Reconcile PR294 with merged PR293 on latest main (no silent conflict resolution)
+      - name: Preserve both PR293 and PR294 changes while resolving reviewed conflicts
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA" || { echo "Ref changed; unsafe to proceed"; exit 1; }
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA" || { echo "Ref changed"; exit 1; }
           git fetch origin main
           echo "MAIN_BASE_SHA=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_ENV"
+          if ! git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              merge --no-ff --no-commit FETCH_HEAD; then
+            python - <<'PY'
+          import re
+          from pathlib import Path
+
+          # Reviewed conflict choices. Main supplies durable progress replay;
+          # PR294 supplies typed safe metrics, frontend rendering, and tests.
+          picks = {
+              "capstone-code/capstone/api/runs.py": (
+                  "ours", "ours", "ours", "ours", "theirs", "ours"
+              ),
+              "frontend/src/pages/managed.tsx": ("ours", "ours", "ours"),
+              "frontend/src/types.ts": ("ours",),
+              "tests/test_web_runs.py": ("ours",),
+          }
+          marker = re.compile(
+              r"^<<<<<<< [^\n]*\n(.*?)^=======\n(.*?)^>>>>>>> [^\n]*\n",
+              re.MULTILINE | re.DOTALL,
+          )
+          guard = {
+              ("capstone-code/capstone/api/runs.py", 0): "_SAFE_REQUIREMENT_ID",
+              ("capstone-code/capstone/api/runs.py", 4): 'progress["latest"]',
+              ("capstone-code/capstone/api/runs.py", 5): "latest_observed",
+              ("frontend/src/pages/managed.tsx", 0): "SAFE_METRIC_GROUPS",
+              ("frontend/src/types.ts", 0): "unresolved_question_count",
+              ("tests/test_web_runs.py", 0): "test_render_progress_contract",
+          }
+          for name, choices in picks.items():
+              p = Path(name)
+              src = p.read_text()
+              hunks = list(marker.finditer(src))
+              if len(hunks) != len(choices):
+                  raise SystemExit(
+                      f"Unexpected conflicts for {name}: {len(hunks)} vs {len(choices)}"
+                  )
+              chunks, end = [], 0
+              for i, (hit, choice) in enumerate(zip(hunks, choices)):
+                  part = hit.group(1 if choice == "ours" else 2)
+                  required = guard.get((name, i))
+                  if required and required not in part:
+                      raise SystemExit(f"Unrecognized conflict {name} #{i}: {required}")
+                  chunks.extend((src[end:hit.start()], part))
+                  end = hit.end()
+              chunks.append(src[end:])
+              resolved = "".join(chunks)
+              if any(m in resolved for m in ("<<<<<<< ", ">>>>>>> ", "\n=======\n")):
+                  raise SystemExit(f"Unresolved marker in {name}")
+              p.write_text(resolved)
+              print(f"Resolved {len(hunks)} reviewed conflict hunks in {name}")
+          # Invariants from both PRs must survive the three-way resolution.
+          runs = Path("capstone-code/capstone/api/runs.py").read_text()
+          for token in (
+              "SafeRequirementProgress", "SAFE_STAGE_FIELDS",
+              'progress["latest"]', "requirement_statuses_truncated",
+              "latest_observed",
+          ):
+              if token not in runs:
+                  raise SystemExit("Lost PR293/PR294 contract: " + token)
+          PY
+            git add -- capstone-code/capstone/api/runs.py frontend/src/pages/managed.tsx frontend/src/types.ts tests/test_web_runs.py
+          fi
+          unresolved=$(git diff --name-only --diff-filter=U)
+          test -z "$unresolved" || { echo "Unresolved paths: $unresolved"; exit 1; }
+          git diff --cached --check
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-            merge --no-ff --no-edit -m 'merge(main): reconcile PR294 with merged PR293 before inventory rebuild' FETCH_HEAD || {
-              echo 'PR294 conflicts with main; leaving source untouched and refusing inventory'
-              git status --short
-              git diff --name-only --diff-filter=U
-              for file in capstone-code/capstone/api/runs.py frontend/src/pages/managed.tsx frontend/src/types.ts tests/test_web_runs.py; do
-                if grep -q '^<<<<<<< ' "$file"; then
-                  printf '\n===== CONFLICTS: %s =====\n' "$file"
-                  sed -n '/^<<<<<<< /,/^>>>>>>> /p' "$file" | head -c 48000
-                  printf '\n===== END: %s =====\n' "$file"
-                fi
-              done
-              exit 1
-            }
+            commit -m 'merge(main): preserve PR293 durable journal and PR294 typed progress contracts'
           git diff --check HEAD^1..HEAD
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
