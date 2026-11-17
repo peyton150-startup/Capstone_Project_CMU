@@ -1,5 +1,6 @@
 # One-time inventory regeneration after merging PR #283 and #284 into #285.
 # Only stale inventory bootstrap failure is tolerated; second full suite must pass.
+# Avoid stale-branch first-run concurrency; final branch-head guard remains mandatory.
 # Re-trigger after fixing merged lint and PR284 trace test compatibility.
 name: PR 285 post-merge inventory refresh
 on:
@@ -9,7 +10,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: pr285-postmerge-inventory
+  group: pr285-postmerge-inventory-final
   cancel-in-progress: false
 jobs:
   refresh:
