@@ -215,3 +215,167 @@ def test_expired_started_claim_interrupts_without_retry(repository):
     assert repository.get(submitted["run_id"])["state"] == "interrupted"
     assert repository.claim("worker-two") is None
     assert not repository.heartbeat(claim, "worker-one")
+
+
+def test_hosted_review_is_durable_actor_scoped_and_lease_fenced(repository):
+    """Two independent processes can agree on an exact approved proposal."""
+    from capstone.api.run_repository import ReviewProposal
+    from capstone.api.runs import ReviewDecision
+
+    queued = repository.submit(
+        RunRequest(seed=31, mode="deep"),
+        "review-cross-process-001",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-one")
+    assert claim is not None
+    safe = ReviewProposal(
+        proposal_id=1,
+        machine_id="CNC-01",
+        action="wait",
+        reason="observe a simulated intervention",
+        predicted_effect="more reliable readings",
+    )
+    repository.request_review(claim, "worker-one", safe)
+    assert repository.get(queued["run_id"])["state"] == "awaiting_review"
+    assert repository.pending_reviews(actor_id="not-the-actor") == []
+    assert repository.pending_reviews(actor_id="hosted-simulator")[0][
+        "proposal_id"
+    ] == 1
+    with pytest.raises(LookupError):
+        repository.decide_review(
+            queued["run_id"],
+            ReviewDecision(proposal_id=1, decision="approve"),
+            actor_id="not-the-actor",
+            reviewer_id="test-reviewer",
+        )
+    decision = repository.decide_review(
+        queued["run_id"],
+        ReviewDecision(proposal_id=1, decision="approve", note="authorized"),
+        actor_id="hosted-simulator",
+        reviewer_id="test-reviewer",
+    )
+    assert decision["decision"] == "approve"
+    with pytest.raises(ValueError, match="no longer pending"):
+        repository.decide_review(
+            queued["run_id"],
+            ReviewDecision(proposal_id=1, decision="approve"),
+            actor_id="hosted-simulator",
+            reviewer_id="test-reviewer",
+        )
+    assert repository.review_status(claim, "worker-one", 1) == "approve"
+    repository.resume_review(claim, "worker-one")
+    assert repository.get(queued["run_id"])["state"] == "running"
+    assert [
+        event["event"] for event in repository.events_since(queued["run_id"], 0)
+    ] == [
+        "run.queued", "run.started", "review.requested",
+        "review.decided", "run.started",
+    ]
+
+
+def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
+    """Persisted audit is private; late stage writes cannot regress completion."""
+    from capstone.api.run_repository import StagePayload
+    from uuid import uuid4
+
+    queued = repository.submit(
+        RunRequest(seed=32, mode="triage"),
+        "phase-and-artifacts-001",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-one")
+    assert claim is not None
+    stage = StagePayload(
+        investigation_id=str(uuid4()),
+        mode="triage",
+        stage="conclude",
+        iteration_count=2,
+        tool_calls=3,
+        evidence_count=1,
+        hypothesis_count=0,
+        unresolved_question_ids=["Q1"],
+        conclusion_available=True,
+    )
+    repository.publish_progress(claim, "worker-one", stage.model_dump(mode="json"))
+    observed = repository.get(queued["run_id"], actor_id="hosted-simulator")
+    assert observed["snapshot"]["progress"]["latest"]["stage"] == "conclude"
+    assert repository.get(queued["run_id"], actor_id="someone-else") is None
+    repository.store_artifacts(
+        claim, "worker-one",
+        {"audit": b'{"private":"audit"}\\n', "observability": b'{"event":"worker.started"}\\n'},
+    )
+    assert repository.read_artifact(
+        queued["run_id"], "audit", actor_id="hosted-simulator"
+    ).startswith(b'{"private":')
+    assert repository.read_artifact(
+        queued["run_id"], "audit", actor_id="someone-else"
+    ) is None
+    repository.transition(
+        claim, "worker-one", "completed", "run.completed",
+        {"status": "completed"},
+    )
+    with pytest.raises(LostLease):
+        repository.publish_progress(claim, "worker-one", stage.model_dump(mode="json"))
+    assert repository.get(queued["run_id"])["state"] == "completed"
+
+
+def test_worker_uses_pydantic_graph_episode_without_a_web_thread(repository, monkeypatch):
+    """Fixture policy exercises a real job claim, audit persistence and completion."""
+    from types import SimpleNamespace
+    from uuid import uuid4
+
+    import capstone.episode as episode
+    import capstone.experiment as experiment
+    import capstone.worker.runner as worker
+
+    queued = repository.submit(
+        RunRequest(seed=33, mode="triage"),
+        "worker-fixture-episode-001",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
+    )
+    state = SimpleNamespace(
+        investigation_id=uuid4(),
+        mode="triage",
+        stage="conclude",
+        iteration_count=2,
+        tool_call_count=1,
+        evidence=[],
+        hypotheses=[],
+        unanswered_questions=[],
+        termination_reason=None,
+        conclusion=SimpleNamespace(diagnosis="unknown", recommendation="escalate"),
+        action_started_tick=None,
+        verification=None,
+        triage_report=None,
+    )
+
+    def fake_episode(seed, policy, *, watch, log, **kwargs):
+        assert seed == 33
+        assert kwargs["triage"] is True
+        watch(state)
+        log.path.write_text('{"private":"audit"}\\n', encoding="utf-8")
+        return SimpleNamespace(
+            state=state, triage=None, desk=SimpleNamespace(proposals=lambda: [])
+        )
+
+    monkeypatch.setattr(episode, "run_episode", fake_episode)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda **kwargs: lambda: object()
+    )
+    monkeypatch.setattr(worker, "check_strategy", lambda _: None)
+    claim = repository.claim("worker-integration")
+    assert claim is not None
+    worker.execute_claim(repository, claim, "worker-integration", heartbeat_seconds=1)
+    result = repository.get(queued["run_id"])
+    assert result["state"] == "completed"
+    assert result["snapshot"]["investigation"]["mode"] == "triage"
+    assert repository.read_artifact(
+        queued["run_id"], "audit", actor_id="hosted-simulator"
+    )
+    assert [e["event"] for e in repository.events_since(queued["run_id"], 0)][-1] == (
+        "run.completed"
+    )
