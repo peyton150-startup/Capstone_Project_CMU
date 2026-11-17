@@ -7,6 +7,7 @@ No environment values, graph state, errors, credentials or raw model data.
 
 from __future__ import annotations
 
+from importlib.util import find_spec
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -48,9 +49,10 @@ def inspect_hosted_contracts() -> HostedIntegrationStatus:
         "decide_trace": {
             "decide_event_total", "decide_events_recent",
         }.issubset(fields),
-        "deep_lifecycle": {
-            "deep_signals", "deep_checkpoints_recent",
-        }.issubset(fields),
+        "deep_lifecycle": (
+            "deep_signals" in fields
+            and find_spec("capstone.api.deep_progress") is not None
+        ),
         "deterministic_profile": (
             hasattr(Settings, "effective_triage")
             and "triage_run_mode" in Settings.model_fields
