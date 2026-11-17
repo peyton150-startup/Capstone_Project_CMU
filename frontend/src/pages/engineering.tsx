@@ -18,6 +18,7 @@ type SettingsData = {
   editable: boolean;
   items: SettingsRecord[];
   triage_profile?: Record<string,string|boolean|number>;
+  triage_stage_modes?: Record<string,string>;
   conclude?: string;
 };
 
@@ -160,8 +161,14 @@ export function SettingsPage() {
       {Object.entries(data.data?.triage_profile || {}).map(([name,value])=>
         <DataRow key={name} label={name.replaceAll('_',' ')}
           value={String(value)}/>)}
-      <p className="body-copy">The managed simulator launch can override these stage
-        values per run, and the saved run detail records the actual resolved controls.</p>
+      <h3>Actual triage stage routing</h3>
+      {Object.entries(data.data?.triage_stage_modes || {}).map(([stage,execution])=>
+        <DataRow key={stage} label={stage.replaceAll('_',' ')}
+          value={execution}/>)}
+      <p className="body-copy">Critique and Recheck are disabled in triage.
+        A later deep run may use the configured critic independently.
+        The managed simulator launcher can override these triage controls
+        per run and records the resolved settings on submission.</p>
     </Panel>
     <Panel title="Configuration groups" subtitle="Global controls remain server-owned; experiment controls can change per run">
       <div className="settings-categories">{['Investigation & triage','Model routing','Critic & review',
