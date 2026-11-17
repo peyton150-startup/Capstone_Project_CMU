@@ -457,6 +457,39 @@ class SimulatorRuns:
                 "INSERT INTO run_events VALUES(?,?,?,?,?)",
                 (run_id, next_seq, event, json.dumps(payload), utc_now()),
             )
+            # The event journal contains immutable source events. The run
+            # snapshot additionally retains the latest safe progress for each
+            # investigation path, so a refresh or review event cannot erase
+            # the earlier triage state. Uses the same locked transaction on
+            # SQLite and on the PostgreSQL row-lock backend.
+            row = db.execute(
+                "SELECT snapshot FROM runs WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if row is None:
+                raise LookupError("Run not found")
+            previous = json.loads(row[0])
+            previous_progress = (
+                previous.get("progress") if isinstance(previous, dict) else None
+            )
+            progress = (
+                {
+                    k: v
+                    for k, v in previous_progress.items()
+                    if k in ("triage", "deep", "latest")
+                }
+                if isinstance(previous_progress, dict)
+                else {}
+            )
+            if (
+                event == "stage.updated"
+                and payload.get("mode") in ("triage", "deep")
+                and payload.get("investigation_id")
+            ):
+                mode = payload["mode"]
+                progress[mode] = {
+                    key: payload[key] for key in SAFE_STAGE_FIELDS if key in payload
+                }
+                progress["latest"] = mode
             snapshot = {**payload, "progress": progress} if progress else payload
             if state is not None:
                 db.execute(

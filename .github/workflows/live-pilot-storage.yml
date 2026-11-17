@@ -1,0 +1,215 @@
+name: Live Siemens and OEM PostgreSQL contracts
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "capstone-code/capstone/ingestion/cloud_*"
+      - "capstone-code/capstone/manual/oem.py"
+      - "migrations/supabase/live_siemens_0001.sql"
+      - "migrations/neon/0002_oem_approvals.sql"
+      - ".github/workflows/live-pilot-storage.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  postgres:
+    name: Supabase 17 ingest + Neon 18 OEM contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      supabase:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic_ci_password
+          POSTGRES_DB: capstone_test
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d capstone_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+      neon:
+        image: pgvector/pgvector:0.8.7-pg18-trixie
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic_ci_password
+          POSTGRES_DB: neondb
+        ports: [5433:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d neondb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.0"
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - name: Install pinned FastAPI test boundary
+        run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
+      - name: Migrate only disposable databases and exercise real transactions
+        env:
+          SUPABASE_TEST_URL: postgresql://postgres:synthetic_ci_password@localhost:5432/capstone_test
+          NEON_TEST_URL: postgresql://postgres:synthetic_ci_password@localhost:5433/neondb
+        run: |
+          uv run --no-sync python - <<'PY'
+          import os
+          from pathlib import Path
+          from uuid import uuid4
+
+          import psycopg
+          from sqlalchemy import create_engine, text
+          from capstone.ingestion.cloud_contract import IngestBatch, validate_record
+          from capstone.ingestion.cloud_store import SiemensCloudRepository, IngestConflict
+          from capstone.manual.oem import (
+              OEMKnowledgeRepository, ScopedOEMManualSearch
+          )
+          from tests.test_cloud_pilot import scope, change, marker
+          from tests.test_oem_manual import approval
+
+          def apply(url, files):
+              with psycopg.connect(url, autocommit=True) as db:
+                  for file in files:
+                      db.execute(Path(file).read_text(encoding="utf-8"))
+
+          apply(os.environ["SUPABASE_TEST_URL"], [
+              "migrations/supabase/live_siemens_0001.sql",
+          ])
+          apply(os.environ["NEON_TEST_URL"], [
+              "migrations/neon/0001_manual_knowledge.sql",
+              "migrations/neon/0002_oem_approvals.sql",
+          ])
+          supabase = create_engine(
+              os.environ["SUPABASE_TEST_URL"].replace(
+                  "postgresql://", "postgresql+psycopg://"
+              )
+          )
+          neon = create_engine(
+              os.environ["NEON_TEST_URL"].replace(
+                  "postgresql://", "postgresql+psycopg://"
+              )
+          )
+          try:
+              s = scope()
+              rows = [
+                  validate_record(s, change()),
+                  validate_record(s, marker(gap=True)),
+              ]
+              stream_id = uuid4()
+              first = IngestBatch.build(
+                  scope=s, stream_id=stream_id, first_line=0, records=rows
+              )
+              repository = SiemensCloudRepository(supabase)
+              ack = repository.accept(first, s)
+              assert ack["next_line"] == 2 and not ack["replayed"]
+              assert repository.accept(first, s)["replayed"]
+              with supabase.connect() as conn:
+                  stored = conn.execute(
+                      text("""SELECT record_type, quality, analysis_eligible, payload
+                              FROM capstone_ingest.records ORDER BY line_number""")
+                  ).mappings().all()
+                  assert len(stored) == 2
+                  assert stored[0]["analysis_eligible"] is False
+                  assert stored[0]["payload"]["numeric_quality_qualified"] is True
+                  assert stored[0]["quality"] == "good"
+                  assert stored[1]["record_type"] == "opcua_session"
+                  assert stored[1]["payload"]["gap"]["cause"] == "session_lost"
+                  assert stored[1]["payload"]["reason"] is None
+
+              try:
+                  repository.accept(IngestBatch.build(
+                      scope=s, stream_id=stream_id, first_line=5, records=rows
+                  ), s)
+              except IngestConflict:
+                  pass
+              else:
+                  raise AssertionError("Out-of-order writes succeeded")
+
+              # Exercise the actual on-site JSONL -> uploader ->
+              # authenticated Render HTTP route -> disposable Supabase DB.
+              # The first response is lost after a committed transaction.
+              # Replaying the same digest must not insert duplicate records.
+              import json
+              from tempfile import TemporaryDirectory
+              from fastapi import FastAPI
+              from fastapi.testclient import TestClient
+              from capstone.api.live_ingest import router_for
+              from capstone.ingestion.cloud_uplink import (
+                  UploadError, load_cursor, upload_once
+              )
+              with TemporaryDirectory() as scratch:
+                  capture = Path(scratch) / "siemens.jsonl"
+                  cursor = Path(scratch) / "upload-cursor.json"
+                  capture.write_text(
+                      json.dumps(change()) + "\n"
+                      + json.dumps(marker(gap=True)) + "\n",
+                      encoding="utf-8",
+                  )
+                  app = FastAPI()
+                  app.include_router(
+                      router_for("s" * 48, lambda: s, repository)
+                  )
+                  acknowledgements = []
+                  first_response_lost = [True]
+                  with TestClient(app) as http:
+                      def transmit(batch):
+                          response = http.post(
+                              "/api/v1/ingest/siemens/batches",
+                              json=batch.model_dump(mode="json"),
+                              headers={"Authorization": "Bearer " + "s" * 48},
+                          )
+                          assert response.status_code == 200, response.text
+                          data = response.json()
+                          acknowledgements.append(data)
+                          if first_response_lost[0]:
+                              first_response_lost[0] = False
+                              raise UploadError("synthetic ACK lost after commit")
+                          return data
+                      try:
+                          upload_once(capture, cursor, s, transmit)
+                      except UploadError:
+                          pass
+                      else:
+                          raise AssertionError("lost receipt did not stop cursor")
+                      assert load_cursor(capture, cursor).next_line == 0
+                      assert upload_once(capture, cursor, s, transmit) == 2
+                      assert acknowledgements[1]["replayed"] is True
+                      assert load_cursor(capture, cursor).next_line == 2
+                  with supabase.connect() as check:
+                      assert check.execute(text("""
+                          SELECT count(*) FROM capstone_ingest.records
+                      """)).scalar_one() == 4
+
+              m = approval()
+              published = OEMKnowledgeRepository(neon)
+              assert published.publish(m, m.object_key) == 1
+              assert published.publish(m, m.object_key) == 1
+              eligible = ScopedOEMManualSearch(
+                  neon, site_id=m.site_id, machine_id=m.machine_id,
+                  controller_family=m.controller_family,
+                  controller_fingerprint=m.controller_fingerprint,
+              )
+              assert eligible.search("spindle alarm", limit=3)
+              foreign = ScopedOEMManualSearch(
+                  neon, site_id=m.site_id, machine_id="other-machine",
+                  controller_family=m.controller_family,
+                  controller_fingerprint=m.controller_fingerprint,
+              )
+              assert foreign.search("spindle alarm", limit=3) == ()
+              with neon.connect() as conn:
+                  assert conn.execute(text(
+                      "SELECT COUNT(*) FROM capstone_knowledge.manual_approvals"
+                  )).scalar_one() == 1
+              print("Approved pilot Postgres 17/18 contracts passed")
+          finally:
+              supabase.dispose()
+              neon.dispose()
+          PY
