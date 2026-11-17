@@ -92,7 +92,7 @@ GROUPS: dict[str, list[str]] = {
     # Checkpoint 6: the reflection candidate and the memory gate.
     "Reflection": ["memory_reflection", "learning"],
     # Checkpoint 7: recalling memories, and the guards on what a memory may prove.
-    "Recall": ["recall_tool", "manual"],
+    "Recall": ["recall_tool", "manual", "neon_manual"],
     # Checkpoint 8b-2: the model-backed policy, its prompts and answer types.
     "Model policy": [
         "critic",
