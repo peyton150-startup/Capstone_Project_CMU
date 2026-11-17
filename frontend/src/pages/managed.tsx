@@ -265,6 +265,9 @@ export function RunDetailPage() {
   const [section, setSection] = useState<'evidence'|'hypotheses'|'trace'>('evidence');
   const detail = audit.data?.detail;
   const run = resource.data;
+  const packet = operational.data?.items.slice().reverse().find(
+    item => item.event === 'triage_packet_built',
+  );
   if (!enabled) return <Unavailable item="Managed simulator run" detail="Select Simulator Lab and exit synthetic preview."/>;
   return <>
     <PageHeading eyebrow="LAB / LIVE EXPERIMENT" title="Managed investigation"
@@ -281,7 +284,26 @@ export function RunDetailPage() {
       {run?.snapshot?.error_class && <DataRow label="Failure classification" value={run.snapshot.error_class}/>}
     </Panel>
     <LiveProgress run={run}/>
-    <Panel title="Conclusion and validation" subtitle="Only values persisted by the existing investigator">
+    {run?.requested.mode === 'triage' && <Panel title="Triage evidence packet"
+      subtitle="Source-linked coverage, not a root-cause finding">
+      {packet?.counts ? <>
+        <div className="form-grid">
+          <DataRow label="Qualified evidence items" value={packet.counts.items_qualified ?? 'Not recorded'}/>
+          <DataRow label="Observed tool calls" value={packet.counts.calls_observed ?? 'Not recorded'}/>
+          <DataRow label="Skipped: unavailable" value={packet.counts.calls_skipped_unavailable ?? 'Not recorded'}/>
+          <DataRow label="Mandatory calls" value={packet.counts.calls_mandatory ?? 'Not recorded'}/>
+          <DataRow label="Qualified calls" value={packet.counts.calls_qualified ?? 'Not recorded'}/>
+          <DataRow label="Absent from screening" value={packet.counts.absent_from_screening ?? 'Not recorded'}/>
+        </div>
+        <p className="body-copy">A source may be unavailable without a failed tool execution.
+          Qualification counts do not establish a correct diagnosis.</p>
+      </> : <InfoState title="Triage packet not reported"
+        detail="The collector has not published an approved packet summary for this run yet."/>}
+    </Panel>}
+    <Panel title="Conclusion and validation"
+      subtitle={run?.state === 'running' || run?.state === 'awaiting_review' ?
+        'Results will appear when the investigator records a conclusion or verification' :
+        'Only values persisted by the existing investigator'}>
       <DataRow label="Diagnosis" value={run?.snapshot?.diagnosis || 'Not recorded'}/>
       <DataRow label="Recommendation" value={run?.snapshot?.recommendation || 'Not recorded'}/>
       <DataRow label="Intervention executed" value={run?.snapshot?.action_executed == null ?
@@ -297,7 +319,9 @@ export function RunDetailPage() {
           <button key={tab} role="tab" aria-selected={section===tab}
             className={section===tab?'current':''} onClick={()=>setSection(tab)}>{tab}</button>)}
       </div>
-      {!detail && <Unavailable item="Completed investigation audit"
+      {!detail && <InfoState
+        title={run?.state === 'running' || run?.state === 'awaiting_review' ?
+          'Detailed audit pending' : 'Authorized audit unavailable'}
         detail={run?.state === 'running' || run?.state === 'awaiting_review' ?
           'Audited evidence and hypotheses are not available yet. Watch the live counters and stages above.' :
           'A completed authorized investigation audit is not available for this run.'}/>}
