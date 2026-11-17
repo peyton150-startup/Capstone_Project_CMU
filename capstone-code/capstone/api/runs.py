@@ -7,6 +7,7 @@ Web observers cannot block a watcher: stage snapshots use a bounded queue.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import queue
 import sqlite3
@@ -17,7 +18,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
+
+from capstone.settings import Settings, get_settings
+from capstone.triage_run_controls import (
+    EffectiveTriageRun,
+    TriageRunOptions,
+    overridden_fields,
+    resolve_triage_run,
+)
 
 RunState = Literal[
     "queued", "running", "awaiting_review", "completed", "failed", "interrupted"
@@ -36,6 +45,50 @@ class RunRequest(BaseModel):
     hazards: bool = False
     tree_of_thought: bool = False
     manual: Literal["none", "keyword", "neon"] = "none"
+    # Validated request-specific settings; no environment or credential edits.
+    triage_settings: TriageRunOptions | None = None
+    _effective_triage: EffectiveTriageRun | None = PrivateAttr(default=None)
+
+
+def public_run_configuration(
+    request: RunRequest, settings: Settings, *,
+    effective: EffectiveTriageRun | None = None,
+) -> dict[str, Any]:
+    """Pure, allowlisted resolution shared by preview, submit and worker."""
+    applied = request.mode == "triage"
+    if applied and effective is None:
+        effective = resolve_triage_run(settings, request.triage_settings)
+    desired = (
+        {} if request.triage_settings is None
+        else request.triage_settings.model_dump(exclude_none=True)
+    )
+    body = {
+        "schema_version": 1,
+        "applied": applied,
+        "requested": desired,
+        "effective_triage": (
+            effective.model_dump(mode="json") if applied and effective else None
+        ),
+        "overridden": (
+            list(overridden_fields(request.triage_settings, effective))
+            if applied and effective else []
+        ),
+        "not_applied": sorted(desired) if not applied else [],
+        "stages": (
+            effective.stage_modes() if applied and effective
+            else {"deep": "model-backed Graph", "triage": "not run"}
+        ),
+        "configured_conclude_primary": (
+            settings.triage_model or settings.conclude_model or settings.default_model
+            if applied else settings.conclude_model or settings.default_model
+        ),
+        "model_attempts": "not yet executed; use model-call audit after run",
+        "scope": "simulator only; per-run; no controller operations",
+    }
+    # Digest is a stable, short correlation aid, never a credential.
+    canonical = json.dumps(body, sort_keys=True, separators=(",", ":"))
+    body["fingerprint"] = hashlib.sha256(canonical.encode()).hexdigest()[:20]
+    return body
 
 
 class ReviewDecision(BaseModel):
@@ -269,8 +322,26 @@ class SimulatorRuns:
                 )
 
     def submit(self, request: RunRequest, request_key: str) -> dict[str, Any]:
-        """At most one active episode. Idempotency keys cannot change parameters."""
-        serialized = request.model_dump_json()
+        """At most one active episode; freeze its effective settings at admission."""
+        settings = get_settings()
+        effective = (
+            resolve_triage_run(settings, request.triage_settings)
+            if request.mode == "triage" else None
+        )
+        request._effective_triage = effective
+        configuration = public_run_configuration(
+            request, settings, effective=effective
+        )
+        # Stored alongside the request for durable replay and UI inspection.
+        # Do not reconstruct effective settings from a future process environment.
+        serialized = json.dumps(
+            {
+                **request.model_dump(mode="json"),
+                "effective_configuration": configuration,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
         with self.lock:
             with self._db() as db:
                 self._lock_submission(db)
@@ -287,7 +358,12 @@ class SimulatorRuns:
                 if self.active or self._store_has_active_run(db):
                     raise RuntimeError("one simulator run is already active")
                 id_ = str(uuid.uuid4())
-                initial = {"stage": None, "mode": request.mode, "status": "queued"}
+                initial = {
+                    "stage": None,
+                    "mode": request.mode,
+                    "status": "queued",
+                    "configuration_fingerprint": configuration["fingerprint"],
+                }
                 db.execute(
                     "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
                     (
@@ -449,7 +525,15 @@ class SimulatorRuns:
             self._emit(
                 run_id,
                 "run.started",
-                {"status": "running", "mode": request.mode},
+                {
+                    "status": "running",
+                    "mode": request.mode,
+                    "configuration_fingerprint": (
+                        public_run_configuration(
+                            request, get_settings(), effective=request._effective_triage
+                        )["fingerprint"]
+                    ),
+                },
                 state="running",
             )
             from capstone.agent.completion import AuditLog
@@ -476,6 +560,7 @@ class SimulatorRuns:
                     policy,
                     kind=request.kind,
                     triage=request.mode == "triage",
+                    triage_configuration=request._effective_triage,
                     hazards=request.hazards,
                     manual=manual,
                     watch=watch,
@@ -507,9 +592,17 @@ class SimulatorRuns:
             # A completed run must have a durable audit before it can report
             # success on a hosted backend; SQLite's artifact hook is a no-op.
             self._persist_artifacts(run_id)
+            # The immutable submission manifest is the source of truth for
+            # effective settings, including after browser reconnection.
+            persisted = self.get(run_id)
+            configuration = (
+                None if persisted is None
+                else persisted["requested"].get("effective_configuration")
+            )
             final = {
                 "status": "completed",
                 "mode": request.mode,
+                "effective_configuration": configuration,
                 "investigation": safe_stage(result.state),
                 "triage_report": report,
                 "diagnosis": None
