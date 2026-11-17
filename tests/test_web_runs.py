@@ -386,3 +386,53 @@ def test_sse_reconnect_resumes_from_last_event_id(tmp_path, monkeypatch):
     assert "event: run.completed" in resumed.text
     assert client.get(path + "?workspace=pilot", headers=auth(TOKEN)).status_code == 403
     assert client.get(path + "?since=-1", headers=auth(TOKEN)).status_code == 422
+
+
+def test_review_requires_delivery_signal_even_when_database_says_approved(
+    tmp_path, monkeypatch
+):
+    """Lost post-commit wakeup cannot turn a timed-out review into an action."""
+    from uuid import uuid4
+
+    manager = SimulatorRuns(tmp_path / "pending.sqlite")
+    run_id = str(uuid4())
+    with manager._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES (?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "review-wakeup-lost-0001",
+                '{"seed":1}',
+                "running",
+                '{"status":"running"}',
+                "2026-11-16T00:00:00Z",
+                "2026-11-16T00:00:00Z",
+            ),
+        )
+
+    class DroppedWakeup:
+        def wait(self, timeout):
+            with manager._db() as db:
+                db.execute(
+                    "UPDATE run_reviews SET status='approve' "
+                    "WHERE run_id=? AND proposal_id=1 AND status='pending'",
+                    (run_id,),
+                )
+            return False
+
+        def set(self):
+            pass
+
+    monkeypatch.setattr("capstone.api.runs.threading.Event", DroppedWakeup)
+    accepted, note = manager._await_review(
+        run_id,
+        SimpleNamespace(
+            proposal_id=1,
+            machine_id="CNC-01",
+            action="repair",
+            reason="Local simulator",
+            predicted_effect="Change in a synthetic signal",
+        ),
+    )
+    assert accepted is False
+    assert note == "review notification not confirmed"
