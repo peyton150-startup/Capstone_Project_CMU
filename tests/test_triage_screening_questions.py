@@ -194,6 +194,7 @@ def triage(monkeypatch, packet_setting="on"):
     monkeypatch.setenv("TRIAGE_PLAN", "fixed")
     # The no-packet comparison deliberately tests the legacy model's retry.
     monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     monkeypatch.setenv("TRIAGE_PACKET", packet_setting)
     policy = ChasesScreening(wear_policy("intervene"))
     result = run(

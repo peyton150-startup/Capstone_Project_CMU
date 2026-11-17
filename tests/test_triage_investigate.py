@@ -352,6 +352,7 @@ def test_the_setting_defaults_to_deterministic_with_legacy_opt_in(monkeypatch):
     monkeypatch.delenv("TRIAGE_INVESTIGATE", raising=False)
     assert Settings(_env_file=None).triage_investigate == "deterministic"
     monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     assert Settings(_env_file=None).triage_investigate == "advisory"
     monkeypatch.setenv("TRIAGE_INVESTIGATE", "on")
     assert Settings(_env_file=None).triage_investigate == "on"
@@ -399,6 +400,7 @@ def triaged(monkeypatch, mode):
     monkeypatch.setenv("TRIAGE_INVESTIGATE", mode)
     # Keep the historical compiler arm's model-plan conditions comparable.
     monkeypatch.setenv("TRIAGE_PLAN", "model")
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     (record,) = run_experiment(
         [Case("bearing-6", SEED, "bearing_degradation")],
         triage_then_deep,
@@ -464,6 +466,7 @@ def test_a_deep_episode_is_unchanged_by_the_setting(monkeypatch):
     monkeypatch.delenv("TRIAGE", raising=False)
 
     def run(mode):
+        monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
         monkeypatch.setenv("TRIAGE_INVESTIGATE", mode)
         return run_episode(
             SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
