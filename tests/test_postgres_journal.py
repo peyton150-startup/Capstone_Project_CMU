@@ -254,3 +254,36 @@ def test_remote_artifacts_are_private_durable_and_checked(localhost_postgres):
         journal.investigation_event_path(run_id).read_bytes()
         == b'{"record_type":"event"}\n'
     )
+
+
+def test_import_preflight_does_not_interrupt_existing_remote_runs(localhost_postgres):
+    """An import must reject a nonempty target before changing its run states."""
+    import uuid
+
+    from capstone.api.postgres_runs import PostgresSimulatorRuns
+
+    previous = localhost_postgres
+    run_id = str(uuid.uuid4())
+    with previous._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                run_id,
+                "preflight-identity-0001",
+                '{"seed":1}',
+                "running",
+                '{"status":"running"}',
+                "2026-11-16T00:00:00+00:00",
+                "2026-11-16T00:00:00+00:00",
+            ),
+        )
+    previous.close()
+    probe = PostgresSimulatorRuns(
+        os.environ["CAPSTONE_TEST_POSTGRES_URL"],
+        previous.artifact_root,
+        recover_existing=False,
+    )
+    try:
+        assert probe.get(run_id)["state"] == "running"
+    finally:
+        probe.close()
