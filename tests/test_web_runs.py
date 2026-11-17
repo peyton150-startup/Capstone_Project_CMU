@@ -436,3 +436,121 @@ def test_review_requires_delivery_signal_even_when_database_says_approved(
     )
     assert accepted is False
     assert note == "review notification not confirmed"
+
+
+def test_typed_stage_projection_excludes_agent_internals():
+    """Pydantic enforces the read-only progress boundary on the live watcher."""
+    from uuid import uuid4
+
+    from pydantic import ValidationError
+
+    from capstone.api.runs import SafeStageSnapshot, safe_stage
+
+    state = SimpleNamespace(
+        investigation_id=uuid4(),
+        mode="triage",
+        stage="investigate",
+        iteration_count=3,
+        tool_call_count=2,
+        evidence=[object(), object()],
+        hypotheses=[object()],
+        unanswered_questions=[SimpleNamespace(id="q4")],
+        termination_reason=None,
+        conclusion=None,
+        private_provider_prompt="DO-NOT-EXPOSE",
+        simulator_ground_truth={"secret": True},
+    )
+    projected = safe_stage(state)
+    assert projected["tool_calls"] == 2
+    assert projected["mode"] == "triage"
+    assert projected["unresolved_question_ids"] == ["q4"]
+    assert "DO-NOT-EXPOSE" not in json.dumps(projected)
+    assert "simulator_ground_truth" not in projected
+    with pytest.raises(ValidationError):
+        SafeStageSnapshot.model_validate({**projected, "private_provider_prompt": "oops"})
+    with pytest.raises(ValidationError):
+        SafeStageSnapshot.model_validate({**projected, "tool_calls": -1})
+
+
+def test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event(
+    tmp_path,
+):
+    """Triage survives deep, review transitions and reconnectable snapshot reads."""
+    from uuid import uuid4
+
+    cfg = config(tmp_path)
+    client = TestClient(create_app(cfg))
+    runner = SimulatorRuns(cfg.run_db)
+    run_id = str(uuid4())
+    with runner._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "phase-progress-test-key",
+                RunRequest(seed=3).model_dump_json(),
+                "queued",
+                json.dumps({"status": "queued", "mode": "triage"}),
+                "2026-11-17T12:00:00Z",
+                "2026-11-17T12:00:00Z",
+            ),
+        )
+
+    triage = {
+        "investigation_id": str(uuid4()),
+        "mode": "triage",
+        "stage": "investigate",
+        "iteration_count": 2,
+        "tool_calls": 3,
+        "evidence_count": 38,
+        "hypothesis_count": 1,
+        "unresolved_question_ids": ["Q5"],
+        "termination_reason": None,
+        "conclusion_available": False,
+    }
+    deep = {
+        **triage,
+        "investigation_id": str(uuid4()),
+        "mode": "deep",
+        "stage": "hypothesize",
+        "iteration_count": 1,
+        "tool_calls": 5,
+        "evidence_count": 42,
+        "hypothesis_count": 2,
+    }
+    runner._emit(run_id, "run.started", {"status": "running"}, state="running")
+    runner._emit(run_id, "stage.updated", triage)
+    status_url = f"/api/v1/lab/runs/{run_id}"
+    live = client.get(status_url, headers=auth(TOKEN)).json()
+    assert live["state"] == "running"
+    assert live["snapshot"]["progress"]["latest"] == "triage"
+    assert live["snapshot"]["progress"]["triage"]["evidence_count"] == 38
+
+    runner._emit(run_id, "stage.updated", deep)
+    runner._emit(
+        run_id, "review.requested",
+        {"status": "awaiting_review", "mode": "deep"},
+        state="awaiting_review",
+    )
+    during_review = client.get(status_url, headers=auth(OPERATOR)).json()["snapshot"]
+    assert during_review["progress"]["triage"]["investigation_id"] == triage["investigation_id"]
+    assert during_review["progress"]["deep"]["tool_calls"] == 5
+    assert during_review["progress"]["latest"] == "deep"
+
+    runner._emit(
+        run_id, "run.completed",
+        {"status": "completed", "mode": "triage", "diagnosis": "unverified"},
+        state="completed",
+    )
+    final = client.get(status_url, headers=auth(REVIEWER)).json()
+    assert final["state"] == "completed"
+    assert final["snapshot"]["diagnosis"] == "unverified"
+    assert final["snapshot"]["progress"]["triage"]["evidence_count"] == 38
+    assert final["snapshot"]["progress"]["deep"]["hypothesis_count"] == 2
+    assert client.get(f"{status_url}/events?since=2", headers=auth(TOKEN)).status_code == 200
+
+    recovered = SimulatorRuns(cfg.run_db)
+    persisted = recovered.get(run_id)
+    assert persisted is not None and persisted["state"] == "completed"
+    assert persisted["snapshot"]["progress"]["latest"] == "deep"
+    assert "DO-NOT-EXPOSE" not in json.dumps(persisted)
