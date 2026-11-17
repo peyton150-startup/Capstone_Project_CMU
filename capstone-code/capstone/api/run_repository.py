@@ -226,6 +226,41 @@ class StagePayload(BaseModel):
         return self
 
 
+# Reuse #294's already-reviewed typed stage contract when that PR is integrated.
+# #296 extends that same class for Decide events; never strip unknown fields,
+# silently accept raw state, or duplicate the nested Decide sanitizer here.
+from capstone.api import runs as _run_contracts
+
+if hasattr(_run_contracts, "SafeStageSnapshot"):
+    StagePayload = _run_contracts.SafeStageSnapshot
+
+
+def _safe_model_event(event_name: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate via #297's source-owned Pydantic schemas, not a copy."""
+    from capstone.api.model_calls import (
+        SafeModelCall, SafeModelConfiguration, SafeModelSummary,
+    )
+
+    if event_name == "model.monitor":
+        if payload != {"schema_version": 1}:
+            raise ValueError("Invalid model monitor marker")
+        return {"schema_version": 1}
+    contracts = {
+        "model.call": SafeModelCall,
+        "model.config": SafeModelConfiguration,
+        "model.monitor.finished": SafeModelSummary,
+    }
+    contract = contracts.get(event_name)
+    if contract is None:
+        raise ValueError("Unapproved model telemetry event")
+    return contract.model_validate(payload).model_dump(mode="json")
+
+
+_MODEL_EVENTS = frozenset({
+    "model.monitor", "model.call", "model.config", "model.monitor.finished",
+})
+
+
 # Durable event allowlist evolves with the exact typed safe contract.
 # No raw state/model dumps are accepted, even when the frontend expands.
 _EVENT_FIELDS["stage.updated"] = frozenset(StagePayload.model_fields)
@@ -332,11 +367,14 @@ class RunRepository:
         #   session: The caller's open transaction, shared with its state change.
         #   run: Locked parent row that serializes event cursor allocation.
         #   seq: Next per-run cursor; row locking makes this allocation serial.
-        if not _EVENT.fullmatch(event_name) or event_name not in _EVENT_FIELDS:
+        if not _EVENT.fullmatch(event_name):
             raise ValueError("Invalid event name")
-        if not payload.keys() <= _EVENT_FIELDS[event_name]:
+        if event_name in _MODEL_EVENTS:
+            payload = _safe_model_event(event_name, payload)
+        elif event_name not in _EVENT_FIELDS or not payload.keys() <= _EVENT_FIELDS[event_name]:
             raise ValueError("Run event contains unapproved fields")
-        if len(json.dumps(payload, separators=(",", ":")).encode("utf-8")) > 16_384:
+        size_limit = 48_000 if event_name == "model.call" else 16_384
+        if len(json.dumps(payload, separators=(",", ":")).encode("utf-8")) > size_limit:
             raise ValueError("Run event exceeds safe size limit")
         seq = session.scalar(
             select(func.coalesce(func.max(SimRunEvent.seq), 0) + 1).where(
@@ -703,6 +741,47 @@ class RunRepository:
             # when the queue is empty and there is no active claim.
             "worker_liveness": "active_claim" if active else "unverified",
         }
+
+    def publish_model_event(
+        self, claim: JobClaim, owner: str, event_name: str,
+        payload: dict[str, Any],
+    ) -> None:
+        """Fenced, content-free model-call telemetry. Never mutate run snapshot."""
+        if event_name not in _MODEL_EVENTS:
+            raise ValueError("Unapproved model event")
+        safe = _safe_model_event(event_name, payload)
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state not in {"running", "awaiting_review"}:
+                raise LostLease("Cannot record model calls on an inactive run")
+            self._append(session, run, event_name, safe)
+
+    def model_events(
+        self, run_id: str, event_name: str, *, actor_id: str, limit: int = 201,
+    ) -> list[dict[str, Any]]:
+        """Actor-scoped, bounded newest-first events; projection revalidates reads."""
+        if event_name not in _MODEL_EVENTS:
+            raise ValueError("Unapproved model event")
+        try:
+            ident = uuid.UUID(run_id)
+        except ValueError:
+            return []
+        with Session(self.engine) as session:
+            rows = session.scalars(
+                select(SimRunEvent)
+                .join(SimRun, SimRun.run_id == SimRunEvent.run_id)
+                .where(
+                    SimRunEvent.run_id == ident,
+                    SimRunEvent.event_name == event_name,
+                    SimRun.actor_id == actor_id,
+                )
+                .order_by(SimRunEvent.seq.desc())
+                .limit(min(max(limit, 1), 201))
+            ).all()
+        return [{"seq": row.seq, "data": row.payload} for row in rows]
 
     def publish_resync(
         self, claim: JobClaim, owner: str, dropped_count: int

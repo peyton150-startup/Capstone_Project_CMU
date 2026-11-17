@@ -28,6 +28,7 @@ def record(event: str, *, claim: JobClaim | None = None, **counts: int) -> None:
     if event not in {
         "ready", "claimed", "finished", "failed", "lease_lost", "recovered",
         "review_requested", "review_decided", "poll_failed", "progress_dropped",
+        "model_telemetry_unavailable", "model_telemetry_dropped",
     }:
         raise ValueError("Unknown worker event")
     body: dict[str, Any] = {"service": "agent_worker", "event": event}
@@ -73,7 +74,57 @@ def execute_claim(
     lost, finished = threading.Event(), threading.Event()
     updates: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
     missed = [0]
+    # #297 owns the sanitized ModelCall and Attempt schema; this worker owns
+    # only the cross-process journal adapter. No second telemetry projector.
+    policy_holder: list[Any] = [None]
+    persisted_calls = [0]
+    telemetry_failures = [0]
+    monitor_enabled = [False]
     started = time.monotonic()
+
+    def emit_model(event_name: str, payload: dict[str, Any]) -> None:
+        if not monitor_enabled[0]:
+            return
+        try:
+            repository.publish_model_event(claim, owner, event_name, payload)
+        except LostLease:
+            lost.set()
+            raise
+        except Exception:
+            telemetry_failures[0] += 1
+
+    def flush_model_calls() -> None:
+        if not monitor_enabled[0] or policy_holder[0] is None:
+            return
+        from capstone.api.model_calls import project_model_call
+
+        calls = getattr(policy_holder[0], "calls", ()) or ()
+        while persisted_calls[0] < len(calls):
+            index = persisted_calls[0]
+            try:
+                safe = project_model_call(calls[index], index + 1)
+                repository.publish_model_event(claim, owner, "model.call", safe)
+            except LostLease:
+                lost.set()
+                raise
+            except Exception:
+                telemetry_failures[0] += 1
+                return  # Retry on next stage or finalization without advancing.
+            persisted_calls[0] += 1
+
+    def finish_model_monitor() -> None:
+        if monitor_enabled[0]:
+            calls = getattr(policy_holder[0], "calls", ()) or ()
+            emit_model("model.monitor.finished", {
+                "schema_version": 1,
+                "questions_seen": min(len(calls), 100_000),
+                "questions_persisted": min(persisted_calls[0], 100_000),
+                "write_failures": min(telemetry_failures[0], 100_000),
+                "complete": len(calls) == persisted_calls[0],
+            })
+        if telemetry_failures[0]:
+            record("model_telemetry_dropped", claim=claim,
+                   count=min(telemetry_failures[0], 1_000_000))
 
     def alive() -> None:
         if lost.is_set() or stop.is_set():
@@ -96,6 +147,7 @@ def execute_claim(
 
     def watch(state: Any) -> None:
         try:
+            flush_model_calls()
             safe = StagePayload.model_validate(
                 safe_stage(state)
             ).model_dump(mode="json")
@@ -158,6 +210,15 @@ def execute_claim(
     writer.start()
     try:
         check_strategy(claim.effective_config)
+        # #297 lands independently. Until its module is integrated, do not
+        # fabricate model-call data or block the existing Graph workflow.
+        try:
+            from capstone.api.model_calls import SafeModelCall  # noqa: F401
+        except ImportError:
+            record("model_telemetry_unavailable", claim=claim)
+        else:
+            monitor_enabled[0] = True
+            emit_model("model.monitor", {"schema_version": 1})
         from capstone.agent.completion import AuditLog
         from capstone.episode import run_episode
         from capstone.experiment import model_policy_factory, open_manual
@@ -170,10 +231,26 @@ def execute_claim(
                 open_manual(claim.request.manual)
                 if claim.request.manual != "none" else None
             )
-            policy = model_policy_factory(
-                with_recall=False, with_manual=manual is not None,
-                tree_of_thought=claim.request.tree_of_thought,
-            )()
+            try:
+                policy = model_policy_factory(
+                    with_recall=False, with_manual=manual is not None,
+                    tree_of_thought=claim.request.tree_of_thought,
+                )()
+            except Exception as exc:
+                from capstone.providers.chat import ModelError
+
+                missing = (
+                    isinstance(exc, ModelError)
+                    and str(exc).startswith("set ")
+                    and "_API_KEY" in str(exc)
+                )
+                emit_model("model.config", {
+                    "schema_version": 1,
+                    "outcome": "missing_credentials" if missing else "invalid_configuration",
+                })
+                raise
+            policy_holder[0] = policy
+            emit_model("model.config", {"schema_version": 1, "outcome": "configured"})
             with trace.open("w", encoding="utf-8") as stream:
                 stream.write('{"event":"worker.started"}\n')
                 result = run_episode(
@@ -185,6 +262,8 @@ def execute_claim(
                     ), approver=approver, run_key="hosted/" + str(claim.run_id),
                 )
             alive()
+            flush_model_calls()
+            finish_model_monitor()
             # Audit and safe trace must be committed before completed status.
             repository.store_artifacts(
                 claim, owner,
@@ -246,6 +325,13 @@ def execute_claim(
         # Expiry recovery interrupts the run; never automatically rerun it.
     except Exception as error:
         record("failed", claim=claim)
+        try:
+            flush_model_calls()
+            finish_model_monitor()
+        except LostLease:
+            pass
+        except Exception:
+            pass
         try:
             if not lost.is_set() and not stop.is_set():
                 repository.transition(claim, owner, "failed", "run.failed", {

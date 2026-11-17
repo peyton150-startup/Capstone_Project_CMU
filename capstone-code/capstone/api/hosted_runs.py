@@ -76,6 +76,61 @@ class HostedSimulatorRuns:
             run_id, decision, actor_id=_HOSTED_ACTOR, reviewer_id="hosted-reviewer"
         )
 
+    def model_calls(self, run_id: str) -> dict[str, Any]:
+        """Hosted adapter for #297's existing endpoint and exact public contract."""
+        from capstone.api.model_calls import (
+            MAX_CALLS, SafeModelCall, SafeModelConfiguration, SafeModelSummary,
+        )
+
+        if self.get(run_id) is None:
+            raise LookupError("Run not found")
+        marker = self.repository.model_events(
+            run_id, "model.monitor", actor_id=_HOSTED_ACTOR, limit=1
+        )
+        calls = self.repository.model_events(
+            run_id, "model.call", actor_id=_HOSTED_ACTOR, limit=MAX_CALLS + 1
+        )
+        configured = self.repository.model_events(
+            run_id, "model.config", actor_id=_HOSTED_ACTOR, limit=1
+        )
+        finished = self.repository.model_events(
+            run_id, "model.monitor.finished", actor_id=_HOSTED_ACTOR, limit=1
+        )
+        configuration = None
+        if configured:
+            try:
+                configuration = SafeModelConfiguration.model_validate(
+                    configured[0]["data"]
+                ).outcome
+            except (ValueError, TypeError):
+                pass
+        summary = None
+        if finished:
+            try:
+                summary = SafeModelSummary.model_validate(
+                    finished[0]["data"]
+                ).model_dump(mode="json")
+            except (ValueError, TypeError):
+                pass
+        items = []
+        invalid_rows = 0
+        for row in reversed(calls[:MAX_CALLS]):
+            try:
+                clean = SafeModelCall.model_validate(row["data"]).model_dump(mode="json")
+            except (ValueError, TypeError):
+                invalid_rows += 1
+                continue
+            items.append({"seq": row["seq"], **clean})
+        return {
+            "availability": "available" if marker else "not_recorded",
+            "window_scope": "latest_200",
+            "truncated": len(calls) > MAX_CALLS,
+            "invalid_rows": invalid_rows,
+            "configuration": configuration,
+            "summary": summary,
+            "items": items,
+        }
+
     def investigation_detail(
         self, run_id: str, investigation_id: str
     ) -> dict[str, Any] | None:
