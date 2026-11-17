@@ -762,6 +762,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                     and current["state"] in {"completed", "failed", "interrupted"}
                     and not events
                 ):
+                    # A recovered terminal run need not have a terminal event.
+                    # Explicitly end replay so browser reconnects can stop.
+                    yield 'event: stream.closed\\ndata: {"status":"terminal"}\\n\\n'
                     break
                 await asyncio.sleep(1)
 
