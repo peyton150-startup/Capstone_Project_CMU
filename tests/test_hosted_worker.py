@@ -209,6 +209,7 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
 
     run_id = str(uuid.uuid4())
     investigation_id = str(uuid.uuid4())
+    triage_id = str(uuid.uuid4())
     observed = {"submissions": 0, "decisions": 0}
 
     class NoAgentApi:
@@ -232,7 +233,16 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
                 "run_id": run_id,
                 "state": "completed",
                 "snapshot": {
-                    "investigation": {"investigation_id": investigation_id},
+                    "investigation": {
+                        "investigation_id": investigation_id, "mode": "deep",
+                    },
+                    "progress": {
+                        "triage": {"investigation_id": triage_id, "mode": "triage"},
+                        "deep": {
+                            "investigation_id": investigation_id, "mode": "deep",
+                        },
+                        "latest": "deep",
+                    },
                 },
             }
 
@@ -250,10 +260,18 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
             }
 
         def events_since(self, _id, cursor, limit=100):
-            return (
-                [{"seq": 1, "event": "run.completed", "data": {"status": "completed"}}]
-                if cursor == 0 else []
-            )
+            return [
+                event for event in (
+                    {
+                        "seq": 1, "event": "model.call",
+                        "data": {"unsafe_provider_body": "NEVER_STREAM"},
+                    },
+                    {
+                        "seq": 2, "event": "run.completed",
+                        "data": {"status": "completed"},
+                    },
+                ) if event["seq"] > cursor
+            ]
 
         def pending_reviews(self):
             return []
@@ -263,8 +281,15 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
             return {"decision": decision.decision}
 
         def investigation_detail(self, _id, target):
-            assert target == investigation_id
+            assert target in {investigation_id, triage_id}
             return {"investigation_id": target}
+
+        def model_calls(self, _id):
+            assert _id == run_id
+            return {
+                "availability": "available",
+                "items": [{"seq": 1, "job": "conclude", "attempts": []}],
+            }
 
         def observability_items(self, _id):
             return [{"event": "stage.updated", "counts": {"tool_calls": 5}}]
@@ -303,12 +328,37 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     assert client.get(
         "/api/v1/lab/runs/" + run_id + "/investigation", headers=viewer
     ).json()["detail"]["investigation_id"] == investigation_id
+    triage_view = client.get(
+        "/api/v1/lab/runs/" + run_id + "/investigation?phase=triage",
+        headers=viewer,
+    )
+    assert triage_view.json()["detail"]["investigation_id"] == triage_id
+    assert client.get(
+        "/api/v1/lab/runs/" + run_id + "/investigation?phase=deep",
+        headers=viewer,
+    ).json()["detail"]["investigation_id"] == investigation_id
+    assert client.get(
+        "/api/v1/lab/runs/" + run_id + "/investigation?phase=secret",
+        headers=viewer,
+    ).status_code == 422
+    assert client.get(
+        "/api/v1/lab/runs/" + run_id + "/model-calls?workspace=pilot",
+        headers=viewer,
+    ).status_code == 403
+    timeline = client.get(
+        "/api/v1/lab/runs/" + run_id + "/model-calls", headers=viewer
+    )
+    assert timeline.status_code == 200
+    assert timeline.json()["items"][0]["job"] == "conclude"
     assert client.get(
         "/api/v1/lab/runs/" + run_id + "/observability", headers=viewer
     ).json()["items"][0]["counts"]["tool_calls"] == 5
     stream = client.get("/api/v1/lab/runs/" + run_id + "/events", headers=viewer)
     assert stream.status_code == 200
     assert "event: stream.closed" in stream.text
+    assert "event: model.call" not in stream.text
+    assert "NEVER_STREAM" not in stream.text
+    assert "event: run.completed" in stream.text
     assert client.post(
         "/api/v1/simulator/reviews/" + run_id,
         headers=viewer, json={"proposal_id": 1, "decision": "reject"},
