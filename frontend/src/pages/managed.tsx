@@ -4,7 +4,7 @@ import { postJson, useResource } from '../api';
 import { resolveApiUrl } from '../backend.mjs';
 import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
-import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
+import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, StageProgress, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
@@ -171,6 +171,78 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean, 
   return {events, status};
 }
 
+function readableStage(value: string | null | undefined): string {
+  return value ? value.replaceAll('_', ' ') : 'Not reported yet';
+}
+
+/** Only counts and IDs from the approved Python watcher, never raw evidence. */
+function LiveProgress({ run }: { run: ManagedRun | null }) {
+  const progress = run?.snapshot.progress;
+  const latest = progress?.latest === 'triage' ? progress.triage :
+    progress?.latest === 'deep' ? progress.deep : undefined;
+  const active = run?.state === 'running' || run?.state === 'awaiting_review';
+  const phases: Array<{ mode: 'triage' | 'deep'; name: string; data?: StageProgress }> = [
+    {mode: 'triage', name: 'Rapid triage', data: progress?.triage},
+    {mode: 'deep', name: 'Deep investigation', data: progress?.deep},
+  ];
+  return <Panel title="Investigation progress"
+    subtitle="Live watcher snapshots preserved across triage and deep transitions">
+    <DataRow label={active ? 'Current path' : 'Last observed path'}
+      value={latest?.mode === 'triage' ? 'Rapid triage' :
+        latest?.mode === 'deep' ? 'Deep investigation' : 'Awaiting stage update'}/>
+    <DataRow label={active ? 'Current step' : 'Last observed step'}
+      value={readableStage(latest?.stage ?? run?.snapshot.stage)}/>
+    <DataRow label="Last journal update" value={formatStamp(run?.updated_at)}/>
+    <div className="form-grid">
+      {phases.filter(phase => phase.mode === 'deep' || run?.requested.mode === 'triage')
+        .map(phase => <div className="hypothesis-card" key={phase.mode}>
+          <h3>{phase.name}</h3>
+          <Pill text={phase.data ?
+            (active && progress?.latest === phase.mode ? 'Latest stage' : 'Recorded') :
+            'Not observed'} tone={phase.data ? 'neutral' : 'warning'}/>
+          {phase.data ? <>
+            <DataRow label="Step" value={readableStage(phase.data.stage)}/>
+            <DataRow label="Iterations" value={phase.data.iteration_count}/>
+            <DataRow label="Tool calls" value={phase.data.tool_calls}/>
+            <DataRow label="Evidence records" value={phase.data.evidence_count}/>
+            <DataRow label="Hypotheses" value={phase.data.hypothesis_count}/>
+            <DataRow label="Unresolved questions" value={phase.data.unresolved_question_ids.length}/>
+            {phase.data.unresolved_question_ids.length > 0 &&
+              <p className="body-copy">Open question IDs: {phase.data.unresolved_question_ids.join(', ')}</p>}
+            {phase.data.termination_reason &&
+              <DataRow label="Termination reason" value={readableStage(phase.data.termination_reason)}/>}
+            <DataRow label="Conclusion formed" value={phase.data.conclusion_available ? 'Yes' : 'Not yet'}/>
+          </> : <p className="body-copy">No authenticated stage snapshot for this path yet.</p>}
+        </div>)}
+    </div>
+    <p className="body-copy">Counts reflect observed progress, not completion percentages or verified fault probabilities.
+      Evidence text, hypotheses and recommendations require a recorded, authorized audit.
+      Earlier runs may have no phase-specific snapshots.</p>
+  </Panel>;
+}
+
+function operationalOutcome(event: OperationalEvent): string {
+  if (event.event === 'triage_packet_call_skipped_unavailable') return 'Skipped: source unavailable';
+  if (event.success === false) return 'Failed';
+  if (event.success === true) return 'Succeeded';
+  return 'Outcome not recorded';
+}
+
+function eventStageSummary(event: RunEvent): string {
+  if (event.event !== 'stage.updated')
+    return typeof event.data.status === 'string' ? event.data.status : 'Recorded';
+  const mode = event.data.mode === 'triage' ? 'Triage' :
+    event.data.mode === 'deep' ? 'Deep' : 'Path unknown';
+  const stage = typeof event.data.stage === 'string' ?
+    readableStage(event.data.stage) : 'Step not reported';
+  const tools = event.data.tool_calls;
+  const evidence = event.data.evidence_count;
+  return [mode, stage,
+    typeof tools === 'number' ? 'Tools: ' + tools : null,
+    typeof evidence === 'number' ? 'Evidence: ' + evidence : null]
+    .filter(Boolean).join(' · ');
+}
+
 export function RunDetailPage() {
   const { runId } = useParams();
   const { workspace, preview, token, backend } = useUi();
@@ -208,6 +280,7 @@ export function RunDetailPage() {
         action={<Link className="text-link" to="/investigations/review">Review pending proposal</Link>}/>}
       {run?.snapshot?.error_class && <DataRow label="Failure classification" value={run.snapshot.error_class}/>}
     </Panel>
+    <LiveProgress run={run}/>
     <Panel title="Conclusion and validation" subtitle="Only values persisted by the existing investigator">
       <DataRow label="Diagnosis" value={run?.snapshot?.diagnosis || 'Not recorded'}/>
       <DataRow label="Recommendation" value={run?.snapshot?.recommendation || 'Not recorded'}/>
@@ -225,7 +298,9 @@ export function RunDetailPage() {
             className={section===tab?'current':''} onClick={()=>setSection(tab)}>{tab}</button>)}
       </div>
       {!detail && <Unavailable item="Completed investigation audit"
-        detail="The authorized audit is not present yet, or the run has not completed."/>}
+        detail={run?.state === 'running' || run?.state === 'awaiting_review' ?
+          'Audited evidence and hypotheses are not available yet. Watch the live counters and stages above.' :
+          'A completed authorized investigation audit is not available for this run.'}/>}
       {detail && section==='evidence' && (detail.evidence.length ?
         detail.evidence.map(e=><div className="hypothesis-card" key={e.id}>
           <strong>{e.id} · {e.source_id || 'Unknown source'}</strong>
@@ -258,23 +333,23 @@ export function RunDetailPage() {
         <p className="body-copy">Decision outcomes and pruned alternatives are documented verdicts, not hidden chain-of-thought. Tool arguments and raw provider responses are intentionally excluded.</p>
       </>}
     </Panel>
-    <Panel title="Operational diagnostics" subtitle="Validated counters and event identifiers; no prompts, secrets or private evidence">
+    <Panel title="Operational diagnostics" subtitle="Bounded availability and evidence-packet coverage">
       {operational.error && <InfoState kind="warning" title="Diagnostics unavailable" detail={operational.error}/>}
       {operational.data?.items.length ? operational.data.items.slice(-60).reverse().map((event,index)=>
-        <DataRow key={index} label={event.event}
+        <DataRow key={index} label={readableStage(event.event)}
           extra={'Investigation: ' + (event.investigation_id || 'not recorded') +
             ' · Tick: ' + (event.tick ?? 'unknown')}
-          value={(event.tool || 'no tool') + ' · ' +
-            (event.success == null ? 'unjudged' : event.success ? 'success' : 'failed') +
-            (event.counts ? ' · ' + Object.entries(event.counts).map(([k,v])=>k+': '+v).join(', ') : '')}/>
+          value={(event.tool || 'No tool selected') + ' · ' + operationalOutcome(event) +
+            (event.counts ? ' · ' + Object.entries(event.counts).map(([k,v])=>
+              readableStage(k)+': '+v).join(', ') : '')}/>
       ) : <Unavailable item="Run diagnostics" detail="No operational trace has been recorded for this run."/>}
-      <p className="body-copy">Recent event window only. These are source-linked counters, not verified fault labels.</p>
+      <p className="body-copy">Skipped unavailable sources are not failed executions.
+        Packet counts and qualified calls indicate observed coverage, not proof of root cause.</p>
     </Panel>
     <Panel title="Stage event journal" subtitle={'Nonblocking and reconnectable · ' + journal.status}>
       {journal.events.length ? journal.events.map(row=>
         <div className="settings-row" key={row.seq}><span>{String(row.seq).padStart(4, '0')} · {row.event}</span>
-          <span className="settings-value">{typeof row.data.stage === 'string' ? row.data.stage :
-            typeof row.data.status === 'string' ? row.data.status : 'Recorded'}</span></div>):
+          <span className="settings-value">{eventStageSummary(row)}</span></div>):
         <Unavailable item="Stage updates" detail="The worker has not published any permitted stage events yet."/>}
       <p className="body-copy">Event updates are metadata only. If a UI update is dropped, the authoritative persisted run snapshot remains the source of truth.</p>
     </Panel>
