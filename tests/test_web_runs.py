@@ -691,9 +691,9 @@ def test_completed_phase_audits_expose_only_reviewed_result_fields(tmp_path):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(audit(triage_id, "triage"))
-        + "\\n"
+        + "\n"
         + json.dumps(audit(deep_id, "deep"))
-        + "\\n",
+        + "\n",
         encoding="utf-8",
     )
     from capstone.api.readers import recent_lines, safe_investigations
