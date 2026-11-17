@@ -1,4 +1,5 @@
 """Strict, versioned Siemens-to-cloud contracts. No network or model calls."""
+
 from __future__ import annotations
 
 import hashlib
@@ -40,9 +41,7 @@ class ApprovedNode(BaseModel):
 
     @model_validator(mode="after")
     def valid_permission(self):
-        if self.permit_numeric_analysis and (
-            not self.retain_value or not self.unit
-        ):
+        if self.permit_numeric_analysis and (not self.retain_value or not self.unit):
             raise ValueError("numeric analysis requires authorized value and units")
         if self.permit_text and not self.retain_value:
             raise ValueError("text approval requires authorized value retention")
@@ -114,7 +113,16 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("only Siemens OPC UA schema v2 is authorized")
     if raw.get("record_type") == "data_change":
         record = OpcUaDataChange.model_validate(
-            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "numeric_quality_qualified", "verified_unit")}
+            {
+                k: v
+                for k, v in raw.items()
+                if k
+                not in (
+                    "analysis_eligible",
+                    "numeric_quality_qualified",
+                    "verified_unit",
+                )
+            }
         )
         if record.server_uri != scope.server_uri:
             raise PermissionError("OPC UA server identity changed")
@@ -126,7 +134,8 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         payload = record.model_dump(mode="json")
         lag_seconds = (
             (record.received_at - record.source_timestamp).total_seconds()
-            if record.source_timestamp is not None else None
+            if record.source_timestamp is not None
+            else None
         )
         eligible = (
             permission.permit_numeric_analysis
@@ -147,7 +156,16 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         return payload
     if raw.get("record_type") == "opcua_session":
         record = OpcUaSessionMarker.model_validate(
-            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "numeric_quality_qualified", "verified_unit")}
+            {
+                k: v
+                for k, v in raw.items()
+                if k
+                not in (
+                    "analysis_eligible",
+                    "numeric_quality_qualified",
+                    "verified_unit",
+                )
+            }
         )
         if record.server_uri != scope.server_uri:
             raise PermissionError("OPC UA server identity changed")
@@ -199,7 +217,11 @@ class IngestBatch(BaseModel):
 
     @classmethod
     def build(
-        cls, *, scope: CloudScope, stream_id: UUID, first_line: int,
+        cls,
+        *,
+        scope: CloudScope,
+        stream_id: UUID,
+        first_line: int,
         records: list[dict[str, Any]],
     ) -> "IngestBatch":
         raw = dict(
