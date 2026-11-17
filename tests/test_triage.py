@@ -63,6 +63,9 @@ def triage_then_deep(triage_recommends="intervene"):
 
 
 def run(policy, monkeypatch, *, then_deep=True, clock=lambda: 0.0, **options):
+    # Historical clearance tests exercise model-authored hypotheses; keep this
+    # comparison fixture explicit now that deterministic Hypothesize is default.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "on" if then_deep else "off")
     return run_episode(
