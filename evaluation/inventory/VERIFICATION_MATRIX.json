@@ -41,6 +41,8 @@
   "capstone-code/capstone/api/live_ingest.py": "48f593dd684ab8e70df0b5e7e515a88aea0e353a74e58cba505a9792ab8a0221",
   "capstone-code/capstone/api/postgres_runs.py": "2f4dcffd43a9760a39d4433efcd072938d38e68e90b8cc9858d3f579a17a84b9",
   "capstone-code/capstone/api/readers.py": "35b16d73d7e438c0888753f0dfc623209ad1e5d0fa3d3d53286bc4da6e12e37b",
+  "capstone-code/capstone/api/run_models.py": "e0f2e7e744b1401f686b309472caf260630fd30b74f6b3eea2141ccbe1282cf1",
+  "capstone-code/capstone/api/run_repository.py": "b8d7123efe3cf8fe25b697795169f0be727a5ffb2c455e3e067ce30c02cb91e4",
   "capstone-code/capstone/api/runs.py": "1314ce32795e2b1ca6defa70d3a5a77e9f8040feeb8cc674e924006e9fb85e4c",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
@@ -238,7 +240,7 @@
   "tests/test_memory_reflection.py": "8f97f9973d180f004a4eeeffca2e040df04749337ce7cc1141502c0e455a8865",
   "tests/test_memory_repository.py": "3d6cbe683167b1a86b94de7c9599fdf2030b8091f7a6e4259362e729c792ba14",
   "tests/test_memory_semantic.py": "78d65b3470a53d3a99cdee8c3b45d9508dee24698fd5f24d46a9c04932ebe948",
-  "tests/test_migrations.py": "6449fa2b344c43e775e4ca00359aa31f15b69ea8f3b40cec8805bd9cb828d14f",
+  "tests/test_migrations.py": "9ae4d665ea0936f04dab5f6829bc56c19911546c3e68416abbfc32aa2320e385",
   "tests/test_model_policy.py": "9d394f59d3fd0b7813c37e7fd1c58f26ec8d1c67fedfbc874a53b67e61558be3",
   "tests/test_mtconnect_ingestion.py": "40eb588374a74e1f37eb240694529fdffba0bb0651b9a73e1cc862617ce831ed",
   "tests/test_neon_manual.py": "56bfcf706d09e2aa77fb2f8469e97ec84f175249d964f08c5ca2d0d2f1cdf813",
@@ -263,6 +265,7 @@
   "tests/test_request_deadline.py": "373b1d759e84c4e544ab92f00179243f9fc7805a96d96dacd8d35b06a23610c5",
   "tests/test_review_packet.py": "6193ac676b438445756f5ae4466ccea0fa571b0adc2b08d0fbb355315f984193",
   "tests/test_rng.py": "e0515a3b1b93128ac6ee3538a07963f6e9f386c331c0053206f838cb3d23944f",
+  "tests/test_run_repository.py": "dd66a0dfdb53077cfef321695ddea0789e89fc55ce079b58967fb7214b999941",
   "tests/test_scenarios.py": "aecd0d96aa858481068df3ed803fbee1dd3e0bf3023673b5c3c558c8e73dbc7e",
   "tests/test_scoring_integrity.py": "9bd546f2dc3d2bc03c9da3b3c78c1aa09c502e8054bd9bd7065f805ec9c82671",
   "tests/test_sensor_summary.py": "e6268233f469428646200a5b5f05a44bd9a381f64d2fa47422f5ddf12d7d4e25",
@@ -316,29 +319,29 @@
   "tests/test_web_runs.py": "8aa12506600fd75b21ed3e0d4f4a6b4f3c1a21ebe31dc7251489f4e249a037d0",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "75e5cc519b34c3511801dffc11200a2e7b3226ec2ec474806db78a8ef97bd925",
- "junit_sha256": "026c4e74b41f70f2039561fa18b851eb219bc0310122637a628dccb8ee285c0d",
+ "coverage_sha256": "bcef58327146f3c09dedc6d906be73768688a121ed977790d3e247f6f7190656",
+ "junit_sha256": "898b5fa4508aaa0d16101b110cfd533f2d164b3b234be47ccf1fd98f3890ba58",
  "counts": {
-  "functions": 1332,
+  "functions": 1346,
   "classes_note": "classes are listed through their methods",
-  "tests": 2474,
+  "tests": 2481,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 590,
    "NOT APPLICABLE": 29,
-   "NOT TESTED": 73,
-   "PARTIALLY VERIFIED": 595,
+   "NOT TESTED": 84,
+   "PARTIALLY VERIFIED": 598,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 624,
+   "direct": 627,
    "import-only": 6,
    "indirect": 600,
    "no-statements": 29,
-   "none": 73
+   "none": 84
   },
-  "functions_executed_in_tests": 1224,
-  "functions_with_direct_tests": 624,
+  "functions_executed_in_tests": 1227,
+  "functions_with_direct_tests": 627,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -379,6 +382,17 @@
    "capstone.api.readers:safe_investigations",
    "capstone.api.readers:safe_investigation_detail",
    "capstone.api.readers:safe_memory_promotions",
+   "capstone.api.run_repository:RunRepository.close",
+   "capstone.api.run_repository:RunRepository.ready",
+   "capstone.api.run_repository:RunRepository._view",
+   "capstone.api.run_repository:RunRepository.submit",
+   "capstone.api.run_repository:RunRepository.get",
+   "capstone.api.run_repository:RunRepository.list_runs",
+   "capstone.api.run_repository:RunRepository.events_since",
+   "capstone.api.run_repository:RunRepository.claim",
+   "capstone.api.run_repository:RunRepository.heartbeat",
+   "capstone.api.run_repository:RunRepository.transition",
+   "capstone.api.run_repository:RunRepository.recover_expired",
    "capstone.api.runs:safe_stage",
    "capstone.api.runs:SimulatorRuns._execute",
    "capstone.api.runs:SimulatorRuns._execute.<locals>.watch",
@@ -460,6 +474,9 @@
    "capstone.api.readers:capture_records (6/8)",
    "capstone.api.readers:iso_age (9/12)",
    "capstone.api.readers:safe_evaluations (7/10)",
+   "capstone.api.run_repository:RunExecutionConfig.validate_strategy (2/5)",
+   "capstone.api.run_repository:RunRepository.__init__ (6/14)",
+   "capstone.api.run_repository:RunRepository._append (3/8)",
    "capstone.api.runs:SimulatorRuns.investigation_audit_path (2/3)",
    "capstone.contracts.hypotheses:NumericClaim.ordered_window (3/4)",
    "capstone.contracts.investigations:run_id_for (2/3)",
@@ -511,8 +528,8 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2471,
-   "skipped": 3
+   "passed": 2474,
+   "skipped": 7
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -693,6 +710,10 @@
    "tests/test_postgres_journal.py::test_import_preflight_does_not_interrupt_existing_remote_runs",
    "tests/test_production_line.py::test_a_machine_takes_60_ticks_per_job_unless_told_otherwise",
    "tests/test_recall_tool.py::test_the_tool_description_states_the_limits",
+   "tests/test_run_repository.py::test_empty_hosted_migration_round_trip",
+   "tests/test_run_repository.py::test_concurrent_idempotency_creates_one_run_and_one_job",
+   "tests/test_run_repository.py::test_parallel_claims_fence_state_and_preserve_event_order",
+   "tests/test_run_repository.py::test_expired_started_claim_interrupts_without_retry",
    "tests/test_servo_drive.py::test_a_new_drive_is_healthy",
    "tests/test_servo_drive.py::test_the_pack_asks_for_the_drive_replacement_and_counts_as_a_cause",
    "tests/test_settings.py::test_env_and_index_live_at_the_repository_root",
@@ -878,6 +899,11 @@
    "functions": 12,
    "executed": 8,
    "direct": 0
+  },
+  "capstone.api.run_repository": {
+   "functions": 14,
+   "executed": 3,
+   "direct": 3
   },
   "capstone.api.runs": {
    "functions": 23,
@@ -8301,6 +8327,96 @@
    ]
   },
   "capstone.api.readers:safe_memory_promotions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunExecutionConfig.validate_strategy": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy"
+   ],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.__init__": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_run_repository.py::test_repository_rejects_non_postgres_url_without_connecting"
+   ],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.close": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.ready": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository._view": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository._append": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_run_repository.py::test_event_contract_refuses_unapproved_fields"
+   ],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.submit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.get": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.list_runs": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.events_since": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.claim": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.heartbeat": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.transition": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.run_repository:RunRepository.recover_expired": {
    "count": 0,
    "status": "NOT TESTED",
    "direct": [],
@@ -54238,6 +54354,47 @@
     "capstone.simulator.rng:RandomSource.__init__",
     "capstone.simulator.rng:RandomSource._derive_seed"
    ]
+  },
+  "tests/test_run_repository.py::test_repository_rejects_non_postgres_url_without_connecting": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunRepository.__init__"
+   ]
+  },
+  "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy"
+   ]
+  },
+  "tests/test_run_repository.py::test_event_contract_refuses_unapproved_fields": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunRepository._append"
+   ]
+  },
+  "tests/test_run_repository.py::test_empty_hosted_migration_round_trip": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_run_repository.py::test_concurrent_idempotency_creates_one_run_and_one_job": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_run_repository.py::test_parallel_claims_fence_state_and_preserve_event_order": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_run_repository.py::test_expired_started_claim_interrupts_without_retry": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
   },
   "tests/test_scenarios.py::test_scenario_is_abstract": {
    "count": 16,
