@@ -104,6 +104,11 @@ def test_postgresql_offline_url_uses_psycopg_and_preserves_ssl(monkeypatch, sche
     sql = config.output_buffer.getvalue()
     assert "payload JSONB NOT NULL" in sql
     assert "memory_id UUID NOT NULL" in sql
+    assert "CREATE SCHEMA IF NOT EXISTS capstone_private" in sql
+    assert "CREATE TABLE capstone_private.runs" in sql
+    assert "one_active_simulator_run" in sql
+    assert "CREATE TABLE capstone_private.run_artifacts" in sql
+    assert "ENABLE ROW LEVEL SECURITY" in sql
     assert secret not in sql
 
 
