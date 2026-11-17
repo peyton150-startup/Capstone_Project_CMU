@@ -48,7 +48,7 @@ class TriageCandidate(Contract):
 class TriageHypothesisPacket(Contract):
     """Unscored, validated decision input for deterministic Test planning."""
 
-    rule_version: Literal["1.1"] = "1.1"
+    rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
     candidates: tuple[TriageCandidate, ...] = ()
     test_requirement_ids: tuple[str, ...] = ()
@@ -87,7 +87,7 @@ class TriageHypothesisTrace(Contract):
     """A bounded, replayable record of the fixed candidate compiler."""
 
     stage: Literal["hypothesize", "test"]
-    rule_version: Literal["1.1"] = "1.1"
+    rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
     action: Literal["compiled", "refreshed", "no_candidates"]
     candidate_ids: tuple[str, ...] = ()
