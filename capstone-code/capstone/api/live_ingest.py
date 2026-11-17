@@ -58,6 +58,7 @@ def router_for(
             batch = IngestBatch.model_validate_json(bytes(body))
             source = scope()
             source.assert_active()
+            batch.authorized_lines(source)
             return repository.accept(batch, source)
         except PermissionError:
             raise HTTPException(
