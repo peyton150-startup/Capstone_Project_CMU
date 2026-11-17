@@ -183,6 +183,7 @@ def run_recorded_investigation(
             raise ValueError("model policy exposes tools this capture cannot answer")
 
     settings = get_settings()
+    profile = settings.effective_triage
     run_id = run_id_for(f"replay/{machine_id}/{look.now.isoformat()}/{description}")
     state = make_recorded_state(
         run_id,
@@ -192,11 +193,16 @@ def run_recorded_investigation(
         budgets=budgets,
         stage_context=settings.stage_context,
         state_action_bar=settings.state_action_bar,
-        triage_packet=settings.triage_packet,
-        triage_packet_prompt=settings.triage_packet_prompt,
+        triage_packet=profile.packet,
+        triage_packet_prompt=profile.packet_prompt,
         triage_conclude_brief=settings.triage_conclude_brief,
         triage_conclude_cap=settings.triage_conclude_cap,
-        triage_fixed_plan=settings.triage_plan == "fixed",
+        triage_fixed_plan=profile.plan == "fixed",
+    )
+    state.triage_run_mode = profile.run_mode
+    state.triage_observe_separate = profile.observe_calls == "separate"
+    state.triage_hypothesis_seconds = 0.0 if profile.run_mode == "deterministic" else (
+        profile.hypothesis_seconds
     )
     step_questions = (
         settings.step_questions
@@ -214,9 +220,10 @@ def run_recorded_investigation(
         policy=policy,
         clock=clock,
         screening_available=False,
-        triage_investigate=settings.triage_investigate,
+        triage_run_mode=profile.run_mode,
+        triage_investigate=profile.investigate,
         triage_allowed_sources=("replay",),
-        triage_hypothesize=settings.triage_hypothesize,
+        triage_hypothesize=profile.hypothesize,
         triage_tool_specs=tuple(spec for spec in available if spec.name != "wait"),
         triage_channels={
             machine_id: tuple(
@@ -240,7 +247,7 @@ def run_recorded_investigation(
                 )
             )
         },
-        triage_evidence_tests=settings.triage_evidence_tests,
+        triage_evidence_tests=profile.evidence_tests,
         step_questions=step_questions,
         decide_calls=decide_calls,
         min_action_confidence=settings.min_action_confidence,

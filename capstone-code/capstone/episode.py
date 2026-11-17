@@ -527,16 +527,19 @@ def run_triage_then_deep(
     #   first.triage_hypothesis_seconds: The triage's hypothesis reserve
     #     (TRIAGE_HYPOTHESIS_SECONDS, capped to its window), passed to its
     #     research as deps.hypothesis_seconds; the deep run keeps its own.
+    profile = settings.effective_triage
     first.mode = "triage"
-    first.triage_packet_enabled = settings.triage_packet
-    first.triage_packet_prompt = settings.triage_packet_prompt
+    first.triage_run_mode = profile.run_mode
+    first.triage_packet_enabled = profile.packet
+    first.triage_packet_prompt = profile.packet_prompt
+    # The Conclude policy, its brief and budget are unchanged by the switch.
     first.triage_conclude_brief = settings.triage_conclude_brief
     first.triage_conclude_cap = settings.triage_conclude_cap
-    first.triage_fixed_plan = settings.triage_plan == "fixed"
-    first.triage_observe_separate = settings.triage_observe_calls == "separate"
+    first.triage_fixed_plan = profile.plan == "fixed"
+    first.triage_observe_separate = profile.observe_calls == "separate"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     first.triage_hypothesis_seconds = triage_hypothesis_reserve(
-        settings.triage_hypothesis_seconds, first.budgets
+        profile.hypothesis_seconds, first.budgets
     )
     started = deps.clock()
     # The triage keeps its own hypothesis reserve (TRIAGE_HYPOTHESIS_SECONDS,
@@ -548,6 +551,11 @@ def run_triage_then_deep(
             deps,
             critic=None,
             critic_followup=False,
+            critic_reinstate=False,
+            triage_run_mode=profile.run_mode,
+            triage_investigate=profile.investigate,
+            triage_hypothesize=profile.hypothesize,
+            triage_evidence_tests=profile.evidence_tests,
             hypothesis_seconds=first.triage_hypothesis_seconds,
         ),
     )

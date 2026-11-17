@@ -36,6 +36,7 @@ model request spent on nothing it chose.
 """
 
 import json
+from dataclasses import replace
 from typing import Literal
 
 from pydantic import JsonValue
@@ -393,7 +394,6 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
     if (
         state.mode == "triage"
         and deps.triage_hypothesize == "deterministic"
-        and reason is not TerminationReason.TIMEOUT
     ):
         # The alarm is enough to enumerate unscored possibilities; missing
         # sensor evidence is then recorded as missing, never inferred healthy.
@@ -2156,7 +2156,27 @@ INVESTIGATION_GRAPH = build_graph()
 def run_investigation(
     state: InvestigationState, deps: InvestigationDeps
 ) -> InvestigationState:
-    """Run one investigation from its anomaly to the check of what was done."""
+    """Run one typed Graph; normalize the triage profile before any stage."""
+    if state.mode == "triage" and deps.triage_run_mode == "deterministic":
+        # Second line of defense for direct/replay invocations. Only execution
+        # knobs change: provider catalogs, clock, evidence and Conclude policy
+        # are never fabricated or replaced.
+        state.triage_run_mode = "deterministic"
+        state.triage_fixed_plan = True
+        state.triage_packet_enabled = True
+        state.triage_packet_prompt = True
+        state.triage_observe_separate = True
+        state.triage_hypothesis_seconds = 0.0
+        deps = replace(
+            deps,
+            triage_investigate="deterministic",
+            triage_hypothesize="deterministic",
+            triage_evidence_tests=True,
+            hypothesis_seconds=0.0,
+            critic=None,
+            critic_followup=False,
+            critic_reinstate=False,
+        )
     try:
         INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
     except ModelError:
