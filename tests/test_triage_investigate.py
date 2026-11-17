@@ -397,6 +397,8 @@ def triaged(monkeypatch, mode):
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "off")
     monkeypatch.setenv("TRIAGE_INVESTIGATE", mode)
+    # Keep the historical compiler arm's model-plan conditions comparable.
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
     (record,) = run_experiment(
         [Case("bearing-6", SEED, "bearing_degradation")],
         triage_then_deep,
