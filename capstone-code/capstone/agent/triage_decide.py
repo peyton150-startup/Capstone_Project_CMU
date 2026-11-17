@@ -653,9 +653,7 @@ def choose_next_triage_read(
             # but do not add another stage-level trace for each read.
             from capstone.agent.triage_hypothesize import update_candidate_packet
 
-            update_candidate_packet(
-                state, stage="test", deps=deps, record_trace=False
-            )
+            update_candidate_packet(state, stage="test", deps=deps, record_trace=False)
             order = {
                 rid: position
                 for position, rid in enumerate(state.triage_test_requirement_ids)
