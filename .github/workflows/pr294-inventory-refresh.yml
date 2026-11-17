@@ -33,6 +33,13 @@ jobs:
               echo 'PR294 conflicts with main; leaving source untouched and refusing inventory'
               git status --short
               git diff --name-only --diff-filter=U
+              for file in capstone-code/capstone/api/runs.py frontend/src/pages/managed.tsx frontend/src/types.ts tests/test_web_runs.py; do
+                if grep -q '^<<<<<<< ' "$file"; then
+                  printf '\n===== CONFLICTS: %s =====\n' "$file"
+                  sed -n '/^<<<<<<< /,/^>>>>>>> /p' "$file" | head -c 48000
+                  printf '\n===== END: %s =====\n' "$file"
+                fi
+              done
               exit 1
             }
           git diff --check HEAD^1..HEAD
