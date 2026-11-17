@@ -414,12 +414,22 @@ export function RunDetailPage() {
 }
 
 export function TriageReportView({ report }: { report: TriageReport }) {
-  return <Panel title="Deterministic triage report" subtitle="A successful sensor read does not imply the predicate passed">
+  return <Panel title="Deterministic triage report"
+    subtitle="The model answer, Python checks, and observed evidence are distinct results">
     <Pill text={report.outcome} tone={toneFor(report.assessment)}/>
     <h3>{report.summary}</h3>
+    <DataRow label="Alarmed machine" value={report.machine_id || 'Not recorded'}/>
+    <DataRow label="Alarm / initial anomaly" value={report.alarm}/>
+    <DataRow label="Alarm observed at" value={report.alarm_tick == null ?
+      'Not recorded' : 'Tick ' + report.alarm_tick}/>
     <DataRow label="Assessment" value={report.assessment}/>
     <DataRow label="Diagnosis" value={report.diagnosis || 'No accepted model diagnosis'}/>
-    <DataRow label="Recommendation" value={report.recommendation}/>
+    <DataRow label="Model rating" value={report.outcome !== 'model_conclusion' ?
+      'Not applicable — no accepted model answer' :
+      Math.round(report.confidence * 100) + '/100 (uncalibrated)'}/>
+    <DataRow label="Model's initial recommendation" value={report.model_recommendation || 'Not recorded'}/>
+    <DataRow label="Final checked recommendation" value={report.recommendation}/>
+    <DataRow label="Termination reason" value={report.termination_reason || 'Not recorded'}/>
     <DataRow label="Deep recommended" value={report.deep_recommended ? 'Yes' : 'No'}/>
     <DataRow label="Next discriminating check" value={report.next_check || 'Not recorded'}/>
     <DataRow label="Model answer refused because" value={report.refused_because || 'No refusal recorded'}/>
@@ -428,8 +438,14 @@ export function TriageReportView({ report }: { report: TriageReport }) {
     {report.unresolved_questions.length > 0 && <div className="soft-note">
       <strong>Unresolved questions:</strong> {report.unresolved_questions.join(', ')}</div>}
     {report.findings.length ? report.findings.map(item=>
-      <DataRow key={item.evidence_id} label={item.evidence_id + ' · ' + item.source_id}
-        value={item.excerpt}/>) : <Unavailable item="Evidence citations"/>}
+      <div className="hypothesis-card" key={item.evidence_id}>
+        <strong>{item.evidence_id} · {item.source_id}</strong>
+        <p>{item.excerpt}</p>
+        <DataRow label="Provenance" value={item.origin || 'Not recorded'}/>
+        <DataRow label="Observed tick" value={item.observed_tick ?? 'Not recorded'}/>
+      </div>) : <Unavailable item="Evidence citations"/>}
+    <p className="body-copy">A successful sensor read does not imply a passed predicate or a verified fault.
+      The listed model rating is not a calibrated fault probability.</p>
   </Panel>;
 }
 
