@@ -71,11 +71,16 @@ class SimulatorRuns:
 
     def __init__(self, database: Path, *, approval_timeout_seconds: float = 240):
         self.database = database
+        self.artifact_root = database.parent
         self.approval_timeout_seconds = approval_timeout_seconds
         self.lock = threading.RLock()
         self.waiters: dict[tuple[str, int], threading.Event] = {}
         self.active: set[str] = set()
-        database.parent.mkdir(parents=True, exist_ok=True)
+        self.artifact_root.mkdir(parents=True, exist_ok=True)
+        self._initialize_store()
+
+    def _initialize_store(self) -> None:
+        """Create or recover the local journal; remote stores override this."""
         with self._db() as db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS runs (
@@ -116,7 +121,7 @@ class SimulatorRuns:
         """Private, server-owned path derived from an existing UUID run id."""
         if str(uuid.UUID(run_id)) != run_id:
             raise ValueError("Invalid run identifier")
-        return self.database.parent / "simulator-investigations" / (run_id + ".jsonl")
+        return self.artifact_root / "simulator-investigations" / (run_id + ".jsonl")
 
     def investigation_event_path(self, run_id: str) -> Path:
         """Server-owned safe operational event log, separate from private audits."""
@@ -167,6 +172,15 @@ class SimulatorRuns:
             for n, name, payload in rows
         ]
 
+    def _lock_event_sequence(self, db: Any, run_id: str) -> None:
+        """SQLite uses its existing transaction lock; remote stores may lock a row."""
+
+    def _lock_submission(self, db: Any) -> None:
+        """Remote stores may enforce cross-process admission before insertion."""
+
+    def close(self) -> None:
+        """Local SQLite connections are closed after each transaction."""
+
     def _emit(
         self,
         run_id: str,
@@ -176,6 +190,7 @@ class SimulatorRuns:
         state: RunState | None = None,
     ) -> None:
         with self.lock, self._db() as db:
+            self._lock_event_sequence(db, run_id)
             next_seq = db.execute(
                 "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
                 (run_id,),
@@ -210,6 +225,7 @@ class SimulatorRuns:
                             "idempotency key reused for different settings"
                         )
                     return self.get(existing[0])
+                self._lock_submission(db)
                 if self.active:
                     raise RuntimeError("one simulator run is already active")
                 id_ = str(uuid.uuid4())
@@ -354,7 +370,7 @@ class SimulatorRuns:
                         return
                     try:
                         self._emit(run_id, "stage.updated", row)
-                    except (OSError, sqlite3.Error):
+                    except (OSError, sqlite3.Error, RuntimeError):
                         # Observer storage must never crash or block the agent.
                         missed[0] += 1
                 finally:
