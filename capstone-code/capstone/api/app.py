@@ -41,32 +41,33 @@ from capstone.triage_run_controls import resolve_triage_run
 Workspace = Literal["simulator", "pilot"]
 
 # Deliberate allowlist: nothing from the process environment is serialized by default.
-PUBLIC_SETTING_NAMES = (
-    "TRIAGE",
-    "TRIAGE_SECONDS",
-    "TRIAGE_PLAN",
-    "TRIAGE_RUN_MODE",
-    "TRIAGE_HYPOTHESIZE",
-    "TRIAGE_PACKET",
-    "TRIAGE_INVESTIGATE",
-    "TRIAGE_EVIDENCE_TESTS",
-    "TRIAGE_PACKET_PROMPT",
-    "TRIAGE_OBSERVE_CALLS",
-    "TRIAGE_CONCLUDE_BRIEF",
-    "TRIAGE_CONCLUDE_CAP",
-    "TRIAGE_HYPOTHESIS_SECONDS",
-    "TRIAGE_TOOL_CALLS",
-    "TRIAGE_THEN_DEEP",
-    "STEP_QUESTIONS",
-    "DECIDE_CALLS",
-    "CRITIC",
-    "CRITIC_BLIND",
-    "CRITIC_FOLLOWUP",
-    "MANUAL_STEP",
-    "MEMORY_RETRIEVAL_MODE",
-    "MIN_ACTION_CONFIDENCE",
-    "MODEL_REQUEST_SECONDS",
-)
+PUBLIC_SETTING_FIELDS = {
+    # Only explicitly reviewed, nonsecret scalar Settings fields are exposed.
+    "TRIAGE": "triage",
+    "TRIAGE_SECONDS": "triage_seconds",
+    "TRIAGE_TOOL_CALLS": "triage_tool_calls",
+    "TRIAGE_PLAN": "triage_plan",
+    "TRIAGE_RUN_MODE": "triage_run_mode",
+    "TRIAGE_HYPOTHESIZE": "triage_hypothesize",
+    "TRIAGE_PACKET": "triage_packet",
+    "TRIAGE_PACKET_PROMPT": "triage_packet_prompt",
+    "TRIAGE_OBSERVE_CALLS": "triage_observe_calls",
+    "TRIAGE_INVESTIGATE": "triage_investigate",
+    "TRIAGE_EVIDENCE_TESTS": "triage_evidence_tests",
+    "TRIAGE_CONCLUDE_BRIEF": "triage_conclude_brief",
+    "TRIAGE_CONCLUDE_CAP": "triage_conclude_cap",
+    "TRIAGE_HYPOTHESIS_SECONDS": "triage_hypothesis_seconds",
+    "TRIAGE_THEN_DEEP": "triage_then_deep",
+    "STEP_QUESTIONS": "step_questions",
+    "DECIDE_CALLS": "decide_calls",
+    "CRITIC": "critic",
+    "CRITIC_BLIND": "critic_blind",
+    "CRITIC_FOLLOWUP": "critic_followup",
+    "MANUAL_STEP": "manual_step",
+    "MEMORY_RETRIEVAL_MODE": "memory_retrieval_mode",
+    "MIN_ACTION_CONFIDENCE": "min_action_confidence",
+    "MODEL_REQUEST_SECONDS": "model_request_seconds",
+}
 
 
 def create_app(config: UiConfig | None = None) -> FastAPI:
@@ -409,17 +410,26 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/settings/effective", dependencies=[Access])
     def settings_effective() -> dict:
-        """A readonly whitelist; no API keys, certificates, filesystem paths or free text."""
+        """Validated global scalars, including .env defaults; never credentials."""
+        settings = get_settings()
+        profile = settings.effective_triage
         return {
             "editable": False,
             "items": [
                 {
                     "name": name,
-                    "value": os.environ.get(name),
+                    "value": (
+                        "on" if value is True else "off" if value is False
+                        else str(value)
+                    ),
+                    # Only process-level override marker; .env stays private.
                     "configured": name in os.environ,
                 }
-                for name in PUBLIC_SETTING_NAMES
+                for name, attr in PUBLIC_SETTING_FIELDS.items()
+                for value in (getattr(settings, attr),)
             ],
+            "triage_profile": profile.model_dump(mode="json"),
+            "conclude": "model-backed",
         }
 
     @app.get("/api/v1/knowledge/manuals", dependencies=[Access])
