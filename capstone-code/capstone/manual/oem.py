@@ -153,8 +153,12 @@ class PrivatePDFStorage:
             if method == "GET"
             else "/storage/v1/object/"
         )
-        url = self.origin + route + quote(self.bucket, safe="") + "/" + quote(
-            key, safe="/"
+        url = (
+            self.origin
+            + route
+            + quote(self.bucket, safe="")
+            + "/"
+            + quote(key, safe="/")
         )
         request = Request(
             url,
