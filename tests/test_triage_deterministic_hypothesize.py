@@ -53,6 +53,34 @@ def case(*, policy=None, event_logger=None):
     return state, deps, provider
 
 
+def test_direct_invalid_hypothesis_and_test_avoid_model_fallback():
+    from capstone.agent.artifacts import TerminationReason
+
+    state, deps, provider = case()
+    deps.triage_investigate = "off"
+    assert hypothesize(state, deps) == "conclude"
+    assert not state.triage_candidates
+    run_test(state, deps)
+    assert state.termination_reason is TerminationReason.NO_USEFUL_ACTION
+    assert not deps.policy.asked
+    assert not provider.calls
+
+
+def test_safe_hypothesis_summary_omits_source_text_and_confidence():
+    from capstone.api.runs import safe_hypothesis_progress
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    public = safe_hypothesis_progress(state)
+    assert public["rule_version"] == "1.1"
+    assert public["candidate_count"] == len(state.triage_candidates)
+    assert all(c["status"] == "unconfirmed" for c in public["candidates"])
+    assert "explanation" not in str(public)
+    assert "confidence" not in str(public)
+    assert "machine_id" not in str(public)
+
+
 def test_deterministic_hypothesize_is_default_for_guarded_triage():
     cfg = Settings(_env_file=None)
     assert cfg.triage_hypothesize == "deterministic"

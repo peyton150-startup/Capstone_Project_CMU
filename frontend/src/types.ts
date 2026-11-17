@@ -68,6 +68,15 @@ export type ListResponse<T> = { availability: Availability; items: T[]; message?
 export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
+export type SafeHypothesisProgress = {
+  rule_version: '1.1' | null; candidate_count: number; candidates_truncated: boolean;
+  candidates: Array<{
+    id: string; family: string; status: 'unconfirmed';
+    qualified_sources: number; required_tests: number; missing_tests: number;
+    unavailable_tests: number; open_questions: number;
+  }>;
+  test_requirements: number; trace_records: number; logging_failures: number;
+};
 export type ManagedRun = {
   run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
     tree_of_thought: boolean; manual: string };
@@ -75,7 +84,8 @@ export type ManagedRun = {
   snapshot: { stage?: string | null; status?: string; mode?: string;
     triage_report?: TriageReport | null; investigation?: { stage: string | null;
       tool_calls: number; evidence_count: number; hypothesis_count: number;
-      termination_reason: string | null; unresolved_question_ids: string[] };
+      termination_reason: string | null; unresolved_question_ids: string[];
+      hypothesis_progress?: SafeHypothesisProgress | null };
     diagnosis?: string | null; recommendation?: string | null;
     action_executed?: boolean; verification_outcome?: string | null;
     deep_ran?: boolean; error_class?: string };

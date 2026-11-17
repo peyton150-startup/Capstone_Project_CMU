@@ -4,7 +4,7 @@ import { postJson, useResource } from '../api';
 import { resolveApiUrl } from '../backend.mjs';
 import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
-import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
+import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
@@ -193,6 +193,13 @@ export function RunDetailPage() {
   const [section, setSection] = useState<'evidence'|'hypotheses'|'trace'>('evidence');
   const detail = audit.data?.detail;
   const run = resource.data;
+  const lastTriage = [...journal.events].reverse().find(event =>
+    event.event === 'stage.updated' && event.data.mode === 'triage' &&
+    event.data.hypothesis_progress != null
+  );
+  const hypothesis = (lastTriage?.data.hypothesis_progress ??
+    run?.snapshot?.investigation?.hypothesis_progress) as
+    SafeHypothesisProgress | null | undefined;
   if (!enabled) return <Unavailable item="Managed simulator run" detail="Select Simulator Lab and exit synthetic preview."/>;
   return <>
     <PageHeading eyebrow="LAB / LIVE EXPERIMENT" title="Managed investigation"
@@ -218,6 +225,28 @@ export function RunDetailPage() {
         'Unknown' : run.snapshot.deep_ran ? 'Yes' : 'No'}/>
     </Panel>
     {run?.snapshot?.triage_report && <TriageReportView report={run.snapshot.triage_report}/>}
+    {run?.requested.mode === 'triage' && <Panel title="Deterministic hypothesis candidates"
+      subtitle="Model-free, unscored possibilities and their evidence gaps">
+      <DataRow label="Rule version" value={hypothesis?.rule_version || 'Not recorded'}/>
+      <DataRow label="Candidates" value={hypothesis?.candidate_count ?? 'Not recorded'}/>
+      <DataRow label="Test requirements" value={hypothesis?.test_requirements ?? 'Not recorded'}/>
+      <DataRow label="Trace records" value={hypothesis?.trace_records ?? 'Not recorded'}/>
+      <DataRow label="Logging failures" value={hypothesis?.logging_failures ?? 'Not recorded'}/>
+      {hypothesis?.candidates.map(candidate=>
+        <div key={candidate.id} className="hypothesis-card">
+          <strong>{candidate.id} · {candidate.family.replaceAll('_', ' ')}</strong>
+          <DataRow label="Status" value={candidate.status}/>
+          <DataRow label="Qualified source references" value={candidate.qualified_sources}/>
+          <DataRow label="Required checks" value={candidate.required_tests}/>
+          <DataRow label="Missing checks" value={candidate.missing_tests}/>
+          <DataRow label="Unavailable checks" value={candidate.unavailable_tests}/>
+          <DataRow label="Open questions" value={candidate.open_questions}/>
+        </div>)}
+      {hypothesis?.candidates_truncated && <p className="body-copy">
+        Showing the first 12 candidates.</p>}
+      <p className="body-copy">Compiled candidates do not prove causation, clearance,
+        or confidence. Missing telemetry remains unresolved.</p>
+    </Panel>}
     <Panel title="Audited technical investigation" subtitle="Safe projection of the real completed Python audit">
       <div className="content-tabs" role="tablist" aria-label="Managed investigation details">
         {(['evidence','hypotheses','trace'] as const).map(tab=>

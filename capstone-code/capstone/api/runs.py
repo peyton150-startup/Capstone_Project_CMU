@@ -45,6 +45,45 @@ class ReviewDecision(BaseModel):
     note: str = Field(default="", max_length=200)
 
 
+def safe_hypothesis_progress(state: Any) -> dict[str, Any] | None:
+    """Allowlisted typed compiler metadata; no prose or source payloads."""
+    if state.mode != "triage":
+        return None
+    from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
+
+    candidates = tuple(
+        c for c in state.triage_candidates if isinstance(c, TriageCandidate)
+    )
+    last = next(
+        (
+            t for t in reversed(state.triage_hypothesis_trace)
+            if isinstance(t, TriageHypothesisTrace)
+        ),
+        None,
+    )
+    return {
+        "rule_version": None if last is None else last.rule_version,
+        "candidate_count": len(candidates),
+        "candidates_truncated": len(candidates) > 12,
+        "candidates": [
+            {
+                "id": c.id,
+                "family": c.family,
+                "status": c.status,
+                "qualified_sources": len(c.observation_evidence_ids),
+                "required_tests": len(c.discriminating_requirement_ids),
+                "missing_tests": len(c.missing_requirement_ids),
+                "unavailable_tests": len(c.unavailable_requirement_ids),
+                "open_questions": len(c.open_question_ids),
+            }
+            for c in candidates[:12]
+        ],
+        "test_requirements": len(state.triage_test_requirement_ids),
+        "trace_records": len(state.triage_hypothesis_trace),
+        "logging_failures": state.triage_hypothesis_logging_failures,
+    }
+
+
 def safe_stage(state: Any) -> dict[str, Any]:
     """Immutable, bounded operational fields only; never entire InvestigationState."""
     reason = state.termination_reason
@@ -59,6 +98,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
         "unresolved_question_ids": [q.id for q in state.unanswered_questions[:25]],
         "termination_reason": None if reason is None else reason.value,
         "conclusion_available": state.conclusion is not None,
+        "hypothesis_progress": safe_hypothesis_progress(state),
     }
 
 
