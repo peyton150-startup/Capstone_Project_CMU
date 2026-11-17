@@ -32,6 +32,10 @@ class HostedSimulatorRuns:
     def ready(self) -> bool:
         return self.repository.ready()
 
+    def queue_metrics(self) -> dict[str, Any]:
+        """Return bounded operational counts, never worker secrets/lease tokens."""
+        return self.repository.queue_metrics()
+
     def close(self) -> None:
         self.repository.close()
 
