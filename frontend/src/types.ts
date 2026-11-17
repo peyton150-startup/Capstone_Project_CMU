@@ -98,6 +98,8 @@ export type TriageRunOptions = {
 export type TriageRunPreview = {
   schema_version: number;
   applied: boolean;
+  run_inputs: { seed: number; kind: string; mode: string; hazards: boolean;
+    tree_of_thought: boolean; manual: string };
   requested: Partial<TriageRunOptions>;
   effective_triage: TriageRunOptions | null;
   overridden: string[];
