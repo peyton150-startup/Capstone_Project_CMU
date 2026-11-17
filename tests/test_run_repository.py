@@ -301,7 +301,7 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     )
     repository.publish_progress(claim, "worker-one", stage.model_dump(mode="json"))
     observed = repository.get(queued["run_id"], actor_id="hosted-simulator")
-    assert observed["snapshot"]["progress"]["latest"]["stage"] == "conclude"
+    assert observed["snapshot"]["progress"]["triage"]["stage"] == "conclude"
     assert repository.get(queued["run_id"], actor_id="someone-else") is None
     repository.store_artifacts(
         claim, "worker-one",
