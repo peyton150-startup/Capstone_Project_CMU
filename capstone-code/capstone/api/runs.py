@@ -72,6 +72,7 @@ def safe_hypothesis_progress(state: Any) -> dict[str, Any] | None:
             continue
     return {
         "rule_version": None if last is None else last.rule_version,
+        "last_action": None if last is None else last.action,
         "candidate_count": len(candidates),
         "candidates_truncated": len(candidates) > 12,
         "candidates": [

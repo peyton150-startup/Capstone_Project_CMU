@@ -143,6 +143,26 @@ def test_multi_machine_and_missing_telemetry_remain_unscored_candidates():
     }
 
 
+def test_invalid_compiled_packet_is_rejected_before_any_test_target(monkeypatch):
+    from capstone.agent import triage_hypothesize as compiler
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    candidates, ids = compiler.compile_candidates(state)
+    original = candidates[0]
+    bad = original.model_copy(
+        update={"observation_evidence_ids": ("forged-evidence",)}
+    )
+    monkeypatch.setattr(
+        compiler, "compile_candidates",
+        lambda state, eligible_requirement_ids=None: ((bad,), ids[:1]),
+    )
+    compiler.update_candidate_packet(state, stage="hypothesize", deps=deps)
+    assert state.triage_candidates == []
+    assert state.triage_test_requirement_ids == ()
+    assert state.triage_hypothesis_trace[-1].action == "rejected"
+
+
 def test_unchecked_mutation_cannot_leak_fake_candidate_family():
     from capstone.api.runs import safe_hypothesis_progress
 

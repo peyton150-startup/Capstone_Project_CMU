@@ -228,6 +228,7 @@ export function RunDetailPage() {
     {run?.requested.mode === 'triage' && <Panel title="Deterministic hypothesis candidates"
       subtitle="Model-free, unscored possibilities and their evidence gaps">
       <DataRow label="Rule version" value={hypothesis?.rule_version || 'Not recorded'}/>
+      <DataRow label="Compiler outcome" value={hypothesis?.last_action || 'Not recorded'}/>
       <DataRow label="Candidates" value={hypothesis?.candidate_count ?? 'Not recorded'}/>
       <DataRow label="Test requirements" value={hypothesis?.test_requirements ?? 'Not recorded'}/>
       <DataRow label="Trace records" value={hypothesis?.trace_records ?? 'Not recorded'}/>

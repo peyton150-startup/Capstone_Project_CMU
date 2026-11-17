@@ -89,7 +89,7 @@ class TriageHypothesisTrace(Contract):
     stage: Literal["hypothesize", "test"]
     rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
-    action: Literal["compiled", "refreshed", "no_candidates"]
+    action: Literal["compiled", "refreshed", "no_candidates", "rejected"]
     candidate_ids: tuple[str, ...] = ()
     requirement_ids: tuple[str, ...] = ()
     qualified_sources: int = Field(default=0, ge=0)
@@ -334,6 +334,7 @@ def update_candidate_packet(
             if permitted_triage_read(requirement, deps, state)
         )
     candidates, test_ids = compile_candidates(state, eligible_requirement_ids=eligible)
+    rejected = False
     try:
         packet = TriageHypothesisPacket(
             source_cutoff_tick=state.triage_observation_cutoff_tick,
@@ -357,6 +358,7 @@ def update_candidate_packet(
         if packet.source_cutoff_tick is None and packet.candidates:
             raise ValueError("candidate packet requires a fixed source horizon")
     except ValueError:
+        rejected = True
         # Fail closed: no provisional Test reads; Conclude may still report
         # unresolved evidence. Never include provider text in this record.
         packet = TriageHypothesisPacket(
@@ -369,9 +371,10 @@ def update_candidate_packet(
     trace = TriageHypothesisTrace(
         source_cutoff_tick=packet.source_cutoff_tick,
         stage=stage,
-        action=("compiled" if stage == "hypothesize" else "refreshed")
-        if candidates
-        else "no_candidates",
+        action=(
+            "rejected" if rejected
+            else "compiled" if stage == "hypothesize" else "refreshed"
+        ) if packet.candidates else ("rejected" if rejected else "no_candidates"),
         candidate_ids=tuple(candidate.id for candidate in candidates),
         requirement_ids=test_ids,
         qualified_sources=len(

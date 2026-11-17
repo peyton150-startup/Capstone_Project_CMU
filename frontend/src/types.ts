@@ -69,7 +69,9 @@ export type ApiResource<T> = { data: T | null; loading: boolean; error: string |
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
 export type SafeHypothesisProgress = {
-  rule_version: '1.1' | null; candidate_count: number; candidates_truncated: boolean;
+  rule_version: '1.1' | null;
+  last_action: 'compiled' | 'refreshed' | 'no_candidates' | 'rejected' | null;
+  candidate_count: number; candidates_truncated: boolean;
   candidates: Array<{
     id: string; family: string; status: 'unconfirmed';
     qualified_sources: number; required_tests: number; missing_tests: number;
