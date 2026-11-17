@@ -1,0 +1,65 @@
+# Temporary isolated workflow: merge PR294 only after strict exact-head CI success.
+name: PR294 exact-head green merge gate
+on:
+  push:
+    branches: [ci/focus-pr294-actions-20261117]
+    paths: [.github/workflows/pr294-merge-after-ci.yml]
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+concurrency:
+  group: pr294-exact-head-merge-gate
+  cancel-in-progress: true
+jobs:
+  await-green:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      EXPECTED_SHA: 59cde6a1de88f869b63ad38882e0387103ed3355
+      EXPECTED_MAIN: 0f09f65d1860ea6bcc89b70302da585954b05171
+    steps:
+      - name: Merge only if all four exact-head workflows are green
+        shell: bash
+        run: |
+          set -euo pipefail
+          checks=('CI' 'Industrial frontend' 'PostgreSQL simulator journal' 'Live Siemens and OEM PostgreSQL contracts')
+          for attempt in $(seq 1 85); do
+            pr=$(gh api "repos/$REPO/pulls/294")
+            state=$(jq -r '.state' <<<"$pr")
+            merged=$(jq -r '.merged // false' <<<"$pr")
+            if [ "$merged" = true ]; then echo "PR294 already merged"; exit 0; fi
+            test "$state" = open || { echo "PR294 no longer open"; exit 1; }
+            head=$(jq -r '.head.sha' <<<"$pr")
+            base=$(jq -r '.base.ref' <<<"$pr")
+            test "$head" = "$EXPECTED_SHA" || { echo "PR head changed: $head"; exit 1; }
+            test "$base" = main || { echo "PR base changed"; exit 1; }
+            main_head=$(gh api "repos/$REPO/branches/main" --jq '.commit.sha')
+            test "$main_head" = "$EXPECTED_MAIN" || { echo "Main moved; refusing stale merge"; exit 1; }
+            runs=$(gh api -X GET "repos/$REPO/actions/runs" -f branch=feature/render-safe-complete-triage-progress-20261117 -f per_page=100)
+            all_ok=true
+            for name in "${checks[@]}"; do
+              result=$(jq -r --arg sha "$EXPECTED_SHA" --arg name "$name" '
+                [.workflow_runs[] | select(.head_sha == $sha and .name == $name)] |
+                sort_by(.id) | last | .conclusion // "pending"
+              ' <<<"$runs")
+              echo "Attempt $attempt: $name = $result"
+              case "$result" in
+                success) ;;
+                pending) all_ok=false ;;
+                *) echo "Required workflow is not green: $name=$result"; exit 1 ;;
+              esac
+            done
+            if [ "$all_ok" = true ]; then
+              echo "All four exact-head workflows successful; attempting approved PR294 squash merge."
+              gh pr merge 294 --repo "$REPO" --squash --match-head-commit "$EXPECTED_SHA"
+              gh api "repos/$REPO/pulls/294" --jq '{merged,merge_commit_sha,state}'
+              test "$(gh api "repos/$REPO/pulls/294" --jq '.merged')" = true
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "Final checks did not finish green before the watcher timeout; no merge performed."
+          exit 1
