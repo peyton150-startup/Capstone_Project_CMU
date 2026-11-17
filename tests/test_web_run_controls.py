@@ -11,7 +11,7 @@ except ImportError:
 
 from capstone.api.app import create_app
 from capstone.api.runs import SimulatorRuns
-from tests.test_web_runs import KEY, OPERATOR, REVIEWER, TOKEN, auth, config
+from tests.test_web_runs import KEY, OPERATOR, TOKEN, auth, config
 
 
 def _worker(self, run_id, request):
@@ -96,16 +96,12 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
         headers=auth(TOKEN),
     ).json()
     assert run["requested"]["effective_configuration"] == config
-    assert run["requested"]["triage_settings"] == {
-        **{name: None for name in (
-            "observe_calls", "packet_prompt", "hypothesis_seconds"
-        )},
-        **{
-            name: value for name, value in overrides.items()
-        },
-        "conclude_brief": False,
-        "conclude_cap": False,
-    } or run["requested"]["effective_configuration"] == config
+    recorded_request = run["requested"]["triage_settings"]
+    for name, value in overrides.items():
+        assert recorded_request[name] == value
+    assert recorded_request["packet_prompt"] is None
+    assert recorded_request["observe_calls"] is None
+    assert recorded_request["hypothesis_seconds"] is None
     assert "api_key" not in json.dumps(run)
     assert "password" not in json.dumps(run)
 
