@@ -1,5 +1,6 @@
 # One-time source-matched evaluator inventory refresh for focused PR #288.
 # Restrict to this branch, require real test success, and self-remove on success.
+# Re-trigger after CI found an independent post-Observe test missing its clock verdict.
 name: PR 288 one-time inventory refresh
 on:
   push:
