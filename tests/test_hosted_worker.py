@@ -146,3 +146,155 @@ def test_hosted_api_adapter_is_actored_and_never_runs_episode():
     instance.repository = FakeRepo()
     assert instance.get(str(uuid.uuid4()))["run_id"]
     assert instance.list_runs() == []
+
+
+def test_extended_progress_matches_pr294_without_raw_readings():
+    safe = {
+        "investigation_id": str(uuid.uuid4()),
+        "mode": "triage",
+        "stage": None,
+        "iteration_count": 4,
+        "tool_calls": 6,
+        "evidence_count": 3,
+        "hypothesis_count": 2,
+        "unresolved_question_ids": ["Q1"],
+        "unresolved_question_count": 1,
+        "conclusion_available": False,
+        "triage_decide_reads": 4,
+        "remaining_tool_calls": 0,
+        "packet_roster_verified": True,
+        "requirement_statuses": [
+            {
+                "requirement_id": "Q1:sensor",
+                "status": "insufficient",
+                "evidence_count": 2,
+            }
+        ],
+    }
+    result = StagePayload.model_validate(safe).model_dump(
+        mode="json", exclude_unset=True
+    )
+    assert result["triage_decide_reads"] == 4
+    assert result["stage"] is None
+    assert result["requirement_statuses"][0]["evidence_count"] == 2
+    assert "raw_readings" not in result
+    with pytest.raises(ValidationError):
+        StagePayload.model_validate({**safe, "raw_readings": [400.0]})
+    with pytest.raises(ValidationError):
+        StagePayload.model_validate({
+            **safe,
+            "requirement_statuses": [
+                {
+                    "requirement_id": "Q1:sensor",
+                    "status": "satisfied",
+                    "evidence_count": 0,
+                    "provider_response": "SECRET",
+                }
+            ],
+        })
+
+
+def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monkeypatch):
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("Optional FastAPI test dependency not installed")
+    import capstone.api.hosted_runs as hosted
+    from capstone.api.app import create_app
+
+    run_id = str(uuid.uuid4())
+    investigation_id = str(uuid.uuid4())
+    observed = {"submissions": 0, "decisions": 0}
+
+    class NoAgentApi:
+        def __init__(self, database_url):
+            assert database_url.endswith("/capstone_test")
+
+        def ready(self):
+            return True
+
+        def close(self):
+            pass
+
+        def submit(self, request, key):
+            observed["submissions"] += 1
+            assert request.seed == 11
+            return {"run_id": run_id, "state": "queued"}
+
+        def get(self, _id):
+            assert _id == run_id
+            return {
+                "run_id": run_id,
+                "state": "completed",
+                "snapshot": {
+                    "investigation": {"investigation_id": investigation_id},
+                },
+            }
+
+        def list_runs(self, limit=50):
+            return []
+
+        def events_since(self, _id, cursor, limit=100):
+            return (
+                [{"seq": 1, "event": "run.completed", "data": {"status": "completed"}}]
+                if cursor == 0 else []
+            )
+
+        def pending_reviews(self):
+            return []
+
+        def decide(self, _id, decision):
+            observed["decisions"] += 1
+            return {"decision": decision.decision}
+
+        def investigation_detail(self, _id, target):
+            assert target == investigation_id
+            return {"investigation_id": target}
+
+        def observability_items(self, _id):
+            return [{"event": "stage.updated", "counts": {"tool_calls": 5}}]
+
+    monkeypatch.setattr(hosted, "HostedSimulatorRuns", NoAgentApi)
+    cfg = UiConfig(
+        run_backend="hosted",
+        run_database_url="postgresql://dummy/capstone_test",
+        runs_enabled=True,
+        token="v" * 24,
+        run_token="o" * 24,
+        review_token="r" * 24,
+        browser_origin="https://frontend.example",
+    )
+    client = TestClient(create_app(cfg))
+    viewer = {"Authorization": "Bearer " + "v" * 24}
+    operator = {"Authorization": "Bearer " + "o" * 24}
+    reviewer = {"Authorization": "Bearer " + "r" * 24}
+    assert client.get("/api/v1/ready").status_code == 200
+    assert client.post(
+        "/api/v1/lab/runs", headers={**viewer, "Idempotency-Key": "a" * 20},
+        json={"seed": 11},
+    ).status_code == 403
+    created = client.post(
+        "/api/v1/lab/runs",
+        headers={**operator, "Idempotency-Key": "a" * 20},
+        json={"seed": 11},
+    )
+    assert created.status_code == 202
+    assert observed["submissions"] == 1
+    assert client.get(
+        "/api/v1/lab/runs/" + run_id + "/investigation", headers=viewer
+    ).json()["detail"]["investigation_id"] == investigation_id
+    assert client.get(
+        "/api/v1/lab/runs/" + run_id + "/observability", headers=viewer
+    ).json()["items"][0]["counts"]["tool_calls"] == 5
+    stream = client.get("/api/v1/lab/runs/" + run_id + "/events", headers=viewer)
+    assert stream.status_code == 200
+    assert "event: stream.closed" in stream.text
+    assert client.post(
+        "/api/v1/simulator/reviews/" + run_id,
+        headers=viewer, json={"proposal_id": 1, "decision": "reject"},
+    ).status_code == 403
+    assert client.post(
+        "/api/v1/simulator/reviews/" + run_id,
+        headers=reviewer, json={"proposal_id": 1, "decision": "reject"},
+    ).status_code == 200
+    assert observed["decisions"] == 1
