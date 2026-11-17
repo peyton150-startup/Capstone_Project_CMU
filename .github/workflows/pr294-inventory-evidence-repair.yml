@@ -1,0 +1,57 @@
+name: PR294 restore evaluator direct coverage evidence
+on:
+  push:
+    branches: [feature/render-safe-complete-triage-progress-20261117]
+    paths: [.github/workflows/pr294-inventory-evidence-repair.yml]
+permissions:
+  contents: write
+concurrency:
+  group: pr294-inventory-evidence-repair
+  cancel-in-progress: true
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: feature/render-safe-complete-triage-progress-20261117
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          version: '0.13.0'
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - name: Collect genuine direct function and tool evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          groups=("Simulator" "Tools and provider" "Reasoning loop" "Verification" "Completed record")
+          files=()
+          for group in "${groups[@]}"; do
+            read -r -a one <<< "$(uv run --no-sync python .github/test_groups.py files "$group")"
+            files+=("${one[@]}")
+          done
+          uv run --no-sync pytest -q "${files[@]}" \
+            --cov=capstone --cov=evaltools --cov-context=test \
+            --junitxml=junit.xml --cov-report=term-missing
+      - name: Rebuild all source-matched inventories from actual coverage
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Verify actual evaluator evidence and repository inventory
+        run: |
+          uv run --no-sync pytest -q \
+            tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence \
+            tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible \
+            tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file
+      - name: Commit repaired inventories; self-delete workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=feature/render-safe-complete-triage-progress-20261117
+          test "$(git ls-remote origin refs/heads/"$branch" | awk '{print $1}')" = "$GITHUB_SHA" || { echo 'Ref changed; refusing stale inventory'; exit 1; }
+          rm .github/workflows/pr294-inventory-evidence-repair.yml
+          git add -A -- evaluation/inventory .github/workflows/pr294-inventory-evidence-repair.yml
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'chore(eval): restore PR294 direct function and tool test evidence'
+          git push origin HEAD:refs/heads/"$branch"
