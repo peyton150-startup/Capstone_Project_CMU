@@ -88,7 +88,9 @@ def artifacts(source: Path, runs):
             with path.open("rb") as handle:
                 content = handle.read(MAX_ARTIFACT_BYTES + 1)
             if not content or len(content) > MAX_ARTIFACT_BYTES:
-                raise ValueError("Existing simulator artifact exceeds safe import limit")
+                raise ValueError(
+                    "Existing simulator artifact exceeds safe import limit"
+                )
             records.append((run_id, kind, content, hashlib.sha256(content).hexdigest()))
     return records, missing
 
@@ -144,9 +146,7 @@ def apply(source: Path, url: str, project_ref: str) -> dict:
                     (r[0], r[1], r[2], state, r[4], r[5], r[6]),
                 )
             for e in events:
-                db.execute(
-                    "INSERT INTO run_events VALUES (?, ?, ?, ?, ?)", e
-                )
+                db.execute("INSERT INTO run_events VALUES (?, ?, ?, ?, ?)", e)
             for r in reviews:
                 status = "expired" if r[2] == "pending" else r[2]
                 db.execute(
