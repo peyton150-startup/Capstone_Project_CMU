@@ -111,27 +111,30 @@ class EffectiveTriageRun(BaseModel):
         )
 
     def stage_modes(self) -> dict[str, str]:
-        """Safe semantic summary, not guesses about actual provider success."""
+        """Exact configured route, not a claim that a provider answered."""
+        decide = {
+            "deterministic": "deterministic (no model)",
+            "off": "model-backed",
+            "advisory": "model-backed with rule advice",
+            "on": "compiler with model fallback",
+        }[self.investigate]
+        test = (
+            "deterministic tests, potential model revaluation"
+            if self.investigate == "deterministic"
+            and self.hypothesize == "model"
+            else decide
+        )
         return {
-            "observe": "deterministic",
-            "manual": "authorized retrieval when selected",
+            "observe": "deterministic evidence collection",
+            "manual": "depends on selected manual and server policy",
             "plan": "deterministic" if self.plan == "fixed" else "model",
-            "investigate": (
-                "deterministic" if self.investigate == "deterministic"
-                else "model or assisted"
-            ),
-            "decide_interpret": (
-                "deterministic" if self.investigate == "deterministic"
-                else "model or assisted"
-            ),
+            "investigate": decide,
+            "decide_interpret": decide,
             "hypothesize": (
                 "deterministic" if self.hypothesize == "deterministic" else "model"
             ),
-            "test": (
-                "deterministic" if self.investigate == "deterministic"
-                else "model or assisted"
-            ),
-            "critic_recheck": "off",
+            "test": test,
+            "critic_recheck": "off in triage",
             "conclude": "model",
             "triage_actions": "read-only",
             "deep_escalation": "conditional" if self.then_deep else "off",
