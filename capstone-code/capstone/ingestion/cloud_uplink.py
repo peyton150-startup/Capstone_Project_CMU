@@ -142,9 +142,12 @@ def read_batch(
     capture: Path,
     state: Cursor,
     scope: CloudScope,
+    *,
+    raw_digests: list[str] | None = None,
 ) -> tuple[IngestBatch | None, int]:
-    """Bounded memory; an incomplete final line is never submitted or skipped."""
+    """Bounded complete-line read; optionally fingerprint validated raw bytes."""
     records: list[dict] = []
+    raw_hash = hashlib.sha256()
     used = 0
     end = state.offset
     with capture.open("rb") as source:
@@ -165,10 +168,13 @@ def read_batch(
                 raise ValueError("blank line in Siemens capture")
             payload = validate_record(scope, json.loads(line.decode("utf-8")))
             records.append(payload)
+            raw_hash.update(line)
             used += len(line)
             end = source.tell()
     if not records:
         return None, end
+    if raw_digests is not None:
+        raw_digests.append(raw_hash.hexdigest())
     return IngestBatch.build(
         scope=scope,
         stream_id=state.stream_id,
@@ -242,7 +248,10 @@ def upload_once(
         committed = _committed_hash(capture, state.offset)
         while True:
             scope.assert_active()
-            batch, end = read_batch(capture, state, scope)
+            raw_digests: list[str] = []
+            batch, end = read_batch(
+                capture, state, scope, raw_digests=raw_digests
+            )
             if batch is None:
                 return uploaded
             # Preserve the exact validated file segment while HTTP is in
@@ -251,8 +260,11 @@ def upload_once(
             with capture.open("rb") as source:
                 source.seek(state.offset)
                 before = source.read(length)
-            if len(before) != length:
-                raise UploadError("capture changed during upload")
+            if (
+                len(before) != length
+                or hashlib.sha256(before).hexdigest() != raw_digests[0]
+            ):
+                raise UploadError("capture changed after validation; cursor unchanged")
             scope.assert_active()
             acknowledgement = send(batch)
             if (
