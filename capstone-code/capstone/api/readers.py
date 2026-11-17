@@ -446,9 +446,7 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
             if not isinstance(values, (list, tuple)):
                 return []
             return [
-                value[:length]
-                for value in values[:count]
-                if isinstance(value, str)
+                value[:length] for value in values[:count] if isinstance(value, str)
             ]
 
         def observed_tick(value: Any) -> int | None:
@@ -482,9 +480,7 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
             },
             "proposal_status": status,
             "proposal_id": (
-                proposal_id
-                if type(proposal_id) is int and proposal_id > 0
-                else None
+                proposal_id if type(proposal_id) is int and proposal_id > 0 else None
             ),
             "action_started_tick": observed_tick(raw.get("action_started_tick")),
             "action_finish_tick": observed_tick(raw.get("action_finish_tick")),
