@@ -72,8 +72,10 @@ from capstone.agent.state import (
     TriageTestRecord,
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
+from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import RequirementResult, TriageDecisionRecord
+from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -307,6 +309,10 @@ class TriageRecord(BaseModel):
     deterministic_stops: int = 0
     deterministic_decide_model_calls: int | None = None
     deterministic_trace: list[TriageDecisionRecord] | None = None
+    # Pydantic-validated admission metadata and ordered payload-free diagnostics.
+    evidence_qualifications: list[EvidenceQualification] | None = None
+    diagnostic_trace: list[TriageTraceEvent] | None = None
+    diagnostic_logging_failures: int = 0
     requirement_results: dict[str, RequirementResult] | None = None
     qualified_requirements: int = 0
     unresolved_requirements: int = 0
@@ -597,6 +603,9 @@ def triage_record(
             else None
         ),
         deterministic_trace=list(first.triage_decide_trace),
+        evidence_qualifications=list(first.triage_evidence_checks),
+        diagnostic_trace=list(first.triage_trace_events),
+        diagnostic_logging_failures=first.triage_logging_failures,
         requirement_results=dict(first.triage_requirement_results),
         qualified_requirements=sum(
             result.status == "satisfied"

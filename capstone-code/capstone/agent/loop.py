@@ -174,12 +174,19 @@ class InvestigationDeps:
     # Exact read-only catalog offered by this run's provider. An empty catalog
     # denies deterministic triage reads; the provider still validates calls.
     triage_tool_specs: tuple[ToolSpec, ...] = ()
+    # Authorized data-plane origins, assigned by the caller from its provider
+    # configuration, never inferred from untrusted tool response metadata.
+    triage_allowed_sources: tuple[str, ...] = ()
     # Public channel availability, by machine id. Empty means no sensor reads.
     triage_channels: dict[str, tuple[str, ...]] = field(default_factory=dict)
     # Ephemeral classification of the most recent provider call, reset before
     # each call. The deterministic controller retries a transport exception
     # once, but does not retry an invalid result with identical arguments.
     last_provider_exception: bool = False
+    # Ephemeral timing of the latest validated tool attempt; these do not
+    # influence decisions or rely on a wall clock in deterministic replays.
+    triage_last_provider_ms: float | None = None
+    triage_last_admission_ms: float | None = None
     # Opt-in structured logging (`capstone.observability`): identifiers and
     # counts only, never evidence text. Used by the triage evidence packet.
     # None: nothing is logged.
@@ -670,6 +677,7 @@ def gather(
     interpret: bool = True,
     defer_question_bookkeeping: bool = False,
     retry_failed: bool = False,
+    validate_result: Callable[[ToolResult], str | None] | None = None,
 ) -> Evidence | None:
     """Call one tool and keep its answer as evidence. Always leaves a record.
 
@@ -704,9 +712,100 @@ def gather(
     if signature not in state.seen_calls:
         state.seen_calls.append(signature)
 
+    tick_before_call = state.last_tick
+    observe_auto = (
+        validate_result is None
+        and state.mode == "triage"
+        and deps.triage_investigate == "deterministic"
+        and phase == "observe"
+        and step.request.name in {"get_time", "get_line_screening", "list_machines"}
+    )
+    observe_qualification = None
+    if observe_auto:
+        from capstone.agent.triage_evidence_validation import (
+            validate_triage_observe_result,
+        )
+
+        def observe_validator(result: ToolResult) -> str | None:
+            nonlocal observe_qualification
+            # The first time read establishes the cutoff. Every other
+            # Observe read is bounded by the trusted pre-call horizon.
+            cutoff = (
+                result.tick
+                if step.request.name == "get_time" or tick_before_call is None
+                else tick_before_call
+            )
+            observe_qualification = validate_triage_observe_result(
+                result,
+                step.request,
+                cutoff,
+                min_result_tick=tick_before_call,
+                allowed_sources=deps.triage_allowed_sources,
+            )
+            return (
+                None
+                if observe_qualification.accepted
+                else observe_qualification.reason_code
+            )
+
+        validate_result = observe_validator
+
+    def audit_observe(evidence: Evidence | None) -> None:
+        """Record metadata only; a rejected Observe read cannot count as proof."""
+        if not observe_auto:
+            return
+        from hashlib import sha256
+
+        from capstone.agent.triage_evidence_validation import EvidenceQualification
+        from capstone.agent.triage_trace import emit_triage_event
+
+        request_hash = sha256(
+            json.dumps(
+                [step.request.name, step.request.arguments, tick_before_call],
+                sort_keys=True,
+            ).encode("utf-8")
+        ).hexdigest()[:20]
+        qualification = observe_qualification
+        if qualification is None:
+            qualification = EvidenceQualification(
+                accepted=False,
+                reason_code="provider_error"
+                if deps.last_provider_exception
+                else "malformed_result",
+            )
+        checked = qualification.model_copy(
+            update={
+                "evidence_id": evidence.id if evidence is not None else None,
+                "request_hash": request_hash,
+            }
+        )
+        if step.request.name == "get_time":
+            # A rejected factory clock cannot authorize subsequent reads even
+            # if an earlier monitoring tick remains present in state.last_tick.
+            state.triage_clock_verified = checked.accepted and evidence is not None
+        state.triage_evidence_checks.append(checked)
+        emit_triage_event(
+            state,
+            deps,
+            event="observe.read_validated",
+            phase="observe",
+            reason_code=checked.reason_code,
+            status="accepted" if checked.accepted else "rejected",
+            tool=step.request.name,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
+            request_hash=request_hash,
+        )
+
+    deps.triage_last_provider_ms = None
+    deps.triage_last_admission_ms = None
+    provider_started = deps.clock() if validate_result is not None else None
     result = call_tool(
         state, deps, step.request, followup=followup, critic_check=critic_check
     )
+    if provider_started is not None:
+        deps.triage_last_provider_ms = max(
+            0.0, (deps.clock() - provider_started) * 1000.0
+        )
     outcome: StepOutcome = "observed"
     if result is None or (result.success and result.data is None):
         state.malformed_results += 1
@@ -715,6 +814,9 @@ def gather(
         state.failed_tool_calls += 1
         outcome = "tool_error"
     if outcome != "observed":
+        if validate_result is not None:
+            # A failed triage call cannot change the trusted observation time.
+            state.last_tick = tick_before_call
         state.unproductive_steps += 1
         record(
             state,
@@ -725,7 +827,39 @@ def gather(
             # What the tool said was wrong, so the next decision can correct it.
             error=result.error if result is not None else None,
         )
+        audit_observe(None)
         return None
+
+    # Deterministic triage may apply an additional source/cutoff contract.
+    # Validate BEFORE committing evidence or provenance; the legacy/deep
+    # paths have no validator and retain their previous behavior.
+    if validate_result is not None:
+        admission_started = deps.clock()
+        try:
+            rejected = validate_result(result)
+        except Exception:
+            # A broken validator cannot make an observation trustworthy.
+            rejected = "validator_error"
+        deps.triage_last_admission_ms = max(
+            0.0, (deps.clock() - admission_started) * 1000.0
+        )
+        if rejected is not None:
+            state.last_tick = tick_before_call
+            state.malformed_results += 1
+            state.unproductive_steps += 1
+            record(
+                state,
+                phase,
+                "malformed_result",
+                information_needed=step.information_needed,
+                step=step,
+                error=ToolError(
+                    code="invalid_result",
+                    message=f"evidence qualification failed: {rejected}",
+                ),
+            )
+            audit_observe(None)
+            return None
 
     evidence = Evidence(
         id=f"E{len(state.evidence) + 1}",
@@ -805,6 +939,7 @@ def gather(
         step=step,
         evidence_ids=(evidence.id,),
     )
+    audit_observe(evidence)
     return evidence
 
 

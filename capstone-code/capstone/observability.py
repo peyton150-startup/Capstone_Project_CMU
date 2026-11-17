@@ -11,6 +11,7 @@ import json
 import logging
 import re
 from collections.abc import Mapping
+from math import isfinite
 from typing import TextIO
 
 _IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
@@ -50,6 +51,19 @@ class EventLogger:
         tool: str | None = None,
         success: bool | None = None,
         counts: Mapping[str, int] | None = None,
+        sequence: int | None = None,
+        phase: str | None = None,
+        status: str | None = None,
+        reason_code: str | None = None,
+        evidence_id: str | None = None,
+        cutoff_tick: int | None = None,
+        duration_ms: float | None = None,
+        request_hash: str | None = None,
+        config_fingerprint: str | None = None,
+        attempt: int | None = None,
+        iteration: int | None = None,
+        candidate_count: int | None = None,
+        remaining_tool_calls: int | None = None,
     ) -> None:
         """Emit one event; omitted context stays absent and no clock is inferred.
 
@@ -70,13 +84,48 @@ class EventLogger:
             ("run_id", run_id),
             ("investigation_id", investigation_id),
             ("tool", tool),
+            ("phase", phase),
+            ("status", status),
+            ("reason_code", reason_code),
+            ("evidence_id", evidence_id),
         ):
             if value is not None:
                 metadata[field] = _safe_identifier(value, field)
+        for field, value in (
+            ("request_hash", request_hash),
+            ("config_fingerprint", config_fingerprint),
+        ):
+            if value is not None:
+                if not isinstance(value, str) or not re.fullmatch(
+                    r"[a-f0-9]{20}", value
+                ):
+                    raise ValueError(f"{field} must be a truncated SHA-256 hex digest")
+                metadata[field] = value
         if tick is not None:
             if type(tick) is not int or tick < 0:
                 raise ValueError("tick must be a nonnegative integer")
             metadata["tick"] = tick
+        for field, value in (
+            ("sequence", sequence),
+            ("cutoff_tick", cutoff_tick),
+            ("attempt", attempt),
+            ("iteration", iteration),
+            ("candidate_count", candidate_count),
+            ("remaining_tool_calls", remaining_tool_calls),
+        ):
+            if value is not None:
+                lower_bound = 1 if field in {"sequence", "attempt"} else 0
+                if type(value) is not int or value < lower_bound:
+                    raise ValueError(f"{field} must be a nonnegative integer")
+                metadata[field] = value
+        if duration_ms is not None:
+            if (
+                type(duration_ms) not in (float, int)
+                or not isfinite(duration_ms)
+                or duration_ms < 0
+            ):
+                raise ValueError("duration_ms must be a finite nonnegative number")
+            metadata["duration_ms"] = round(duration_ms, 3)
         if success is not None:
             if type(success) is not bool:
                 raise ValueError("success must be a boolean")

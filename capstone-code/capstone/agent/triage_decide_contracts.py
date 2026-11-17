@@ -26,6 +26,7 @@ class TriageReadDecision(Contract):
     step: CallTool
     requirement_ids: tuple[str, ...] = Field(min_length=1)
     reason: str = Field(min_length=1)
+    candidate_count: int = Field(default=1, ge=1)
 
 
 class TriageStopDecision(Contract):

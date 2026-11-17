@@ -5,6 +5,7 @@ correct. Hypothesize and Conclude retain their existing model-backed roles.
 """
 
 import json
+from hashlib import sha256
 from math import isfinite
 from typing import TYPE_CHECKING
 
@@ -18,13 +19,18 @@ from capstone.agent.triage_decide_contracts import (
     TriageStopDecision,
     TriageStopReason,
 )
+from capstone.agent.triage_evidence_validation import (
+    EvidenceQualification,
+    validate_triage_result,
+)
 from capstone.agent.triage_plan import fixed_requirements
 from capstone.agent.triage_requirements import (
     ReadRequirement,
     RequirementResult,
     TriageDecisionRecord,
 )
-from capstone.contracts.tools import ToolRequest
+from capstone.agent.triage_trace import emit_triage_event, requirement_reason_code
+from capstone.contracts.tools import ToolRequest, ToolResult
 from capstone.providers.factory import TOOL_ARGUMENTS
 
 if TYPE_CHECKING:
@@ -77,43 +83,6 @@ def fingerprint(request: ToolRequest, cutoff_tick: int) -> str:
     # Variables:
     #   cutoff_tick: Fixed when triage begins; late replies cannot change it.
     return json.dumps([request.name, request.arguments, cutoff_tick], sort_keys=True)
-
-
-def invalid_observation(evidence, request: ToolRequest, cutoff_tick: int) -> bool:
-    """Reject nonfinite or out-of-cutoff data before a model can see it."""
-    # Variables:
-    #   data: Parsed answer; every numeric leaf must be finite.
-    #   request: The selected read, used to check a summary's claimed source.
-    try:
-        data = json.loads(evidence.content)
-    except ValueError:
-        return True
-
-    def invalid(value: object) -> bool:
-        """Find a nonfinite numeric value or a future source tick recursively."""
-        if isinstance(value, float):
-            return not isfinite(value)
-        if isinstance(value, list):
-            return any(invalid(item) for item in value)
-        if isinstance(value, dict):
-            return any(
-                invalid(item)
-                or (
-                    key in {"tick", "first_tick", "last_tick", "to_tick"}
-                    and type(item) is int
-                    and item > cutoff_tick
-                )
-                for key, item in value.items()
-            )
-        return False
-
-    if evidence.observed_tick > cutoff_tick or invalid(data):
-        return True
-    if request.name == "get_sensor_summary" and isinstance(data, dict):
-        return data.get("sensor") != request.arguments.get("sensor") or data.get(
-            "machine_id"
-        ) != request.arguments.get("machine_id")
-    return False
 
 
 def permitted_triage_read(
@@ -240,8 +209,28 @@ def matching_evidence(
         if requirement.job_id is not None and args.get("job_id") != requirement.job_id:
             continue
         try:
-            found.append((evidence.id, json.loads(evidence.content)))
-        except ValueError:
+            data = json.loads(evidence.content)
+            # Observe evidence predates the deterministic admission hook.
+            # Requalify it before allowing it to satisfy a requirement.
+            source = evidence.source_id.rsplit(":", 1)[0]
+            replayed = ToolResult(
+                success=True,
+                tool=decision.tool,
+                source=source,
+                tick=evidence.observed_tick,
+                timestamp=evidence.observed_at,
+                data=data,
+            )
+            request = ToolRequest(name=decision.tool, arguments=dict(args))
+            if not validate_triage_result(
+                replayed,
+                request,
+                cutoff,
+                allowed_sources=state.triage_allowed_sources,
+            ).accepted:
+                continue
+            found.append((evidence.id, data))
+        except (ValueError, TypeError, KeyError):
             continue
     return found
 
@@ -266,6 +255,13 @@ def qualify(
             reason="current settings snapshot does not establish a historical change",
         )
     if requirement.qualification == "record":
+        # Empty history is a valid read, not proof of historical coverage.
+        if any(isinstance(data, list) and not data for _, data in matches):
+            return RequirementResult(
+                status="insufficient",
+                evidence_ids=ids,
+                reason="empty record response cannot establish complete history",
+            )
         if any(isinstance(data, (list, dict)) for _, data in matches):
             return RequirementResult(
                 status="satisfied", evidence_ids=ids, reason="record source checked"
@@ -684,6 +680,7 @@ def choose_next_triage_read(
             ),
             requirement_ids=tuple(ids),
             reason="unmet qualified requirement",
+            candidate_count=len(grouped),
         )
     reason: TriageStopReason = (
         "retries_exhausted"
@@ -701,7 +698,10 @@ def choose_next_triage_read(
 
 
 def stop(
-    state: InvestigationState, phase: str, decision: TriageStopDecision
+    state: InvestigationState,
+    phase: str,
+    decision: TriageStopDecision,
+    deps: "InvestigationDeps",
 ) -> TerminationReason:
     """Record the triage-specific reason and its legacy loop equivalent."""
     from capstone.agent.loop import record
@@ -715,6 +715,30 @@ def stop(
             reason=decision.reason,
             requirement_ids=decision.unresolved_requirement_ids,
         )
+    )
+    # Keep the reason and all outstanding dependencies even for budget stops.
+    unresolved = tuple(
+        sorted(
+            set(decision.unresolved_requirement_ids)
+            | {
+                rid
+                for rid in state.triage_requirements
+                if rid not in state.triage_requirement_results
+                or state.triage_requirement_results[rid].status != "satisfied"
+            }
+        )
+    )
+    emit_triage_event(
+        state,
+        deps,
+        event="triage.stopped",
+        phase=phase,
+        reason_code=decision.reason,
+        status="stopped",
+        requirement_ids=unresolved,
+        question_ids=tuple(q.id for q in state.unanswered_questions),
+        iteration=state.iteration_count,
+        remaining_tool_calls=state.remaining_tool_calls,
     )
     mapped = STOP_MAP[decision.reason]
     record(
@@ -730,46 +754,211 @@ def stop(
 def run_deterministic_triage_loop(
     state: InvestigationState, deps: "InvestigationDeps", phase: str
 ) -> TerminationReason:
-    """Collect qualified evidence within the existing research limits, without a model call."""
+    """Collect only prevalidated evidence, with reproducible decision diagnostics."""
     from capstone.agent.loop import gather, held_for_hypotheses, notify
 
     if not deps.triage_tool_specs:
         raise ValueError("deterministic triage requires an authorized tool catalog")
+    if not deps.triage_allowed_sources or any(
+        not isinstance(source, str) or not source.strip()
+        for source in deps.triage_allowed_sources
+    ):
+        raise ValueError("deterministic triage requires authorized provider sources")
     if not state.fixed_plan_used:
         raise ValueError("deterministic triage requires a fixed plan")
     if state.started_at is None:
         state.started_at = deps.clock()
     state.step_questions = deps.step_questions
     state.decide_calls = deps.decide_calls
+    state.triage_allowed_sources = deps.triage_allowed_sources
     initialize_requirements(state)
+    if not any(e.event == "triage.started" for e in state.triage_trace_events):
+        config_input = json.dumps(
+            {
+                "controller": deps.triage_investigate,
+                "step_questions": deps.step_questions,
+                "decide_calls": deps.decide_calls,
+                "fixed_plan": state.fixed_plan_used,
+                "cutoff": state.triage_observation_cutoff_tick,
+                "authorized_sources": sorted(deps.triage_allowed_sources),
+                "catalog": sorted(spec.name for spec in deps.triage_tool_specs),
+                "channels": {
+                    machine: sorted(channels)
+                    for machine, channels in sorted(deps.triage_channels.items())
+                },
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        emit_triage_event(
+            state,
+            deps,
+            event="triage.started",
+            phase=phase,
+            reason_code="started",
+            status="active",
+            config_fingerprint=sha256(config_input.encode("utf-8")).hexdigest()[:20],
+            iteration=state.iteration_count,
+            remaining_tool_calls=state.remaining_tool_calls,
+        )
+    emit_triage_event(
+        state,
+        deps,
+        event="requirements.compiled",
+        phase=phase,
+        reason_code="compiled",
+        status="active",
+        requirement_ids=tuple(sorted(state.triage_requirements)),
+        question_ids=tuple(
+            sorted({r.question_id for r in state.triage_requirements.values()})
+        ),
+        iteration=state.iteration_count,
+        remaining_tool_calls=state.remaining_tool_calls,
+    )
+
+    def finish(decision: TriageStopDecision) -> TerminationReason:
+        return stop(state, phase, decision, deps)
+
+    # The monitor's previous tick is not a verified Observe clock. If the
+    # mandatory read was attempted and rejected, do not issue further tools,
+    # and do not treat the earlier timestamp as an authorization horizon.
+    if state.triage_clock_verified is False:
+        return finish(
+            TriageStopDecision(
+                reason="data_insufficient",
+                unresolved_requirement_ids=tuple(sorted(state.triage_requirements)),
+            )
+        )
+
+    def reconcile() -> None:
+        """Emit only changed requirement results; no noisy repeated state dumps."""
+        # Variables:
+        #   previous: Last qualification outcome per requirement.
+        #   result: Most recent typed evaluation of that requirement.
+        previous = {
+            rid: (r.status, r.evidence_ids, r.reason)
+            for rid, r in state.triage_requirement_results.items()
+        }
+        before_open = {q.id for q in state.unanswered_questions}
+        before_gaps = dict(state.triage_question_gaps)
+        before_evidence = {
+            qid: tuple(ids) for qid, ids in state.triage_question_evidence.items()
+        }
+        evaluate_triage_requirements(state)
+        for rid, result in sorted(state.triage_requirement_results.items()):
+            before = previous.get(rid)
+            after = (result.status, result.evidence_ids, result.reason)
+            if before != after:
+                emit_triage_event(
+                    state,
+                    deps,
+                    event="triage.requirement_evaluated",
+                    phase=phase,
+                    reason_code=requirement_reason_code(result.status, result.reason),
+                    status=result.status,
+                    requirement_ids=(rid,),
+                    evidence_ids=result.evidence_ids,
+                )
+        after_open = {q.id for q in state.unanswered_questions}
+        for qid in sorted({r.question_id for r in state.triage_requirements.values()}):
+            evidence_ids = tuple(state.triage_question_evidence.get(qid, ()))
+            if (
+                (qid in before_open) != (qid in after_open)
+                or before_gaps.get(qid) != state.triage_question_gaps.get(qid)
+                or before_evidence.get(qid, ()) != evidence_ids
+            ):
+                unresolved = qid in after_open
+                emit_triage_event(
+                    state,
+                    deps,
+                    event="question.evaluated",
+                    phase=phase,
+                    reason_code="unresolved" if unresolved else "closed",
+                    status="unresolved" if unresolved else "satisfied",
+                    question_ids=(qid,),
+                    evidence_ids=evidence_ids,
+                )
+
     while True:
         notify(state, deps)
         now = deps.clock()
         if state.remaining_seconds(now) <= 0 or (
             state.research_seconds(now) - held_for_hypotheses(state, deps) <= 0
         ):
-            return stop(state, phase, TriageStopDecision(reason="timeout"))
-        evaluate_triage_requirements(state)
+            return finish(TriageStopDecision(reason="timeout"))
+        reconcile()
         if phase == "test":
             add_test_requirements(state)
-            evaluate_triage_requirements(state)
+            reconcile()
         if not state.unanswered_questions:
-            return stop(
-                state, phase, TriageStopDecision(reason="requirements_complete")
-            )
+            return finish(TriageStopDecision(reason="requirements_complete"))
         if state.remaining_iterations <= 0:
-            return stop(state, phase, TriageStopDecision(reason="max_iterations"))
+            return finish(TriageStopDecision(reason="max_iterations"))
         if state.remaining_tool_calls <= 0:
-            return stop(state, phase, TriageStopDecision(reason="max_tool_calls"))
+            return finish(TriageStopDecision(reason="max_tool_calls"))
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
-            return stop(state, phase, decision)
+            return finish(decision)
         state.iteration_count += 1
         cutoff = state.triage_observation_cutoff_tick
         assert cutoff is not None
-        key = fingerprint(decision.step.request, cutoff)
+        request = decision.step.request
+        key = fingerprint(request, cutoff)
         attempts = state.triage_read_attempts.get(key, 0)
         state.triage_read_attempts[key] = attempts + 1
+        request_hash = sha256(key.encode("utf-8")).hexdigest()[:20]
+        emit_triage_event(
+            state,
+            deps,
+            event="decide.selected",
+            phase=phase,
+            reason_code="selected",
+            status="pending",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            iteration=state.iteration_count,
+            candidate_count=decision.candidate_count,
+            remaining_tool_calls=state.remaining_tool_calls,
+        )
+        emit_triage_event(
+            state,
+            deps,
+            event="triage.read_selected",
+            phase=phase,
+            reason_code="selected",
+            status="pending",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            iteration=state.iteration_count,
+        )
+        started = deps.clock()
+        trusted_before_read = state.last_tick
+        qualification: EvidenceQualification | None = None
+
+        def precommit(result) -> str | None:
+            """Return a safe reason code; no invalid evidence is ever appended."""
+            nonlocal qualification
+            try:
+                qualification = validate_triage_result(
+                    result,
+                    request,
+                    cutoff,
+                    min_result_tick=trusted_before_read,
+                    allowed_sources=deps.triage_allowed_sources,
+                )
+            except Exception:
+                # An internal validator error is itself a rejected observation.
+                qualification = EvidenceQualification(
+                    accepted=False,
+                    reason_code="validator_error",
+                    observed_tick=result.tick,
+                )
+            return None if qualification.accepted else qualification.reason_code
+
         evidence = gather(
             state,
             deps,
@@ -778,25 +967,124 @@ def run_deterministic_triage_loop(
             interpret=False,
             defer_question_bookkeeping=True,
             retry_failed=attempts > 0,
+            validate_result=precommit,
         )
+        duration_ms = max(0.0, (deps.clock() - started) * 1000.0)
         outcome = state.decisions[-1].outcome
-        if evidence is not None and invalid_observation(
-            evidence, decision.step.request, cutoff
-        ):
-            state.evidence.pop()
-            state.provenance.pop()
-            state.malformed_results += 1
-            state.unproductive_steps += 1
-            state.decisions[-1] = state.decisions[-1].model_copy(
-                update={"outcome": "malformed_result", "evidence_ids": ()}
+        if qualification is not None:
+            checked = qualification.model_copy(
+                update={
+                    "evidence_id": evidence.id if evidence is not None else None,
+                    "request_hash": request_hash,
+                }
             )
-            evidence = None
-            outcome = "invalid_result"
-        elif outcome == "tool_error":
-            error = state.decisions[-1].error
-            outcome = error.code if error is not None else "untrusted_response"
-        elif outcome == "malformed_result" and deps.last_provider_exception:
-            outcome = "untrusted_response"
+            state.triage_evidence_checks.append(checked)
+            emit_triage_event(
+                state,
+                deps,
+                event=(
+                    "triage.evidence_accepted"
+                    if checked.accepted
+                    else "triage.evidence_rejected"
+                ),
+                phase=phase,
+                reason_code=checked.reason_code,
+                status="accepted" if checked.accepted else "rejected",
+                tool=request.name,
+                requirement_ids=decision.requirement_ids,
+                evidence_ids=(evidence.id,) if evidence is not None else (),
+                duration_ms=duration_ms,
+                request_hash=request_hash,
+                attempt=attempts + 1,
+                iteration=state.iteration_count,
+            )
+            if not qualification.accepted:
+                outcome = "invalid_result"
+        else:
+            if outcome == "tool_error":
+                error = state.decisions[-1].error
+                outcome = error.code if error is not None else "untrusted_response"
+            elif outcome == "malformed_result" and deps.last_provider_exception:
+                outcome = "untrusted_response"
+            failure_code = (
+                outcome
+                if outcome
+                in {
+                    "invalid_result",
+                    "invalid_arguments",
+                    "unknown_tool",
+                    "provider_error",
+                    "untrusted_response",
+                    "malformed_result",
+                    "repeated_call",
+                }
+                else "malformed_result"
+            )
+            state.triage_evidence_checks.append(
+                EvidenceQualification(
+                    accepted=False,
+                    reason_code=failure_code,
+                    request_hash=request_hash,
+                )
+            )
+            emit_triage_event(
+                state,
+                deps,
+                event="triage.read_failed",
+                phase=phase,
+                reason_code=(
+                    outcome
+                    if outcome
+                    in {
+                        "invalid_result",
+                        "invalid_arguments",
+                        "unknown_tool",
+                        "provider_error",
+                        "untrusted_response",
+                        "malformed_result",
+                        "repeated_call",
+                    }
+                    else "read_failed"
+                ),
+                status="failed",
+                tool=request.name,
+                requirement_ids=decision.requirement_ids,
+                duration_ms=duration_ms,
+                request_hash=request_hash,
+                attempt=attempts + 1,
+                iteration=state.iteration_count,
+            )
+        checked = state.triage_evidence_checks[-1]
+        emit_triage_event(
+            state,
+            deps,
+            event="evidence.validated",
+            phase=phase,
+            reason_code=checked.reason_code,
+            status="accepted" if checked.accepted else "rejected",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            duration_ms=deps.triage_last_admission_ms,
+        )
+        emit_triage_event(
+            state,
+            deps,
+            event="tool.completed",
+            phase=phase,
+            reason_code="observed" if evidence is not None else checked.reason_code,
+            status="accepted" if evidence is not None else "failed",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            iteration=state.iteration_count,
+            duration_ms=deps.triage_last_provider_ms,
+            remaining_tool_calls=state.remaining_tool_calls,
+        )
         state.triage_deterministic_reads += 1
         state.triage_decide_trace.append(
             TriageDecisionRecord(
@@ -804,8 +1092,8 @@ def run_deterministic_triage_loop(
                 iteration=state.iteration_count,
                 kind="read",
                 reason=decision.reason,
-                tool=decision.step.request.name,
-                arguments=decision.step.request.arguments,
+                tool=request.name,
+                arguments=request.arguments,
                 requirement_ids=decision.requirement_ids,
                 evidence_ids=(evidence.id,) if evidence is not None else (),
                 outcome=outcome,
