@@ -656,6 +656,26 @@ class RunRepository:
             run.updated_at = datetime.now(timezone.utc)
             self._append(session, run, "stage.updated", safe)
 
+    def publish_resync(
+        self, claim: JobClaim, owner: str, dropped_count: int
+    ) -> None:
+        """Record lost UI messages without exception or provider text."""
+        # Variables:
+        #   dropped_count: Bounded number of failed live progress updates.
+        if type(dropped_count) is not int or not 1 <= dropped_count <= 1_000_000:
+            raise ValueError("Invalid dropped progress count")
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state != "running":
+                raise LostLease("Cannot mark resync on inactive run")
+            self._append(
+                session, run, "resync.required",
+                {"dropped_ui_updates": dropped_count, "mode": claim.request.mode},
+            )
+
     def request_review(
         self,
         claim: JobClaim,
