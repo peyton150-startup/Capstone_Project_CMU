@@ -3,6 +3,7 @@
 No CNC network access or controller operations occur on the cloud server.
 The verified on-site collector remains an independent read-only process.
 """
+
 from __future__ import annotations
 
 import hmac
@@ -34,17 +35,20 @@ def router_for(
 
     @router.post("/api/v1/ingest/siemens/batches")
     async def ingest(
-        request: Request, authorization: str | None = Header(default=None),
+        request: Request,
+        authorization: str | None = Header(default=None),
     ) -> dict:
         # Authorization BEFORE reading an untrusted body; this token is separate
         # from all browser/operator/evaluator credentials.
         supplied = (
-            authorization[len("Bearer "):]
+            authorization[len("Bearer ") :]
             if authorization and authorization.startswith("Bearer ")
             else ""
         )
         if not hmac.compare_digest(supplied, token):
-            raise HTTPException(status_code=401, detail="Collector authorization required")
+            raise HTTPException(
+                status_code=401, detail="Collector authorization required"
+            )
         body = bytearray()
         async for chunk in request.stream():
             body.extend(chunk)
@@ -56,13 +60,21 @@ def router_for(
             source.assert_active()
             return repository.accept(batch, source)
         except PermissionError:
-            raise HTTPException(status_code=403, detail="Capture scope not authorized") from None
+            raise HTTPException(
+                status_code=403, detail="Capture scope not authorized"
+            ) from None
         except (ValueError, ValidationError):
-            raise HTTPException(status_code=422, detail="Invalid Siemens capture batch") from None
+            raise HTTPException(
+                status_code=422, detail="Invalid Siemens capture batch"
+            ) from None
         except IngestConflict:
-            raise HTTPException(status_code=409, detail="Capture stream conflict") from None
+            raise HTTPException(
+                status_code=409, detail="Capture stream conflict"
+            ) from None
         except RuntimeError:
-            raise HTTPException(status_code=503, detail="Durable Siemens storage unavailable") from None
+            raise HTTPException(
+                status_code=503, detail="Durable Siemens storage unavailable"
+            ) from None
 
     return router
 
