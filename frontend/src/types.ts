@@ -79,9 +79,47 @@ export type SafeHypothesisProgress = {
   }>;
   test_requirements: number; trace_records: number; logging_failures: number;
 };
+export type TriageRunOptions = {
+  run_mode: 'custom' | 'deterministic';
+  plan: 'fixed' | 'model';
+  investigate: 'deterministic' | 'advisory' | 'on' | 'off';
+  hypothesize: 'deterministic' | 'model';
+  evidence_tests: boolean;
+  packet: boolean;
+  packet_prompt: boolean;
+  observe_calls: 'shared' | 'separate';
+  then_deep: boolean;
+  conclude_brief: boolean;
+  conclude_cap: boolean;
+  seconds: number;
+  tool_calls: number;
+  hypothesis_seconds: number;
+};
+export type TriageRunPreview = {
+  schema_version: number;
+  applied: boolean;
+  requested: Partial<TriageRunOptions>;
+  effective_triage: TriageRunOptions | null;
+  overridden: string[];
+  not_applied: string[];
+  stages: Record<string, string>;
+  configured_conclude_primary: string;
+  model_attempts: string;
+  scope: string;
+  fingerprint: string;
+};
+export type TriageRunDefaults = {
+  schema_version: number;
+  defaults: TriageRunOptions;
+  editable_per_run: boolean;
+  global_environment_editable: boolean;
+};
 export type ManagedRun = {
   run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
-    tree_of_thought: boolean; manual: string };
+    tree_of_thought: boolean; manual: string;
+    triage_settings?: Partial<TriageRunOptions> | null;
+    effective_configuration?: TriageRunPreview | null;
+    configuration_fingerprint?: string | null };
   state: 'queued' | 'running' | 'awaiting_review' | 'completed' | 'failed' | 'interrupted';
   snapshot: { stage?: string | null; status?: string; mode?: string;
     triage_report?: TriageReport | null; investigation?: { stage: string | null;
@@ -91,7 +129,9 @@ export type ManagedRun = {
       triage_run_mode?: 'custom' | 'deterministic' | null };
     diagnosis?: string | null; recommendation?: string | null;
     action_executed?: boolean; verification_outcome?: string | null;
-    deep_ran?: boolean; error_class?: string };
+    deep_ran?: boolean; error_class?: string;
+    effective_configuration?: TriageRunPreview | null;
+    configuration_fingerprint?: string | null };
   created_at: string; updated_at: string;
 };
 export type TriageReport = {
