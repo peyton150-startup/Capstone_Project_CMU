@@ -116,6 +116,23 @@ export type TriageRunDefaults = {
   editable_per_run: boolean;
   global_environment_editable: boolean;
 };
+export type ActualTriageExecution = {
+  run_mode: 'custom' | 'deterministic';
+  fixed_plan_executed: boolean;
+  packet_enabled: boolean;
+  packet_collected: boolean;
+  observe_calls_separate: boolean;
+  conclude_brief_enabled: boolean;
+  conclude_cap_enabled: boolean;
+  hypothesis_reserve_seconds: number;
+  deadline_seconds: number;
+  research_tool_call_budget: number;
+  actual_research_tool_calls: number;
+  deterministic_decide_reads: number;
+  compiled_candidates: number;
+  conclusion_available: boolean;
+  deep_recommended: boolean;
+};
 export type ManagedRun = {
   run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
     tree_of_thought: boolean; manual: string;
@@ -133,6 +150,7 @@ export type ManagedRun = {
     action_executed?: boolean; verification_outcome?: string | null;
     deep_ran?: boolean; error_class?: string;
     effective_configuration?: TriageRunPreview | null;
+    triage_execution?: ActualTriageExecution | null;
     configuration_fingerprint?: string | null };
   created_at: string; updated_at: string;
 };
