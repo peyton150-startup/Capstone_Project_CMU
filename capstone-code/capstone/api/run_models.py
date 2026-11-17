@@ -10,6 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
 )
@@ -155,3 +156,5 @@ class SimRunArtifact(RunBase):
     byte_count: Mapped[int] = mapped_column(Integer, nullable=False)
     visibility: Mapped[str] = mapped_column(String(16), nullable=False)
     retention_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Non-public bounded JSONL; never serialize with a run/event model.
+    content: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
