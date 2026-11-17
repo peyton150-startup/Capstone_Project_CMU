@@ -35,7 +35,7 @@ class RunRequest(BaseModel):
     mode: Literal["triage", "deep"] = "triage"
     hazards: bool = False
     tree_of_thought: bool = False
-    manual: Literal["none", "keyword"] = "none"
+    manual: Literal["none", "keyword", "neon"] = "none"
 
 
 class ReviewDecision(BaseModel):
@@ -378,7 +378,7 @@ class SimulatorRuns:
 
             audit_path = self.investigation_audit_path(run_id)
             audit_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-            manual = open_manual("keyword") if request.manual == "keyword" else None
+            manual = open_manual(request.manual) if request.manual != "none" else None
             policy = model_policy_factory(
                 with_recall=False,
                 with_manual=manual is not None,
