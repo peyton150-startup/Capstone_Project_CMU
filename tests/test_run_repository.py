@@ -305,7 +305,7 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     assert repository.get(queued["run_id"], actor_id="someone-else") is None
     repository.store_artifacts(
         claim, "worker-one",
-        {"audit": b'{"private":"audit"}\\n', "observability": b'{"event":"worker.started"}\\n'},
+        {"audit": b'{"private":"audit"}\n', "observability": b'{"event":"worker.started"}\n'},
     )
     assert repository.read_artifact(
         queued["run_id"], "audit", actor_id="hosted-simulator"
@@ -357,7 +357,7 @@ def test_worker_uses_pydantic_graph_episode_without_a_web_thread(repository, mon
         assert seed == 33
         assert kwargs["triage"] is True
         watch(state)
-        log.path.write_text('{"private":"audit"}\\n', encoding="utf-8")
+        log.path.write_text('{"private":"audit"}\n', encoding="utf-8")
         return SimpleNamespace(
             state=state, triage=None, desk=SimpleNamespace(proposals=lambda: [])
         )
