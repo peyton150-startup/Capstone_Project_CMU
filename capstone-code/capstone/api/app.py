@@ -69,6 +69,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
         else:
             runner = SimulatorRuns(cfg.run_db)
+    ingest_router = None
+    if os.getenv("CAPSTONE_LIVE_INGEST_ENABLED") == "1":
+        # Import database dependencies only when cloud ingestion is enabled.
+        # Read-only frontend installs do not require the optional DB extra.
+        from capstone.api.live_ingest import router_from_env
+
+        ingest_router = router_from_env(
+            (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token)
+        )
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
     app = FastAPI(
@@ -78,6 +87,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+
+    if ingest_router is not None:
+        app.include_router(ingest_router)
 
     @app.on_event("shutdown")
     def shutdown_runner() -> None:
