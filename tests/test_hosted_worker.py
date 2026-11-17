@@ -234,6 +234,16 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
         def list_runs(self, limit=50):
             return []
 
+        def queue_metrics(self):
+            return {
+                "queued": 1,
+                "active_claims": 0,
+                "stale_claims": 0,
+                "oldest_queued_seconds": 8,
+                "last_heartbeat_age_seconds": None,
+                "worker_liveness": "unverified",
+            }
+
         def events_since(self, _id, cursor, limit=100):
             return (
                 [{"seq": 1, "event": "run.completed", "data": {"status": "completed"}}]
@@ -269,6 +279,11 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     operator = {"Authorization": "Bearer " + "o" * 24}
     reviewer = {"Authorization": "Bearer " + "r" * 24}
     assert client.get("/api/v1/ready").status_code == 200
+    system = client.get("/api/v1/system", headers=viewer)
+    assert system.status_code == 200
+    assert system.json()["run_queue"]["queued"] == 1
+    assert system.json()["run_queue"]["worker_liveness"] == "unverified"
+    assert "lease_token" not in system.text
     assert client.post(
         "/api/v1/lab/runs", headers={**viewer, "Idempotency-Key": "a" * 20},
         json={"seed": 11},
