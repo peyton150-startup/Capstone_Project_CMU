@@ -1,4 +1,5 @@
 """Offline Neon knowledge tests. Never contact a hosted Neon project."""
+
 from pathlib import Path
 
 import pytest
@@ -83,8 +84,10 @@ def test_neon_keyword_only_returns_published_scoped_manual_sections():
     assert "d.is_published = TRUE" in sql
     assert "d.source_scope = :scope" in sql
     assert parameters == {
-        "document_id": DOCUMENT_ID, "scope": "simulator",
-        "query": "spindle vibration", "limit": 3,
+        "document_id": DOCUMENT_ID,
+        "scope": "simulator",
+        "query": "spindle vibration",
+        "limit": 3,
     }
     assert "spindle vibration" not in sql  # Never interpolate query text into SQL.
 
@@ -92,7 +95,8 @@ def test_neon_keyword_only_returns_published_scoped_manual_sections():
 def test_neon_semantic_uses_matching_model_and_valid_2048_vector():
     engine = Engine(vector_rows=[row(SECTIONS[1])])
     search = NeonManualSearch(
-        engine, embedding_model="nvidia/test",
+        engine,
+        embedding_model="nvidia/test",
         embed_query=lambda texts: [[0.01] * 2048],
     )
     assert search.search("unusual heat", limit=2)[0] == SECTIONS[1]
@@ -107,17 +111,22 @@ def test_neon_semantic_uses_matching_model_and_valid_2048_vector():
 
 def test_embedding_timeout_or_missing_vectors_degrades_within_same_document():
     engine = Engine(keyword_rows=[row()])
+
     def offline(_texts):
         raise TimeoutError("NVIDIA unavailable")
+
     search = NeonManualSearch(
-        engine, embedding_model="nvidia/test", embed_query=offline,
+        engine,
+        embedding_model="nvidia/test",
+        embed_query=offline,
     )
     assert search.search("vibration", limit=3)[0] == SECTIONS[0]
     assert len(engine.calls) == 1
     assert "plainto_tsquery" in engine.calls[0][0]
     empty = Engine(keyword_rows=[row()])
     search = NeonManualSearch(
-        empty, embedding_model="nvidia/test",
+        empty,
+        embedding_model="nvidia/test",
         embed_query=lambda _texts: [[0.0] * 2048],
     )
     assert search.search("vibration", limit=3)[0] == SECTIONS[0]
@@ -166,7 +175,8 @@ def test_publication_rejects_revision_mismatch_before_network():
         store.publish_simulator(sections, embed_passage=None, embedding_model=None)
     with pytest.raises(ValueError, match="dimension"):
         store.publish_simulator(
-            SECTIONS, embed_passage=lambda texts: [[1.0] * 5 for _ in texts],
+            SECTIONS,
+            embed_passage=lambda texts: [[1.0] * 5 for _ in texts],
             embedding_model="nvidia/test",
         )
     assert engine.calls == []

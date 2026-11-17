@@ -3,6 +3,7 @@
 The SQL store owns published content. No schema creation, ingestion, or network I/O
 occurs on import. Knowledge is never observable machine evidence.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -77,8 +78,7 @@ def _vector(values: Sequence[float]) -> str:
 def _digest(sections: Sequence[ManualSection]) -> str:
     """Content-address a full revision; editing a revision requires a new name."""
     payload = [
-        (s.document_id, s.revision, s.section_id, s.title, s.text)
-        for s in sections
+        (s.document_id, s.revision, s.section_id, s.title, s.text) for s in sections
     ]
     return hashlib.sha256(
         json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
@@ -114,10 +114,18 @@ class NeonManualSearch:
     def _rows(self, query, **params) -> tuple[ManualSection, ...]:
         try:
             with self.engine.connect() as connection:
-                rows = connection.execute(
-                    query,
-                    {"document_id": self.document_id, "scope": self.scope, **params},
-                ).mappings().all()
+                rows = (
+                    connection.execute(
+                        query,
+                        {
+                            "document_id": self.document_id,
+                            "scope": self.scope,
+                            **params,
+                        },
+                    )
+                    .mappings()
+                    .all()
+                )
         except SQLAlchemyError:
             _log.warning("neon_manual_database_unavailable")
             raise RuntimeError("Approved manual database unavailable") from None
@@ -199,14 +207,18 @@ class NeonManualSearch:
                     text("SELECT pg_advisory_xact_lock(hashtextextended(:id, 0))"),
                     {"id": DOCUMENT_ID},
                 )
-                existing = connection.execute(
-                    text("""
+                existing = (
+                    connection.execute(
+                        text("""
                         SELECT source_sha256, is_published
                         FROM capstone_knowledge.manual_documents
                         WHERE document_id = :id AND revision = :revision
                     """),
-                    {"id": DOCUMENT_ID, "revision": sections[0].revision},
-                ).mappings().first()
+                        {"id": DOCUMENT_ID, "revision": sections[0].revision},
+                    )
+                    .mappings()
+                    .first()
+                )
                 if existing is not None:
                     if existing["source_sha256"] != checksum:
                         raise ValueError(
@@ -233,7 +245,8 @@ class NeonManualSearch:
                                     :digest, FALSE)
                         """),
                         {
-                            "id": DOCUMENT_ID, "revision": sections[0].revision,
+                            "id": DOCUMENT_ID,
+                            "revision": sections[0].revision,
                             "title": "Synthetic CNC simulator manual",
                             "digest": checksum,
                         },
@@ -248,10 +261,13 @@ class NeonManualSearch:
                                         :model, CAST(:vector AS vector))
                             """),
                             {
-                                "id": DOCUMENT_ID, "revision": section.revision,
+                                "id": DOCUMENT_ID,
+                                "revision": section.revision,
                                 "section_id": section.section_id,
-                                "title": section.title, "body": section.text,
-                                "model": embedding_model, "vector": vector,
+                                "title": section.title,
+                                "body": section.text,
+                                "model": embedding_model,
+                                "vector": vector,
                             },
                         )
                 connection.execute(
@@ -272,7 +288,9 @@ class NeonManualSearch:
                 )
         except SQLAlchemyError:
             _log.warning("neon_manual_publish_failed")
-            raise RuntimeError("Manual publication failed; transaction rolled back") from None
+            raise RuntimeError(
+                "Manual publication failed; transaction rolled back"
+            ) from None
         return len(sections)
 
 
@@ -286,11 +304,15 @@ def open_neon_manual(settings: Settings | None = None) -> NeonManualSearch:
         if url.drivername in ("postgres", "postgresql"):
             url = url.set(drivername="postgresql+psycopg")
         if url.drivername != "postgresql+psycopg" or url.query.get("sslmode") not in (
-            "require", "verify-ca", "verify-full"
+            "require",
+            "verify-ca",
+            "verify-full",
         ):
             raise ValueError("Neon manuals require PostgreSQL with TLS")
     except (ValueError, TypeError):
-        raise ValueError("Invalid Neon knowledge URL (PostgreSQL TLS required)") from None
+        raise ValueError(
+            "Invalid Neon knowledge URL (PostgreSQL TLS required)"
+        ) from None
 
     # The hosted provider is optional: keyword SQL still works without an API key.
     from capstone.providers.embeddings import embedders_for
@@ -301,11 +323,17 @@ def open_neon_manual(settings: Settings | None = None) -> NeonManualSearch:
         _, embed_query = embedders_for(settings)
         model = settings.embedding_model
     engine = create_engine(
-        url, pool_pre_ping=True, pool_size=3, max_overflow=0, pool_timeout=5,
+        url,
+        pool_pre_ping=True,
+        pool_size=3,
+        max_overflow=0,
+        pool_timeout=5,
         connect_args={"connect_timeout": 5},
     )
     return NeonManualSearch(
-        engine, embedding_model=model, embed_query=embed_query,
+        engine,
+        embedding_model=model,
+        embed_query=embed_query,
     )
 
 
@@ -341,7 +369,9 @@ def main() -> int:
         written = store.publish_simulator(
             sections, embed_passage=passage, embedding_model=model
         )
-        print(f"published {written} sections of {DOCUMENT_ID} revision {sections[0].revision}")
+        print(
+            f"published {written} sections of {DOCUMENT_ID} revision {sections[0].revision}"
+        )
     finally:
         store.engine.dispose()
     return 0

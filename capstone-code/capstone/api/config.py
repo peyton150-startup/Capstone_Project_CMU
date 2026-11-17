@@ -40,7 +40,10 @@ class UiConfig:
         #   configured: Set when any private evidence source was supplied.
         configured = any(
             (
-                self.capture, self.audit, self.experiment, self.investigations,
+                self.capture,
+                self.audit,
+                self.experiment,
+                self.investigations,
                 self.neon_manual_enabled,
             )
         )
