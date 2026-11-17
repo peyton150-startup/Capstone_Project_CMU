@@ -91,6 +91,7 @@ def deps_for(provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS):
         policy=NoDecideModel(),
         clock=lambda: 0.0,
         triage_investigate="deterministic",
+        triage_allowed_sources=("fake",),
         triage_tool_specs=tools,
         triage_channels=channels,
         step_questions=step_questions,
@@ -157,8 +158,8 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
     def records(request):
         if request.name == "get_inspections":
             return [
-                {"tick": 41, "job_id": 10, "batch_id": "B1", "result": "failed"},
-                {"tick": 42, "job_id": 11, "batch_id": "B1", "result": "failed"},
+                {"tick": 41, "job_id": 10, "batch_id": 1, "result": "failed"},
+                {"tick": 42, "job_id": 11, "batch_id": 1, "result": "failed"},
             ]
         if request.name == "get_job_history":
             return [
@@ -167,6 +168,7 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
                     "job_id": request.arguments["job_id"],
                     "machine_id": "CNC-02",
                     "kind": "job_started",
+                    "message": "job began",
                 }
             ]
         if request.name == "get_settings":
@@ -283,7 +285,9 @@ def test_no_candidate_stops_without_a_model_fallback():
     before = len(provider.calls)
     reason = run_inner_loop(state, deps, "investigate")
     assert reason is TerminationReason.NO_USEFUL_ACTION
-    assert state.triage_decide_trace[-1].reason == "no_eligible_read"
+    # Reads were attempted, but some evidence remains insufficient. This is
+    # distinct from an incident with no eligible read in the first place.
+    assert state.triage_decide_trace[-1].reason == "data_insufficient"
     assert len(provider.calls) == before
 
 
@@ -383,8 +387,8 @@ def test_different_batches_are_reported_as_different_not_shared():
     def records(request):
         if request.name == "get_inspections":
             return [
-                {"tick": 40, "job_id": 10, "batch_id": "B1", "result": "failed"},
-                {"tick": 41, "job_id": 11, "batch_id": "B2", "result": "failed"},
+                {"tick": 40, "job_id": 10, "batch_id": 1, "result": "failed"},
+                {"tick": 41, "job_id": 11, "batch_id": 2, "result": "failed"},
             ]
         if request.name == "get_job_history":
             return [
@@ -395,6 +399,7 @@ def test_different_batches_are_reported_as_different_not_shared():
                     if request.arguments["job_id"] == 10
                     else "CNC-04",
                     "kind": "job_started",
+                    "message": "job began",
                 }
             ]
         return []
@@ -426,7 +431,7 @@ def test_missing_batch_id_keeps_comparison_unresolved():
     def records(request):
         if request.name == "get_inspections":
             return [
-                {"tick": 40, "job_id": 10, "batch_id": "B1", "result": "failed"},
+                {"tick": 40, "job_id": 10, "batch_id": 1, "result": "failed"},
                 {"tick": 41, "job_id": 11, "batch_id": None, "result": "failed"},
             ]
         if request.name == "get_job_history":

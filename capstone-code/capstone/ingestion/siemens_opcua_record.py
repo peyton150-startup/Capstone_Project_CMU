@@ -366,7 +366,9 @@ class OpcUaSessionMarker(BaseModel):
     schema_version: Literal[2] = 2
     source: Literal["opcua"] = "opcua"
     server_uri: str = Field(min_length=1)
-    event: Literal["connected", "heartbeat", "disconnected", "stopped", "gap"]
+    event: Literal[
+        "connected", "subscribed", "heartbeat", "disconnected", "stopped", "gap"
+    ]
     at: AwareDatetime
     session_epoch: int = Field(ge=1)
     reason: str | None = None

@@ -164,7 +164,13 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     # A real capture has no verified healthy-line reference. Skip screening
     # entirely; offering a simulator score here would invent real evidence.
     screening_evidence = None
-    if deps.screening_available:
+    # If a deterministic-triage clock read was rejected, screening cannot
+    # acquire a trustworthy source horizon; keep it explicitly unavailable.
+    if deps.screening_available and (
+        deps.triage_investigate != "deterministic"
+        or state.mode != "triage"
+        or time_evidence is not None
+    ):
         screen = CallTool(
             information_needed="every machine's recent running readings against a healthy line",
             request=ToolRequest(name="get_line_screening"),
@@ -1583,6 +1589,28 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         state.triage_report = build_triage_report(state)
         checking += max(0.0, deps.clock() - started)
     state.conclude_check_seconds = checking
+    if state.mode == "triage" and deps.triage_investigate == "deterministic":
+        # Only the opt-in deterministic triage records this additional boundary.
+        # Emit checked outcome and open questions, never the model's free text.
+        from capstone.agent.triage_trace import emit_triage_event
+
+        emit_triage_event(
+            state,
+            deps,
+            event="conclusion.checked",
+            phase="conclude",
+            reason_code=outcome,
+            status=conclusion.assessment or "unresolved",
+            question_ids=tuple(q.id for q in state.unanswered_questions),
+            requirement_ids=tuple(
+                sorted(
+                    rid
+                    for rid, result in state.triage_requirement_results.items()
+                    if result.status != "satisfied"
+                )
+            ),
+            duration_ms=checking * 1000.0,
+        )
     if conclusion.recommendation == "no_action":
         state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:

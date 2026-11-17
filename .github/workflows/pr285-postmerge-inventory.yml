@@ -1,0 +1,71 @@
+# One-time inventory regeneration after merging PR #283 and #284 into #285.
+# Only stale inventory bootstrap failure is tolerated; second full suite must pass.
+name: PR 285 post-merge inventory refresh
+on:
+  push:
+    branches: [feature/triage-deterministic-hypothesize]
+    paths: [.github/workflows/pr285-postmerge-inventory.yml]
+permissions:
+  contents: write
+concurrency:
+  group: pr285-postmerge-inventory
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feature/triage-deterministic-hypothesize
+          persist-credentials: true
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: '0.13.0'
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
+      - name: Generate source-matched coverage (bootstrap)
+        shell: bash
+        run: |
+          set +e
+          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
+            --junitxml=junit.xml --cov-report=term-missing > bootstrap.log 2>&1
+          status=$?
+          set -e
+          tail -n 100 bootstrap.log
+          if [ "$status" -ne 0 ]; then
+            python - <<'PY'
+          import xml.etree.ElementTree as ET
+          cases = ET.parse("junit.xml").getroot().iter("testcase")
+          failures = [(c.attrib.get("classname", ""), c.attrib.get("name", ""))
+                      for c in cases
+                      if any(n.tag in {"failure", "error"} for n in c)]
+          allowed = {"test_the_repository_has_no_unexplained_python_file"}
+          if not failures or any(name not in allowed for _, name in failures):
+              raise SystemExit("Non-inventory test failure: " + repr(failures))
+          print("Only stale inventory scope failed; generating current inventory")
+          PY
+          fi
+      - name: Build first-pass inventory
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Verify complete suite on refreshed inventory
+        run: uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test --junitxml=junit.xml --cov-report=term-missing
+      - name: Build final verified inventory
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Commit inventory and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=feature/triage-deterministic-hypothesize
+          git fetch origin "$branch"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse FETCH_HEAD)" || {
+            echo 'Branch changed while generating inventories; stop'
+            exit 1
+          }
+          rm .github/workflows/pr285-postmerge-inventory.yml
+          git add -A -- evaluation/inventory/ .github/workflows/pr285-postmerge-inventory.yml
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'chore(eval): refresh PR 285 inventory after PR 283/284 integration'
+          git push origin HEAD:refs/heads/"$branch"

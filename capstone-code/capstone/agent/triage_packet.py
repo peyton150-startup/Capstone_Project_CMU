@@ -43,6 +43,10 @@ from capstone.agent.incident_context import SENSOR_WORDS
 from capstone.agent.loop import InvestigationDeps, gather
 from capstone.agent.policy import CallTool
 from capstone.agent.state import InvestigationState
+from capstone.agent.triage_evidence_validation import (
+    EvidenceQualification,
+    validate_triage_result,
+)
 from capstone.agent.untrusted import looks_like_instruction
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest
@@ -285,6 +289,22 @@ def optional_call(
     #   limit: The research call count the packet may reach, get_time included;
     #     the rest of the six-call default stays for investigation.
     #   evidence: The answer as evidence, or None when skipped, repeated or failed.
+    if (
+        state.mode == "triage"
+        and deps.triage_investigate == "deterministic"
+        and state.triage_clock_verified is False
+    ):
+        # Neither a cached monitoring tick nor a stale packet can authorize
+        # new reads after the mandatory factory clock was rejected.
+        return (
+            PacketCall(
+                tool=name,
+                role="optional",
+                outcome="skipped_unavailable",
+                reason="observation_cutoff_untrusted",
+            ),
+            None,
+        )
     if state.research_tool_calls >= limit or state.research_seconds(deps.clock()) <= 0:
         return PacketCall(
             tool=name, role="optional", outcome="skipped_budget", reason="budgeted_out"
@@ -292,7 +312,89 @@ def optional_call(
     step = CallTool(
         information_needed=purpose, request=ToolRequest(name=name, arguments=arguments)
     )
-    evidence = gather(state, deps, "observe", step, interpret=False)
+    # The optional alarm window is prior Observe evidence that deterministic
+    # Investigate may reuse, so enforce the same admission rule here.
+    qualification = None
+    validator = None
+    if (
+        deps.triage_investigate == "deterministic"
+        and name in {"get_sensor_summary", "list_machines"}
+        and state.last_tick is None
+    ):
+        return (
+            PacketCall(
+                tool=name,
+                role="optional",
+                outcome="skipped_unavailable",
+                reason="observation_cutoff_unknown",
+            ),
+            None,
+        )
+    if deps.triage_investigate == "deterministic" and name == "get_sensor_summary":
+        cutoff = state.last_tick
+        if cutoff is None:
+            return (
+                PacketCall(
+                    tool=name,
+                    role="optional",
+                    outcome="skipped_unavailable",
+                    reason="observation_cutoff_unknown",
+                ),
+                None,
+            )
+
+        def validator(result):
+            nonlocal qualification
+            qualification = validate_triage_result(
+                result,
+                step.request,
+                cutoff,
+                min_result_tick=cutoff,
+                allowed_sources=deps.triage_allowed_sources,
+            )
+            return None if qualification.accepted else qualification.reason_code
+
+    evidence = gather(
+        state, deps, "observe", step, interpret=False, validate_result=validator
+    )
+    if validator is not None:
+        # A transport failure or duplicate never invokes the admission hook.
+        # It still needs a rejected, typed Observe audit record.
+        if qualification is None:
+            outcome = state.decisions[-1].outcome if state.decisions else None
+            reason = (
+                "repeated_call"
+                if outcome == "repeated_call"
+                else "provider_error"
+                if outcome == "tool_error" or deps.last_provider_exception
+                else "malformed_result"
+            )
+            qualification = EvidenceQualification(accepted=False, reason_code=reason)
+        from hashlib import sha256
+
+        from capstone.agent.triage_trace import emit_triage_event
+
+        request_hash = sha256(
+            json.dumps([name, arguments, cutoff], sort_keys=True).encode("utf-8")
+        ).hexdigest()[:20]
+        checked = qualification.model_copy(
+            update={
+                "evidence_id": evidence.id if evidence is not None else None,
+                "request_hash": request_hash,
+            }
+        )
+        state.triage_evidence_checks.append(checked)
+        emit_triage_event(
+            state,
+            deps,
+            event="observe.read_validated",
+            phase="observe",
+            reason_code=checked.reason_code,
+            status="accepted" if checked.accepted else "rejected",
+            tool=name,
+            request_hash=request_hash,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
+        )
     return ledger_entry(state, name, "optional", evidence), evidence
 
 
@@ -585,12 +687,16 @@ def log_packet(
                 tool=tool,
                 success=success,
             )
-        except ValueError:
-            continue
-    logger.log_event(
-        "triage_packet_built",
-        run_id=run_id,
-        investigation_id=investigation_id,
-        tick=packet.observation_tick,
-        counts=packet.counts(),
-    )
+        except Exception:
+            # Operational logging is never allowed to affect the investigation.
+            state.triage_logging_failures += 1
+    try:
+        logger.log_event(
+            "triage_packet_built",
+            run_id=run_id,
+            investigation_id=investigation_id,
+            tick=packet.observation_tick,
+            counts=packet.counts(),
+        )
+    except Exception:
+        state.triage_logging_failures += 1

@@ -158,6 +158,7 @@ GROUPS: dict[str, list[str]] = {
         "triage_compiled_chain",
         "triage_deterministic_decide",
         "triage_deterministic_hypothesize",
+        "triage_evidence_boundary",
         "triage_safety_baseline",
         "triage_clearance_gates",
         "triage_report",
@@ -175,6 +176,7 @@ GROUPS: dict[str, list[str]] = {
     # The line screening against everything around it (PR 202, not merged).
     "Detector side effects": ["detector_side_effects"],
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
+    "Industrial frontend API": ["web_api", "web_runs"],
     "Live telemetry": [
         "mtconnect_ingestion",
         "siemens_opcua_record",
