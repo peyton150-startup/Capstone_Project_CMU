@@ -64,6 +64,25 @@ class SafeModelCall(BaseModel):
     fallback_succeeded: bool = False
 
 
+class SafeModelConfiguration(BaseModel):
+    """A bounded configuration result; never the missing key or error text."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal[1] = 1
+    outcome: Literal["configured", "missing_credentials", "invalid_configuration"]
+
+
+class SafeModelSummary(BaseModel):
+    """Make incomplete telemetry explicit, rather than silently losing calls."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    schema_version: Literal[1] = 1
+    questions_seen: int = Field(ge=0, le=100_000)
+    questions_persisted: int = Field(ge=0, le=100_000)
+    write_failures: int = Field(ge=0, le=100_000)
+    complete: bool
+
+
 def safe_model_name(value: object) -> str:
     """Never echo arbitrary strings from configuration or provider responses."""
     if isinstance(value, str) and _MODEL.fullmatch(value):
