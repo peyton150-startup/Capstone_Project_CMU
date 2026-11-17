@@ -126,7 +126,7 @@ export function ManagedRunLauncher() {
         </select></div>
       <div><label className="field-label" htmlFor="managed-mode">Investigation path</label>
         <select id="managed-mode" value={mode} onChange={event=>{setMode(event.target.value as 'triage'|'deep');resetKey();}}>
-          <option value="triage">Rapid triage → deep if needed</option>
+          <option value="triage">Rapid triage (optional deep escalation configured below)</option>
           <option value="deep">Deep investigation only</option>
         </select></div>
       <div><label className="field-label" htmlFor="managed-manual">Manual retrieval</label>
