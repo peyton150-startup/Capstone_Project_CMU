@@ -14,7 +14,12 @@ type SystemStatus = {
 };
 type AuditEntry = { at?: string; session_epoch?: number; stage?: string; outcome?: string };
 type SettingsRecord = { name: string; value: string | null; configured: boolean };
-type SettingsData = { editable: boolean; items: SettingsRecord[] };
+type SettingsData = {
+  editable: boolean;
+  items: SettingsRecord[];
+  triage_profile?: Record<string,string|boolean|number>;
+  conclude?: string;
+};
 
 export function SystemPage() {
   const {token,preview}=useUi();
@@ -125,15 +130,16 @@ export function SettingsPage() {
       description="Server-wide environment is read-only. Simulator experiments can edit and freeze their own validated settings when launched."
       right={<Pill text="GLOBAL SETTINGS READ ONLY" tone="neutral"/>}/>
     <div className="two-column uneven">
-      <Panel title="Effective runtime settings" subtitle="Strict allowlist; not an editable .env browser">
+      <Panel title="Validated server defaults" subtitle="Explicit allowlist; not an editable .env browser">
         <div className="settings-toolbar"><input aria-label="Filter settings" placeholder="Filter by variable name..."
           value={filter} onChange={e=>setFilter(e.target.value)}/><Pill text="LOCAL API" tone="info"/></div>
         {settings.length?settings.map(s=><div className="settings-row" key={s.name}>
-          <div><strong>{s.name}</strong><small>{s.configured?'Set in server environment':'Not set in process environment'}</small></div>
+          <div><strong>{s.name}</strong><small>{s.configured?'Process override':'Validated default or private .env value'}</small></div>
           <span className="settings-value">{s.value||'Not configured'}</span></div>):
           <Unavailable item="Settings read model" detail={data.error||'Connect an authorized API to inspect allowlisted effective values.'}/>}
-        <div className="soft-note"><LockKeyhole size={17}/> API keys, database credentials,
-          certificates and paths are never returned from this endpoint.</div>
+        <div className="soft-note"><LockKeyhole size={17}/> These are actual validated
+          global scalar settings, not just variables set in process memory.
+          API keys, database credentials, certificates and paths are excluded.</div>
       </Panel>
       <Panel title="Interface preferences" subtitle="These controls affect the browser only">
         <DataRow label="Color scheme" value={<div className="button-group"><button
@@ -149,6 +155,14 @@ export function SettingsPage() {
         <Link className="button-primary" to="/lab">Open per-run triage settings</Link>
       </Panel>
     </div>
+    <Panel title="Effective global triage profile" subtitle="The deterministic override can supersede the individual raw settings above">
+      <DataRow label="Final Conclude stage" value={data.data?.conclude || 'Not recorded'}/>
+      {Object.entries(data.data?.triage_profile || {}).map(([name,value])=>
+        <DataRow key={name} label={name.replaceAll('_',' ')}
+          value={String(value)}/>)}
+      <p className="body-copy">The managed simulator launch can override these stage
+        values per run, and the saved run detail records the actual resolved controls.</p>
+    </Panel>
     <Panel title="Configuration groups" subtitle="Global controls remain server-owned; experiment controls can change per run">
       <div className="settings-categories">{['Investigation & triage','Model routing','Critic & review',
         'Manuals & retrieval','Runtime budgets','Recording & privacy'].map((g,i)=>
