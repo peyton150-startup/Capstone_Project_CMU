@@ -89,9 +89,7 @@ class PostgresSimulatorRuns(SimulatorRuns):
         try:
             self._owner = self._engine.raw_connection()
             cursor = self._owner.cursor()
-            cursor.execute(
-                "SELECT pg_try_advisory_lock(%s, %s)", _OWNER_LOCK
-            )
+            cursor.execute("SELECT pg_try_advisory_lock(%s, %s)", _OWNER_LOCK)
             held = cursor.fetchone()[0]
             cursor.close()
             self._owner.commit()
@@ -120,7 +118,9 @@ class PostgresSimulatorRuns(SimulatorRuns):
                 cursor.close()
                 self._owner.commit()
             except Exception:
-                raise RuntimeError("Simulator database ownership has been lost") from None
+                raise RuntimeError(
+                    "Simulator database ownership has been lost"
+                ) from None
 
     @contextmanager
     def _db(self):
@@ -159,9 +159,7 @@ class PostgresSimulatorRuns(SimulatorRuns):
                 "WHERE state IN ('queued', 'running', 'awaiting_review')",
                 (self._now(),),
             )
-            db.execute(
-                "UPDATE run_reviews SET status='expired' WHERE status='pending'"
-            )
+            db.execute("UPDATE run_reviews SET status='expired' WHERE status='pending'")
 
     @staticmethod
     def _now() -> str:
