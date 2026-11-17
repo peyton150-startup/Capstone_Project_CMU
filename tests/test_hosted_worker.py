@@ -314,6 +314,13 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     assert system.json()["run_queue"]["queued"] == 1
     assert system.json()["run_queue"]["worker_liveness"] == "unverified"
     assert "lease_token" not in system.text
+    assert client.get("/api/v1/system/integrations").status_code == 401
+    integr = client.get("/api/v1/system/integrations", headers=viewer)
+    assert integr.status_code == 200
+    assert integr.json()["model_attempts"] is True
+    assert isinstance(integr.json()["missing"], list)
+    assert "database_url" not in integr.text
+    assert "NEVER_STREAM" not in integr.text
     assert client.post(
         "/api/v1/lab/runs", headers={**viewer, "Idempotency-Key": "a" * 20},
         json={"seed": 11},
@@ -414,3 +421,58 @@ def test_worker_resolves_pr301_profile_without_reimplementing_it(monkeypatch):
     assert effective.triage_hypothesis_seconds == 0.0
     assert not effective.triage_critic
     assert effective != RunExecutionConfig()
+
+
+def test_cross_pr_contract_inventory_uses_real_pydantic_models(monkeypatch):
+    """No absent Decide/deep data may be reported as an implemented contract."""
+    from capstone.api import runs
+    from capstone.api.integration_status import inspect_hosted_contracts
+
+    state = inspect_hosted_contracts()
+    assert state.model_attempts is True  # Reuses the exact #297 model contract.
+    assert state.source_contracts_complete == (not state.missing)
+    assert len(state.missing) <= 5
+    public = state.model_dump(mode="json")
+    assert "api_key" not in str(public)
+    assert "DATABASE_URL" not in str(public)
+    assert set(public) == {
+        "schema_version", "stage_progress", "decide_trace",
+        "deep_lifecycle", "deterministic_profile", "model_attempts",
+        "source_contracts_complete", "missing",
+    }
+
+    # Simulate an untrusted, malformed replacement for the canonical stage.
+    monkeypatch.setattr(
+        runs, "SafeStageSnapshot", SimpleNamespace(model_fields=["unsafe"]),
+        raising=False,
+    )
+    checked = inspect_hosted_contracts()
+    assert checked.stage_progress is False
+    assert checked.decide_trace is False
+    assert checked.deep_lifecycle is False
+
+
+def test_pr297_projection_redacts_provider_content_without_graph_rewrite():
+    from capstone.api.model_calls import project_model_call
+
+    attempt = SimpleNamespace(
+        model="sk-private-token",
+        outcome="HTTP 429 private provider body NEVER_LEAK",
+        seconds=0.42,
+        input_tokens=10,
+        output_tokens=None,
+        prompt_chars=150,
+        prompt_version=None,
+    )
+    call = SimpleNamespace(
+        job="conclude", outcome="no_answer", answered_by=None,
+        mode="triage", stage="conclude", attempts=(attempt,),
+    )
+    safe = project_model_call(call, 1)
+    assert safe["question_index"] == 1
+    assert safe["job"] == "conclude"
+    assert safe["attempts"][0]["model"] == "redacted"
+    assert safe["attempts"][0]["outcome"] == "rate_limited"
+    assert safe["attempts"][0]["seconds"] == 0.42
+    assert "NEVER_LEAK" not in str(safe)
+    assert "sk-private-token" not in str(safe)
