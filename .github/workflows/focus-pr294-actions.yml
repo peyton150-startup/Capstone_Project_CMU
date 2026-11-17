@@ -1,0 +1,41 @@
+# One-time queue relief; isolated branch, no application code or PR changes.
+name: Focus PR294 actions queue
+on:
+  push:
+    branches:
+      - ci/focus-pr294-actions-20261117
+    paths:
+      - .github/workflows/focus-pr294-actions.yml
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel-obsolete-pr294-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Cancel only obsolete PR294 workflow runs; keep current validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_BRANCH: feature/render-safe-complete-triage-progress-20261117
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_sha=$(gh api "repos/$REPO/pulls/294" --jq '.head.sha')
+          echo "PR294 current head: $current_sha"
+          for status in queued in_progress; do
+            gh api --paginate "repos/$REPO/actions/runs?per_page=100&status=$status" --jq '.workflow_runs[] | [.id, .head_branch, .head_sha, .name] | @tsv' |
+              while IFS=$'\t' read -r id head_branch head_sha run_name; do
+                test "$head_branch" = "$PR_BRANCH" || continue
+                test "$head_sha" != "$current_sha" || continue
+                test "$id" != "44181016178" || continue
+                echo "Cancel obsolete $id ($run_name at $head_sha)"
+                if ! gh api -X POST "repos/$REPO/actions/runs/$id/cancel"; then
+                  echo "Cancellation for $id was rejected or run completed; continuing"
+                fi
+              done
+          done
+          echo "Protected inventory rebuild run 44181016178 and all current-head PR294 checks"
