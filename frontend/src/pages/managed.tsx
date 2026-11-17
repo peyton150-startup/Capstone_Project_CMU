@@ -27,7 +27,7 @@ export function ManagedRunLauncher() {
   const [mode, setMode] = useState<'triage' | 'deep'>('triage');
   const [hazards, setHazards] = useState(false);
   const [tree, setTree] = useState(false);
-  const [manual, setManual] = useState<'none' | 'keyword'>('none');
+  const [manual, setManual] = useState<'none' | 'keyword' | 'neon'>('none');
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const key = useRef<string | null>(null);
@@ -69,8 +69,9 @@ export function ManagedRunLauncher() {
           <option value="deep">Deep investigation only</option>
         </select></div>
       <div><label className="field-label" htmlFor="managed-manual">Manual retrieval</label>
-        <select id="managed-manual" value={manual} onChange={event=>{setManual(event.target.value as 'none'|'keyword');resetKey();}}>
+        <select id="managed-manual" value={manual} onChange={event=>{setManual(event.target.value as 'none'|'keyword'|'neon');resetKey();}}>
           <option value="none">Disabled</option><option value="keyword">Local keyword manual</option>
+          {capability.data?.features.neon_manual_search && <option value="neon">Neon manual (SIM-CNC-001)</option>}
         </select></div>
     </div>
     <div className="quality-check"><label><input type="checkbox" checked={hazards} onChange={e=>{setHazards(e.target.checked);resetKey();}}/> Seeded tool hazards</label></div>

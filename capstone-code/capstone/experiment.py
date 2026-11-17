@@ -1579,7 +1579,7 @@ def add_manual_options(parser: argparse.ArgumentParser) -> None:
         nargs="?",
         const="semantic",
         default="semantic",
-        choices=("semantic", "keyword"),
+        choices=("semantic", "keyword", "neon"),
         help="how the agent searches the machine manual (default: by meaning)",
     )
     choice.add_argument(
@@ -1592,8 +1592,8 @@ def add_manual_options(parser: argparse.ArgumentParser) -> None:
 
 
 def open_manual(mode: str) -> ManualSearch:
-    """The machine manual, searched by meaning ("semantic": its Chroma index) or
-    by shared words ("keyword").
+    """The machine manual, searched by Chroma ("semantic"), shared words
+    ("keyword"), or an explicitly configured Neon knowledge store ("neon").
 
     Before a semantic run the index is checked against the manual and rebuilt
     first if it is empty, out of date (the manual changed) or built by another
@@ -1608,6 +1608,10 @@ def open_manual(mode: str) -> ManualSearch:
     from capstone.manual.sections import load_manual
     from capstone.settings import get_settings
 
+    if mode == "neon":
+        from capstone.manual.neon import open_neon_manual
+
+        return open_neon_manual()
     sections = load_manual()
     if mode == "keyword":
         return KeywordManualSearch(sections)

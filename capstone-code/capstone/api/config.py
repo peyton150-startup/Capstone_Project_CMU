@@ -35,6 +35,7 @@ class UiConfig:
     runs_enabled: bool = False
     evaluator_token: str | None = field(default=None, repr=False)
     memory_enabled: bool = False
+    neon_manual_enabled: bool = False
 
     def __post_init__(self) -> None:
         """Reject insecure or ambiguous real-data deployments before serving."""
@@ -47,6 +48,7 @@ class UiConfig:
                 self.audit,
                 self.experiment,
                 self.investigations,
+                self.neon_manual_enabled,
             )
         )
         if configured and (not self.token or len(self.token) < 24):
@@ -129,4 +131,5 @@ class UiConfig:
             runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
             evaluator_token=os.getenv("CAPSTONE_UI_EVALUATOR_TOKEN") or None,
             memory_enabled=os.getenv("CAPSTONE_UI_MEMORY_READ") == "1",
+            neon_manual_enabled=os.getenv("CAPSTONE_UI_NEON_MANUAL") == "1",
         )

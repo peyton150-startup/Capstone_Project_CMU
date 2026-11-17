@@ -35,12 +35,13 @@
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
   "capstone-code/capstone/api/__init__.py": "80048330132f513c0d31f990cf23d55d0d66b0363708fda5274cecd6b41e3e8a",
   "capstone-code/capstone/api/__main__.py": "d239de65298216c0e8a9545d5ce24ff080703639c1bb9cb10c6b9c38933ac372",
-  "capstone-code/capstone/api/app.py": "837f7bc9a714f987885c7dc99d91e6b78a5cecfbd9e5ed1562b1e49dc53d464b",
-  "capstone-code/capstone/api/config.py": "71c0eac4d95cb31d61d9108e5a8b916b067ea8da4326260d9f50da552704ee5e",
+  "capstone-code/capstone/api/app.py": "ad2fcb83198c2a351fb6004eb544cba16c22333057ffd7d375c70ba40c525c71",
+  "capstone-code/capstone/api/config.py": "e7922bb891f35c3903928255980cbf10a14d69c124f3c1c2a48762008917129a",
   "capstone-code/capstone/api/import_sqlite.py": "62cf3619ca00747d13e22534fba0d65711f5e4cb5cec3094c21c6907cfceb138",
+  "capstone-code/capstone/api/live_ingest.py": "48f593dd684ab8e70df0b5e7e515a88aea0e353a74e58cba505a9792ab8a0221",
   "capstone-code/capstone/api/postgres_runs.py": "2f4dcffd43a9760a39d4433efcd072938d38e68e90b8cc9858d3f579a17a84b9",
   "capstone-code/capstone/api/readers.py": "35b16d73d7e438c0888753f0dfc623209ad1e5d0fa3d3d53286bc4da6e12e37b",
-  "capstone-code/capstone/api/runs.py": "e3f6b58f4cb7a7fce9371f0592938cda1d0caa03fcaa2c9fe56ad351bbff823c",
+  "capstone-code/capstone/api/runs.py": "1314ce32795e2b1ca6defa70d3a5a77e9f8040feeb8cc674e924006e9fb85e4c",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
   "capstone-code/capstone/console.py": "bded87a29a1781414d4486bf414a292dbbadcf1cae07125ea772cd511ccc7561",
@@ -66,11 +67,14 @@
   "capstone-code/capstone/evaluation/memory.py": "72e5486936c8c58886db3aa4da8f63e71ff786feb739abeedb9d092323037a13",
   "capstone-code/capstone/evaluation/scoring.py": "38efa009eb966bb0bc7a7b90fe21d8f4db05301bdd19b1fc763537821f94c79e",
   "capstone-code/capstone/evaluation/triage_metrics.py": "0996afb190975d935ea6b6365f6f30dad575c170a9e671bc43c104893285b7c4",
-  "capstone-code/capstone/experiment.py": "70eed74ab89517e7839217f25ea1146b290eb74e9cf03cde7b3bb1d707052d6c",
+  "capstone-code/capstone/experiment.py": "ab5c2124c3fb28a14e64cb5c019c5aa4c2821eae548b8ece9f9a02239f5ec522",
   "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
   "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
   "capstone-code/capstone/ingestion/__main__.py": "8216845d0f896ce1a99865588a432d2ebe73cee9202508a3e3db190676544f47",
   "capstone-code/capstone/ingestion/channel_map.py": "80906576c000581de6a8374a4ce874cc0c0cf47803ae10d33c3eea98ad55df5d",
+  "capstone-code/capstone/ingestion/cloud_contract.py": "ae947c68a147c955702832d797ada145de2d277707f59723d11c95611b270060",
+  "capstone-code/capstone/ingestion/cloud_store.py": "727a627a722fcf4f6d37bc5631687105a56a4fb90f4649fa9f65033967db07d1",
+  "capstone-code/capstone/ingestion/cloud_uplink.py": "0a67ed9b67b8431e3e06ed147c749b0ac6c22bc8494600b6f69cab14644957f4",
   "capstone-code/capstone/ingestion/collector.py": "3ecbc4ec68bc05284892d956046a2966e8086c1c12b19f441945342dd29ec7a9",
   "capstone-code/capstone/ingestion/mtconnect.py": "ad303b033cf657d86b8be2ffe7047a3eb1fbbac414d2e74df917c2791e213521",
   "capstone-code/capstone/ingestion/pilot_acceptance.py": "0d00d997b051b40aae4b8f695bbaa20ce6f08e4b78304f94aee3422c34e7aecd",
@@ -78,13 +82,15 @@
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
   "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
-  "capstone-code/capstone/ingestion/siemens_opcua_adapter.py": "2c1c3693859e5e63170119f7dfa45a0d080dd3640f27568f86839f09bc97c4dc",
+  "capstone-code/capstone/ingestion/siemens_opcua_adapter.py": "c7427b78e1021beb99b41e17469baeafa363dcd11a45e96983c48869346aeaaa",
   "capstone-code/capstone/ingestion/siemens_opcua_record.py": "351e1639b4037f828731e44d5a7bdec989797bdb0f8be409847006eca67158f0",
   "capstone-code/capstone/ingestion/time_stats.py": "2530ca938fa5bea4f2611d7c91277652d8d7fc0b7ff2c35ca3e27648864833ef",
   "capstone-code/capstone/ingestion/visit_log.py": "4b1d8c9c257a770312fdf783c3a2f0705bec9f2331da6d14d99442bfac4eed1c",
   "capstone-code/capstone/learning.py": "4741af4b7f52b774554efce90730dc0e9e7f6f6f6ed632f62c77add33feec33c",
   "capstone-code/capstone/manual/__init__.py": "cb282d0110e7312df5b76acfb94deb8f9c90adfaebab91146afb707dffa4ad0e",
   "capstone-code/capstone/manual/index.py": "9428abe0e4369fcc01dd5a51a1f68d97d76492aa8f0a8df184e366c8b73db755",
+  "capstone-code/capstone/manual/neon.py": "2d7729d3f289517ee900d45c39af58d1dba2a43c63ca9d57d24e2b2e4584feba",
+  "capstone-code/capstone/manual/oem.py": "9b0084987a8e4cadead24d51d6e4be4efe0c3bf3a471a0e90b600dc7a4c035bf",
   "capstone-code/capstone/manual/sections.py": "5e9886bdc1eb4d74e9cbffd7567a7ea79fad0ca114a6f43c1a76d8a09b389f3a",
   "capstone-code/capstone/memory/__init__.py": "74c659ce9a1995c84047e7c557647229e48d5e8cd1ce9434d232dda1e47a8d7e",
   "capstone-code/capstone/memory/backfill.py": "53e38e5332e658f7c8ac520aacee6ada3e5682077fb031cfb0cf9dd242ca91ff",
@@ -115,7 +121,7 @@
   "capstone-code/capstone/providers/typesafe.py": "73b6cbde2515d5bde8a81fce3dd9fac71833385e75b619c266f6a751555b91e1",
   "capstone-code/capstone/recorded_investigation.py": "664c02e01416bc647e9f90312f729e06fc29a6ba4a5adbb970ea3eaed78055d6",
   "capstone-code/capstone/replay_investigation.py": "42238f74739e9914463d0433fc0aa9c68b6cb133c299f1776d1df49e17d57116",
-  "capstone-code/capstone/settings.py": "73de8e4ffae8ac7f456070d3d33ab4304034c4aec3e6fc4baedfa54ef3ddfccf",
+  "capstone-code/capstone/settings.py": "7df9d563d3f8b6732a9876652618ead4e57ebf58cbdd981405a4d82b5d410fee",
   "capstone-code/capstone/simulator/__init__.py": "14ee6627f9e2984cfe3a4f530d8c5675864e4f3cda1b74e7bb27d846c3159e0f",
   "capstone-code/capstone/simulator/challenge.py": "b6827cc2b7eaff3e8ac6c6b0a42a9e050844630b8bd76a6ea1651faefec6f04b",
   "capstone-code/capstone/simulator/clock.py": "2d97f8630cb11056d56f385fbc5f4e6cae3e3d1da32941f64d74c26e27ce2af3",
@@ -171,6 +177,8 @@
   "tests/test_channel_quality.py": "bce144414c7c8b3b23b8788e9ed331373ad1a1dbc2f9127c2d0145b5f81da591",
   "tests/test_chat_client.py": "8bc5eb6db1894663c41eec90320af4af9c42a0219a388aaa42bf92c25f814919",
   "tests/test_clock.py": "2d0e62071d5bec9da5ffce839fda122ab6b277c2d66d1cba3f071146da6c1e63",
+  "tests/test_cloud_ingest_api.py": "41414e65606876ae9f32085bc79c374fefc3980bd9da8eab9f47e7532adda8b1",
+  "tests/test_cloud_pilot.py": "2fd594270c9812d12bd76fa26bad52721551d335f893a56a6483ba19f85ea5ef",
   "tests/test_collector_watchdog.py": "448509006e430513390f47d79ec3c9e512d30dff7be1a68710cb2df38beb7c39",
   "tests/test_conclude_no_hypotheses.py": "3c361a494138e255edfa0ab19eed54b4dcc16e2e6feec60128667c81566bf8d3",
   "tests/test_console.py": "15ebbbdb8927f37fd25f9d8f9676e412f8fb368766c0a2318aacff94c963d86b",
@@ -233,9 +241,11 @@
   "tests/test_migrations.py": "6449fa2b344c43e775e4ca00359aa31f15b69ea8f3b40cec8805bd9cb828d14f",
   "tests/test_model_policy.py": "9d394f59d3fd0b7813c37e7fd1c58f26ec8d1c67fedfbc874a53b67e61558be3",
   "tests/test_mtconnect_ingestion.py": "40eb588374a74e1f37eb240694529fdffba0bb0651b9a73e1cc862617ce831ed",
+  "tests/test_neon_manual.py": "56bfcf706d09e2aa77fb2f8469e97ec84f175249d964f08c5ca2d0d2f1cdf813",
   "tests/test_numeric_claim_metrics.py": "c85a107ba1e0095c2d0466b5e58b3423be4cef75a2307d235f37bafca4e8c164",
   "tests/test_observability.py": "e33c4b7c81fa2dde4d146ba555a0cefe8035d74de9ab908752d0b53079adeea0",
   "tests/test_observation_tools.py": "b6520bbafecef51d1e40c481c5a81da1c3552ebe95987b9755e6a86de29a1825",
+  "tests/test_oem_manual.py": "d62d867d7063405f3dd42728261ad67f5c0832b192decb3a74628051de38f0f8",
   "tests/test_pilot_acceptance.py": "00b6b26dd532d8b0df4e99492052feafb14f467e1de09ef1b11c5dc268961901",
   "tests/test_pilot_preflight.py": "c170f7176567adb913bc2500dfc48d8bbd6e636f17c4476511375369f18b75eb",
   "tests/test_postgres_journal.py": "29ab411962da84f502169aafa43e34545f1bde692fd8aa5eba0f27470bbebd06",
@@ -302,33 +312,33 @@
   "tests/test_untrusted_text.py": "cb17a2e154f3adca010fecd881298ed0801103fb48914a2a0aba6bca5117d9e7",
   "tests/test_visit_log.py": "f540e22bb87d89338abfed58c9148ea86df9dcb6bdbd2464147a4b2a69d83f5c",
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
-  "tests/test_web_api.py": "7a38105d66419ba9012b3df89197616c6c516e8317a7773edafa6d028320a491",
+  "tests/test_web_api.py": "0ee3db6c93211efb89300b12862d49c4bc8734361bf6c800e33dd4e52ce07577",
   "tests/test_web_runs.py": "8aa12506600fd75b21ed3e0d4f4a6b4f3c1a21ebe31dc7251489f4e249a037d0",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "f23b142020fe150fba9e36e5cbd10440d27204a7cddd1cef6b11580dc1573458",
- "junit_sha256": "b5cd24a2c240a24ca1597cec9fb652e35e97573d061fff020ff77e746fefab1f",
+ "coverage_sha256": "75e5cc519b34c3511801dffc11200a2e7b3226ec2ec474806db78a8ef97bd925",
+ "junit_sha256": "026c4e74b41f70f2039561fa18b851eb219bc0310122637a628dccb8ee285c0d",
  "counts": {
-  "functions": 1276,
+  "functions": 1332,
   "classes_note": "classes are listed through their methods",
-  "tests": 2431,
+  "tests": 2474,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 551,
+   "INSUFFICIENT EVIDENCE": 590,
    "NOT APPLICABLE": 29,
-   "NOT TESTED": 61,
-   "PARTIALLY VERIFIED": 590,
+   "NOT TESTED": 73,
+   "PARTIALLY VERIFIED": 595,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 619,
+   "direct": 624,
    "import-only": 6,
-   "indirect": 561,
+   "indirect": 600,
    "no-statements": 29,
-   "none": 61
+   "none": 73
   },
-  "functions_executed_in_tests": 1180,
-  "functions_with_direct_tests": 619,
+  "functions_executed_in_tests": 1224,
+  "functions_with_direct_tests": 624,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -344,15 +354,14 @@
    "capstone.api.app:create_app.<locals>.system",
    "capstone.api.app:create_app.<locals>.system_audit",
    "capstone.api.app:create_app.<locals>.settings_effective",
-   "capstone.api.app:create_app.<locals>.search_simulator_manual",
    "capstone.api.app:create_app.<locals>.simulator_memories",
    "capstone.api.app:create_app.<locals>.simulator_memory_promotions",
    "capstone.api.app:create_app.<locals>.knowledge",
-   "capstone.api.app:create_app.<locals>.list_managed_runs",
    "capstone.api.app:create_app.<locals>.managed_run_investigation",
    "capstone.api.app:create_app.<locals>.triage_result",
    "capstone.api.import_sqlite:apply",
    "capstone.api.import_sqlite:main",
+   "capstone.api.live_ingest:router_from_env",
    "capstone.api.postgres_runs:PostgresSimulatorRuns.__init__",
    "capstone.api.postgres_runs:PostgresSimulatorRuns._assert_owner",
    "capstone.api.postgres_runs:PostgresSimulatorRuns._db",
@@ -378,9 +387,22 @@
    "capstone.evals:main.<locals>.show_progress",
    "capstone.experiment:preflight_models",
    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+   "capstone.ingestion.cloud_contract:CloudScope.fingerprint",
+   "capstone.ingestion.cloud_store:SiemensCloudRepository.__init__",
+   "capstone.ingestion.cloud_store:SiemensCloudRepository.close",
+   "capstone.ingestion.cloud_store:SiemensCloudRepository.accept",
+   "capstone.ingestion.cloud_uplink:_NoRedirect.redirect_request",
+   "capstone.ingestion.cloud_uplink:send_batch",
+   "capstone.ingestion.cloud_uplink:validate_collector_scope",
+   "capstone.ingestion.cloud_uplink:main",
    "capstone.ingestion.collector:utc_now",
    "capstone.ingestion.collector:MTConnectCollector.probe",
    "capstone.ingestion.siemens_opcua_adapter:counting_subscription",
+   "capstone.manual.neon:NeonManualSearch.close",
+   "capstone.manual.neon:main",
+   "capstone.manual.oem:_NoRedirect.redirect_request",
+   "capstone.manual.oem:PrivatePDFStorage._assert_private_bucket",
+   "capstone.manual.oem:main",
    "capstone.memory.semantic:default_embedder",
    "capstone.providers.chat:ModelHealth.reset",
    "capstone.providers.chat:FallbackClient.__repr__",
@@ -424,10 +446,13 @@
    "capstone.agent.triage_requirements:ReadRequirement.valid_window (5/9)",
    "capstone.agent.triage_trace:TriageTraceEvent.validated_hash (2/3)",
    "capstone.agent.triage_trace:TriageTraceEvent.finite_duration (2/3)",
-   "capstone.api.app:create_app (187/298)",
+   "capstone.api.app:create_app (214/327)",
    "capstone.api.app:create_app.<locals>.ensure_run (4/6)",
    "capstone.api.app:create_app.<locals>.investigations (2/3)",
    "capstone.api.app:create_app.<locals>.evaluation_scorecards (3/4)",
+   "capstone.api.app:create_app.<locals>.search_simulator_manual (13/17)",
+   "capstone.api.app:create_app.<locals>.list_managed_runs (2/3)",
+   "capstone.api.app:create_app.<locals>.start_simulator_run (19/25)",
    "capstone.api.app:create_app.<locals>.pending_simulator_reviews (2/3)",
    "capstone.api.config:UiConfig.__post_init__ (13/18)",
    "capstone.api.import_sqlite:artifacts (19/25)",
@@ -440,6 +465,11 @@
    "capstone.contracts.investigations:run_id_for (2/3)",
    "capstone.evaluation.memory:MemoryPromotionRecord.consistent_storage (3/5)",
    "capstone.evaluation.scoring:Score.unnecessary_actions (3/5)",
+   "capstone.experiment:open_manual (10/13)",
+   "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission (3/5)",
+   "capstone.ingestion.cloud_contract:CloudScope.safe_id (2/3)",
+   "capstone.ingestion.cloud_contract:CloudScope.unique_nodes (3/4)",
+   "capstone.ingestion.cloud_contract:IngestBatch.digest_format (2/3)",
    "capstone.ingestion.collector:http_get (7/9)",
    "capstone.ingestion.mtconnect:parse_streams (19/24)",
    "capstone.ingestion.pilot_preflight:check_pilot (61/78)",
@@ -447,6 +477,15 @@
    "capstone.ingestion.siemens_opcua_adapter:is_loopback (4/6)",
    "capstone.ingestion.siemens_opcua_adapter:SiemensOpcUaCollector.watch (8/13)",
    "capstone.ingestion.siemens_opcua_adapter:session_node_id (3/5)",
+   "capstone.manual.neon:NeonManualSearch.list_sections (2/3)",
+   "capstone.manual.neon:NeonManualSearch.publish_simulator (11/37)",
+   "capstone.manual.neon:open_neon_manual (11/19)",
+   "capstone.manual.oem:ReviewedOEMSection.valid_pages (2/3)",
+   "capstone.manual.oem:OEMApproval.valid_scope (8/11)",
+   "capstone.manual.oem:OEMApproval.assert_active (2/3)",
+   "capstone.manual.oem:PrivatePDFStorage.publish (13/19)",
+   "capstone.manual.oem:OEMKnowledgeRepository.publish (3/24)",
+   "capstone.manual.oem:ScopedOEMManualSearch.search (6/8)",
    "capstone.memory.contracts:PromotionDecision.consistent_decision (4/7)",
    "capstone.progress:belief (2/3)",
    "capstone.progress:main (10/19)",
@@ -472,7 +511,7 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2428,
+   "passed": 2471,
    "skipped": 3
   },
   "tests_with_no_assertion": [
@@ -587,6 +626,7 @@
    "tests/test_channel_map.py::test_tool_sensor_names_match_what_the_observation_tools_accept",
    "tests/test_chat_client.py::test_the_providers_in_scope_and_no_others",
    "tests/test_chat_client.py::test_the_jobs_are_the_seven_policy_questions",
+   "tests/test_cloud_pilot.py::test_storage_migration_is_private_and_separate_from_simulator_journal",
    "tests/test_console.py::test_without_it_the_same_print_raised",
    "tests/test_contracts.py::test_observation_rejects_hidden_or_unknown_fields",
    "tests/test_contracts.py::test_hypothesis_confidence_must_be_finite_and_in_range",
@@ -644,8 +684,10 @@
    "tests/test_model_policy.py::test_decide_prompt_says_a_stop_leaves_the_call_fields_empty",
    "tests/test_model_policy.py::test_call_fields_are_described_as_call_only_in_the_schema",
    "tests/test_model_policy.py::test_every_job_is_told_to_scan_every_machine",
+   "tests/test_neon_manual.py::test_isolated_sql_migration_has_no_browser_or_data_api_grants",
    "tests/test_numeric_claim_metrics.py::test_an_unknown_metric_is_still_refused",
    "tests/test_observation_tools.py::test_only_allowlisted_observation_tools_are_public",
+   "tests/test_oem_manual.py::test_oem_sql_migration_preserves_private_scope_and_lineage",
    "tests/test_postgres_journal.py::test_remote_idempotency_events_and_reopen",
    "tests/test_postgres_journal.py::test_remote_artifacts_are_private_durable_and_checked",
    "tests/test_postgres_journal.py::test_import_preflight_does_not_interrupt_existing_remote_runs",
@@ -809,7 +851,7 @@
   },
   "capstone.api.app": {
    "functions": 37,
-   "executed": 18,
+   "executed": 20,
    "direct": 1
   },
   "capstone.api.config": {
@@ -821,6 +863,11 @@
    "functions": 5,
    "executed": 3,
    "direct": 2
+  },
+  "capstone.api.live_ingest": {
+   "functions": 3,
+   "executed": 2,
+   "direct": 1
   },
   "capstone.api.postgres_runs": {
    "functions": 15,
@@ -947,6 +994,21 @@
    "executed": 14,
    "direct": 14
   },
+  "capstone.ingestion.cloud_contract": {
+   "functions": 12,
+   "executed": 11,
+   "direct": 1
+  },
+  "capstone.ingestion.cloud_store": {
+   "functions": 4,
+   "executed": 1,
+   "direct": 0
+  },
+  "capstone.ingestion.cloud_uplink": {
+   "functions": 11,
+   "executed": 7,
+   "direct": 0
+  },
   "capstone.ingestion.collector": {
    "functions": 10,
    "executed": 8,
@@ -1011,6 +1073,16 @@
    "functions": 13,
    "executed": 13,
    "direct": 3
+  },
+  "capstone.manual.neon": {
+   "functions": 10,
+   "executed": 8,
+   "direct": 2
+  },
+  "capstone.manual.oem": {
+   "functions": 16,
+   "executed": 13,
+   "direct": 1
   },
   "capstone.manual.sections": {
    "functions": 4,
@@ -7611,13 +7683,15 @@
    "indirect": []
   },
   "capstone.api.app:create_app": {
-   "count": 10,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
     "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
@@ -7634,13 +7708,15 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.authorize": {
-   "count": 10,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
     "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
@@ -7651,10 +7727,11 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.require_role": {
-   "count": 6,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
@@ -7801,10 +7878,13 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.search_simulator_manual": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed"
+   ]
   },
   "capstone.api.app:create_app.<locals>.simulator_memories": {
    "count": 0,
@@ -7825,16 +7905,19 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.list_managed_runs": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
-   "indirect": []
-  },
-  "capstone.api.app:create_app.<locals>.start_simulator_run": {
-   "count": 6,
+   "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run"
+   ]
+  },
+  "capstone.api.app:create_app.<locals>.start_simulator_run": {
+   "count": 7,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
@@ -7910,22 +7993,22 @@
    ]
   },
   "capstone.api.config:UiConfig.__post_init__": {
-   "count": 14,
+   "count": 17,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_neon_manual.py::test_ui_neon_optin_requires_private_token",
     "tests/test_postgres_journal.py::test_remote_backend_does_not_open_a_database_by_default",
     "tests/test_postgres_journal.py::test_remote_configuration_requires_url_and_staging_directory",
     "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
     "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
     "tests/test_web_api.py::test_private_file_requires_strong_token",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
-    "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
-    "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
-    "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
-    "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes"
+    "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision"
    ]
   },
   "capstone.api.config:UiConfig.from_env": {
@@ -7971,6 +8054,36 @@
    "indirect": []
   },
   "capstone.api.import_sqlite:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.live_ingest:router_for": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_ingest_api.py::test_unauthenticated_upload_is_refused_before_repository"
+   ]
+  },
+  "capstone.api.live_ingest:router_for.<locals>.ingest": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_ingest_api.py::test_unauthenticated_upload_is_refused_before_repository"
+   ],
+   "indirect": []
+  },
+  "capstone.api.live_ingest:router_from_env": {
    "count": 0,
    "status": "NOT TESTED",
    "direct": [],
@@ -8194,11 +8307,12 @@
    "indirect": []
   },
   "capstone.api.runs:utc_now": {
-   "count": 9,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
@@ -8216,11 +8330,12 @@
    "indirect": []
   },
   "capstone.api.runs:SimulatorRuns.__init__": {
-   "count": 9,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
@@ -8232,11 +8347,12 @@
    ]
   },
   "capstone.api.runs:SimulatorRuns._initialize_store": {
-   "count": 9,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
@@ -8248,11 +8364,12 @@
    ]
   },
   "capstone.api.runs:SimulatorRuns._db": {
-   "count": 9,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
@@ -8295,10 +8412,11 @@
    ]
   },
   "capstone.api.runs:SimulatorRuns.list_runs": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation"
    ]
   },
@@ -11718,6 +11836,331 @@
    ],
    "indirect": []
   },
+  "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission": {
+   "count": 16,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_scope_file_checks_schema_and_bounds"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:CloudScope.safe_id": {
+   "count": 16,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_scope_file_checks_schema_and_bounds"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:CloudScope.unique_nodes": {
+   "count": 16,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_scope_file_checks_schema_and_bounds"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:CloudScope.assert_active": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_scope_requires_active_approved_cloud_permission",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:CloudScope.fingerprint": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_contract:CloudScope.approved": {
+   "count": 13,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality"
+   ],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:validate_record": {
+   "count": 14,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:scope_from_file": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_scope_file_checks_schema_and_bounds"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:IngestBatch.digest_format": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:IngestBatch.computed_digest": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:IngestBatch.build": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_contract:IngestBatch.authorized_lines": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers"
+   ]
+  },
+  "capstone.ingestion.cloud_store:postgres_engine": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_db_url_requires_tls_even_if_a_local_sqlite_url_is_configured"
+   ]
+  },
+  "capstone.ingestion.cloud_store:SiemensCloudRepository.__init__": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_store:SiemensCloudRepository.close": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_store:SiemensCloudRepository.accept": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_uplink:_prefix": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:_committed_hash": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:_atomic_save": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:load_cursor": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:exclusive_cursor": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:read_batch": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:_NoRedirect.redirect_request": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_uplink:send_batch": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_uplink:upload_once": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
+   ]
+  },
+  "capstone.ingestion.cloud_uplink:validate_collector_scope": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.cloud_uplink:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
   "capstone.ingestion.collector:http_get": {
    "count": 1,
    "status": "PARTIALLY VERIFIED",
@@ -12027,7 +12470,7 @@
    "indirect": []
   },
   "capstone.ingestion.privacy:git_checkout_containing": {
-   "count": 11,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12036,6 +12479,7 @@
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_oem_manual.py::test_pdf_hash_and_repo_isolation_before_any_cloud_io",
     "tests/test_pilot_acceptance.py::test_cli_private_template_has_no_pretend_authorization",
     "tests/test_pilot_acceptance.py::test_cli_refuses_an_output_inside_a_git_checkout",
     "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model",
@@ -12045,7 +12489,7 @@
    ]
   },
   "capstone.ingestion.privacy:refusal": {
-   "count": 10,
+   "count": 11,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12053,6 +12497,7 @@
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_oem_manual.py::test_pdf_hash_and_repo_isolation_before_any_cloud_io",
     "tests/test_pilot_acceptance.py::test_cli_private_template_has_no_pretend_authorization",
     "tests/test_pilot_acceptance.py::test_cli_refuses_an_output_inside_a_git_checkout",
     "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model",
@@ -12806,7 +13251,7 @@
    "indirect": []
   },
   "capstone.ingestion.siemens_opcua_record:severity_of": {
-   "count": 29,
+   "count": 43,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
@@ -12823,22 +13268,22 @@
     "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_for_a_node_that_was_not_approved_is_never_written",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_type_that_is_not_stored_arrives_as_none_and_is_counted",
-    "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection",
-    "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
-    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
-    "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
-    "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code": {
-   "count": 28,
+   "count": 42,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
@@ -12855,43 +13300,44 @@
     "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_for_a_node_that_was_not_approved_is_never_written",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_type_that_is_not_stored_arrives_as_none_and_is_counted",
-    "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection",
-    "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
-    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
-    "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
-    "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow": {
-   "count": 13,
+   "count": 24,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
     "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_for_a_node_that_was_not_approved_is_never_written",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_type_that_is_not_stored_arrives_as_none_and_is_counted",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection",
-    "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
-    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
-    "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
-    "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight",
+    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:status_from_code": {
-   "count": 22,
+   "count": 36,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
@@ -12908,38 +13354,43 @@
     "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_for_a_node_that_was_not_approved_is_never_written",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_type_that_is_not_stored_arrives_as_none_and_is_counted",
-    "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:NodeRef.key": {
-   "count": 29,
+   "count": 45,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_node_is_keyed_by_namespace_uri_not_index"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_bug_in_the_collector_stops_it_and_is_recorded",
-    "tests/test_siemens_opcua_adapter.py::test_a_certificate_that_cannot_be_loaded_is_refused",
-    "tests/test_siemens_opcua_adapter.py::test_a_certificate_the_server_rejects_stops_collection",
-    "tests/test_siemens_opcua_adapter.py::test_a_config_that_is_not_opc_tcp_or_repeats_a_node_is_refused",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_missing_certificate_file_is_refused_before_the_client_sees_it",
-    "tests/test_siemens_opcua_adapter.py::test_a_missing_namespace_is_refused",
-    "tests/test_siemens_opcua_adapter.py::test_a_node_the_server_will_not_monitor_is_refused_by_name",
-    "tests/test_siemens_opcua_adapter.py::test_a_notification_for_an_unknown_node_is_dropped_and_counted",
-    "tests/test_siemens_opcua_adapter.py::test_a_secret_echoed_in_an_error_is_blanked_in_the_audit_trail"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_scope_file_checks_schema_and_bounds"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type": {
-   "count": 25,
+   "count": 39,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
@@ -12956,22 +13407,22 @@
     "tests/test_siemens_opcua_record.py::test_the_record_has_no_mtconnect_sequence_or_instance_id"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_for_a_node_that_was_not_approved_is_never_written",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_type_that_is_not_stored_arrives_as_none_and_is_counted",
-    "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection",
-    "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
-    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
-    "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
-    "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number": {
-   "count": 12,
+   "count": 24,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
@@ -12981,17 +13432,22 @@
     "tests/test_siemens_opcua_record.py::test_words_and_flags_are_not_numbers"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection",
-    "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
-    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
-    "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
-    "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:data_change": {
-   "count": 21,
+   "count": 35,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
@@ -13008,17 +13464,22 @@
     "tests/test_siemens_opcua_record.py::test_runs_split_on_a_new_epoch_even_without_a_marker"
    ],
    "indirect": [
-    "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
-    "tests/test_siemens_opcua_adapter.py::test_a_failed_attempt_is_recorded_with_its_reason_and_retried",
-    "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_for_a_node_that_was_not_approved_is_never_written",
-    "tests/test_siemens_opcua_adapter.py::test_a_value_type_that_is_not_stored_arrives_as_none_and_is_counted",
-    "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
-    "tests/test_siemens_opcua_adapter.py::test_values_arrive_typed_with_status_clocks_and_connection"
+    "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload",
+    "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write",
+    "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart",
+    "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized",
+    "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence",
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected",
+    "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality",
+    "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped",
+    "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
+    "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap": {
-   "count": 29,
+   "count": 32,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_siemens_opcua_record.py::test_gap_detail_goes_with_a_gap_marker_and_no_other",
@@ -13026,6 +13487,9 @@
     "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats"
    ],
    "indirect": [
+    "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers",
+    "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted",
+    "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction",
     "tests/test_siemens_opcua_adapter.py::test_a_bad_value_and_a_nan_are_stored_but_are_never_numbers",
     "tests/test_siemens_opcua_adapter.py::test_a_bug_in_the_collector_stops_it_and_is_recorded",
     "tests/test_siemens_opcua_adapter.py::test_a_certificate_that_cannot_be_loaded_is_refused",
@@ -13034,10 +13498,7 @@
     "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
     "tests/test_siemens_opcua_adapter.py::test_a_missing_certificate_file_is_refused_before_the_client_sees_it",
     "tests/test_siemens_opcua_adapter.py::test_a_missing_namespace_is_refused",
-    "tests/test_siemens_opcua_adapter.py::test_a_node_the_server_will_not_monitor_is_refused_by_name",
-    "tests/test_siemens_opcua_adapter.py::test_a_secret_echoed_in_an_error_is_blanked_in_the_audit_trail",
-    "tests/test_siemens_opcua_adapter.py::test_a_server_with_the_wrong_application_uri_is_refused_before_a_session",
-    "tests/test_siemens_opcua_adapter.py::test_a_skipped_counter_writes_a_gap_and_a_keep_alive_does_not"
+    "tests/test_siemens_opcua_adapter.py::test_a_node_the_server_will_not_monitor_is_refused_by_name"
    ]
   },
   "capstone.ingestion.siemens_opcua_record:parse_opcua_line": {
@@ -13459,7 +13920,7 @@
    ]
   },
   "capstone.manual.index:section_document": {
-   "count": 9,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13471,7 +13932,8 @@
     "tests/test_manual.py::test_an_index_that_matches_the_manual_is_reused",
     "tests/test_manual.py::test_another_embedding_model_rebuilds_the_index",
     "tests/test_manual.py::test_the_chroma_index_returns_only_sections_the_manual_has",
-    "tests/test_manual.py::test_the_manual_changed_reason_and_rebuild"
+    "tests/test_manual.py::test_the_manual_changed_reason_and_rebuild",
+    "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network"
    ]
   },
   "capstone.manual.index:KeywordManualSearch.__init__": {
@@ -13612,16 +14074,250 @@
     "tests/test_coverage_index_edges.py::test_manual_cli_passes_rebuild_and_prints_indexed_count"
    ]
   },
-  "capstone.manual.sections:ManualSection.citation": {
+  "capstone.manual.neon:_vector": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_neon_manual.py::test_neon_semantic_uses_matching_model_and_valid_2048_vector"
+   ],
+   "indirect": [
+    "tests/test_neon_manual.py::test_embedding_integrity_refuses_bad_vectors",
+    "tests/test_neon_manual.py::test_embedding_timeout_or_missing_vectors_degrades_within_same_document",
+    "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network"
+   ]
+  },
+  "capstone.manual.neon:_digest": {
    "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_manual.py::test_the_manual_is_its_seventeen_numbered_sections_and_nothing_else"
+    "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network"
+   ]
+  },
+  "capstone.manual.neon:NeonManualSearch.__init__": {
+   "count": 7,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_neon_manual.py::test_db_outage_fails_closed_without_leaking_connection_strings",
+    "tests/test_neon_manual.py::test_embedding_timeout_or_missing_vectors_degrades_within_same_document",
+    "tests/test_neon_manual.py::test_neon_keyword_only_returns_published_scoped_manual_sections",
+    "tests/test_neon_manual.py::test_neon_semantic_uses_matching_model_and_valid_2048_vector",
+    "tests/test_neon_manual.py::test_no_pilot_or_other_document_scope_can_be_retrieved",
+    "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network",
+    "tests/test_neon_manual.py::test_search_bounds_and_browse_limit_are_checked_before_database"
+   ]
+  },
+  "capstone.manual.neon:NeonManualSearch._rows": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_neon_manual.py::test_db_outage_fails_closed_without_leaking_connection_strings",
+    "tests/test_neon_manual.py::test_embedding_timeout_or_missing_vectors_degrades_within_same_document",
+    "tests/test_neon_manual.py::test_neon_keyword_only_returns_published_scoped_manual_sections",
+    "tests/test_neon_manual.py::test_neon_semantic_uses_matching_model_and_valid_2048_vector"
+   ]
+  },
+  "capstone.manual.neon:NeonManualSearch.close": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.manual.neon:NeonManualSearch.list_sections": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_neon_manual.py::test_search_bounds_and_browse_limit_are_checked_before_database"
+   ]
+  },
+  "capstone.manual.neon:NeonManualSearch.search": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_neon_manual.py::test_search_bounds_and_browse_limit_are_checked_before_database"
+   ],
+   "indirect": [
+    "tests/test_neon_manual.py::test_db_outage_fails_closed_without_leaking_connection_strings",
+    "tests/test_neon_manual.py::test_embedding_timeout_or_missing_vectors_degrades_within_same_document",
+    "tests/test_neon_manual.py::test_neon_keyword_only_returns_published_scoped_manual_sections",
+    "tests/test_neon_manual.py::test_neon_semantic_uses_matching_model_and_valid_2048_vector"
+   ]
+  },
+  "capstone.manual.neon:NeonManualSearch.publish_simulator": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network"
+   ]
+  },
+  "capstone.manual.neon:open_neon_manual": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_neon_manual.py::test_neon_url_requires_tls_and_does_not_leak_secret",
+    "tests/test_neon_manual.py::test_no_implicit_fallback_to_database_url"
+   ]
+  },
+  "capstone.manual.neon:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.manual.oem:ReviewedOEMSection.valid_pages": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_document_requires_namespaced_id_and_actual_human_scope",
+    "tests/test_oem_manual.py::test_oem_private_conflict_recheck_uses_authenticated_storage_route",
+    "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval",
+    "tests/test_oem_manual.py::test_pdf_hash_and_repo_isolation_before_any_cloud_io",
+    "tests/test_oem_manual.py::test_private_storage_is_immutable_and_retry_requires_exact_pdf",
+    "tests/test_oem_manual.py::test_same_revision_section_hash_captures_reviewed_page_edits"
+   ]
+  },
+  "capstone.manual.oem:OEMApproval.valid_scope": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_document_requires_namespaced_id_and_actual_human_scope",
+    "tests/test_oem_manual.py::test_oem_private_conflict_recheck_uses_authenticated_storage_route",
+    "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval",
+    "tests/test_oem_manual.py::test_pdf_hash_and_repo_isolation_before_any_cloud_io",
+    "tests/test_oem_manual.py::test_private_storage_is_immutable_and_retry_requires_exact_pdf",
+    "tests/test_oem_manual.py::test_same_revision_section_hash_captures_reviewed_page_edits"
+   ]
+  },
+  "capstone.manual.oem:OEMApproval.assert_active": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_document_requires_namespaced_id_and_actual_human_scope",
+    "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval"
+   ]
+  },
+  "capstone.manual.oem:OEMApproval.section_digest": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_same_revision_section_hash_captures_reviewed_page_edits"
+   ]
+  },
+  "capstone.manual.oem:OEMApproval.object_key": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_oem_private_conflict_recheck_uses_authenticated_storage_route",
+    "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval",
+    "tests/test_oem_manual.py::test_private_storage_is_immutable_and_retry_requires_exact_pdf",
+    "tests/test_oem_manual.py::test_same_revision_section_hash_captures_reviewed_page_edits"
+   ]
+  },
+  "capstone.manual.oem:_NoRedirect.redirect_request": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.manual.oem:PrivatePDFStorage.__init__": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_oem_private_conflict_recheck_uses_authenticated_storage_route",
+    "tests/test_oem_manual.py::test_private_storage_is_immutable_and_retry_requires_exact_pdf",
+    "tests/test_oem_manual.py::test_storage_refuses_public_bucket_and_non_supabase_or_http"
+   ]
+  },
+  "capstone.manual.oem:PrivatePDFStorage._request": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_oem_private_conflict_recheck_uses_authenticated_storage_route"
+   ]
+  },
+  "capstone.manual.oem:PrivatePDFStorage._assert_private_bucket": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.manual.oem:PrivatePDFStorage.publish": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_private_storage_is_immutable_and_retry_requires_exact_pdf"
+   ]
+  },
+  "capstone.manual.oem:OEMKnowledgeRepository.__init__": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval"
+   ]
+  },
+  "capstone.manual.oem:OEMKnowledgeRepository.publish": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval"
+   ]
+  },
+  "capstone.manual.oem:ScopedOEMManualSearch.__init__": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_oem_search_uses_exact_machine_and_controller_and_no_simulator"
+   ]
+  },
+  "capstone.manual.oem:ScopedOEMManualSearch.search": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_oem_manual.py::test_oem_search_uses_exact_machine_and_controller_and_no_simulator"
+   ],
+   "indirect": []
+  },
+  "capstone.manual.oem:read_pdf": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_oem_manual.py::test_pdf_hash_and_repo_isolation_before_any_cloud_io"
+   ]
+  },
+  "capstone.manual.oem:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.manual.sections:ManualSection.citation": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_manual.py::test_the_manual_is_its_seventeen_numbered_sections_and_nothing_else",
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed"
    ]
   },
   "capstone.manual.sections:parse_manual": {
-   "count": 17,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13640,7 +14336,7 @@
    ]
   },
   "capstone.manual.sections:check_no_leaks": {
-   "count": 17,
+   "count": 19,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -13659,7 +14355,7 @@
    ]
   },
   "capstone.manual.sections:load_manual": {
-   "count": 16,
+   "count": 17,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17269,7 +17965,7 @@
    "indirect": []
   },
   "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage": {
-   "count": 324,
+   "count": 326,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -17301,7 +17997,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_triage_needs_fixed_plan": {
-   "count": 324,
+   "count": 326,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -17333,7 +18029,7 @@
    ]
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 333,
+   "count": 335,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -31732,6 +32428,387 @@
     "capstone.simulator.clock:SimulationClock.now",
     "capstone.simulator.clock:SimulationClock.tick",
     "capstone.simulator.clock:SimulationClock.time_at"
+   ]
+  },
+  "tests/test_cloud_ingest_api.py::test_unauthenticated_upload_is_refused_before_repository": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.live_ingest:router_for",
+    "capstone.api.live_ingest:router_for.<locals>.ingest"
+   ]
+  },
+  "tests/test_cloud_ingest_api.py::test_collector_token_produces_receipt_and_ui_token_cannot_upload": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.live_ingest:router_for",
+    "capstone.api.live_ingest:router_for.<locals>.ingest",
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.authorized_lines",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_ingest_api.py::test_oversized_batch_and_invalid_digest_fail_before_write": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.live_ingest:router_for",
+    "capstone.api.live_ingest:router_for.<locals>.ingest",
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.authorized_lines",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_ingest_api.py::test_scope_revocation_blocks_future_batches_without_server_restart": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.live_ingest:router_for",
+    "capstone.api.live_ingest:router_for.<locals>.ingest",
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.authorized_lines",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_ingest_api.py::test_store_failure_response_is_sanitized": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.live_ingest:router_for",
+    "capstone.api.live_ingest:router_for.<locals>.ingest",
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.authorized_lines",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_good_approved_numeric_retains_exact_identity_and_quality": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_bad_uncertain_and_missing_time_are_not_numeric_evidence": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_foreign_nodes_server_and_sensitive_text_are_rejected": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_marker_gap_remains_but_unreviewed_text_is_redacted": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers": {
+   "count": 19,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.authorized_lines",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_scope_requires_active_approved_cloud_permission": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_scope_file_checks_schema_and_bounds": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:scope_from_file",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_resumable_uplink_never_acks_failed_cloud_transaction": {
+   "count": 25,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.cloud_uplink:_atomic_save",
+    "capstone.ingestion.cloud_uplink:_committed_hash",
+    "capstone.ingestion.cloud_uplink:_prefix",
+    "capstone.ingestion.cloud_uplink:exclusive_cursor",
+    "capstone.ingestion.cloud_uplink:load_cursor",
+    "capstone.ingestion.cloud_uplink:read_batch",
+    "capstone.ingestion.cloud_uplink:upload_once",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_incomplete_line_is_never_sent_or_skipped": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.cloud_uplink:_atomic_save",
+    "capstone.ingestion.cloud_uplink:_prefix",
+    "capstone.ingestion.cloud_uplink:load_cursor",
+    "capstone.ingestion.cloud_uplink:read_batch",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_modified_capture_refused_even_when_new_lines_are_appended": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_uplink:_atomic_save",
+    "capstone.ingestion.cloud_uplink:_prefix",
+    "capstone.ingestion.cloud_uplink:load_cursor",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_db_url_requires_tls_even_if_a_local_sqlite_url_is_configured": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_store:postgres_engine"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_storage_migration_is_private_and_separate_from_simulator_journal": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_cloud_pilot.py::test_uplink_refuses_changes_outside_first_256_acknowledged_bytes": {
+   "count": 24,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.cloud_uplink:_atomic_save",
+    "capstone.ingestion.cloud_uplink:_committed_hash",
+    "capstone.ingestion.cloud_uplink:_prefix",
+    "capstone.ingestion.cloud_uplink:exclusive_cursor",
+    "capstone.ingestion.cloud_uplink:load_cursor",
+    "capstone.ingestion.cloud_uplink:read_batch",
+    "capstone.ingestion.cloud_uplink:upload_once",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_uplink_refuses_in_place_mutation_between_validation_and_http": {
+   "count": 24,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.cloud_uplink:_atomic_save",
+    "capstone.ingestion.cloud_uplink:_committed_hash",
+    "capstone.ingestion.cloud_uplink:_prefix",
+    "capstone.ingestion.cloud_uplink:exclusive_cursor",
+    "capstone.ingestion.cloud_uplink:load_cursor",
+    "capstone.ingestion.cloud_uplink:read_batch",
+    "capstone.ingestion.cloud_uplink:upload_once",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow"
+   ]
+  },
+  "tests/test_cloud_pilot.py::test_uplink_refuses_mutation_while_cloud_ack_is_in_flight": {
+   "count": 24,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.cloud_contract:ApprovedNode.valid_permission",
+    "capstone.ingestion.cloud_contract:CloudScope.approved",
+    "capstone.ingestion.cloud_contract:CloudScope.assert_active",
+    "capstone.ingestion.cloud_contract:CloudScope.safe_id",
+    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes",
+    "capstone.ingestion.cloud_contract:IngestBatch.build",
+    "capstone.ingestion.cloud_contract:IngestBatch.computed_digest",
+    "capstone.ingestion.cloud_contract:IngestBatch.digest_format",
+    "capstone.ingestion.cloud_contract:validate_record",
+    "capstone.ingestion.cloud_uplink:_atomic_save",
+    "capstone.ingestion.cloud_uplink:_committed_hash",
+    "capstone.ingestion.cloud_uplink:_prefix",
+    "capstone.ingestion.cloud_uplink:exclusive_cursor",
+    "capstone.ingestion.cloud_uplink:load_cursor",
+    "capstone.ingestion.cloud_uplink:read_batch",
+    "capstone.ingestion.cloud_uplink:upload_once",
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow"
    ]
   },
   "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing": {
@@ -49070,6 +50147,111 @@
     "capstone.ingestion.record:gap_free_runs"
    ]
   },
+  "tests/test_neon_manual.py::test_neon_keyword_only_returns_published_scoped_manual_sections": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search"
+   ]
+  },
+  "tests/test_neon_manual.py::test_neon_semantic_uses_matching_model_and_valid_2048_vector": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search",
+    "capstone.manual.neon:_vector"
+   ]
+  },
+  "tests/test_neon_manual.py::test_embedding_timeout_or_missing_vectors_degrades_within_same_document": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search",
+    "capstone.manual.neon:_vector"
+   ]
+  },
+  "tests/test_neon_manual.py::test_db_outage_fails_closed_without_leaking_connection_strings": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch._rows",
+    "capstone.manual.neon:NeonManualSearch.search"
+   ]
+  },
+  "tests/test_neon_manual.py::test_embedding_integrity_refuses_bad_vectors": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:_vector"
+   ]
+  },
+  "tests/test_neon_manual.py::test_no_pilot_or_other_document_scope_can_be_retrieved": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:NeonManualSearch.__init__"
+   ]
+  },
+  "tests/test_neon_manual.py::test_search_bounds_and_browse_limit_are_checked_before_database": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch.list_sections",
+    "capstone.manual.neon:NeonManualSearch.search"
+   ]
+  },
+  "tests/test_neon_manual.py::test_publication_rejects_revision_mismatch_before_network": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.index:section_document",
+    "capstone.manual.neon:NeonManualSearch.__init__",
+    "capstone.manual.neon:NeonManualSearch.publish_simulator",
+    "capstone.manual.neon:_digest",
+    "capstone.manual.neon:_vector",
+    "capstone.manual.sections:check_no_leaks"
+   ]
+  },
+  "tests/test_neon_manual.py::test_neon_url_requires_tls_and_does_not_leak_secret": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:open_neon_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
+   ]
+  },
+  "tests/test_neon_manual.py::test_no_implicit_fallback_to_database_url": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.neon:open_neon_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
+   ]
+  },
+  "tests/test_neon_manual.py::test_ui_neon_optin_requires_private_token": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.config:UiConfig.__post_init__"
+   ]
+  },
+  "tests/test_neon_manual.py::test_isolated_sql_migration_has_no_browser_or_data_api_grants": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
   "tests/test_numeric_claim_metrics.py::test_a_hypothesis_citing_end_value_is_accepted": {
    "count": 1,
    "judgment": "NOT ASSESSED",
@@ -49440,6 +50622,90 @@
     "capstone.simulator.scenarios:AmbientTemperature.apply",
     "capstone.simulator.scenarios:AmbientTemperature.ground_truth",
     "capstone.simulator.scenarios:BearingDegradation.__init__"
+   ]
+  },
+  "tests/test_oem_manual.py::test_document_requires_namespaced_id_and_actual_human_scope": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:OEMApproval.assert_active",
+    "capstone.manual.oem:OEMApproval.valid_scope",
+    "capstone.manual.oem:ReviewedOEMSection.valid_pages"
+   ]
+  },
+  "tests/test_oem_manual.py::test_pdf_hash_and_repo_isolation_before_any_cloud_io": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal",
+    "capstone.manual.oem:OEMApproval.valid_scope",
+    "capstone.manual.oem:ReviewedOEMSection.valid_pages",
+    "capstone.manual.oem:read_pdf"
+   ]
+  },
+  "tests/test_oem_manual.py::test_same_revision_section_hash_captures_reviewed_page_edits": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:OEMApproval.object_key",
+    "capstone.manual.oem:OEMApproval.section_digest",
+    "capstone.manual.oem:OEMApproval.valid_scope",
+    "capstone.manual.oem:ReviewedOEMSection.valid_pages"
+   ]
+  },
+  "tests/test_oem_manual.py::test_private_storage_is_immutable_and_retry_requires_exact_pdf": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:OEMApproval.object_key",
+    "capstone.manual.oem:OEMApproval.valid_scope",
+    "capstone.manual.oem:PrivatePDFStorage.__init__",
+    "capstone.manual.oem:PrivatePDFStorage.publish",
+    "capstone.manual.oem:ReviewedOEMSection.valid_pages"
+   ]
+  },
+  "tests/test_oem_manual.py::test_storage_refuses_public_bucket_and_non_supabase_or_http": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:PrivatePDFStorage.__init__"
+   ]
+  },
+  "tests/test_oem_manual.py::test_oem_search_uses_exact_machine_and_controller_and_no_simulator": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:ScopedOEMManualSearch.__init__",
+    "capstone.manual.oem:ScopedOEMManualSearch.search"
+   ]
+  },
+  "tests/test_oem_manual.py::test_oem_publication_requires_exact_private_object_and_unexpired_approval": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:OEMApproval.assert_active",
+    "capstone.manual.oem:OEMApproval.object_key",
+    "capstone.manual.oem:OEMApproval.valid_scope",
+    "capstone.manual.oem:OEMKnowledgeRepository.__init__",
+    "capstone.manual.oem:OEMKnowledgeRepository.publish",
+    "capstone.manual.oem:ReviewedOEMSection.valid_pages"
+   ]
+  },
+  "tests/test_oem_manual.py::test_oem_sql_migration_preserves_private_scope_and_lineage": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_oem_manual.py::test_oem_private_conflict_recheck_uses_authenticated_storage_route": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.oem:OEMApproval.object_key",
+    "capstone.manual.oem:OEMApproval.valid_scope",
+    "capstone.manual.oem:PrivatePDFStorage.__init__",
+    "capstone.manual.oem:PrivatePDFStorage._request",
+    "capstone.manual.oem:ReviewedOEMSection.valid_pages"
    ]
   },
   "tests/test_pilot_acceptance.py::test_an_unknown_controller_is_a_blocker_not_a_default_to_haas": {
@@ -67261,6 +68527,38 @@
     "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
     "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
     "capstone.ingestion.siemens_opcua_record:severity_of"
+   ]
+  },
+  "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.search_simulator_manual",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.manual.sections:ManualSection.citation",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual"
+   ]
+  },
+  "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.list_managed_runs",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.search_simulator_manual",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.list_runs",
+    "capstone.api.runs:utc_now"
    ]
   },
   "tests/test_web_runs.py::test_run_roles_and_idempotency": {

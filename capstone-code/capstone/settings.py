@@ -59,6 +59,10 @@ class Settings(BaseSettings):
     )
 
     database_url: SecretStr | None = _optional("DATABASE_URL")
+    # Independent Neon knowledge connection; never infer it from Supabase URLs.
+    neon_knowledge_database_url: SecretStr | None = _optional(
+        "NEON_KNOWLEDGE_DATABASE_URL"
+    )
 
     # Free-text memory recall: "semantic" (ChromaDB, falls back to keyword when
     # Chroma is unavailable), "keyword" (SQL store only), or "none" (disabled).
@@ -439,6 +443,7 @@ class Settings(BaseSettings):
 
     @field_validator(
         "database_url",
+        "neon_knowledge_database_url",
         "nvidia_api_key",
         "groq_api_key",
         "mistral_api_key",
