@@ -1,10 +1,12 @@
 # REVIEW-ONLY BLUEPRINT: not render.yaml. No deployment or auto-sync.
-# Attach to Render manually after stacked PRs merge and staging gates are green.
+# Reuse existing Render web service Capstone_Project_CMU (Virginia); create ONLY
+# the new background worker after staging gates. Importing this plan before
+# approval would change the existing web service, so keep it unlinked.
 # Both services MUST receive the SAME TLS PostgreSQL internal URL.
 # Apply the Alembic migration ONCE before enabling either service.
 services:
   - type: web
-    name: capstone-fastapi
+    name: Capstone_Project_CMU
     runtime: python
     region: virginia
     plan: 1c-2g
