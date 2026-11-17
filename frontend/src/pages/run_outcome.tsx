@@ -19,6 +19,11 @@ function tick(value: number | null | undefined): string {
   return value == null ? 'Not recorded' : 'Tick ' + value;
 }
 
+function countPair(a: number | null | undefined, b: number | null | undefined): string {
+  return (a == null ? 'Unknown' : String(a)) + ' / ' +
+    (b == null ? 'Unknown' : String(b));
+}
+
 /** The live-run snapshot and final audit remain independent evidence sources. */
 export function FinalRunOutcome({ run, detail }: {
   run: ManagedRun | null; detail: InvestigationDetail | null;
@@ -45,9 +50,9 @@ export function FinalRunOutcome({ run, detail }: {
         <DataRow label="Termination reason" value={detail?.termination_reason ||
           snapshot?.investigation?.termination_reason || 'Not recorded'}/>
         <DataRow label="Iterations / tool calls" value={detail ?
-          detail.iterations + ' / ' + detail.tool_calls : 'Not recorded'}/>
+          countPair(detail.iterations, detail.tool_calls) : 'Not recorded'}/>
         <DataRow label="Evidence / hypotheses" value={detail ?
-          detail.evidence_count + ' / ' + detail.hypothesis_count : 'Not recorded'}/>
+          countPair(detail.evidence_count, detail.hypothesis_count) : 'Not recorded'}/>
         <DataRow label="Escalated to deep" value={snapshot?.deep_ran == null ?
           'Unknown' : snapshot.deep_ran ? 'Yes' : 'No'}/>
       </>}
@@ -61,7 +66,7 @@ export function FinalRunOutcome({ run, detail }: {
         <DataRow label="Proposal evidence IDs" value={ids(detail?.proposed_action?.evidence_ids)}/>
         <DataRow label="Proposal ID" value={detail?.proposal_id ?? 'Not recorded'}/>
         <DataRow label="Recorded proposal/review status" value={detail?.proposal_status || 'Not recorded'}/>
-        <DataRow label="Number of submitted reviews" value={snapshot?.review_count ?? 'Not recorded'}/>
+        <DataRow label="Proposals registered by approval desk" value={snapshot?.review_count ?? 'Not recorded'}/>
         <DataRow label="Simulated action started" value={snapshot?.action_executed == null ?
           'Unknown' : snapshot.action_executed ? 'Yes' : 'No'}/>
         <DataRow label="Action start" value={tick(detail?.action_started_tick)}/>
@@ -108,9 +113,9 @@ export function AuditPhaseOutcome({ detail, phase }: {
     <DataRow label="Recommended action rationale" value={conclusion?.action_rationale || 'Not recorded'}/>
     <DataRow label="Termination" value={detail.termination_reason || 'Not recorded'}/>
     <DataRow label="Iterations / tool calls" value={
-      detail.iterations + ' / ' + detail.tool_calls}/>
+      countPair(detail.iterations, detail.tool_calls)}/>
     <DataRow label="Evidence / hypotheses" value={
-      detail.evidence_count + ' / ' + detail.hypothesis_count}/>
+      countPair(detail.evidence_count, detail.hypothesis_count)}/>
     <DataRow label="Proposed intervention" value={detail.proposed_action?.action || 'None recorded'}/>
     <DataRow label="Proposed target" value={detail.proposed_action?.machine_id || 'Not recorded'}/>
     <DataRow label="Proposal status" value={<Pill text={detail.proposal_status || 'Unknown'}
