@@ -229,6 +229,17 @@ def build_world(
     raise ValueError(f"unknown scenario kind {kind}; choose from {SCENARIO_KINDS}")
 
 
+def triage_requested(settings, requested: bool | None) -> bool:
+    """Resolve episode selection without overriding an explicit deep-only run.
+
+    The execution profile only supplies a default when the caller leaves
+    triage unspecified. It never overrides a deliberate per-run choice.
+    """
+    if requested is not None:
+        return requested
+    return settings.triage or settings.triage_run_mode == "deterministic"
+
+
 def run_episode(
     seed: int,
     policy: ReasoningPolicy,
@@ -448,7 +459,7 @@ def run_episode(
             f"(research has {research:g} s)"
         )
     triage_state, triage_seconds = None, None
-    if settings.triage if triage is None else triage:
+    if triage_requested(settings, triage):
         triage_state, state, triage_seconds = run_triage_then_deep(
             state, deps, budgets, settings, log
         )
