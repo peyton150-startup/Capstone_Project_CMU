@@ -552,3 +552,13 @@ def test_terminal_progress_is_authoritative_over_late_queue_writer(repository):
     assert [event["event"] for event in repository.events_since(
         submitted["run_id"], 0
     )][-2:] == ["stage.updated", "run.completed"]
+
+
+def test_worker_liveness_refuses_stale_render_revision(repository, monkeypatch):
+    repository.worker_heartbeat(
+        "worker:different", source_revision="a" * 40, status="idle"
+    )
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "b" * 40)
+    assert repository.queue_metrics()["worker_liveness"] == "revision_mismatch"
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "a" * 40)
+    assert repository.queue_metrics()["worker_liveness"] == "healthy"

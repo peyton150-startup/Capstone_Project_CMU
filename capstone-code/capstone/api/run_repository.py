@@ -782,6 +782,22 @@ class RunRepository:
                 select(func.count()).select_from(SimWorkerHeartbeat)
                 .where(SimWorkerHeartbeat.last_seen_at >= fresh_after)
             ) or 0
+            # A live worker on the wrong Render commit cannot execute this
+            # web service's jobs. Do not report it as ready.
+            required_revision = (
+                os.getenv("CAPSTONE_SOURCE_REVISION")
+                or os.getenv("RENDER_GIT_COMMIT")
+                or None
+            )
+            compatible = alive
+            if required_revision is not None:
+                compatible = session.scalar(
+                    select(func.count()).select_from(SimWorkerHeartbeat)
+                    .where(
+                        SimWorkerHeartbeat.last_seen_at >= fresh_after,
+                        SimWorkerHeartbeat.source_revision == required_revision,
+                    )
+                ) or 0
             last_pulse = session.scalar(
                 select(func.max(SimWorkerHeartbeat.last_seen_at))
             )
@@ -798,8 +814,11 @@ class RunRepository:
             "last_heartbeat_age_seconds": elapsed(recent),
             # No durable idle-worker heartbeat table: never imply presence
             # when the queue is empty and there is no active claim.
-            "worker_liveness": "healthy" if alive else "unverified",
-            "healthy_workers": min(int(alive), 100),
+            "worker_liveness": (
+                "healthy" if compatible else
+                ("revision_mismatch" if alive else "unverified")
+            ),
+            "healthy_workers": min(int(compatible), 100),
             "last_worker_pulse_age_seconds": elapsed(last_pulse),
         }
 
