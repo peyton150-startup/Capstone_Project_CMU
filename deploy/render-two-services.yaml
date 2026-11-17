@@ -1,0 +1,64 @@
+# REVIEW-ONLY BLUEPRINT: not render.yaml. No deployment or auto-sync.
+# Attach to Render manually after stacked PRs merge and staging gates are green.
+# Both services MUST receive the SAME TLS PostgreSQL internal URL.
+# Apply the Alembic migration ONCE before enabling either service.
+services:
+  - type: web
+    name: capstone-fastapi
+    runtime: python
+    region: virginia
+    plan: 1c-2g
+    autoDeployTrigger: 'off'
+    numInstances: 1
+    healthCheckPath: /api/v1/ready
+    buildCommand: pip install uv==0.13.0 && uv sync --locked --all-extras --no-dev && uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
+    startCommand: uv run --no-sync uvicorn capstone.api.app:app --host 0.0.0.0 --port $PORT --workers 1
+    envVars:
+      - key: CAPSTONE_UI_SIM_RUNS
+        value: '1'
+      - key: CAPSTONE_UI_RUN_BACKEND
+        value: hosted
+      - key: CAPSTONE_UI_RUN_DATABASE_URL
+        sync: false
+      - key: CAPSTONE_UI_TOKEN
+        sync: false
+      - key: CAPSTONE_UI_RUN_TOKEN
+        sync: false
+      - key: CAPSTONE_UI_REVIEW_TOKEN
+        sync: false
+      - key: CAPSTONE_UI_ALLOWED_ORIGIN
+        sync: false
+      - key: TRIAGE_PLAN
+        value: fixed
+      - key: TRIAGE_INVESTIGATE
+        value: deterministic
+      - key: TRIAGE_HYPOTHESIZE
+        value: model
+      - key: TRIAGE_EVIDENCE_TESTS
+        value: 'true'
+
+  - type: worker
+    name: capstone-agent-worker
+    runtime: python
+    region: virginia
+    plan: 1c-2g
+    autoDeployTrigger: 'off'
+    numInstances: 1
+    maxShutdownDelaySeconds: 120
+    buildCommand: pip install uv==0.13.0 && uv sync --locked --all-extras --no-dev
+    startCommand: uv run --no-sync python -m capstone.worker
+    envVars:
+      - key: CAPSTONE_WORKER_ENABLED
+        value: '1'
+      - key: CAPSTONE_UI_RUN_DATABASE_URL
+        sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: TRIAGE_PLAN
+        value: fixed
+      - key: TRIAGE_INVESTIGATE
+        value: deterministic
+      - key: TRIAGE_HYPOTHESIZE
+        value: model
+      - key: TRIAGE_EVIDENCE_TESTS
+        value: 'true'
