@@ -3,7 +3,7 @@ name: Live Siemens and OEM PostgreSQL contracts
 on:
   pull_request:
   push:
-    branches: [main, feature/siemens-supabase-ingest-oem-manuals]
+    branches: [main]
     paths:
       - "capstone-code/capstone/ingestion/cloud_*"
       - "capstone-code/capstone/manual/oem.py"
