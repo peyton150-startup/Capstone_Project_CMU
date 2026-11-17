@@ -29,7 +29,14 @@ from capstone.api.readers import (
     safe_scorecards,
     signal_samples,
 )
-from capstone.api.runs import ReviewDecision, RunRequest, SimulatorRuns
+from capstone.api.runs import (
+    ReviewDecision,
+    RunRequest,
+    SimulatorRuns,
+    public_run_configuration,
+)
+from capstone.settings import get_settings
+from capstone.triage_run_controls import resolve_triage_run
 
 Workspace = Literal["simulator", "pilot"]
 
@@ -38,9 +45,17 @@ PUBLIC_SETTING_NAMES = (
     "TRIAGE",
     "TRIAGE_SECONDS",
     "TRIAGE_PLAN",
+    "TRIAGE_RUN_MODE",
+    "TRIAGE_HYPOTHESIZE",
     "TRIAGE_PACKET",
     "TRIAGE_INVESTIGATE",
     "TRIAGE_EVIDENCE_TESTS",
+    "TRIAGE_PACKET_PROMPT",
+    "TRIAGE_OBSERVE_CALLS",
+    "TRIAGE_CONCLUDE_BRIEF",
+    "TRIAGE_CONCLUDE_CAP",
+    "TRIAGE_HYPOTHESIS_SECONDS",
+    "TRIAGE_TOOL_CALLS",
     "TRIAGE_THEN_DEEP",
     "STEP_QUESTIONS",
     "DECIDE_CALLS",
@@ -92,8 +107,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "http://127.0.0.1:4173",
             "http://localhost:4173",
         ],
-        allow_methods=["GET"],
-        allow_headers=["Authorization", "Content-Type"],
+        allow_methods=["GET", "POST"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
         allow_credentials=False,
     )
 
@@ -544,6 +559,46 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "message": "Existing manual and memory providers have no authorized UI read adapter yet",
         }
 
+    @app.get("/api/v1/lab/runs/configuration", dependencies=[Access])
+    def managed_run_configuration(workspace: Workspace = "simulator") -> dict:
+        """Validated defaults for the per-run editor; not global env editing."""
+        if workspace != "simulator":
+            raise HTTPException(
+                status_code=403, detail="Pilot configuration is read-only"
+            )
+        if runner is None:
+            raise HTTPException(
+                status_code=503, detail="Simulator runner is not configured"
+            )
+        # Use the exact resolver as a submitted run. Values are all allowlisted.
+        effective = resolve_triage_run(get_settings())
+        return {
+            "schema_version": 1,
+            "defaults": effective.model_dump(mode="json"),
+            "editable_per_run": True,
+            "global_environment_editable": False,
+        }
+
+    @app.post("/api/v1/lab/runs/preview", dependencies=[Access])
+    def preview_simulator_run(
+        request: RunRequest, workspace: Workspace = "simulator"
+    ) -> dict:
+        """Side-effect-free preflight: same typed resolver as submission."""
+        if workspace != "simulator":
+            raise HTTPException(
+                status_code=403, detail="Pilot simulator runs prohibited"
+            )
+        if runner is None:
+            raise HTTPException(
+                status_code=503, detail="Simulator runner is not configured"
+            )
+        try:
+            return public_run_configuration(request, get_settings())
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="Incompatible triage settings"
+            ) from None
+
     @app.get("/api/v1/lab/runs", dependencies=[Access])
     def list_managed_runs(workspace: Workspace = "simulator") -> dict:
         if workspace != "simulator":
@@ -596,6 +651,14 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 if knowledge is not None:
                     knowledge.close()
         assert runner is not None
+        # Wrong stage combinations are invalid input, not an idempotency
+        # conflict. Validate before touching the durable submission lock.
+        try:
+            public_run_configuration(request, get_settings())
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="Incompatible triage settings"
+            ) from None
         try:
             return runner.submit(request, idempotency_key)
         except ValueError:
