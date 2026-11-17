@@ -70,6 +70,14 @@ def public_run_configuration(
     body = {
         "schema_version": 1,
         "applied": applied,
+        "run_inputs": {
+            "seed": request.seed,
+            "kind": request.kind,
+            "mode": request.mode,
+            "hazards": request.hazards,
+            "tree_of_thought": request.tree_of_thought,
+            "manual": request.manual,
+        },
         "requested": desired,
         "effective_triage": (
             effective.model_dump(mode="json") if applied and effective else None
@@ -87,7 +95,7 @@ def public_run_configuration(
             settings.triage_model or settings.conclude_model or settings.default_model
             if applied else settings.conclude_model or settings.default_model
         ),
-        "model_attempts": "not yet executed; use model-call audit after run",
+        "model_attempts": "Configured only; inspect run model-call audit for actual attempts",
         "scope": "simulator only; per-run; no controller operations",
     }
     # Digest is a stable, short correlation aid, never a credential.
