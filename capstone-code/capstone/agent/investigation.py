@@ -455,7 +455,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
         record(
             state,
             "hypothesize",
-            "decided",
+            "invalid_decision" if last.action == "rejected" else "decided",
             information_needed="fixed, unscored candidate and test plan",
         )
         return "continue" if state.triage_candidates else "conclude"
