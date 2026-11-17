@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import uuid
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy import create_engine, func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session
 
@@ -26,6 +28,7 @@ from capstone.api.run_models import (
     SimRunArtifact,
     SimRunEvent,
     SimRunReview,
+    SimWorkerHeartbeat,
 )
 from capstone.api.runs import ReviewDecision, RunRequest
 
@@ -114,6 +117,21 @@ class RunExecutionConfig(BaseModel):
     triage_hypothesize: Literal["model", "deterministic"] = "model"
     triage_evidence_tests: bool = True
     source_revision: str | None = Field(default=None, pattern=r"^[a-f0-9]{7,40}$")
+
+    @classmethod
+    def current(cls) -> "RunExecutionConfig":
+        """Resolve once identically in web and worker, including Render build SHA."""
+        from capstone.settings import get_settings
+
+        settings = get_settings()
+        revision = os.getenv("CAPSTONE_SOURCE_REVISION") or os.getenv("RENDER_GIT_COMMIT") or None
+        return cls(
+            triage_plan=settings.triage_plan,
+            triage_investigate=settings.triage_investigate,
+            triage_hypothesize=settings.triage_hypothesize,
+            triage_evidence_tests=settings.triage_evidence_tests,
+            source_revision=revision,
+        )
 
     @model_validator(mode="after")
     def validate_strategy(self) -> "RunExecutionConfig":
@@ -294,6 +312,10 @@ class RunRepository:
             raise ValueError("Hosted run repository requires PostgreSQL TLS")
         if engine is None:
             connect_args = {"connect_timeout": 10}
+            # Transaction poolers such as Supabase :6543 do not support
+            # Psycopg's automatic named prepared statements.
+            if url.port == 6543:
+                connect_args["prepare_threshold"] = None
             if "sslmode" not in url.query:
                 connect_args["sslmode"] = "require"
             self.engine = create_engine(
@@ -327,7 +349,8 @@ class RunRepository:
                            to_regclass('capstone_private.sim_jobs'),
                            to_regclass('capstone_private.sim_run_events'),
                            to_regclass('capstone_private.sim_run_reviews'),
-                           to_regclass('capstone_private.sim_run_artifacts')
+                           to_regclass('capstone_private.sim_run_artifacts'),
+                           to_regclass('capstone_private.sim_worker_heartbeats')
                 """)
             ).one()
         if not all(table is not None for table in tables):
@@ -518,8 +541,11 @@ class RunRepository:
                 for item in events
             ]
 
-    def claim(self, owner: str, *, lease_seconds: int = 60) -> JobClaim | None:
-        """Claim one queued job without blocking another worker's claim."""
+    def claim(
+        self, owner: str, *, lease_seconds: int = 60,
+        expected_config: RunExecutionConfig | None = None,
+    ) -> JobClaim | None:
+        """Claim only an execution-compatible job, without consuming mismatches."""
         # Variables:
         #   owner: Stable identity of this worker process for lease checks.
         #   lease_seconds: Bounded interval before an abandoned claim expires.
@@ -529,11 +555,20 @@ class RunRepository:
             raise ValueError("Invalid worker identity or lease duration")
         now = datetime.now(timezone.utc)
         with Session(self.engine) as session, session.begin():
-            job = session.scalar(
+            query = (
                 select(SimJob)
+                .join(SimRun, SimRun.run_id == SimJob.run_id)
                 .where(SimJob.status == "queued")
-                .order_by(SimJob.priority.desc(), SimJob.enqueued_at, SimJob.job_id)
-                .with_for_update(skip_locked=True)
+            )
+            if expected_config is not None:
+                query = query.where(
+                    SimRun.effective_config == expected_config.model_dump(mode="json")
+                )
+            job = session.scalar(
+                query.order_by(
+                    SimJob.priority.desc(), SimJob.enqueued_at, SimJob.job_id
+                )
+                .with_for_update(skip_locked=True, of=SimJob)
                 .limit(1)
             )
             if job is None:
@@ -597,8 +632,9 @@ class RunRepository:
         state: str,
         event_name: str,
         snapshot: dict[str, Any],
+        *, final_progress: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Commit a fenced state and event in the same short transaction."""
+        """Commit terminal progress and status atomically under the claim fence."""
         # Variables:
         #   claim: Token issued at claim time; a stale worker cannot publish.
         #   owner: Worker identity checked together with the fencing token.
@@ -626,14 +662,21 @@ class RunRepository:
             # Retain the live phase counters on completion and failure.
             # The public event payload remains the original allowlisted snapshot.
             previous_progress = (run.snapshot or {}).get("progress")
+            progress = dict(previous_progress or {})
+            if final_progress is not None:
+                if state not in _TERMINAL:
+                    raise ValueError("Final stage requires a terminal transition")
+                final = StagePayload.model_validate(final_progress).model_dump(
+                    mode="json"
+                )
+                progress[final["mode"]] = final
+                progress["latest"] = final
+                # Staged in the same transaction, before terminal replay.
+                self._append(session, run, "stage.updated", final)
             run.state = state
             run.snapshot = {
                 **snapshot,
-                **(
-                    {"progress": previous_progress}
-                    if state in _TERMINAL and previous_progress
-                    else {}
-                ),
+                **({"progress": progress} if state in _TERMINAL and progress else {}),
             }
             run.version += 1
             run.updated_at = now
@@ -726,6 +769,14 @@ class RunRepository:
                 )
             )
             recent = session.scalar(select(func.max(SimJob.heartbeat_at)))
+            fresh_after = now - timedelta(seconds=45)
+            alive = session.scalar(
+                select(func.count()).select_from(SimWorkerHeartbeat)
+                .where(SimWorkerHeartbeat.last_seen_at >= fresh_after)
+            ) or 0
+            last_pulse = session.scalar(
+                select(func.max(SimWorkerHeartbeat.last_seen_at))
+            )
         def elapsed(when: datetime | None) -> int | None:
             if when is None:
                 return None
@@ -739,7 +790,9 @@ class RunRepository:
             "last_heartbeat_age_seconds": elapsed(recent),
             # No durable idle-worker heartbeat table: never imply presence
             # when the queue is empty and there is no active claim.
-            "worker_liveness": "active_claim" if active else "unverified",
+            "worker_liveness": "healthy" if alive else "unverified",
+            "healthy_workers": min(int(alive), 100),
+            "last_worker_pulse_age_seconds": elapsed(last_pulse),
         }
 
     def publish_model_event(
@@ -782,6 +835,31 @@ class RunRepository:
                 .limit(min(max(limit, 1), 201))
             ).all()
         return [{"seq": row.seq, "data": row.payload} for row in rows]
+
+    def worker_heartbeat(
+        self, worker_id: str, *, source_revision: str | None, status: str,
+    ) -> None:
+        """Durable idle/active worker pulse, independent of a claimed job."""
+        if not _OWNER.fullmatch(worker_id) or status not in {"idle", "running"}:
+            raise ValueError("Invalid worker heartbeat")
+        if source_revision is not None and not re.fullmatch(
+            r"[a-f0-9]{7,40}", source_revision
+        ):
+            raise ValueError("Invalid worker revision")
+        now = datetime.now(timezone.utc)
+        stmt = pg_insert(SimWorkerHeartbeat).values(
+            worker_id=worker_id, source_revision=source_revision,
+            status=status, last_seen_at=now,
+        )
+        stmt = stmt.on_conflict_do_update(
+            index_elements=[SimWorkerHeartbeat.worker_id],
+            set_={
+                "source_revision": source_revision, "status": status,
+                "last_seen_at": now,
+            },
+        )
+        with Session(self.engine) as session, session.begin():
+            session.execute(stmt)
 
     def publish_resync(
         self, claim: JobClaim, owner: str, dropped_count: int
@@ -1069,9 +1147,11 @@ class RunRepository:
                 job.status = "interrupted"
                 job.lease_until = None
                 run.state = "interrupted"
+                earlier_progress = (run.snapshot or {}).get("progress")
                 run.snapshot = {
                     "status": "interrupted",
                     "reason": "worker_lease_expired",
+                    **({"progress": earlier_progress} if earlier_progress else {}),
                 }
                 run.version += 1
                 run.updated_at = now

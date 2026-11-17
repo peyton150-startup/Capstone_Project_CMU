@@ -7,7 +7,6 @@ role credentials. Actor identity is never taken from a request parameter.
 from __future__ import annotations
 
 import json
-import os
 import re
 import tempfile
 from pathlib import Path
@@ -40,17 +39,7 @@ class HostedSimulatorRuns:
         self.repository.close()
 
     def submit(self, request: RunRequest, key: str) -> dict[str, Any]:
-        from capstone.settings import get_settings
-
-        settings = get_settings()
-        revision = os.getenv("CAPSTONE_SOURCE_REVISION") or None
-        effective = RunExecutionConfig(
-            triage_plan=settings.triage_plan,
-            triage_investigate=settings.triage_investigate,
-            triage_hypothesize=settings.triage_hypothesize,
-            triage_evidence_tests=settings.triage_evidence_tests,
-            source_revision=revision,
-        )
+        effective = RunExecutionConfig.current()
         return self.repository.submit(
             request, key, actor_id=_HOSTED_ACTOR, effective_config=effective
         )

@@ -36,8 +36,8 @@ def use_database_url(monkeypatch, value):
 def test_memory_revision_works_outside_repository(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     directory = script.ScriptDirectory.from_config(configuration())
-    assert directory.get_heads() == ["0004_worker_artifacts"]
-    assert len(list(directory.walk_revisions())) == 4
+    assert directory.get_heads() == ["0005_worker_heartbeats"]
+    assert len(list(directory.walk_revisions())) == 5
     assert Path(directory.env_py_location).is_file()
 
 
@@ -173,7 +173,7 @@ def test_autogeneration_without_schema_is_refused_before_engine_creation(
     with pytest.raises(util.CommandError, match="schema"):
         command.revision(config, message="unsafe comparison", autogenerate=True)
     assert script.ScriptDirectory.from_config(config).get_heads() == [
-        "0004_worker_artifacts"
+        "0005_worker_heartbeats"
     ]
 
 
@@ -196,7 +196,7 @@ def test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table(
                 connection.exec_driver_sql(
                     "SELECT version_num FROM alembic_version"
                 ).scalar_one()
-                == "0004_worker_artifacts"
+                == "0005_worker_heartbeats"
             )
             assert (
                 connection.exec_driver_sql(
