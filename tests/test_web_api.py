@@ -436,7 +436,9 @@ def test_opt_in_neon_manual_is_private_simulator_only_and_disposed(monkeypatch):
     path = "/api/v1/knowledge/manuals"
     headers = {"Authorization": "Bearer " + token}
     assert app.get(path).status_code == 401
-    assert app.get(path, params={"workspace": "pilot"}, headers=headers).status_code == 403
+    assert (
+        app.get(path, params={"workspace": "pilot"}, headers=headers).status_code == 403
+    )
     result = app.get(path, params={"q": "vibration"}, headers=headers)
     assert result.status_code == 200
     assert result.json()["backend"] == "neon"
@@ -461,13 +463,18 @@ def test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run(
     operator = "operator-session-token-12345678901"
     reviewer = "reviewer-session-token-12345678901"
     cfg = UiConfig(
-        token=token, run_token=operator, review_token=reviewer,
-        run_db=tmp_path / "managed.sqlite", runs_enabled=True,
+        token=token,
+        run_token=operator,
+        review_token=reviewer,
+        run_db=tmp_path / "managed.sqlite",
+        runs_enabled=True,
         neon_manual_enabled=True,
     )
     app = TestClient(create_app(cfg))
-    headers = {"Authorization": "Bearer " + operator,
-               "Idempotency-Key": "neonmanualtest12345"}
+    headers = {
+        "Authorization": "Bearer " + operator,
+        "Idempotency-Key": "neonmanualtest12345",
+    }
     failed = app.get(
         "/api/v1/knowledge/manuals",
         headers={"Authorization": "Bearer " + token},
@@ -476,7 +483,8 @@ def test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run(
     assert "sensitive-neon" not in failed.text
     submitted = app.post(
         "/api/v1/lab/runs",
-        json={"seed": 7, "manual": "neon"}, headers=headers,
+        json={"seed": 7, "manual": "neon"},
+        headers=headers,
     )
     assert submitted.status_code == 503
     assert "sensitive-neon" not in submitted.text
