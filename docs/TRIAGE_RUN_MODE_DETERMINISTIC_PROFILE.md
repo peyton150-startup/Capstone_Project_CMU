@@ -3,6 +3,10 @@
 ## Dependency and semantics
 **Stacked on #299 → #295.** `TRIAGE_RUN_MODE=deterministic` is an explicit **triage-only** execution profile, not another LLM or a replacement Graph. It **wins over all individual triage stage settings**, even if contradictory values were configured. `TRIAGE_RUN_MODE=custom` (default) preserves direct individual-knob behavior for controlled A/B comparison. The profile never changes a subsequent deep investigation. **Conclude remains the existing model-backed `policy.conclude` stage** (historical Graph state.stage=`decide`).
 
+
+## Activation precedence (explicit caller wins)
+`TRIAGE_RUN_MODE=deterministic` turns on triage for an unspecified `run_episode(..., triage=None)` even when the legacy `TRIAGE=off` setting is unchanged. It never overrides an explicit `triage=False` or an API deep-only request. Explicit `triage=True` runs triage; `TRIAGE_RUN_MODE=custom` retains the legacy `TRIAGE` default for an unspecified request. This precedence is tested separately from the per-stage control-plane override.
+
 ## Exact precedence and per-stage behavior
 | Stage | deterministic profile effective behavior |
 | --- | --- |
