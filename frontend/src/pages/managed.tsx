@@ -51,14 +51,14 @@ export function ManagedRunLauncher() {
   const parsedSeed = Number(seed);
   const validSeed = seed.trim() !== '' && Number.isInteger(parsedSeed) &&
     parsedSeed >= 0 && parsedSeed <= 1000000;
-  const validBudget = controls != null &&
+  const validBudget = mode === 'deep' || (controls != null &&
     Number.isFinite(controls.seconds) && controls.seconds >= 5 && controls.seconds <= 900 &&
     Number.isInteger(controls.tool_calls) && controls.tool_calls >= 1 &&
     controls.tool_calls <= 30 && Number.isFinite(controls.hypothesis_seconds) &&
-    controls.hypothesis_seconds >= 0 && controls.hypothesis_seconds <= 300;
-  const requested = controls ? {
+    controls.hypothesis_seconds >= 0 && controls.hypothesis_seconds <= 300);
+  const requested = controls || mode === 'deep' ? {
     seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual,
-    triage_settings: controls,
+    ...(mode === 'triage' && controls ? {triage_settings: controls} : {}),
   } : null;
   const requestSignature = JSON.stringify(requested);
   const previewIdentity = JSON.stringify([requestSignature, token, backend, sourceKey]);
@@ -141,8 +141,9 @@ export function ManagedRunLauncher() {
       onChange={next=>{setControls(next);resetKey();}}
       preview={confirmed} previewError={previewError}
       pending={previewPending} disabled={!enabled}/> :
-      <Unavailable item="Validated per-run settings"
-        detail={defaults.error || 'Connect the authorized simulator API to load stage defaults.'}/>}
+      mode === 'triage' ? <Unavailable item="Validated per-run settings"
+        detail={defaults.error || 'Connect the authorized simulator API to load stage defaults.'}/> :
+      <p className="body-copy">Deep-only runs do not use triage settings.</p>}
     <p className="body-copy">Only this run receives the selected stage controls.
       Conclude remains model-backed. No pilot data or physical CNC commands are used.</p>
     {error && <InfoState kind="warning" title="Run not started" detail={error}/>}
