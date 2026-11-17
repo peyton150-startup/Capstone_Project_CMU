@@ -44,8 +44,11 @@ PostgreSQL. Do not set `VITE_DATABASE_URL`, `NEXT_PUBLIC_DATABASE_URL`,
   private local staging directory for per-run audits; no SQLite file is used
   in remote mode. On Render use a writable directory such as
   `/tmp/capstone-ui/managed.sqlite`; this is **not durable** by itself.
-- `CAPSTONE_UI_RUN_DATABASE_URL` takes precedence over `DATABASE_URL`.
-  The URL is server-only; redacted in configuration representation.
+- `CAPSTONE_UI_RUN_DATABASE_URL` is **required explicitly** for the remote
+  journal and never falls back to the legacy `DATABASE_URL` (which may still
+  point to Neon for episodic memory). This avoids silently sending journal
+  data to the wrong database. The URL is server-only and redacted in config
+  representations.
 - SQLAlchemy's psycopg driver uses TLS `sslmode=require`, pre-ping,
   a **maximum of 4 pooled sessions**, 5-second pool timeout, and 10-second
   connection timeout. Use the Supabase **session pooler** (typically
