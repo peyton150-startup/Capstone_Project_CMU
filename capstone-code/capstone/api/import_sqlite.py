@@ -18,7 +18,6 @@ import os
 import sqlite3
 import uuid
 from pathlib import Path
-from urllib.parse import quote
 
 MAX_ARTIFACT_BYTES = 8 * 1024 * 1024
 
@@ -27,7 +26,7 @@ def read_source(source: Path):
     """Read a consistent local snapshot without writing to the source file."""
     if not source.is_file():
         raise ValueError("SQLite journal not found")
-    uri = "file:" + quote(str(source.resolve())) + "?mode=ro"
+    uri = source.resolve().as_uri() + "?mode=ro"
     db = sqlite3.connect(uri, uri=True, timeout=5)
     try:
         db.execute("PRAGMA query_only=ON")
@@ -67,6 +66,7 @@ def artifacts(source: Path, runs):
     records = []
     missing = 0
     base = source.parent / "simulator-investigations"
+    trusted_base = base.resolve()
     for row in runs:
         run_id = row[0]
         try:
@@ -80,6 +80,8 @@ def artifacts(source: Path, runs):
             ("observability", ".events.jsonl"),
         ):
             path = base / (run_id + suffix)
+            if path.is_symlink() or not path.resolve().is_relative_to(trusted_base):
+                raise ValueError("Symlinked or external simulator artifact refused")
             if not path.is_file():
                 missing += 1
                 continue
@@ -119,6 +121,8 @@ def apply(source: Path, url: str, project_ref: str) -> dict:
     user = target.username or ""
     if host != f"db.{ref}.supabase.co" and user != f"postgres.{ref}":
         raise ValueError("Database URL does not match the confirmed Supabase project")
+    if target.drivername not in ("postgres", "postgresql", "postgresql+psycopg"):
+        raise ValueError("Expected PostgreSQL for the Supabase journal")
     runs, events, reviews = read_source(source)
     saved, missing = artifacts(source, runs)
 
