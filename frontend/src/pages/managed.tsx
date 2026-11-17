@@ -313,9 +313,12 @@ export function RunDetailPage() {
         ['conclude_brief','Conclude evidence brief'],['conclude_cap','Conclude cap'],
         ['seconds','Triage seconds'],['tool_calls','Research tool calls'],
         ['hypothesis_seconds','Hypothesis reserve seconds'],
-      ] as const).map(([key,label])=>
-        <DataRow key={key} label={label}
-          value={String(configuration.effective_triage?.[key] ?? 'Unknown')}/>)}
+      ] as const).map(([key,label])=>{
+        const value = configuration.effective_triage?.[key];
+        const display = typeof value === 'boolean' ? value ? 'On' : 'Off' :
+          value == null ? 'Unknown' : String(value);
+        return <DataRow key={key} label={label} value={display}/>;
+      })}
       {configuration?.overridden?.length ? <p className="body-copy">
         Requested values overridden by deterministic profile: {configuration.overridden.join(', ')}
       </p> : null}
