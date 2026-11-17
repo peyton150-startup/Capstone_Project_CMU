@@ -114,7 +114,7 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("only Siemens OPC UA schema v2 is authorized")
     if raw.get("record_type") == "data_change":
         record = OpcUaDataChange.model_validate(
-            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "verified_unit")}
+            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "numeric_quality_qualified", "verified_unit")}
         )
         if record.server_uri != scope.server_uri:
             raise PermissionError("OPC UA server identity changed")
@@ -139,12 +139,15 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
             and record.status.severity == "good"
             and not record.status.overflow
         )
-        payload["analysis_eligible"] = bool(eligible)
+        # Transport quality is not enough for real anomaly or diagnosis.
+        # Downstream must also gate context, state, baseline and coverage.
+        payload["numeric_quality_qualified"] = bool(eligible)
+        payload["analysis_eligible"] = False
         payload["verified_unit"] = permission.unit if eligible else None
         return payload
     if raw.get("record_type") == "opcua_session":
         record = OpcUaSessionMarker.model_validate(
-            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "verified_unit")}
+            {k: v for k, v in raw.items() if k not in ("analysis_eligible", "numeric_quality_qualified", "verified_unit")}
         )
         if record.server_uri != scope.server_uri:
             raise PermissionError("OPC UA server identity changed")
@@ -153,6 +156,7 @@ def validate_record(scope: CloudScope, raw: dict[str, Any]) -> dict[str, Any]:
         payload = record.model_dump(mode="json")
         payload["reason"] = None  # Free-form text may reveal machine/program data.
         payload["analysis_eligible"] = False
+        payload["numeric_quality_qualified"] = False
         return payload
     raise ValueError("unsupported OPC UA record type")
 

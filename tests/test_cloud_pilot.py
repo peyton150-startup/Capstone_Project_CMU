@@ -75,7 +75,9 @@ def test_good_approved_numeric_retains_exact_identity_and_quality():
     row = validate_record(scope(), change())
     assert row["node"] == NODE.model_dump()
     assert row["value"] == 12000.0
-    assert row["analysis_eligible"] is True and row["verified_unit"] == "rpm"
+    assert row["analysis_eligible"] is False
+    assert row["numeric_quality_qualified"] is True
+    assert row["verified_unit"] == "rpm"
     assert row["source_timestamp"] and row["server_timestamp"]
     assert row["session_epoch"] == 1 and row["notification_seq"] == 12
 
@@ -84,6 +86,7 @@ def test_bad_uncertain_and_missing_time_are_not_numeric_evidence():
     for status in (0x40000000, 0x80310000):
         row = validate_record(scope(), change(status_code=status))
         assert row["analysis_eligible"] is False
+        assert row["numeric_quality_qualified"] is False
         assert row["verified_unit"] is None
     raw = change()
     raw["source_timestamp"] = None

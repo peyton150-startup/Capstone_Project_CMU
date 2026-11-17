@@ -115,7 +115,8 @@ jobs:
                               FROM capstone_ingest.records ORDER BY line_number""")
                   ).mappings().all()
                   assert len(stored) == 2
-                  assert stored[0]["analysis_eligible"] is True
+                  assert stored[0]["analysis_eligible"] is False
+                  assert stored[0]["payload"]["numeric_quality_qualified"] is True
                   assert stored[0]["quality"] == "good"
                   assert stored[1]["record_type"] == "opcua_session"
                   assert stored[1]["payload"]["gap"]["cause"] == "session_lost"
