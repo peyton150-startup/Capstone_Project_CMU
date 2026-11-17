@@ -249,9 +249,7 @@ def upload_once(
         while True:
             scope.assert_active()
             raw_digests: list[str] = []
-            batch, end = read_batch(
-                capture, state, scope, raw_digests=raw_digests
-            )
+            batch, end = read_batch(capture, state, scope, raw_digests=raw_digests)
             if batch is None:
                 return uploaded
             # Preserve the exact validated file segment while HTTP is in
