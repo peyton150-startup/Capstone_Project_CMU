@@ -612,6 +612,25 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         return ensure_run(run_id)
 
+    @app.get("/api/v1/lab/runs/{run_id}/model-calls", dependencies=[Access])
+    def managed_run_model_calls(
+        run_id: str, workspace: Workspace = "simulator"
+    ) -> dict:
+        """Read #297's strictly validated, durable model-attempt timeline."""
+        if workspace != "simulator":
+            raise HTTPException(
+                status_code=403, detail="Pilot model telemetry unavailable"
+            )
+        ensure_run(run_id)
+        assert runner is not None
+        try:
+            return runner.model_calls(run_id)
+        except Exception:
+            # No raw SQL/provider errors, prompts or credentials in HTTP.
+            raise HTTPException(
+                status_code=503, detail="Model-call journal unavailable"
+            ) from None
+
     @app.get("/api/v1/lab/runs/{run_id}/investigation", dependencies=[Access])
     def managed_run_investigation(
         run_id: str, workspace: Workspace = "simulator"
