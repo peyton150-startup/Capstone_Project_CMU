@@ -38,6 +38,43 @@ def test_triage_mode_selects_run_unless_caller_explicitly_requests_deep():
     assert not triage_requested(custom_enabled, False)
 
 
+def test_triage_only_does_not_construct_deep_critic(monkeypatch):
+    from capstone import episode
+    from tests.test_episode import SEED
+
+    cfg = Settings(
+        _env_file=None,
+        triage_run_mode="deterministic",
+        triage=False,
+        triage_then_deep=False,
+        critic=True,
+    )
+    monkeypatch.setattr(episode, "get_settings", lambda: cfg)
+
+    def forbidden_critic(_settings):
+        raise AssertionError("unused deep critic client must not be created")
+
+    monkeypatch.setattr(episode, "critic_client", forbidden_critic)
+    policy = NoDecideModel(
+        conclude=lambda _state: (
+            AgentConclusion(
+                diagnosis="unresolved machine condition",
+                confidence=0.2,
+                recommendation="escalate",
+                assessment="unresolved",
+            ),
+            None,
+        )
+    )
+    result = episode.run_episode(
+        SEED, policy, triage=None, clock=lambda: 0.0
+    )
+    assert result.triage is not None
+    assert result.triage.triage_run_mode == "deterministic"
+    assert not result.critic_calls
+    assert policy.asked == ["conclude"]
+
+
 def test_deterministic_profile_overrides_conflicting_raw_knobs():
     cfg = Settings(
         _env_file=None,
