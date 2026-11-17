@@ -1,6 +1,10 @@
 import type { TriageRunOptions, TriageRunPreview } from '../types';
 import { DataRow, Panel } from '../ui';
 
+function formatSetting(value: string | number | boolean): string {
+  return typeof value === 'boolean' ? value ? 'On' : 'Off' : String(value);
+}
+
 type Props = {
   value: TriageRunOptions;
   onChange: (next: TriageRunOptions) => void;
@@ -160,7 +164,8 @@ export function TriageRunEditor({
           const overridden = preview.overridden.includes(field.key);
           return <DataRow key={field.key} label={field.label}
             extra={overridden ? 'Overridden by deterministic mode' : 'Effective for this run'}
-            value={String(actual) + (overridden ? ' (requested '+String(requested)+')' : '')}/>;
+            value={formatSetting(actual) +
+              (overridden ? ' (requested '+formatSetting(requested)+')' : '')}/>;
         })}
         <h3>Graph stage routing</h3>
         {modes.map(([key,label])=>
