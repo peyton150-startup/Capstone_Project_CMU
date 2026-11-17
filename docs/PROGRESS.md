@@ -81,6 +81,24 @@
 
 # Progress Log
 
+> **2026-11-17 — Render split R1, hosted run persistence (built ungated;
+> understood: no; PR review pending):** `api/run_models.py` defines the
+> independent private PostgreSQL run, job, review, event and artifact tables.
+> Migration `0003_simulator_jobs` creates them beside PR #289's legacy journal
+> and refuses an automatic downgrade when hosted run history exists.
+> `api/run_repository.py` adds `RunExecutionConfig` (a secret-free, validated
+> strategy snapshot), `RunRepository.submit` (atomic actor-scoped
+> idempotent run+job creation), `claim` (one `SKIP LOCKED` job and a unique
+> lease token), `heartbeat`, `transition` (fenced state+event writes) and
+> `recover_expired` (interrupt started work without automatic replay).
+> The API and existing single-host runner do not use this repository yet;
+> worker extraction, approvals, hosted authorization and deployment remain
+> R2–R5. Local verification: 3,060 passed and 9 skipped in the full suite;
+> 20 passed and 9 skipped in the touched checks; Ruff, formatting and test
+> group inventory passed. The skipped tests require disposable PostgreSQL,
+> which the PR's CI job will exercise. No live model, pilot, or hosted
+> database was used.
+
 > **2026-11-14 — triage Block 5 (Conclude): conclusion brief and conclusion timing (`TRIAGE_CONCLUDE_BRIEF`, on by default; built ungated at the developer's request; understood: no; walkthrough skipped by the developer):**
 > The two open Block 5 items of [the 2026-11-13 schedule](2026-11-13-schedule.md). New `agent/conclude_brief.py`: `brief_lines` builds a short TRIAGE CONCLUSION BRIEF, shown by `ModelPolicy.conclude` only, in a triage only, after the shared view (which already holds TRIAGE COVERAGE). It lists the live explanations a successful read or linked evidence tested and those nothing tested ("an untested explanation is not ruled out"); each question predicate's verdict from `evidence_tests.evaluate` with value, sample count and evidence ids, or the reason there is none ("insufficient, stale or unavailable is unknown, not normal"); and the packet's missing physical channels with their reasons ("not known to be normal"). Identifiers, verdicts, counts and reasons only; each list capped at 8 with the rest counted. `TRIAGE_CONCLUDE_BRIEF=off` restores the old prompt; a deep conclusion prompt is identical either way. `conclude` now records `conclude_model_seconds` (waiting for the conclusion model) apart from `conclude_check_seconds` (Python: `check_conclusion` with `triage_clearance_gaps`, then `needs_deep_run` and `build_triage_report` in a triage) on the injected clock; both reach `TriageMetrics` and `TriageRecord` (with `conclude_brief`). No live model run. Open: `.env.example` needs `TRIAGE_CONCLUDE_BRIEF=on` (developer); the report line does not print the two times yet (the main session owns the report formatters).
 
