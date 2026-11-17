@@ -1,0 +1,126 @@
+# PR290 final-head integration gate; does not alter live Neon or migrate its schema.
+name: Neon knowledge PostgreSQL integration
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/neon-knowledge.yml"
+      - "capstone-code/capstone/manual/**"
+      - "migrations/neon/**"
+      - "capstone-code/capstone/settings.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/neon-knowledge.yml"
+      - "capstone-code/capstone/manual/**"
+      - "migrations/neon/**"
+      - "capstone-code/capstone/settings.py"
+
+permissions:
+  contents: read
+
+jobs:
+  neon-pg18:
+    name: PostgreSQL 18 manual contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg18-trixie
+        env:
+          POSTGRES_PASSWORD: synthetic_ci_password
+          POSTGRES_USER: postgres
+          POSTGRES_DB: neondb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d neondb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.0"
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - name: Apply isolated SQL and test real PostgreSQL vector/keyword/revision behavior
+        env:
+          CI_POSTGRES_URL: postgresql+psycopg://postgres:synthetic_ci_password@127.0.0.1:5432/neondb
+        run: |
+          uv run --no-sync python - <<'PY'
+          import os
+          from pathlib import Path
+          import psycopg
+          from sqlalchemy import create_engine, text
+
+          from capstone.manual.neon import NeonManualSearch
+          from capstone.manual.sections import load_manual
+
+          url = os.environ["CI_POSTGRES_URL"]
+          with psycopg.connect(url.replace("postgresql+psycopg://", "postgresql://"), autocommit=True) as connection:
+              connection.execute(
+                  Path("migrations/neon/0001_manual_knowledge.sql").read_text()
+              )
+
+          engine = create_engine(url, pool_pre_ping=True)
+          sections = load_manual()
+          vectors = [[0.0] * 2048 for _ in sections]
+          for index, vector in enumerate(vectors):
+              vector[index] = 1.0
+          store = NeonManualSearch(engine)
+          embed = lambda values: vectors
+          count = store.publish_simulator(
+              sections, embed_passage=embed, embedding_model="ci/synthetic-2048"
+          )
+          assert count == len(sections)
+          assert store.publish_simulator(
+              sections, embed_passage=embed, embedding_model="ci/synthetic-2048"
+          ) == count
+          assert len(store.list_sections()) == count
+
+          semantic = NeonManualSearch(
+              engine,
+              embedding_model="ci/synthetic-2048",
+              embed_query=lambda values: [vectors[0]],
+          )
+          found = semantic.search("unique search query", limit=3)
+          assert found and found[0].section_id == sections[0].section_id
+
+          def unavailable(_values):
+              raise TimeoutError("synthetic embedding outage")
+          degraded = NeonManualSearch(
+              engine, embedding_model="ci/synthetic-2048",
+              embed_query=unavailable,
+          )
+          assert degraded.search("spindle vibration", limit=5)
+
+          edited = list(sections)
+          edited[0] = edited[0].model_copy(
+              update={"text": edited[0].text + " altered"}
+          )
+          try:
+              store.publish_simulator(
+                  edited, embed_passage=None, embedding_model=None
+              )
+          except ValueError as exc:
+              assert "new revision" in str(exc)
+          else:
+              raise AssertionError("Same revision overwrite was accepted")
+
+          with engine.connect() as connection:
+              assert connection.execute(
+                  text("SELECT count(*) FROM capstone_knowledge.manual_documents")
+              ).scalar_one() == 1
+              assert connection.execute(
+                  text("SELECT count(*) FROM capstone_knowledge.manual_sections")
+              ).scalar_one() == count
+              assert connection.execute(
+                  text("SELECT count(*) FROM capstone_knowledge.manual_documents WHERE is_published")
+              ).scalar_one() == 1
+          engine.dispose()
+          print("PostgreSQL 18 + pgvector manual contract passed")
+          PY

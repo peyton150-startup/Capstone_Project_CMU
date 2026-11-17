@@ -405,3 +405,87 @@ def test_future_collector_clock_cannot_claim_live_connection(tmp_path):
     assert recorder["subscription_state"] == "unconfirmed"
     assert recorder["measurement_state"] == "stale_or_none"
     assert recorder["analysis_eligible"] is None
+
+
+def test_opt_in_neon_manual_is_private_simulator_only_and_disposed(monkeypatch):
+    from capstone.manual import neon
+    from capstone.manual.sections import load_manual
+
+    sections = load_manual()
+    instances = []
+
+    class FakeManual:
+        def __init__(self):
+            self.closed = False
+            instances.append(self)
+
+        def search(self, text, *, limit):
+            assert text == "vibration" and limit == 5
+            return sections[:1]
+
+        def list_sections(self, *, limit):
+            assert limit == 35
+            return sections[:2]
+
+        def close(self):
+            self.closed = True
+
+    monkeypatch.setattr(neon, "open_neon_manual", FakeManual)
+    token = "manual-session-token-1234567890123"
+    app = TestClient(create_app(UiConfig(token=token, neon_manual_enabled=True)))
+    path = "/api/v1/knowledge/manuals"
+    headers = {"Authorization": "Bearer " + token}
+    assert app.get(path).status_code == 401
+    assert (
+        app.get(path, params={"workspace": "pilot"}, headers=headers).status_code == 403
+    )
+    result = app.get(path, params={"q": "vibration"}, headers=headers)
+    assert result.status_code == 200
+    assert result.json()["backend"] == "neon"
+    assert result.json()["source_scope"] == "simulator_manual_only"
+    assert result.json()["items"][0]["citation"] == sections[0].citation
+    assert instances[-1].closed
+    overview = app.get(path, headers=headers)
+    assert overview.status_code == 200 and len(overview.json()["items"]) == 2
+    assert instances[-1].closed
+
+
+def test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run(
+    monkeypatch, tmp_path
+):
+    from capstone.manual import neon
+
+    def unavailable():
+        raise RuntimeError("sensitive-neon-connection-string")
+
+    monkeypatch.setattr(neon, "open_neon_manual", unavailable)
+    token = "manual-session-token-1234567890123"
+    operator = "operator-session-token-12345678901"
+    reviewer = "reviewer-session-token-12345678901"
+    cfg = UiConfig(
+        token=token,
+        run_token=operator,
+        review_token=reviewer,
+        run_db=tmp_path / "managed.sqlite",
+        runs_enabled=True,
+        neon_manual_enabled=True,
+    )
+    app = TestClient(create_app(cfg))
+    headers = {
+        "Authorization": "Bearer " + operator,
+        "Idempotency-Key": "neonmanualtest12345",
+    }
+    failed = app.get(
+        "/api/v1/knowledge/manuals",
+        headers={"Authorization": "Bearer " + token},
+    )
+    assert failed.status_code == 503
+    assert "sensitive-neon" not in failed.text
+    submitted = app.post(
+        "/api/v1/lab/runs",
+        json={"seed": 7, "manual": "neon"},
+        headers=headers,
+    )
+    assert submitted.status_code == 503
+    assert "sensitive-neon" not in submitted.text
+    assert app.get("/api/v1/lab/runs", headers=headers).json()["items"] == []
