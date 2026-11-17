@@ -142939,6 +142939,194 @@
    ]
   },
   {
+   "id": "tests/test_web_runs.py::test_typed_stage_projection_excludes_agent_internals",
+   "file": "tests/test_web_runs.py",
+   "name": "test_typed_stage_projection_excludes_agent_internals",
+   "line": 441,
+   "docstring": "Pydantic enforces the read-only progress boundary on the live watcher.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 2
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Pydantic enforces the read-only progress boundary on the live watcher.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.runs:safe_stage"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
+   "file": "tests/test_web_runs.py",
+   "name": "test_progress_keeps_both_investigation_phases_through_restart_and_terminal_event",
+   "line": 477,
+   "docstring": "Triage survives deep, review transitions and reconnectable snapshot reads.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 14,
+   "assert_forms": {
+    "equality": 12,
+    "membership": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Triage survives deep, review transitions and reconnectable snapshot reads.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.managed_run",
+    "capstone.api.app:create_app.<locals>.run_events",
+    "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.events_since",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
+   "file": "tests/test_web_runs.py",
+   "name": "test_completed_phase_audits_expose_only_reviewed_result_fields",
+   "line": 569,
+   "docstring": "Triage and deep use server-owned IDs; no hidden truth or raw agent logs.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 23,
+   "assert_forms": {
+    "equality": 21,
+    "is_none": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Triage and deep use server-owned IDs; no hidden truth or raw agent logs.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.managed_run_investigation",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:recent_lines",
+    "capstone.api.readers:safe_investigation_detail",
+    "capstone.api.readers:safe_investigation_detail.<locals>.limited_strings",
+    "capstone.api.readers:safe_investigation_detail.<locals>.limited_text",
+    "capstone.api.readers:safe_investigation_detail.<locals>.observed_tick",
+    "capstone.api.readers:safe_investigations",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:SimulatorRuns.investigation_audit_path",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.readers",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_legacy_final_audit_phase_fallback_is_explicit",
+   "file": "tests/test_web_runs.py",
+   "name": "test_legacy_final_audit_phase_fallback_is_explicit",
+   "line": 752,
+   "docstring": "No fabricated deep audit when an older run has no per-phase progress.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "No fabricated deep audit when an older run has no per-phase progress.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.managed_run_investigation",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:recent_lines",
+    "capstone.api.readers:safe_investigation_detail",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:SimulatorRuns.investigation_audit_path",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.readers",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_wrong_setting.py::test_a_machine_runs_at_its_standard_speed_unless_set_otherwise",
    "file": "tests/test_wrong_setting.py",
    "name": "test_a_machine_runs_at_its_standard_speed_unless_set_otherwise",
