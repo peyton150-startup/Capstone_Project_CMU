@@ -127,6 +127,29 @@ class ReviewDecision(BaseModel):
     note: str = Field(default="", max_length=200)
 
 
+def safe_executed_triage(state: Any) -> dict[str, Any] | None:
+    """Observed, allowlisted stage flags; excludes sensor values and prompts."""
+    if state is None or state.mode != "triage":
+        return None
+    return {
+        "run_mode": state.triage_run_mode,
+        "fixed_plan_executed": state.fixed_plan_used,
+        "packet_enabled": state.triage_packet_enabled,
+        "packet_collected": state.triage_packet is not None,
+        "observe_calls_separate": state.triage_observe_separate,
+        "conclude_brief_enabled": state.triage_conclude_brief,
+        "conclude_cap_enabled": state.triage_conclude_cap,
+        "hypothesis_reserve_seconds": state.triage_hypothesis_seconds,
+        "deadline_seconds": state.budgets.timeout_seconds,
+        "research_tool_call_budget": state.budgets.max_tool_calls,
+        "actual_research_tool_calls": state.research_tool_calls,
+        "deterministic_decide_reads": state.triage_deterministic_reads,
+        "compiled_candidates": len(state.triage_candidates),
+        "conclusion_available": state.conclusion is not None,
+        "deep_recommended": bool(state.deep_recommended),
+    }
+
+
 def safe_hypothesis_progress(state: Any) -> dict[str, Any] | None:
     """Allowlisted typed compiler metadata; no prose or source payloads."""
     if state.mode != "triage":
@@ -641,6 +664,7 @@ class SimulatorRuns:
                 "status": "completed",
                 "mode": request.mode,
                 "effective_configuration": configuration,
+                "triage_execution": safe_executed_triage(triage),
                 "investigation": safe_stage(result.state),
                 "triage_report": report,
                 "diagnosis": None
