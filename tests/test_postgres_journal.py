@@ -93,15 +93,22 @@ def test_sqlite_import_preview_is_read_only_and_includes_private_artifacts(tmp_p
         db.execute(
             "INSERT INTO runs VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
-                run_id, "preview-import-key-0001", '{"seed":1}', "running",
-                '{"status":"running"}', "2026-11-16T00:00:00Z",
+                run_id,
+                "preview-import-key-0001",
+                '{"seed":1}',
+                "running",
+                '{"status":"running"}',
+                "2026-11-16T00:00:00Z",
                 "2026-11-16T00:00:00Z",
             ),
         )
         db.execute(
             "INSERT INTO run_events VALUES (?, ?, ?, ?, ?)",
             (
-                run_id, 1, "run.started", json.dumps({"status": "running"}),
+                run_id,
+                1,
+                "run.started",
+                json.dumps({"status": "running"}),
                 "2026-11-16T00:00:00Z",
             ),
         )
@@ -111,12 +118,16 @@ def test_sqlite_import_preview_is_read_only_and_includes_private_artifacts(tmp_p
         )
     path = source.investigation_audit_path(run_id)
     path.parent.mkdir(parents=True)
-    path.write_bytes(b'{"record_type":"audit"}\\n')
+    path.write_bytes(b'{"record_type":"audit"}\n')
     before = hashlib.sha256(db_path.read_bytes()).digest()
     result = preview(db_path)
     assert result == {
-        "runs": 1, "events": 1, "reviews": 1, "artifacts": 1,
-        "missing_artifacts": 1, "will_interrupt_incomplete_runs": 1,
+        "runs": 1,
+        "events": 1,
+        "reviews": 1,
+        "artifacts": 1,
+        "missing_artifacts": 1,
+        "will_interrupt_incomplete_runs": 1,
         "source_unchanged": True,
     }
     assert hashlib.sha256(db_path.read_bytes()).digest() == before
@@ -133,8 +144,13 @@ def localhost_postgres(monkeypatch, tmp_path):
     from sqlalchemy.engine import make_url
 
     parsed = make_url(url)
-    if parsed.host not in ("localhost", "127.0.0.1") or parsed.database != "capstone_test":
-        pytest.fail("Integration database must be localhost/capstone_test, never hosted")
+    if (
+        parsed.host not in ("localhost", "127.0.0.1")
+        or parsed.database != "capstone_test"
+    ):
+        pytest.fail(
+            "Integration database must be localhost/capstone_test, never hosted"
+        )
     from alembic import command
     from alembic.config import Config
 
@@ -230,5 +246,11 @@ def test_remote_artifacts_are_private_durable_and_checked(localhost_postgres):
     assert row[0] == expected
     audit.unlink()
     events.unlink()
-    assert journal.investigation_audit_path(run_id).read_bytes() == b'{"record_type":"audit"}\n'
-    assert journal.investigation_event_path(run_id).read_bytes() == b'{"record_type":"event"}\n'
+    assert (
+        journal.investigation_audit_path(run_id).read_bytes()
+        == b'{"record_type":"audit"}\n'
+    )
+    assert (
+        journal.investigation_event_path(run_id).read_bytes()
+        == b'{"record_type":"event"}\n'
+    )
