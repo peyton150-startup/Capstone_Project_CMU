@@ -1,6 +1,6 @@
 # Render: separate FastAPI web service and agent background worker
 
-**Status:** documentation-only implementation roadmap; **not implemented or deployed**.  
+**Status:** implementation roadmap. R1 hosted run persistence is being implemented in a separate PR; the independent worker, hosted API wiring, security gates and Render deployment are not yet complete.
 **Business requirement:** deploy the Manufacturing Research Assistant to Render as **two separate compute services**: `capstone-fastapi` (Web Service) and `capstone-agent-worker` (Background Worker). Both will use managed Render Postgres. The database is a shared managed dependency, not a third compute deployment.  
 **Audit baseline:** `main` at `13067ed146d9770298ba42b0e86bb664e8b1cb67`, November 16, 2026. The updated main branch includes the latest deterministic triage changes.  
 **Boundaries:** simulator-first; no live Siemens connection, CNC actuation, physical alarm acknowledgement or pilot capture sent to Render. Existing Pydantic Graph / PydanticAI orchestration remains the agent framework; a queue is transport, not a new reasoning framework.
