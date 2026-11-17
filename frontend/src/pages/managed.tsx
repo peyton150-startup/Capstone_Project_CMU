@@ -6,6 +6,7 @@ import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
 import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, StageProgress, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
+import { ModelCallTimeline } from './model_call_timeline';
 import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
@@ -479,6 +480,7 @@ export function RunDetailPage() {
         <p className="body-copy">Decision outcomes and pruned alternatives are documented verdicts, not hidden chain-of-thought. Tool arguments and raw provider responses are intentionally excluded.</p>
       </>}
     </Panel>
+    <ModelCallTimeline runId={runId}/>
     <Panel title="Operational diagnostics" subtitle="Bounded availability and evidence-packet coverage">
       {operational.error && <InfoState kind="warning" title="Diagnostics unavailable" detail={operational.error}/>}
       {operational.data?.items.length ? operational.data.items.slice(-60).reverse().map((event,index)=>
