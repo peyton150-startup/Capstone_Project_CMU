@@ -1,3 +1,4 @@
+# PR290 final-head integration gate; does not alter live Neon or migrate its schema.
 name: Neon knowledge PostgreSQL integration
 
 on:

@@ -65,3 +65,7 @@ Never expose the API or Vite server on an external factory-network interface. Ne
 - After a CI-generated evaluation inventory commit, verify that **both workflows actually execute on the new PR head**. A workflow marked `action_required` without any jobs is not a passing check.
 
 These tests do not substitute for a real browser end-to-end run, live model-provider investigation, field Siemens acceptance, disk-failure testing or production security review. Do not merge solely because the React bundle compiles.
+
+## Optional Neon manual library
+
+The manual library and simulator run launcher expose **Neon** only when the selected FastAPI backend advertises `neon_manual_search`. The server must first have `CAPSTONE_UI_NEON_MANUAL=1`, a private `NEON_KNOWLEDGE_DATABASE_URL`, and a separately reviewed/published **synthetic simulator manual** in the Neon knowledge schema. The browser never receives database credentials, and the pilot/OEM manual scope remains disabled. Neon and the Supabase simulator journal are separate opt-in deployments; see `docs/NEON_KNOWLEDGE_ROLLOUT.md` and `docs/SUPABASE_STORAGE_PLAN.md`.
