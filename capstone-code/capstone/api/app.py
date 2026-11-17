@@ -33,6 +33,7 @@ from capstone.api.runs import (
     ReviewDecision,
     RunRequest,
     SimulatorRuns,
+    StaleRunConfiguration,
     public_run_configuration,
 )
 from capstone.settings import get_settings
@@ -680,6 +681,11 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         try:
             return runner.submit(request, idempotency_key)
+        except StaleRunConfiguration:
+            raise HTTPException(
+                status_code=409,
+                detail="Settings changed after preview; validate again",
+            ) from None
         except ValueError:
             raise HTTPException(
                 status_code=409, detail="Idempotency key belongs to another request"
