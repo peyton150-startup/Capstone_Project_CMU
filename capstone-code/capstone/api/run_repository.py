@@ -427,7 +427,10 @@ class RunRepository:
             raise ValueError("Invalid event name")
         if event_name in _MODEL_EVENTS:
             payload = _safe_model_event(event_name, payload)
-        elif event_name not in _EVENT_FIELDS or not payload.keys() <= _EVENT_FIELDS[event_name]:
+        elif (
+            event_name not in _EVENT_FIELDS
+            or not payload.keys() <= _EVENT_FIELDS[event_name]
+        ):
             raise ValueError("Run event contains unapproved fields")
         size_limit = 48_000 if event_name == "model.call" else 16_384
         if len(json.dumps(payload, separators=(",", ":")).encode("utf-8")) > size_limit:
@@ -997,7 +1000,10 @@ class RunRepository:
             row = session.get(SimRunReview, (claim.run_id, proposal_id))
             if row is None:
                 raise LookupError("Proposal review missing")
-            if row.status == "pending" and row.deadline_at <= datetime.now(timezone.utc):
+            if (
+                row.status == "pending"
+                and row.deadline_at <= datetime.now(timezone.utc)
+            ):
                 # Polling never treats a late approval as permission to execute.
                 row.status = "expired"
                 row.version += 1
