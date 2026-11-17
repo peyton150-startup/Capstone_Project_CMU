@@ -18,7 +18,13 @@ routing, model provider calls, budgets, or human approval behavior.
 * The API revalidates each stored event before returning it. The authenticated
   `GET /api/v1/lab/runs/{id}/model-calls?workspace=simulator` endpoint
   returns the **latest 200 model questions**, chronological by journal sequence.
-  This is bounded; `truncated` indicates older calls exist.
+  This is bounded; `truncated` indicates older calls exist. Malformed records
+  are discarded and counted in `invalid_rows`.
+* Typed `model.config` and `model.monitor.finished` journal events distinguish
+  missing backend credentials/configuration from attempts that failed later,
+  and identify incomplete persistence without exposing exception text.
+* The generic stage/SSE journal **filters all `model.*` events**. Model-call
+  details are served only by the revalidated model-calls endpoint.
 * The managed run detail page polls the selected Local or Render API every
   four seconds. History survives browser reloads and reconnects.
 
@@ -78,6 +84,10 @@ The current hosted journal uses `CAPSTONE_UI_RUN_BACKEND=postgres` and
   patch deliberately builds on #294 and does **not** duplicate those fields.
 * PR #295 changes deterministic triage. Deterministic stages legitimately
   produce zero model calls; an empty timeline is not proof of missing keys.
+* PR #296 adds deterministic Decide **tool-selection** telemetry. This is
+  distinct from model-provider request/response metadata. It touches the
+  stage snapshot and a LiveProgress subsection; this patch uses a separate
+  component and separate run-event methods to avoid duplicating that work.
 * PR #292 adds the **future** independent Render job queue/repository, but
   does not yet execute a separate worker. When its separate-worker runtime
   is wired in, its `RunRepository` event allowlist and claim-fenced append
