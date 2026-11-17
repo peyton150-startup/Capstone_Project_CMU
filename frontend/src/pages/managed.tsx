@@ -168,7 +168,8 @@ export function ManagedRunList() {
       <Link to={'/lab/runs/' + encodeURIComponent(run.run_id)} className="incident-row" key={run.run_id}>
         <div className="incident-body"><strong>{run.run_id.slice(0, 13)}</strong>
           <p>Seed {run.requested.seed} · {run.requested.kind} · {run.requested.mode === 'triage' ?
-            'Triage (deep if needed)' : 'Deep only'}</p>
+            (run.requested.effective_configuration?.effective_triage?.then_deep === false ?
+              'Triage only' : 'Triage (deep if needed)') : 'Deep only'}</p>
           <small>{formatStamp(run.updated_at)}
             {run.requested.effective_configuration?.fingerprint ?
               ' · config ' + run.requested.effective_configuration.fingerprint : ''}</small></div>
