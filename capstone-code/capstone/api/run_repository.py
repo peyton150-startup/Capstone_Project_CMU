@@ -656,6 +656,54 @@ class RunRepository:
             run.updated_at = datetime.now(timezone.utc)
             self._append(session, run, "stage.updated", safe)
 
+    def queue_metrics(self) -> dict[str, Any]:
+        """Non-identifying backlog and lease diagnostics for authenticated system UI."""
+        # Variables:
+        #   now: Database snapshots use wall time; no simulated timestamps.
+        #   oldest: Oldest queued job, which is not proof of worker liveness.
+        #   recent: Latest previously recorded worker heartbeat, possibly stale.
+        now = datetime.now(timezone.utc)
+        with Session(self.engine) as session:
+            queued = session.scalar(
+                select(func.count()).select_from(SimJob)
+                .where(SimJob.status == "queued")
+            ) or 0
+            active = session.scalar(
+                select(func.count()).select_from(SimJob)
+                .where(
+                    SimJob.status == "claimed",
+                    SimJob.lease_until > now,
+                )
+            ) or 0
+            stale = session.scalar(
+                select(func.count()).select_from(SimJob)
+                .where(
+                    SimJob.status == "claimed",
+                    SimJob.lease_until <= now,
+                )
+            ) or 0
+            oldest = session.scalar(
+                select(func.min(SimJob.enqueued_at)).where(
+                    SimJob.status == "queued"
+                )
+            )
+            recent = session.scalar(select(func.max(SimJob.heartbeat_at)))
+        def elapsed(when: datetime | None) -> int | None:
+            if when is None:
+                return None
+            return min(86_400_000, max(0, int((now - when).total_seconds())))
+
+        return {
+            "queued": int(queued),
+            "active_claims": int(active),
+            "stale_claims": int(stale),
+            "oldest_queued_seconds": elapsed(oldest),
+            "last_heartbeat_age_seconds": elapsed(recent),
+            # No durable idle-worker heartbeat table: never imply presence
+            # when the queue is empty and there is no active claim.
+            "worker_liveness": "active_claim" if active else "unverified",
+        }
+
     def publish_resync(
         self, claim: JobClaim, owner: str, dropped_count: int
     ) -> None:
