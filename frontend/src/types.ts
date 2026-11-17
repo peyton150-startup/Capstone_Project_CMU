@@ -85,6 +85,7 @@ export type StageProgress = {
   investigation_id: string; mode: 'triage' | 'deep'; stage: string | null;
   iteration_count: number; tool_calls: number; evidence_count: number;
   hypothesis_count: number; unresolved_question_ids: string[];
+  unresolved_question_count?: number;
   termination_reason: string | null; conclusion_available: boolean;
   // Optional for compatibility with progress produced before the Render patch.
   answered_question_count?: number; decision_count?: number;
