@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import queue
+import re
 import signal
 import tempfile
 import threading
@@ -23,18 +24,36 @@ from capstone.api.runs import safe_stage
 logger = logging.getLogger("capstone.worker")
 
 
-def record(event: str, *, claim: JobClaim | None = None, **counts: int) -> None:
-    """Only approved codes, UUID and numeric counters; never exception messages."""
+_FAILURE_CODES = frozenset({
+    "database", "lease_expired", "contract", "configuration_mismatch",
+    "model_setup", "execution", "artifact", "progress_queue_full",
+    "progress_invalid", "progress_storage", "telemetry_storage",
+})
+
+
+def record(
+    event: str, *, claim: JobClaim | None = None,
+    failure_code: str | None = None, **counts: int,
+) -> None:
+    """Only approved codes, UUIDs and bounded counts; no provider exceptions."""
     if event not in {
         "ready", "claimed", "finished", "failed", "lease_lost", "recovered",
         "review_requested", "review_decided", "poll_failed", "progress_dropped",
         "model_telemetry_unavailable", "model_telemetry_dropped",
+        "worker_pulse_failed", "worker_stopped",
     }:
         raise ValueError("Unknown worker event")
+    if failure_code is not None and failure_code not in _FAILURE_CODES:
+        raise ValueError("Unknown failure code")
     body: dict[str, Any] = {"service": "agent_worker", "event": event}
     if claim is not None:
         body["run_id"] = str(claim.run_id)
         body["job_id"] = str(claim.job_id)
+    if failure_code:
+        body["failure_code"] = failure_code
+    revision = os.getenv("CAPSTONE_SOURCE_REVISION") or os.getenv("RENDER_GIT_COMMIT")
+    if revision and re.fullmatch(r"[a-f0-9]{7,40}", revision):
+        body["revision"] = revision[:12]
     for key in ("duration_ms", "count", "queue_wait_ms", "attempt"):
         value = counts.get(key)
         if type(value) is int and 0 <= value <= 1_000_000_000:
@@ -44,16 +63,7 @@ def record(event: str, *, claim: JobClaim | None = None, **counts: int) -> None:
 
 def check_strategy(config: RunExecutionConfig) -> None:
     """Refuse environment drift instead of executing different triage settings."""
-    from capstone.settings import get_settings
-
-    settings = get_settings()
-    actual = RunExecutionConfig(
-        triage_plan=settings.triage_plan,
-        triage_investigate=settings.triage_investigate,
-        triage_hypothesize=settings.triage_hypothesize,
-        triage_evidence_tests=settings.triage_evidence_tests,
-        source_revision=os.getenv("CAPSTONE_SOURCE_REVISION") or None,
-    )
+    actual = RunExecutionConfig.current()
     if actual != config:
         raise RuntimeError("Worker configuration does not match submitted settings")
 
@@ -74,6 +84,7 @@ def execute_claim(
     lost, finished = threading.Event(), threading.Event()
     updates: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
     missed = [0]
+    dropped = {"progress_invalid": 0, "progress_queue_full": 0, "progress_storage": 0}
     # #297 owns the sanitized ModelCall and Attempt schema; this worker owns
     # only the cross-process journal adapter. No second telemetry projector.
     policy_holder: list[Any] = [None]
@@ -152,8 +163,12 @@ def execute_claim(
                 safe_stage(state)
             ).model_dump(mode="json")
             updates.put_nowait(safe)
-        except (ValueError, queue.Full):
+        except queue.Full:
             missed[0] += 1
+            dropped["progress_queue_full"] += 1
+        except ValueError:
+            missed[0] += 1
+            dropped["progress_invalid"] += 1
 
     def write_updates() -> None:
         while True:
@@ -172,6 +187,7 @@ def execute_claim(
                 lost.set()
             except Exception:
                 missed[0] += 1
+                dropped["progress_storage"] += 1
             finally:
                 updates.task_done()
 
@@ -292,7 +308,8 @@ def execute_claim(
                     raise
                 except Exception:
                     record("progress_dropped", claim=claim, count=missed[0])
-            repository.publish_progress(claim, owner, final)
+            # Final progress and terminal state share the same DB transaction.
+            # Even a late watcher cannot overwrite the authoritative result.
             repository.transition(
                 claim, owner, "completed", "run.completed", {
                     "status": "completed", "mode": claim.request.mode,
@@ -315,16 +332,35 @@ def execute_claim(
                     ),
                     "review_count": len(result.desk.proposals()),
                 },
+                final_progress=final,
             )
         record("finished", claim=claim,
                duration_ms=int((time.monotonic() - started) * 1000))
         if missed[0]:
-            record("progress_dropped", claim=claim, count=missed[0])
+            for code, count in dropped.items():
+                if count:
+                    record(
+                        "progress_dropped", claim=claim, count=count,
+                        failure_code=code,
+                    )
     except LostLease:
         record("lease_lost", claim=claim)
         # Expiry recovery interrupts the run; never automatically rerun it.
     except Exception as error:
-        record("failed", claim=claim)
+        # Error messages can include provider bodies and credentials.
+        # Classify by trusted Python type or an exact internal code only.
+        if isinstance(error, ValueError):
+            category = "contract"
+        elif (
+            isinstance(error, RuntimeError)
+            and str(error) == "Worker configuration does not match submitted settings"
+        ):
+            category = "configuration_mismatch"
+        elif isinstance(error, (OSError, TimeoutError)):
+            category = "database"
+        else:
+            category = "execution"
+        record("failed", claim=claim, failure_code=category)
         try:
             flush_model_calls()
             finish_model_monitor()
@@ -360,19 +396,41 @@ def serve_worker(
     stop = stop or threading.Event()
     owner = "worker:" + uuid.uuid4().hex
     completed, failures = 0, 0
+    current_config = RunExecutionConfig.current()
     if not repository.ready():
         raise RuntimeError("Hosted database not migrated")
+
+    # A separate heartbeat is required while idle; job leases alone cannot
+    # prove the independently deployed background process is running.
+    health_stop = threading.Event()
+    active = [False]
+
+    def pulse() -> None:
+        while not health_stop.is_set():
+            try:
+                repository.worker_heartbeat(
+                    owner, source_revision=current_config.source_revision,
+                    status="running" if active[0] else "idle",
+                )
+            except Exception:
+                record("worker_pulse_failed", failure_code="database")
+            health_stop.wait(10)
+
+    health_thread = threading.Thread(
+        target=pulse, daemon=True, name="hosted-worker-health"
+    )
+    health_thread.start()
     record("ready")
     while not stop.is_set():
         try:
             recovered = repository.recover_expired()
             if recovered:
                 record("recovered", count=len(recovered))
-            claim = repository.claim(owner)
+            claim = repository.claim(owner, expected_config=current_config)
             failures = 0
         except Exception:
             failures += 1
-            record("poll_failed")
+            record("poll_failed", failure_code="database", attempt=min(failures, 100))
             stop.wait(min(30, 2 ** min(5, failures)))
             continue
         if claim is None:
@@ -382,10 +440,17 @@ def serve_worker(
             "claimed", claim=claim,
             queue_wait_ms=claim.queue_wait_ms, attempt=claim.attempt,
         )
-        execute_claim(repository, claim, owner, stop=stop)
+        active[0] = True
+        try:
+            execute_claim(repository, claim, owner, stop=stop)
+        finally:
+            active[0] = False
         completed += 1
         if max_jobs is not None and completed >= max_jobs:
-            return
+            break
+    health_stop.set()
+    health_thread.join(timeout=2)
+    record("worker_stopped")
 
 
 def main() -> None:
