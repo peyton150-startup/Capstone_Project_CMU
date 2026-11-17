@@ -515,8 +515,18 @@ class RunRepository:
             )
             if run is None or state not in _TRANSITIONS.get(run.state, ()):
                 raise ValueError("Invalid run state transition")
+            # Retain the live phase counters on completion and failure.
+            # The public event payload remains the original allowlisted snapshot.
+            previous_progress = (run.snapshot or {}).get("progress")
             run.state = state
-            run.snapshot = snapshot
+            run.snapshot = {
+                **snapshot,
+                **(
+                    {"progress": previous_progress}
+                    if state in _TERMINAL and previous_progress
+                    else {}
+                ),
+            }
             run.version += 1
             run.updated_at = now
             if state in _TERMINAL:
