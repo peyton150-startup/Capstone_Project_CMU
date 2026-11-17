@@ -1,3 +1,4 @@
+# Final PR289 acceptance gate: disposable TLS PostgreSQL, no production Supabase mutations.
 name: PostgreSQL simulator journal
 
 on:
