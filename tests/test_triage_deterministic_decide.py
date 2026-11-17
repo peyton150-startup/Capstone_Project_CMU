@@ -65,6 +65,9 @@ def state_for(*, max_tool_calls=12, max_iterations=24, mode="triage"):
     state.unanswered_questions = list(fixed_plan(ALARM))
     state.question_predicates.update(fixed_predicates(ALARM))
     state.fixed_plan_used = True
+    # This fixture represents a completed, admitted Observe clock read.
+    # Tests of a missing or rejected clock override this verdict explicitly.
+    state.triage_clock_verified = True
     return state
 
 
@@ -111,6 +114,26 @@ def test_no_decide_or_interpret_model_call_even_on_final_read(step_questions):
     assert "Q5" in {q.id for q in state.unanswered_questions}
     assert "co-movement" in state.triage_question_gaps["Q5"]
     assert "Q4" in {q.id for q in state.unanswered_questions}
+
+
+@pytest.mark.parametrize("phase", ["investigate", "test"])
+def test_missing_clock_verdict_fails_closed_before_decide(phase):
+    """A known anomaly tick or cached packet cannot replace the Observe clock."""
+    state = state_for()
+    state.triage_clock_verified = None
+    provider = FakeProvider(answer, tick=45)
+    deps = deps_for(provider)
+
+    reason = run_inner_loop(state, deps, phase)
+
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert not provider.calls
+    assert state.triage_deterministic_reads == 0
+    assert not state.evidence
+    assert not state.provenance
+    assert state.triage_decide_trace[-1].reason == "data_insufficient"
+    assert state.triage_trace_events[-1].event == "triage.stopped"
+    assert state.triage_trace_events[-1].reason_code == "data_insufficient"
 
 
 def test_shared_sensor_read_supports_two_requirements_once():
