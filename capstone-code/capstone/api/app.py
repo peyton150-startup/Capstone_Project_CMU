@@ -633,17 +633,37 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/lab/runs/{run_id}/investigation", dependencies=[Access])
     def managed_run_investigation(
-        run_id: str, workspace: Workspace = "simulator"
+        run_id: str,
+        workspace: Workspace = "simulator",
+        phase: Literal["final", "triage", "deep"] = "final",
     ) -> dict:
+        """Read one completed phase, chosen by server-owned progress only."""
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot investigation access prohibited"
             )
         run = ensure_run(run_id)
+        snapshot = run["snapshot"]
+        final = snapshot.get("investigation")
+        final = final if isinstance(final, dict) else {}
+        target = None
+        if phase == "final":
+            target = final.get("investigation_id")
+        else:
+            progress = snapshot.get("progress")
+            stages = progress if isinstance(progress, dict) else {}
+            stage = stages.get(phase)
+            if isinstance(stage, dict) and stage.get("mode") == phase:
+                target = stage.get("investigation_id")
+            # Never fabricate a missing earlier phase for older runs.
+            if not isinstance(target, str) and final.get("mode") == phase:
+                target = final.get("investigation_id")
+        if not isinstance(target, str) or not re.fullmatch(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+            target,
+        ):
+            return {"availability": "not_recorded", "detail": None, "phase": phase}
         assert runner is not None
-        target = (run["snapshot"].get("investigation") or {}).get("investigation_id")
-        if not isinstance(target, str):
-            return {"availability": "not_recorded", "detail": None}
         if cfg.run_backend == "hosted":
             detail = runner.investigation_detail(run_id, target)
         else:
@@ -653,6 +673,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         return {
             "availability": "available" if detail is not None else "not_recorded",
             "detail": detail,
+            "phase": phase,
         }
 
     @app.get("/api/v1/lab/runs/{run_id}/observability", dependencies=[Access])
