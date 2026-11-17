@@ -87,6 +87,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
         conclusion_available=state.conclusion is not None,
     ).model_dump(mode="json")
 
+
 class SimulatorRuns:
     """Single-host runner; SQLite recovers status but never resumes an approval.
 
@@ -242,9 +243,15 @@ class SimulatorRuns:
             if row is None:
                 raise LookupError("Run not found")
             previous = json.loads(row[0])
-            previous_progress = previous.get("progress") if isinstance(previous, dict) else None
+            previous_progress = (
+                previous.get("progress") if isinstance(previous, dict) else None
+            )
             progress = (
-                {k: v for k, v in previous_progress.items() if k in ("triage", "deep", "latest")}
+                {
+                    k: v
+                    for k, v in previous_progress.items()
+                    if k in ("triage", "deep", "latest")
+                }
                 if isinstance(previous_progress, dict)
                 else {}
             )
