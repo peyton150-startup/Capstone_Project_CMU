@@ -37,17 +37,22 @@ SERVER = "urn:approved:siemens"
 
 def scope(*, permit_text=False, approved=True):
     return CloudScope(
-        site_id="plant-test", machine_id="cnc-1", server_uri=SERVER,
+        site_id="plant-test",
+        machine_id="cnc-1",
+        server_uri=SERVER,
         controller_fingerprint="controller-build-verified",
         source_profile_revision="2026.11.1",
         approval_reference="SIGNED-APPROVAL-TEST-001",
         approved_by="Authorized Test Operator",
         expires_at=datetime(2030, 1, 1, tzinfo=UTC),
-        retention_days=30, max_sample_age_seconds=10,
+        retention_days=30,
+        max_sample_age_seconds=10,
         cloud_transfer_approved=approved,
         nodes=(
             ApprovedNode(
-                node=NODE, permit_numeric_analysis=True, unit="rpm",
+                node=NODE,
+                permit_numeric_analysis=True,
+                unit="rpm",
                 permit_text=permit_text,
             ),
         ),
@@ -56,18 +61,27 @@ def scope(*, permit_text=False, approved=True):
 
 def change(*, node=NODE, status_code=0, value=12000.0, value_type="Double"):
     return data_change(
-        server_uri=SERVER, node=node, value=value, value_type=value_type,
-        status_code=status_code, source_timestamp=T0,
+        server_uri=SERVER,
+        node=node,
+        value=value,
+        value_type=value_type,
+        status_code=status_code,
+        source_timestamp=T0,
         server_timestamp=T0 + timedelta(milliseconds=50),
         received_at=T0 + timedelta(milliseconds=80),
-        session_epoch=1, subscription_id=10, notification_seq=12,
+        session_epoch=1,
+        subscription_id=10,
+        notification_seq=12,
     ).model_dump(mode="json")
 
 
 def marker(*, gap=False):
     return OpcUaSessionMarker(
-        server_uri=SERVER, event="gap" if gap else "heartbeat", at=T0,
-        session_epoch=1, reason="Potentially sensitive operator text",
+        server_uri=SERVER,
+        event="gap" if gap else "heartbeat",
+        at=T0,
+        session_epoch=1,
+        reason="Potentially sensitive operator text",
         gap=OpcUaGap(cause="session_lost") if gap else None,
     ).model_dump(mode="json")
 
@@ -99,9 +113,7 @@ def test_foreign_nodes_server_and_sensitive_text_are_rejected():
     with pytest.raises(PermissionError):
         validate_record(scope(), change(node=foreign))
     with pytest.raises(PermissionError):
-        validate_record(
-            scope(), change(value="customer 123", value_type="String")
-        )
+        validate_record(scope(), change(value="customer 123", value_type="String"))
     record = change()
     record["server_uri"] = "urn:other"
     with pytest.raises(PermissionError):
@@ -126,9 +138,7 @@ def test_batch_rejects_tampering_foreign_scope_and_raw_unsanitized_markers():
     with pytest.raises(ValueError, match="digest"):
         changed.authorized_lines(approved)
     with pytest.raises(PermissionError):
-        batch.authorized_lines(
-            approved.model_copy(update={"machine_id": "another"})
-        )
+        batch.authorized_lines(approved.model_copy(update={"machine_id": "another"}))
     raw_marker = marker()
     unsanitized = IngestBatch.build(
         scope=approved, stream_id=uuid4(), first_line=0, records=[raw_marker]
@@ -158,9 +168,7 @@ def test_resumable_uplink_never_acks_failed_cloud_transaction(tmp_path):
     capture, cursor = tmp_path / "capture.jsonl", tmp_path / "cursor.json"
     raw = change()
     raw_marker = marker(gap=True)
-    capture.write_text(
-        json.dumps(raw) + "\n" + json.dumps(raw_marker) + "\n"
-    )
+    capture.write_text(json.dumps(raw) + "\n" + json.dumps(raw_marker) + "\n")
     rejected = []
 
     def fail(batch):
