@@ -235,3 +235,39 @@ def test_oem_sql_migration_preserves_private_scope_and_lineage():
         "REVOKE ALL",
     ):
         assert fragment in source
+
+
+def test_oem_private_conflict_recheck_uses_authenticated_storage_route(monkeypatch):
+    """Private-object GET differs from the upload endpoint per Supabase API."""
+    from capstone.manual import oem
+
+    calls = []
+
+    class LocalOpener:
+        def open(self, request, timeout):
+            calls.append((request.get_method(), request.full_url))
+            return BytesIO(PDF)
+
+    monkeypatch.setattr(oem, "build_opener", lambda *_: LocalOpener())
+    storage = PrivatePDFStorage(
+        origin="https://testproject.supabase.co",
+        bucket="private-oem-documents",
+        token="x" * 48,
+    )
+    key = approval().object_key
+    with storage._request(key, PDF, "POST") as response:
+        assert response.read() == PDF
+    with storage._request(key, None, "GET") as response:
+        assert response.read() == PDF
+    assert calls == [
+        (
+            "POST",
+            f"https://testproject.supabase.co/storage/v1/object/"
+            f"private-oem-documents/{key}",
+        ),
+        (
+            "GET",
+            f"https://testproject.supabase.co/storage/v1/object/authenticated/"
+            f"private-oem-documents/{key}",
+        ),
+    ]
