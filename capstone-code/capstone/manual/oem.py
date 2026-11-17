@@ -77,11 +77,8 @@ class OEMApproval(BaseModel):
         for ident in (self.site_id, self.machine_id):
             if not _ID.fullmatch(ident) or len(ident) > 64:
                 raise ValueError("invalid site or machine ID")
-        if (
-            not _ID.fullmatch(self.document_id)
-            or not self.document_id.startswith(
-                f"{self.site_id}.{self.machine_id}."
-            )
+        if not _ID.fullmatch(self.document_id) or not self.document_id.startswith(
+            f"{self.site_id}.{self.machine_id}."
         ):
             raise ValueError("document ID must be site/machine namespaced")
         if not re.fullmatch(r"[a-f0-9]{64}", self.pdf_sha256):
@@ -105,7 +102,9 @@ class OEMApproval(BaseModel):
         return hashlib.sha256(
             json.dumps(
                 [s.model_dump() for s in self.sections],
-                ensure_ascii=False, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
             ).encode("utf-8")
         ).hexdigest()
 
@@ -128,10 +127,14 @@ class PrivatePDFStorage:
     def __init__(self, *, origin: str, token: str, bucket: str):
         parsed = urlsplit(origin)
         if (
-            parsed.scheme != "https" or not parsed.hostname
+            parsed.scheme != "https"
+            or not parsed.hostname
             or not parsed.hostname.endswith(".supabase.co")
-            or parsed.path not in ("", "/") or parsed.query or parsed.fragment
-            or parsed.username or parsed.password
+            or parsed.path not in ("", "/")
+            or parsed.query
+            or parsed.fragment
+            or parsed.username
+            or parsed.password
             or not re.fullmatch(r"[a-z0-9-]{3,63}", bucket)
             or not bucket.startswith("private-")
             or len(token) < 32
@@ -143,11 +146,16 @@ class PrivatePDFStorage:
 
     def _request(self, key: str, payload: bytes | None, method: str):
         url = (
-            self.origin + "/storage/v1/object/" + quote(self.bucket, safe="")
-            + "/" + quote(key, safe="/")
+            self.origin
+            + "/storage/v1/object/"
+            + quote(self.bucket, safe="")
+            + "/"
+            + quote(key, safe="/")
         )
         request = Request(
-            url, data=payload, method=method,
+            url,
+            data=payload,
+            method=method,
             headers={
                 "Authorization": "Bearer " + self.token,
                 "apikey": self.token,
@@ -161,7 +169,8 @@ class PrivatePDFStorage:
         """Bucket naming is not an ACL: verify actual Supabase privacy."""
         url = self.origin + "/storage/v1/bucket/" + quote(self.bucket, safe="")
         request = Request(
-            url, method="GET",
+            url,
+            method="GET",
             headers={
                 "Authorization": "Bearer " + self.token,
                 "apikey": self.token,
@@ -178,7 +187,8 @@ class PrivatePDFStorage:
     def publish(self, manifest: OEMApproval, pdf: bytes) -> str:
         """Immutable PDF key; a 409 retry checks exact bytes, never overwrites."""
         if (
-            not pdf.startswith(b"%PDF-") or len(pdf) > MAX_PDF_BYTES
+            not pdf.startswith(b"%PDF-")
+            or len(pdf) > MAX_PDF_BYTES
             or hashlib.sha256(pdf).hexdigest() != manifest.pdf_sha256
         ):
             raise ValueError("private PDF differs from approved source")
@@ -194,7 +204,9 @@ class PrivatePDFStorage:
                 with self._request(manifest.object_key, None, "GET") as response:
                     old = response.read(MAX_PDF_BYTES + 1)
                 if hashlib.sha256(old).hexdigest() != manifest.pdf_sha256:
-                    raise ValueError("private PDF object conflicts with approved source")
+                    raise ValueError(
+                        "private PDF object conflicts with approved source"
+                    )
             except (HTTPError, URLError, OSError):
                 raise RuntimeError("Unable to verify existing private PDF") from None
         except (URLError, OSError):
@@ -219,8 +231,9 @@ class OEMKnowledgeRepository:
                     text("SELECT pg_advisory_xact_lock(hashtextextended(:id, 0))"),
                     {"id": approval.document_id},
                 )
-                existing = connection.execute(
-                    text("""
+                existing = (
+                    connection.execute(
+                        text("""
                         SELECT d.source_sha256, d.source_object_key,
                                a.section_sha256, a.approval_reference
                         FROM capstone_knowledge.manual_documents AS d
@@ -228,22 +241,25 @@ class OEMKnowledgeRepository:
                         ON (a.document_id, a.revision)=(d.document_id, d.revision)
                         WHERE d.document_id=:id AND d.revision=:revision
                     """),
-                    ident,
-                ).mappings().first()
+                        ident,
+                    )
+                    .mappings()
+                    .first()
+                )
                 if existing is not None:
                     if (
                         existing["source_sha256"] != approval.pdf_sha256
                         or existing["source_object_key"] != object_key
                         or existing["section_sha256"] != approval.section_digest
-                        or existing["approval_reference"]
-                        != approval.approval_reference
+                        or existing["approval_reference"] != approval.approval_reference
                     ):
                         raise ValueError("approved OEM revision cannot be overwritten")
                     count = connection.execute(
                         text("""
                             SELECT count(*) FROM capstone_knowledge.manual_sections
                             WHERE document_id=:id AND revision=:revision
-                        """), ident,
+                        """),
+                        ident,
                     ).scalar_one()
                     if count != len(approval.sections):
                         raise ValueError("published OEM manual is incomplete")
@@ -258,7 +274,8 @@ class OEMKnowledgeRepository:
                                 :pdf_sha, :object_key, :approval, FALSE)
                     """),
                     {
-                        **ident, "title": approval.title,
+                        **ident,
+                        "title": approval.title,
                         "pdf_sha": approval.pdf_sha256,
                         "object_key": object_key,
                         "approval": approval.approval_reference,
@@ -277,7 +294,8 @@ class OEMKnowledgeRepository:
                                 :pdf_sha, :section_sha, TRUE, TRUE, :egress)
                     """),
                     {
-                        **ident, "site": approval.site_id,
+                        **ident,
+                        "site": approval.site_id,
                         "machine": approval.machine_id,
                         "family": approval.controller_family,
                         "fingerprint": approval.controller_fingerprint,
@@ -300,9 +318,12 @@ class OEMKnowledgeRepository:
                                     :start, :end, NULL, NULL)
                         """),
                         {
-                            **ident, "section": section.section_id,
-                            "title": section.title, "body": section.text,
-                            "start": section.page_start, "end": section.page_end,
+                            **ident,
+                            "section": section.section_id,
+                            "title": section.title,
+                            "body": section.text,
+                            "start": section.page_start,
+                            "end": section.page_end,
                         },
                     )
                 connection.execute(
@@ -310,14 +331,16 @@ class OEMKnowledgeRepository:
                         UPDATE capstone_knowledge.manual_documents
                         SET is_published=FALSE
                         WHERE document_id=:id AND is_published=TRUE
-                    """), {"id": approval.document_id},
+                    """),
+                    {"id": approval.document_id},
                 )
                 connection.execute(
                     text("""
                         UPDATE capstone_knowledge.manual_documents
                         SET is_published=TRUE
                         WHERE document_id=:id AND revision=:revision
-                    """), ident,
+                    """),
+                    ident,
                 )
         except SQLAlchemyError:
             raise RuntimeError("Neon OEM manual transaction failed") from None
@@ -328,13 +351,20 @@ class ScopedOEMManualSearch:
     """Read-only, context-matched retrieval. No simulator or other-shop fallback."""
 
     def __init__(
-        self, engine: Engine, *, site_id: str, machine_id: str,
-        controller_family: str, controller_fingerprint: str,
+        self,
+        engine: Engine,
+        *,
+        site_id: str,
+        machine_id: str,
+        controller_family: str,
+        controller_fingerprint: str,
     ):
         self.engine = engine
         self.identity = {
-            "site": site_id, "machine": machine_id,
-            "family": controller_family, "fingerprint": controller_fingerprint,
+            "site": site_id,
+            "machine": machine_id,
+            "family": controller_family,
+            "fingerprint": controller_fingerprint,
         }
 
     def search(self, query: str, *, limit: int) -> tuple[ManualSection, ...]:
@@ -342,8 +372,9 @@ class ScopedOEMManualSearch:
             raise ValueError("OEM manual search query/limit invalid")
         try:
             with self.engine.connect() as connection:
-                rows = connection.execute(
-                    text("""
+                rows = (
+                    connection.execute(
+                        text("""
                         SELECT d.document_id, d.revision,
                                s.section_id, s.title, s.body
                         FROM capstone_knowledge.manual_documents d
@@ -366,16 +397,22 @@ class ScopedOEMManualSearch:
                         ) DESC, d.document_id, s.section_id
                         LIMIT :limit
                     """),
-                    {**self.identity, "query": query, "limit": limit},
-                ).mappings().all()
+                        {**self.identity, "query": query, "limit": limit},
+                    )
+                    .mappings()
+                    .all()
+                )
         except SQLAlchemyError:
             raise RuntimeError("Approved OEM manual retrieval unavailable") from None
         return tuple(
             ManualSection(
-                document_id=row["document_id"], revision=row["revision"],
-                section_id=row["section_id"], title=row["title"],
+                document_id=row["document_id"],
+                revision=row["revision"],
+                section_id=row["section_id"],
+                title=row["title"],
                 text=row["body"],
-            ) for row in rows
+            )
+            for row in rows
         )
 
 
@@ -386,7 +423,8 @@ def read_pdf(path: Path, approval: OEMApproval) -> bytes:
     with path.open("rb") as source:
         pdf = source.read(MAX_PDF_BYTES + 1)
     if (
-        len(pdf) > MAX_PDF_BYTES or not pdf.startswith(b"%PDF-")
+        len(pdf) > MAX_PDF_BYTES
+        or not pdf.startswith(b"%PDF-")
         or hashlib.sha256(pdf).hexdigest() != approval.pdf_sha256
     ):
         raise ValueError("OEM PDF does not match authorized SHA-256")
