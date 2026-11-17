@@ -258,7 +258,6 @@ def test_compiling_requires_no_model_or_extra_provider_reads():
     )
 
 
-
 def test_job_paths_discovered_during_test_are_scheduled():
     """An inspection discovered during Test must schedule every failed job path."""
     from capstone.agent.artifacts import DetectedAnomaly
@@ -296,8 +295,7 @@ def test_job_paths_discovered_during_test_are_scheduled():
 
     provider = FakeProvider(records, tick=45)
     tools = tuple(
-        tool_spec(name)
-        for name in ("get_inspections", "get_job_history", "get_events")
+        tool_spec(name) for name in ("get_inspections", "get_job_history", "get_events")
     )
     deps = replace(
         deps_for(provider, tools=tools),
@@ -336,9 +334,7 @@ def test_unsupported_channels_remain_missing_but_are_not_scheduled():
     update_candidate_packet(state, stage="hypothesize", deps=deps)
     load = next(c for c in state.triage_candidates if c.family == "operating_load")
     assert {"Q5:temperature", "Q5:load"} <= set(load.missing_requirement_ids)
-    assert {"Q5:temperature", "Q5:load"} <= set(
-        load.unavailable_requirement_ids
-    )
+    assert {"Q5:temperature", "Q5:load"} <= set(load.unavailable_requirement_ids)
     assert "Q5:temperature" not in state.triage_test_requirement_ids
     assert "Q5:load" not in state.triage_test_requirement_ids
     run_test(state, deps)
@@ -366,6 +362,7 @@ def test_qualified_summaries_do_not_close_composite_q5():
 
 def test_logging_transport_failure_does_not_change_decision_or_test_plan():
     """Optional JSON logging can fail without changing deterministic behavior."""
+
     class BrokenLogger:
         def log_event(self, *args, **kwargs):
             raise OSError("private driver error")
@@ -419,7 +416,6 @@ def test_candidate_archive_contract_is_backward_compatible():
     )
     assert previous.deterministic_candidates is None
     assert previous.deterministic_hypothesis_trace is None
-
 
 
 @pytest.mark.parametrize("broken_summary", [False, True])
@@ -489,7 +485,6 @@ def test_full_graph_deterministic_triage_reaches_checked_conclude(broken_summary
     assert state.proposed_action is None
     if broken_summary:
         assert state.triage_requirement_results["Q1:trigger"].status != "satisfied"
-
 
 
 def test_three_test_reads_survive_unchanged_model_confidence():
