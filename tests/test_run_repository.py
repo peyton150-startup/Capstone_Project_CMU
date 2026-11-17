@@ -379,3 +379,75 @@ def test_worker_uses_pydantic_graph_episode_without_a_web_thread(repository, mon
     assert [e["event"] for e in repository.events_since(queued["run_id"], 0)][-1] == (
         "run.completed"
     )
+
+
+def test_model_journal_is_fenced_private_and_source_validated(repository):
+    """#297 owns sanitization: hosted stores only its exact Pydantic projection."""
+    contracts = pytest.importorskip("capstone.api.model_calls")
+    from capstone.api.hosted_runs import HostedSimulatorRuns
+
+    queued = repository.submit(
+        RunRequest(seed=98, mode="triage"),
+        "model-telemetry-hosted-98",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("model-telemetry-worker")
+    assert claim is not None
+    repository.publish_model_event(
+        claim, "model-telemetry-worker", "model.monitor", {"schema_version": 1}
+    )
+    repository.publish_model_event(
+        claim, "model-telemetry-worker", "model.config",
+        {"schema_version": 1, "outcome": "configured"},
+    )
+    safe_call = contracts.SafeModelCall(
+        question_index=1, job="conclude", outcome="no_answer", attempts=(),
+    ).model_dump(mode="json")
+    repository.publish_model_event(
+        claim, "model-telemetry-worker", "model.call", safe_call
+    )
+    with pytest.raises(ValueError):
+        repository.publish_model_event(
+            claim, "model-telemetry-worker", "model.call",
+            {**safe_call, "provider_response": "DO_NOT_PERSIST"},
+        )
+    repository.publish_model_event(
+        claim, "model-telemetry-worker", "model.monitor.finished",
+        {
+            "schema_version": 1, "questions_seen": 1,
+            "questions_persisted": 1, "write_failures": 0, "complete": True,
+        },
+    )
+
+    hosted = object.__new__(HostedSimulatorRuns)
+    hosted.repository = repository
+    view = hosted.model_calls(queued["run_id"])
+    assert view["availability"] == "available"
+    assert view["configuration"] == "configured"
+    assert view["summary"]["complete"] is True
+    assert [entry["question_index"] for entry in view["items"]] == [1]
+    assert "DO_NOT_PERSIST" not in str(view)
+    assert repository.model_events(
+        queued["run_id"], "model.call", actor_id="other-actor"
+    ) == []
+
+    repository.transition(
+        claim, "model-telemetry-worker", "completed", "run.completed",
+        {"status": "completed", "mode": "triage"},
+    )
+    with pytest.raises(LostLease):
+        repository.publish_model_event(
+            claim, "model-telemetry-worker", "model.call", safe_call
+        )
+
+
+def test_hosted_uses_prior_safe_stage_contract_after_pr294_merge():
+    """Never reimplement #296 nested Decide event sanitizer in hosted."""
+    from capstone.api import runs
+    from capstone.api.run_repository import StagePayload
+
+    if hasattr(runs, "SafeStageSnapshot"):
+        assert StagePayload is runs.SafeStageSnapshot
+        if "decide_events_recent" in runs.SafeStageSnapshot.model_fields:
+            assert "decide_events_recent" in StagePayload.model_fields
