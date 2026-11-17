@@ -4,7 +4,8 @@ import { postJson, useResource } from '../api';
 import { resolveApiUrl } from '../backend.mjs';
 import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
-import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, TriageReport } from '../types';
+import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, TriageReport, TriageRunDefaults, TriageRunOptions, TriageRunPreview } from '../types';
+import { TriageRunEditor } from './triageRunEditor';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
@@ -33,17 +34,77 @@ export function ManagedRunLauncher() {
   const key = useRef<string | null>(null);
   const enabled = workspace === 'simulator' && !preview &&
     capability.data?.features.simulation_run_launch === true;
+  const defaults = useResource<TriageRunDefaults>(
+    enabled ? '/api/v1/lab/runs/configuration?workspace=simulator' : null,
+    token, !enabled, 60000,
+  );
+  const [controls, setControls] = useState<TriageRunOptions | null>(null);
+  const initializedFor = useRef<string | null>(null);
+  const sourceKey = JSON.stringify([backend, token, workspace, preview]);
+  useEffect(() => {
+    if (defaults.data && initializedFor.current !== sourceKey) {
+      initializedFor.current = sourceKey;
+      setControls(defaults.data.defaults);
+      key.current = null;
+    }
+  }, [defaults.data, sourceKey]);
   const parsedSeed = Number(seed);
-  const validSeed = Number.isInteger(parsedSeed) && parsedSeed >= 0 && parsedSeed <= 1000000;
+  const validSeed = seed.trim() !== '' && Number.isInteger(parsedSeed) &&
+    parsedSeed >= 0 && parsedSeed <= 1000000;
+  const validBudget = controls != null &&
+    Number.isFinite(controls.seconds) && controls.seconds >= 5 && controls.seconds <= 900 &&
+    Number.isInteger(controls.tool_calls) && controls.tool_calls >= 1 &&
+    controls.tool_calls <= 30 && Number.isFinite(controls.hypothesis_seconds) &&
+    controls.hypothesis_seconds >= 0 && controls.hypothesis_seconds <= 300;
+  const requested = controls ? {
+    seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual,
+    triage_settings: controls,
+  } : null;
+  const requestSignature = JSON.stringify(requested);
+  const previewIdentity = JSON.stringify([requestSignature, token, backend, sourceKey]);
+  const [resolved, setResolved] = useState<{
+    identity: string; value: TriageRunPreview;
+  } | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewPending, setPreviewPending] = useState(false);
+  const confirmed = resolved?.identity === previewIdentity ? resolved.value : null;
+
+  useEffect(() => {
+    let active = true;
+    setResolved(null);
+    setPreviewError(null);
+    if (!enabled || !validSeed || !validBudget || !requested) {
+      setPreviewPending(false);
+      return;
+    }
+    setPreviewPending(true);
+    const timer = window.setTimeout(() => {
+      void postJson<TriageRunPreview>('/api/v1/lab/runs/preview?workspace=simulator',
+        token, requested, backend).then(value => {
+          if (active) {
+            setResolved({ identity: previewIdentity, value });
+            setPreviewPending(false);
+          }
+        }).catch(problem => {
+          if (active) {
+            setPreviewError(problem instanceof Error ? problem.message : 'Preview failed');
+            setPreviewPending(false);
+          }
+        });
+    }, 250);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [previewIdentity, enabled, validSeed, validBudget]);
 
   async function submit() {
-    if (!enabled || !validSeed || pending) return;
+    if (!enabled || !validSeed || !validBudget || !requested ||
+      !confirmed || pending) return;
     setPending(true);
     setError(null);
     if (!key.current) key.current = crypto.randomUUID().replaceAll('-', '');
     try {
       const run = await postJson<ManagedRun>('/api/v1/lab/runs?workspace=simulator', token,
-        { seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual }, backend, key.current);
+        { ...requested, configuration_fingerprint: confirmed.fingerprint },
+        backend, key.current);
       navigate('/lab/runs/' + encodeURIComponent(run.run_id));
     } catch (problem) {
       setError(problem instanceof Error ? problem.message : 'Unable to start run');
@@ -74,13 +135,22 @@ export function ManagedRunLauncher() {
           {capability.data?.features.neon_manual_search && <option value="neon">Neon manual (SIM-CNC-001)</option>}
         </select></div>
     </div>
-    <div className="quality-check"><label><input type="checkbox" checked={hazards} onChange={e=>{setHazards(e.target.checked);resetKey();}}/> Seeded tool hazards</label></div>
-    <div className="quality-check"><label><input type="checkbox" checked={tree} onChange={e=>{setTree(e.target.checked);resetKey();}}/> Tree-of-Thought policy</label></div>
-    <p className="body-copy">The run uses server-owned model configuration. A triage run can escalate into a deep investigation under the Python decision policy. No pilot data or physical CNC commands are used.</p>
+    <div className="quality-check"><label><input type="checkbox" checked={hazards} onChange={e=>{setHazards(e.target.checked);resetKey();}}/> Seeded tool hazards (synthetic faults)</label></div>
+    <div className="quality-check"><label><input type="checkbox" checked={tree} onChange={e=>{setTree(e.target.checked);resetKey();}}/> Tree-of-Thought policy (model-only stages; deep unaffected by deterministic triage)</label></div>
+    {controls ? <TriageRunEditor value={controls} mode={mode}
+      onChange={next=>{setControls(next);resetKey();}}
+      preview={confirmed} previewError={previewError}
+      pending={previewPending} disabled={!enabled}/> :
+      <Unavailable item="Validated per-run settings"
+        detail={defaults.error || 'Connect the authorized simulator API to load stage defaults.'}/>}
+    <p className="body-copy">Only this run receives the selected stage controls.
+      Conclude remains model-backed. No pilot data or physical CNC commands are used.</p>
     {error && <InfoState kind="warning" title="Run not started" detail={error}/>}
     {!validSeed && <p role="alert">Seed must be an integer between 0 and 1,000,000.</p>}
-    {enabled ? <button className="button-primary" type="button" disabled={!validSeed || pending} onClick={submit}>
-      {pending ? 'Submitting…' : 'Start authorized simulator run'}</button> :
+    {enabled ? <button className="button-primary" type="button"
+      disabled={!validSeed || !validBudget || !confirmed || pending} onClick={submit}>
+      {pending ? 'Submitting…' : !confirmed ? 'Validate settings to start' :
+        'Start run with confirmed settings'}</button> :
       <Unavailable item="Managed simulator runner" detail={preview ?
         'Exit synthetic preview to run a real simulator episode.' :
         capability.error || 'Enable CAPSTONE_UI_SIM_RUNS with approved local runner storage and operator credentials.'}/>}
