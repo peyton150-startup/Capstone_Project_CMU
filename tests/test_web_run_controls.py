@@ -19,12 +19,15 @@ def _worker(self, run_id, request):
     try:
         saved = self.get(run_id)["requested"]
         effective = saved["effective_configuration"]
-        assert (
-            request._effective_triage is None
-            if request.mode == "deep"
-            else request._effective_triage.model_dump(mode="json")
+        if request.mode == "deep":
+            assert request._effective_triage is None
+            assert effective["effective_triage"] is None
+        else:
+            assert request._effective_triage is not None
+            assert (
+                request._effective_triage.model_dump(mode="json")
                 == effective["effective_triage"]
-        )
+            )
         self._emit(
             run_id, "run.completed",
             {
