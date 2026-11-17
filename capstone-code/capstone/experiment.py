@@ -50,6 +50,7 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from time import monotonic
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
