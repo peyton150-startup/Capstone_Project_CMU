@@ -46,12 +46,31 @@ class Cursor(BaseModel):
     next_line: int = Field(ge=0)
     offset: int = Field(ge=0)
     prefix_count: int = Field(ge=0, le=256)
-    prefix_sha256: str
+    prefix_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    committed_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
 
 
 def _prefix(path: Path, count: int) -> str:
     with path.open("rb") as source:
         return hashlib.sha256(source.read(count)).hexdigest()
+
+
+def _committed_hash(path: Path, count: int):
+    """Hash the entire ACKed prefix in bounded chunks, not just 256 bytes.
+
+    Revalidated once on resume, then extended by each new ACKed batch.
+    This detects in-place edits anywhere in the committed JSONL prefix.
+    """
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        remaining = count
+        while remaining:
+            chunk = source.read(min(128 * 1024, remaining))
+            if not chunk:
+                raise ValueError("approved Siemens capture was truncated")
+            digest.update(chunk)
+            remaining -= len(chunk)
+    return digest
 
 
 def _atomic_save(path: Path, state: Cursor) -> None:
@@ -76,8 +95,10 @@ def _atomic_save(path: Path, state: Cursor) -> None:
 
 
 def load_cursor(capture: Path, path: Path) -> Cursor:
-    if not capture.is_file():
-        raise ValueError("approved Siemens capture file is missing")
+    if capture.is_symlink() or not capture.is_file():
+        raise ValueError("approved Siemens capture must be a regular file")
+    if path.is_symlink():
+        raise ValueError("uploader cursor must not be a symlink")
     source = str(capture.resolve())
     if path.exists():
         state = Cursor.model_validate_json(path.read_bytes())
@@ -87,6 +108,8 @@ def load_cursor(capture: Path, path: Path) -> Cursor:
             raise ValueError("capture was truncated: use a new approved stream")
         if _prefix(capture, state.prefix_count) != state.prefix_sha256:
             raise ValueError("capture prefix changed: do not replay modified data")
+        if _committed_hash(capture, state.offset).hexdigest() != state.committed_sha256:
+            raise ValueError("ACKed capture contents changed: stop and review stream")
         return state
     count = min(capture.stat().st_size, 256)
     state = Cursor(
@@ -96,6 +119,7 @@ def load_cursor(capture: Path, path: Path) -> Cursor:
         offset=0,
         prefix_count=count,
         prefix_sha256=_prefix(capture, count),
+        committed_sha256=hashlib.sha256(b"").hexdigest(),
     )
     _atomic_save(path, state)
     return state
@@ -215,10 +239,21 @@ def upload_once(
     uploaded = 0
     with exclusive_cursor(cursor_path):
         state = load_cursor(capture, cursor_path)
+        committed = _committed_hash(capture, state.offset)
         while True:
+            scope.assert_active()
             batch, end = read_batch(capture, state, scope)
             if batch is None:
                 return uploaded
+            # Preserve the exact validated file segment while HTTP is in
+            # flight. If the recorder rewrites it, do not advance the cursor.
+            length = end - state.offset
+            with capture.open("rb") as source:
+                source.seek(state.offset)
+                before = source.read(length)
+            if len(before) != length:
+                raise UploadError("capture changed during upload")
+            scope.assert_active()
             acknowledgement = send(batch)
             if (
                 acknowledgement.get("digest") != batch.digest
@@ -227,6 +262,12 @@ def upload_once(
                 or acknowledgement.get("accepted") != len(batch.records)
             ):
                 raise UploadError("Cloud acknowledgement mismatch")
+            with capture.open("rb") as source:
+                source.seek(state.offset)
+                after = source.read(length)
+            if after != before:
+                raise UploadError("capture changed during upload; cursor not advanced")
+            committed.update(after)
             count = state.prefix_count or min(capture.stat().st_size, 256)
             new_state = state.model_copy(
                 update={
@@ -234,6 +275,7 @@ def upload_once(
                     "next_line": acknowledgement["next_line"],
                     "prefix_count": count,
                     "prefix_sha256": _prefix(capture, count),
+                    "committed_sha256": committed.hexdigest(),
                 }
             )
             _atomic_save(cursor_path, new_state)
