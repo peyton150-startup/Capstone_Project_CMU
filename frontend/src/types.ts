@@ -80,6 +80,29 @@ export type ListResponse<T> = { availability: Availability; items: T[]; message?
 export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
+/** Read-only Pydantic Graph deep lifecycle flags. Missing is unknown, not negative. */
+export type DeepSignals = {
+  critic_outcome: 'answered' | 'invalid_reply' | 'no_answer' | null;
+  recheck_outcome: 'observed' | 'no_evidence' | 'policy_stopped' |
+    'invalid_decision' | 'out_of_time' | 'skipped' | 'already_answered' | null;
+  critic_tool_calls: number; pruned_candidates: number; hypothesis_revisions: number;
+  conclusion_assessment: 'supported' | 'unresolved' | null;
+  conclusion_recommendation: 'intervene' | 'no_action' | 'escalate' | null;
+  conclusion_evidence_count: number;
+  proposal_status: 'pending' | 'approved' | 'rejected' | 'not_submitted' | null;
+  action_started: boolean; action_finished: boolean;
+  verification_outcome: 'resolved' | 'not_resolved' |
+    'inconclusive' | 'not_performed' | null;
+  verification_observed: boolean; verification_tick: number | null;
+};
+
+/** Each checkpoint corresponds to an observed stage transition in the journal. */
+export type DeepCheckpoint = {
+  sequence: number; stage: string; iteration_count: number;
+  tool_calls: number; evidence_count: number; hypothesis_count: number;
+  decision_count: number; observed_tick: number | null;
+};
+
 /** Source-safe, per-phase values projected from the Python investigation watcher. */
 export type StageProgress = {
   investigation_id: string; mode: 'triage' | 'deep'; stage: string | null;
@@ -87,6 +110,7 @@ export type StageProgress = {
   hypothesis_count: number; unresolved_question_ids: string[];
   unresolved_question_count?: number;
   termination_reason: string | null; conclusion_available: boolean;
+  deep_signals?: DeepSignals | null;
   // Optional for compatibility with progress produced before the Render patch.
   answered_question_count?: number; decision_count?: number;
   remaining_iterations?: number; remaining_tool_calls?: number;
@@ -117,6 +141,7 @@ export type StageProgress = {
 };
 export type RunPhaseProgress = {
   latest?: 'triage' | 'deep'; triage?: StageProgress; deep?: StageProgress;
+  deep_timeline?: DeepCheckpoint[]; deep_transition_total?: number;
 };
 
 export type ManagedRun = {
