@@ -31,7 +31,23 @@ export async function postJson<T>(path: string, token: string, body: unknown, ba
   });
   if (!response.ok) {
     if (response.status === 403) throw new Error('This role or workspace is not authorized.');
-    if (response.status === 409) throw new Error('This request has already been decided, or another run is active.');
+    if (response.status === 409) {
+      // Only fixed, reviewed server conflict messages are displayed. Never
+      // forward arbitrary exception detail, which may contain provider data.
+      const payload: unknown = await response.json().catch(() => null);
+      const detail = payload && typeof payload === 'object' && 'detail' in payload ?
+        (payload as {detail?: unknown}).detail : null;
+      const safeDetails = [
+        'Settings changed after preview; review before starting',
+        'Settings changed after preview; validate again',
+        'Idempotency key belongs to another request',
+        'A simulator run is already active',
+      ];
+      throw new Error(
+        typeof detail === 'string' && safeDetails.includes(detail) ?
+          detail : 'This request has already been decided, or another run is active.',
+      );
+    }
     if (response.status === 422) throw new Error('Invalid settings or missing idempotency key.');
     throw new Error('Request failed (' + response.status + ').');
   }
