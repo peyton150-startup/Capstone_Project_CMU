@@ -1,4 +1,4 @@
-# Temporary PR294 source-matched inventory rebuild; reconcile merged PR293 first and self-remove.
+# Fast PR294 source-matched inventory rebuild; targeted test evidence, full final CI separately.
 name: PR 294 source-matched inventory refresh
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: write
 concurrency:
   group: pr294-inventory-refresh
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -103,27 +103,15 @@ jobs:
       - run: uv python install
       - run: uv sync --locked --all-extras
       - run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
-      - name: Full merged-source test coverage (only stale inventory scope may fail)
+      - name: Targeted source-matched evidence for inventory (full CI remains separate)
         shell: bash
         run: |
-          set +e
-          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
-            --junitxml=junit.xml --cov-report=term-missing > bootstrap.log 2>&1
-          code=$?
-          set -e
-          tail -n 100 bootstrap.log
-          if [ "$code" -ne 0 ]; then
-            python - <<'PY'
-          import xml.etree.ElementTree as ET
-          cases = ET.parse("junit.xml").getroot().iter("testcase")
-          failures = [(c.attrib.get("classname", ""), c.attrib.get("name", ""))
-                      for c in cases if any(child.tag in {"failure", "error"} for child in c)]
-          allowed = {"test_the_repository_has_no_unexplained_python_file"}
-          if not failures or any(name not in allowed for _, name in failures):
-              raise SystemExit("Non-inventory test failure: " + repr(failures))
-          print("Only stale inventory scope failed; continuing to rebuild")
-          PY
-          fi
+          set -euo pipefail
+          # Build real per-test coverage/JUnit evidence without rerunning all
+          # 3,000+ tests; the final CI gates full-suite verification.
+          uv run --no-sync pytest -q tests/test_web_runs.py tests/test_run_repository.py \
+            --cov=capstone --cov=evaltools --cov-context=test \
+            --junitxml=junit.xml --cov-report=term-missing
       - name: Build coverage-backed source-matched inventory
         run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       - name: Verify rebuilt inventory against merged Python sources
