@@ -1,4 +1,5 @@
 """Transactional, replay-safe write side for authorized Siemens cloud captures."""
+
 from __future__ import annotations
 
 import hashlib
@@ -30,8 +31,12 @@ def postgres_engine(url: str) -> Engine:
         if parsed.query.get("sslmode") not in ("require", "verify-ca", "verify-full"):
             raise ValueError
         return create_engine(
-            parsed, pool_pre_ping=True, pool_size=3, max_overflow=0,
-            pool_timeout=5, connect_args={"connect_timeout": 5},
+            parsed,
+            pool_pre_ping=True,
+            pool_size=3,
+            max_overflow=0,
+            pool_timeout=5,
+            connect_args={"connect_timeout": 5},
         )
     except (TypeError, ValueError):
         raise ValueError("CAPSTONE_LIVE_DB_URL requires PostgreSQL with TLS") from None
@@ -67,21 +72,26 @@ class SiemensCloudRepository:
                         ON CONFLICT DO NOTHING
                     """),
                     {
-                        **identity, "server": scope.server_uri,
+                        **identity,
+                        "server": scope.server_uri,
                         "controller": scope.controller_fingerprint,
                         "scope": scope.fingerprint,
                     },
                 )
-                state = connection.execute(
-                    text("""
+                state = (
+                    connection.execute(
+                        text("""
                         SELECT next_line, server_uri, controller_fingerprint,
                                scope_fingerprint
                           FROM capstone_ingest.streams
                          WHERE site_id=:site AND machine_id=:machine
                            AND stream_id=:stream FOR UPDATE
                     """),
-                    identity,
-                ).mappings().one()
+                        identity,
+                    )
+                    .mappings()
+                    .one()
+                )
                 if (
                     state["server_uri"] != scope.server_uri
                     or state["controller_fingerprint"] != scope.controller_fingerprint
@@ -114,11 +124,13 @@ class SiemensCloudRepository:
                     )
                     timestamp = (
                         row.get("source_timestamp")
-                        if row["record_type"] == "data_change" else row.get("at")
+                        if row["record_type"] == "data_change"
+                        else row.get("at")
                     )
                     quality = (
                         row["status"]["severity"]
-                        if row["record_type"] == "data_change" else None
+                        if row["record_type"] == "data_change"
+                        else None
                     )
                     connection.execute(
                         text("""
@@ -134,7 +146,9 @@ class SiemensCloudRepository:
                                  :retained_until)
                         """),
                         {
-                            **identity, "line": index, "server": scope.server_uri,
+                            **identity,
+                            "line": index,
+                            "server": scope.server_uri,
                             "type": row["record_type"],
                             "event_at": timestamp,
                             "received_at": row.get("received_at"),
@@ -153,8 +167,10 @@ class SiemensCloudRepository:
                         VALUES (:site, :machine, :stream, :digest, :start, :end)
                     """),
                     {
-                        **identity, "digest": batch.digest,
-                        "start": batch.first_line, "end": expected_next,
+                        **identity,
+                        "digest": batch.digest,
+                        "start": batch.first_line,
+                        "end": expected_next,
                     },
                 )
                 connection.execute(
@@ -170,6 +186,8 @@ class SiemensCloudRepository:
             _log.warning("siemens_cloud_transaction_failed")
             raise RuntimeError("Durable Siemens storage unavailable") from None
         return {
-            "digest": batch.digest, "next_line": expected_next,
-            "accepted": len(rows), "replayed": False,
+            "digest": batch.digest,
+            "next_line": expected_next,
+            "accepted": len(rows),
+            "replayed": False,
         }
