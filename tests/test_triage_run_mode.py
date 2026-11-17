@@ -50,6 +50,9 @@ def test_triage_only_does_not_construct_deep_critic(monkeypatch):
         critic=True,
     )
     monkeypatch.setattr(episode, "get_settings", lambda: cfg)
+    # Even an unusable deep-only hypothesis reserve cannot reject a
+    # deterministic triage that is explicitly configured to stop after triage.
+    monkeypatch.setattr(cfg, "hypothesis_reserve_seconds", 10_000.0)
 
     def forbidden_critic(_settings):
         raise AssertionError("unused deep critic client must not be created")
