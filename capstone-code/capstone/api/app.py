@@ -654,11 +654,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         # Wrong stage combinations are invalid input, not an idempotency
         # conflict. Validate before touching the durable submission lock.
         try:
-            public_run_configuration(request, get_settings())
+            preview = public_run_configuration(request, get_settings())
         except ValueError:
             raise HTTPException(
                 status_code=422, detail="Incompatible triage settings"
             ) from None
+        if (
+            request.configuration_fingerprint is not None
+            and request.configuration_fingerprint != preview["fingerprint"]
+        ):
+            raise HTTPException(
+                status_code=409,
+                detail="Settings changed after preview; review before starting",
+            )
         try:
             return runner.submit(request, idempotency_key)
         except ValueError:
