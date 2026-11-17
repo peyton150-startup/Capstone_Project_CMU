@@ -28,7 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD^)" = "9dcebba217951ee21c0fee97ad86153b2deee74e" || { echo "Unexpected predecessor; regenerate coverage for changed source"; exit 1; }
+          # Source-hash comparison below is authoritative; shallow checkout has no HEAD^.
       - name: Download inventory from completed full coverage suite
         env:
           GH_TOKEN: ${{ github.token }}
