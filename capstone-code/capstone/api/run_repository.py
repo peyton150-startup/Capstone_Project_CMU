@@ -433,7 +433,7 @@ class RunRepository:
             event_name not in _EVENT_FIELDS
             or not payload.keys() <= _EVENT_FIELDS[event_name]
         ):
-            raise ValueError("Run event contains unapproved fields")
+            raise ValueError("Invalid event: unapproved fields")
         size_limit = 48_000 if event_name == "model.call" else 16_384
         if len(json.dumps(payload, separators=(",", ":")).encode("utf-8")) > size_limit:
             raise ValueError("Run event exceeds safe size limit")
