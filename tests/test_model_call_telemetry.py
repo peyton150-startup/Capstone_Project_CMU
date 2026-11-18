@@ -12,31 +12,45 @@ from capstone.providers.chat import Attempt
 def example_calls():
     return [
         ModelCall(
-            job="conclude", stage="conclude", mode="triage",
-            outcome="no_answer", answered_by=None,
+            job="conclude",
+            stage="conclude",
+            mode="triage",
+            outcome="no_answer",
+            answered_by=None,
             attempts=(
                 Attempt(
-                    model="nvidia/nemotron", outcome="the model service answered HTTP 401",
-                    seconds=0.25, prompt_chars=220, prompt_version="abcdef1234567890",
+                    model="nvidia/nemotron",
+                    outcome="the model service answered HTTP 401",
+                    seconds=0.25,
+                    prompt_chars=220,
+                    prompt_version="abcdef1234567890",
                 ),
                 Attempt(
-                    model="nvidia/nemotron", outcome="the model service timed out",
+                    model="nvidia/nemotron",
+                    outcome="the model service timed out",
                     seconds=14.0,
                 ),
                 Attempt(
-                    model="mistral/fallback", outcome="the model service answered HTTP 429",
+                    model="mistral/fallback",
+                    outcome="the model service answered HTTP 429",
                     seconds=0.1,
                 ),
             ),
         ),
         ModelCall(
-            job="plan", stage="plan", mode="deep",
-            outcome="answered", answered_by="mistral/fallback",
+            job="plan",
+            stage="plan",
+            mode="deep",
+            outcome="answered",
+            answered_by="mistral/fallback",
             attempts=(
                 Attempt(model="nvidia/nemotron", outcome="the model service timed out"),
                 Attempt(
-                    model="mistral/fallback", outcome="answered",
-                    seconds=0.123, input_tokens=91, output_tokens=12,
+                    model="mistral/fallback",
+                    outcome="answered",
+                    seconds=0.123,
+                    input_tokens=91,
+                    output_tokens=12,
                 ),
             ),
         ),
@@ -49,9 +63,13 @@ def seed_run(runner):
         db.execute(
             "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
             (
-                run_id, "telemetry-test-key", '{"seed":3}', "running",
+                run_id,
+                "telemetry-test-key",
+                '{"seed":3}',
+                "running",
                 '{"stage":"plan","status":"running"}',
-                "2026-11-17T00:00:00Z", "2026-11-17T00:00:00Z",
+                "2026-11-17T00:00:00Z",
+                "2026-11-17T00:00:00Z",
             ),
         )
     return run_id
@@ -62,7 +80,9 @@ def test_safe_model_attempts_redact_provider_text_and_classify_failures():
     projected = project_model_call(first, 1)
     assert SafeModelCall.model_validate(projected).question_index == 1
     assert [x["outcome"] for x in projected["attempts"]] == [
-        "unauthorized", "timeout", "rate_limited"
+        "unauthorized",
+        "timeout",
+        "rate_limited",
     ]
     assert projected["retry_count"] == 1
     assert projected["fallback_selected"] is True
@@ -79,7 +99,10 @@ def test_safe_model_attempts_redact_provider_text_and_classify_failures():
 
 def test_secret_like_model_name_is_redacted_and_invalid_timing_is_dropped():
     call = ModelCall(
-        job="conclude", stage="conclude", mode="triage", outcome="no_answer",
+        job="conclude",
+        stage="conclude",
+        mode="triage",
+        outcome="no_answer",
         attempts=(
             Attempt(
                 model="nvapi-secret1234",
@@ -104,13 +127,15 @@ def test_sqlite_model_journal_preserves_snapshot_across_restart(tmp_path):
     assert runner.model_calls(run_id)["availability"] == "not_recorded"
     runner._append_model_event(run_id, "model.monitor", {"schema_version": 1})
     runner._append_model_event(
-        run_id, "model.config",
+        run_id,
+        "model.config",
         {"schema_version": 1, "outcome": "configured"},
     )
     for index, call in enumerate(example_calls(), 1):
         runner.record_model_call(run_id, call, index)
     runner._append_model_event(
-        run_id, "model.monitor.finished",
+        run_id,
+        "model.monitor.finished",
         {
             "schema_version": 1,
             "questions_seen": 2,
@@ -139,7 +164,9 @@ def test_sqlite_model_journal_preserves_snapshot_across_restart(tmp_path):
         db.execute(
             "INSERT INTO run_events VALUES(?,?,?,?,?)",
             (
-                run_id, 20, "model.call",
+                run_id,
+                20,
+                "model.call",
                 '{"schema_version":1,"api_key":"nvapi-test-secret"}',
                 "2026-11-17T00:00:00Z",
             ),
@@ -161,12 +188,14 @@ def test_model_call_http_endpoint_enforces_auth_and_pilot_isolation(tmp_path):
     run_id = seed_run(runner)
     runner._append_model_event(run_id, "model.monitor", {"schema_version": 1})
     runner._append_model_event(
-        run_id, "model.config",
+        run_id,
+        "model.config",
         {"schema_version": 1, "outcome": "missing_credentials"},
     )
     runner.record_model_call(run_id, example_calls()[0], 1)
     runner._append_model_event(
-        run_id, "model.monitor.finished",
+        run_id,
+        "model.monitor.finished",
         {
             "schema_version": 1,
             "questions_seen": 2,
@@ -178,15 +207,21 @@ def test_model_call_http_endpoint_enforces_auth_and_pilot_isolation(tmp_path):
 
     token = "viewer-abcdefghijklmnopqrstuvwxyz"
     cfg = UiConfig(
-        run_db=root, token=token,
+        run_db=root,
+        token=token,
         run_token="operator-abcdefghijklmnopqrstuvwxyz",
-        review_token="reviewer-abcdefghijklmnopqrstuvwxyz", runs_enabled=True,
+        review_token="reviewer-abcdefghijklmnopqrstuvwxyz",
+        runs_enabled=True,
     )
     client = TestClient(create_app(cfg))
     url = f"/api/v1/lab/runs/{run_id}/model-calls"
     assert client.get(url).status_code == 401
-    assert client.get(url + "?workspace=pilot",
-                      headers={"Authorization": "Bearer " + token}).status_code == 403
+    assert (
+        client.get(
+            url + "?workspace=pilot", headers={"Authorization": "Bearer " + token}
+        ).status_code
+        == 403
+    )
     response = client.get(
         url + "?workspace=simulator",
         headers={"Authorization": "Bearer " + token},

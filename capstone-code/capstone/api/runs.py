@@ -369,7 +369,8 @@ class SimulatorRuns:
         ]
 
     def _append_model_event(
-        self, run_id: str,
+        self,
+        run_id: str,
         event: Literal[
             "model.monitor", "model.call", "model.config", "model.monitor.finished"
         ],
@@ -428,7 +429,8 @@ class SimulatorRuns:
         with self.lock, self._db() as db:
             marker = db.execute(
                 "SELECT 1 FROM run_events WHERE run_id=? "
-                "AND event='model.monitor' LIMIT 1", (run_id,),
+                "AND event='model.monitor' LIMIT 1",
+                (run_id,),
             ).fetchone()
             rows = db.execute(
                 "SELECT seq, payload FROM run_events WHERE run_id=? "
@@ -456,9 +458,9 @@ class SimulatorRuns:
         summary = None
         if finished is not None:
             try:
-                summary = SafeModelSummary.model_validate_json(
-                    finished[0]
-                ).model_dump(mode="json")
+                summary = SafeModelSummary.model_validate_json(finished[0]).model_dump(
+                    mode="json"
+                )
             except (ValueError, TypeError):
                 pass
         items = []
@@ -756,9 +758,7 @@ class SimulatorRuns:
                     return
                 recorded_calls[0] += 1
 
-        def finish_model_monitor(
-            questions_seen: int, questions_persisted: int
-        ) -> None:
+        def finish_model_monitor(questions_seen: int, questions_persisted: int) -> None:
             try:
                 self._append_model_event(
                     run_id,
@@ -846,7 +846,8 @@ class SimulatorRuns:
                             "schema_version": 1,
                             "outcome": (
                                 "missing_credentials"
-                                if missing else "invalid_configuration"
+                                if missing
+                                else "invalid_configuration"
                             ),
                         },
                     )
