@@ -31,7 +31,7 @@ class _PostgresDB:
 
     def execute(self, query: str, parameters: tuple[Any, ...] = ()) -> Any:
         # The runner only uses positional placeholders; no user SQL is accepted.
-        return self.connection.cursor().execute(query.replace("?", "%s"), parameters)
+        return self.connection.cursor().execute(query.replace("%", "%%").replace("?", "%s"), parameters)
 
 
 class PostgresSimulatorRuns(SimulatorRuns):
