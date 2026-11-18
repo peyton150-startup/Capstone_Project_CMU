@@ -4,7 +4,6 @@ from capstone.ingestion.channel_map import build_channel_map
 from capstone.ingestion.mtconnect_events import qualify_event
 from tests.test_channel_map import probe, record
 
-
 MAP = build_channel_map(probe())
 PERMITTED = frozenset({"exec", "S1temp"})
 
