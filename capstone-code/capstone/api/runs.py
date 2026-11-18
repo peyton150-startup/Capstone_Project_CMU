@@ -573,18 +573,134 @@ class SimulatorRuns:
     def events_since(
         self, run_id: str, seq: int, *, limit: int = 100
     ) -> list[dict[str, Any]]:
+        """Generic SSE excludes model rows; only the typed endpoint serves them."""
         if self.get(run_id) is None:
             return []
         with self.lock, self._db() as db:
             rows = db.execute(
                 "SELECT seq, event, payload FROM run_events WHERE run_id=? AND seq>? "
-                "ORDER BY seq LIMIT ?",
+                "AND event NOT LIKE 'model.%' ORDER BY seq LIMIT ?",
                 (run_id, seq, min(limit, 100)),
             ).fetchall()
         return [
             {"seq": n, "event": name, "data": json.loads(payload)}
             for n, name, payload in rows
         ]
+
+    def _append_model_event(
+        self,
+        run_id: str,
+        event: Literal[
+            "model.monitor", "model.call", "model.config", "model.monitor.finished"
+        ],
+        payload: dict[str, Any],
+    ) -> None:
+        """Durably append safe telemetry WITHOUT changing the run snapshot.
+
+        The same transactional run_events journal is backed by local SQLite
+        or Render PostgreSQL, so reconnect and process restart cannot erase
+        committed model calls. Independent of the lossy stage progress queue.
+        """
+        from capstone.api.model_calls import (
+            SafeModelCall,
+            SafeModelConfiguration,
+            SafeModelSummary,
+        )
+
+        if event == "model.call":
+            payload = SafeModelCall.model_validate(payload).model_dump(mode="json")
+        elif event == "model.config":
+            payload = SafeModelConfiguration.model_validate(payload).model_dump(
+                mode="json"
+            )
+        elif event == "model.monitor.finished":
+            payload = SafeModelSummary.model_validate(payload).model_dump(mode="json")
+        else:
+            payload = {"schema_version": 1}
+        with self.lock, self._db() as db:
+            self._lock_event_sequence(db, run_id)
+            next_seq = db.execute(
+                "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
+                (run_id,),
+            ).fetchone()[0]
+            db.execute(
+                "INSERT INTO run_events VALUES(?,?,?,?,?)",
+                (run_id, next_seq, event, json.dumps(payload), utc_now()),
+            )
+
+    def record_model_call(self, run_id: str, call: Any, index: int) -> None:
+        """Persist only the allowlisted ModelCall/Attempt projection."""
+        from capstone.api.model_calls import project_model_call
+
+        self._append_model_event(run_id, "model.call", project_model_call(call, index))
+
+    def model_calls(self, run_id: str) -> dict[str, Any]:
+        """Latest bounded chronological calls, readable after reconnect."""
+        from capstone.api.model_calls import (
+            MAX_CALLS,
+            SafeModelCall,
+            SafeModelConfiguration,
+            SafeModelSummary,
+        )
+
+        if self.get(run_id) is None:
+            raise LookupError("Run not found")
+        with self.lock, self._db() as db:
+            marker = db.execute(
+                "SELECT 1 FROM run_events WHERE run_id=? "
+                "AND event='model.monitor' LIMIT 1",
+                (run_id,),
+            ).fetchone()
+            rows = db.execute(
+                "SELECT seq, payload FROM run_events WHERE run_id=? "
+                "AND event='model.call' ORDER BY seq DESC LIMIT ?",
+                (run_id, MAX_CALLS + 1),
+            ).fetchall()
+            configured = db.execute(
+                "SELECT payload FROM run_events WHERE run_id=? "
+                "AND event='model.config' ORDER BY seq DESC LIMIT 1",
+                (run_id,),
+            ).fetchone()
+            finished = db.execute(
+                "SELECT payload FROM run_events WHERE run_id=? "
+                "AND event='model.monitor.finished' ORDER BY seq DESC LIMIT 1",
+                (run_id,),
+            ).fetchone()
+        configuration = None
+        if configured is not None:
+            try:
+                configuration = SafeModelConfiguration.model_validate_json(
+                    configured[0]
+                ).outcome
+            except (ValueError, TypeError):
+                pass
+        summary = None
+        if finished is not None:
+            try:
+                summary = SafeModelSummary.model_validate_json(finished[0]).model_dump(
+                    mode="json"
+                )
+            except (ValueError, TypeError):
+                pass
+        items = []
+        invalid_rows = 0
+        for seq, raw in reversed(rows[:MAX_CALLS]):
+            try:
+                # Revalidate on reads: storage is NOT an API serializer.
+                clean = SafeModelCall.model_validate_json(raw).model_dump(mode="json")
+            except (ValueError, TypeError):
+                invalid_rows += 1
+                continue
+            items.append({"seq": seq, **clean})
+        return {
+            "availability": "available" if marker is not None else "not_recorded",
+            "window_scope": "latest_200",
+            "truncated": len(rows) > MAX_CALLS,
+            "invalid_rows": invalid_rows,
+            "configuration": configuration,
+            "summary": summary,
+            "items": items,
+        }
 
     def _lock_event_sequence(self, db: Any, run_id: str) -> None:
         """SQLite uses its existing transaction lock; remote stores may lock a row."""
@@ -873,8 +989,45 @@ class SimulatorRuns:
         progress: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
         missed = [0]
         latest_observed: dict[str, dict[str, Any]] = {}
+        policy: Any = None
+        recorded_calls = [0]
+        telemetry_failures = [0]
+
+        def flush_model_calls() -> None:
+            """Persist each finished question once; retry after journal outages."""
+            if policy is None:
+                return
+            calls = getattr(policy, "calls", ())
+            while recorded_calls[0] < len(calls):
+                try:
+                    self.record_model_call(
+                        run_id, calls[recorded_calls[0]], recorded_calls[0] + 1
+                    )
+                except Exception:
+                    # An observer cannot abort a model decision or expose the
+                    # exception: provider messages may contain private content.
+                    telemetry_failures[0] += 1
+                    return
+                recorded_calls[0] += 1
+
+        def finish_model_monitor(questions_seen: int, questions_persisted: int) -> None:
+            try:
+                self._append_model_event(
+                    run_id,
+                    "model.monitor.finished",
+                    {
+                        "schema_version": 1,
+                        "questions_seen": questions_seen,
+                        "questions_persisted": questions_persisted,
+                        "write_failures": telemetry_failures[0],
+                        "complete": questions_seen == questions_persisted,
+                    },
+                )
+            except Exception:
+                telemetry_failures[0] += 1
 
         def watch(state: Any) -> None:
+            flush_model_calls()
             try:
                 snapshot = safe_stage(state)
                 if latest_observed.get(snapshot["mode"]) == snapshot:
@@ -914,6 +1067,7 @@ class SimulatorRuns:
                 {"status": "running", "mode": request.mode},
                 state="running",
             )
+            self._append_model_event(run_id, "model.monitor", {"schema_version": 1})
             from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
@@ -922,11 +1076,41 @@ class SimulatorRuns:
             audit_path = self.investigation_audit_path(run_id)
             audit_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
             manual = open_manual(request.manual) if request.manual != "none" else None
-            policy = model_policy_factory(
-                with_recall=False,
-                with_manual=manual is not None,
-                tree_of_thought=request.tree_of_thought,
-            )()
+            try:
+                policy = model_policy_factory(
+                    with_recall=False,
+                    with_manual=manual is not None,
+                    tree_of_thought=request.tree_of_thought,
+                )()
+            except Exception as error:
+                from capstone.providers.chat import ModelError
+
+                missing = (
+                    isinstance(error, ModelError)
+                    and str(error).startswith("set ")
+                    and "_API_KEY" in str(error)
+                )
+                try:
+                    self._append_model_event(
+                        run_id,
+                        "model.config",
+                        {
+                            "schema_version": 1,
+                            "outcome": (
+                                "missing_credentials"
+                                if missing
+                                else "invalid_configuration"
+                            ),
+                        },
+                    )
+                except Exception:
+                    telemetry_failures[0] += 1
+                raise
+            self._append_model_event(
+                run_id,
+                "model.config",
+                {"schema_version": 1, "outcome": "configured"},
+            )
             # Keep structured operational metadata in a separate private file.
             # EventLogger rejects free text, evidence, provider secrets and
             # unvalidated metadata; it is not the investigator's audit.
@@ -946,6 +1130,22 @@ class SimulatorRuns:
                     approver=lambda proposal: self._await_review(run_id, proposal),
                     run_key="ui/" + run_id,
                 )
+            flush_model_calls()
+            research_questions = len(getattr(policy, "calls", ()))
+            critic_recorded = 0
+            for number, critic_call in enumerate(
+                result.critic_calls, start=research_questions + 1
+            ):
+                try:
+                    self.record_model_call(run_id, critic_call, number)
+                except Exception:
+                    telemetry_failures[0] += 1
+                else:
+                    critic_recorded += 1
+            finish_model_monitor(
+                research_questions + len(result.critic_calls),
+                recorded_calls[0] + critic_recorded,
+            )
             # PostgreSQL is remote; a stalled publisher must not indefinitely
             # block the worker's terminal state. The terminal snapshot is
             # independently rebuilt from the returned Graph state below.
@@ -1010,6 +1210,11 @@ class SimulatorRuns:
             }
             self._emit(run_id, "run.completed", final, state="completed")
         except Exception as error:
+            flush_model_calls()
+            finish_model_monitor(
+                0 if policy is None else len(getattr(policy, "calls", ())),
+                recorded_calls[0],
+            )
             # Never persist exception messages: providers may include private details.
             try:
                 self._emit(
