@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from capstone.ingestion.haas_profile import HaasConnectionProfile
+from capstone.ingestion.haas_profile import HaasConnectionProfile, verify_haas_probe
 
 
 def profile(**changes):
@@ -69,3 +69,13 @@ def test_refuses_missing_permissions_and_extra_keys():
         profile(authorization_reference=" ")
     with pytest.raises(ValidationError):
         profile(unknown_field="anything")
+
+
+def test_probe_device_must_match_approved_identity():
+    from tests.test_channel_map import probe
+
+    checked = verify_haas_probe(profile(machine_identity="VF2"), probe())
+    assert checked.machine_identity == "VF2"
+    assert checked.data_item_count > 0
+    with pytest.raises(ValueError, match="identity"):
+        verify_haas_probe(profile(machine_identity="VF-4"), probe())
