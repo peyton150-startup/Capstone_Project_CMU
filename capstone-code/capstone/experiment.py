@@ -50,6 +50,7 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from time import monotonic
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -334,6 +335,7 @@ class TriageRecord(BaseModel):
     # TRIAGE_PLAN=fixed (Block 1): whether the triage took its first questions
     # from the fixed table instead of a model. False in older records.
     fixed_plan: bool = False
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
     # Set by code from the conclusion: whether a deep run should follow, and
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
@@ -579,7 +581,8 @@ def triage_record(
         return None
     from capstone.settings import get_settings
 
-    evidence_tests = get_settings().triage_evidence_tests
+    # Store the effective, not the contradictory raw, safety gate.
+    evidence_tests = get_settings().effective_triage.evidence_tests
     concluded = first.conclusion
     return TriageRecord(
         seconds=result.triage_seconds,
@@ -632,6 +635,7 @@ def triage_record(
         evidence_tests=evidence_tests,
         test_records=list(first.triage_test_records),
         fixed_plan=first.fixed_plan_used,
+        triage_run_mode=first.triage_run_mode,
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
         metrics=triage_metrics(first, calls),

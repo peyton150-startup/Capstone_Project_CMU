@@ -36,6 +36,7 @@ model request spent on nothing it chose.
 """
 
 import json
+from dataclasses import replace
 from typing import Literal
 
 from pydantic import JsonValue
@@ -393,7 +394,6 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
     if (
         state.mode == "triage"
         and deps.triage_hypothesize == "deterministic"
-        and reason is not TerminationReason.TIMEOUT
     ):
         # The alarm is enough to enumerate unscored possibilities; missing
         # sensor evidence is then recorded as missing, never inferred healthy.
@@ -412,6 +412,23 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     #   last: Typed candidate compilation counters; not a diagnosis or score.
     state.stage = "hypothesize"
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
+        # Direct/replayed graph calls cannot bypass the guarded fixed path.
+        # Never silently ask a model if deterministic preconditions are absent.
+        if (
+            not state.fixed_plan_used
+            or state.triage_clock_verified is not True
+            or deps.triage_investigate != "deterministic"
+            or not deps.triage_evidence_tests
+        ):
+            state.triage_candidates = []
+            state.triage_test_requirement_ids = ()
+            record(
+                state,
+                "hypothesize",
+                "invalid_decision",
+                information_needed="guarded deterministic triage required",
+            )
+            return "conclude"
         from capstone.agent.triage_decide import evaluate_triage_requirements
         from capstone.agent.triage_hypothesize import (
             log_hypothesis_event,
@@ -438,7 +455,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
         record(
             state,
             "hypothesize",
-            "decided",
+            "invalid_decision" if last.action == "rejected" else "decided",
             information_needed="fixed, unscored candidate and test plan",
         )
         return "continue" if state.triage_candidates else "conclude"
@@ -576,6 +593,27 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   last: Stable candidate, capability and unresolved-question counts
     #     kept in the optional diagnostic event after Test.
     state.stage = "test"
+    if (
+        state.mode == "triage"
+        and deps.triage_hypothesize == "deterministic"
+        and (
+            not state.fixed_plan_used
+            or state.triage_clock_verified is not True
+            or deps.triage_investigate != "deterministic"
+            or not deps.triage_evidence_tests
+        )
+    ):
+        # Bad direct/replayed Test entry must not fall through to a model.
+        state.triage_test_requirement_ids = ()
+        state.termination_reason = TerminationReason.NO_USEFUL_ACTION
+        record(
+            state,
+            "test",
+            "stopped",
+            information_needed="guarded deterministic triage required",
+            termination_reason=state.termination_reason,
+        )
+        return
     state.termination_reason = run_inner_loop(state, deps, "test")
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
         from capstone.agent.triage_decide import evaluate_triage_requirements
@@ -2120,7 +2158,29 @@ INVESTIGATION_GRAPH = build_graph()
 def run_investigation(
     state: InvestigationState, deps: InvestigationDeps
 ) -> InvestigationState:
-    """Run one investigation from its anomaly to the check of what was done."""
+    """Run one typed Graph; normalize the triage profile before any stage."""
+    if state.mode == "triage" and (
+        deps.triage_run_mode == "deterministic"
+        or state.triage_run_mode == "deterministic"
+    ):
+        # Direct and replay entries must obey effective triage, not raw flags.
+        # Keep provider catalogs, source gates, Conclude policy and deep untouched.
+        state.triage_run_mode = "deterministic"
+        state.triage_fixed_plan = True
+        state.triage_packet_enabled = True
+        state.triage_packet_prompt = True
+        state.triage_observe_separate = True
+        state.triage_hypothesis_seconds = 0.0
+        deps = replace(
+            deps,
+            triage_investigate="deterministic",
+            triage_hypothesize="deterministic",
+            triage_evidence_tests=True,
+            hypothesis_seconds=0.0,
+            critic=None,
+            critic_followup=False,
+            critic_reinstate=False,
+        )
     try:
         INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
     except ModelError:
