@@ -54,3 +54,28 @@ def test_unknown_approved_event_identifier_is_refused_before_any_read():
             channel_map(),
             approved_event_item_ids=frozenset({"fake-alarm"}),
         )
+
+
+def test_stopped_program_is_not_falsely_reported_as_idle():
+    from datetime import timedelta
+
+    from tests.test_replay_provider import T0, obs
+
+    records = capture()
+    records[0] = obs(0, "exec", "STOPPED", type_="Execution")
+    provider = replay_provider(
+        records,
+        channel_map(),
+        now=T0 + timedelta(seconds=30),
+    )
+    status = provider.call(ToolRequest(name="list_machines"))
+    assert not status.success
+
+
+def test_replay_fails_closed_on_out_of_order_source_clocks():
+    import pytest
+
+    records = capture()
+    records[1], records[2] = records[2], records[1]
+    with pytest.raises(ValueError, match="out of order"):
+        replay_provider(records, channel_map())
