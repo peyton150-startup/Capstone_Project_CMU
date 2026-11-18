@@ -614,7 +614,11 @@ def test_a_triage_experiment_records_and_logs_the_packet(monkeypatch):
     )
     assert record.triage is not None and record.triage.packet is not None
     events = [json.loads(line)["event"] for line in stream.getvalue().splitlines()]
-    assert events[-1] == "triage_packet_built"
+    # Conclude now emits its own audit after the packet. The packet still
+    # needs to be recorded before the investigation reaches that stage.
+    assert "triage_packet_built" in events
+    assert "conclusion.checked" in events
+    assert events.index("triage_packet_built") < events.index("conclusion.checked")
     assert "triage_packet_call_observed" in events
 
 

@@ -80,6 +80,19 @@ export type ListResponse<T> = { availability: Availability; items: T[]; message?
 export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
+/** Fixed-code metadata from the typed deterministic Decide trace. */
+export type SafeTriageDecideEvent = {
+  sequence: number; event: 'requirements.compiled' | 'decide.selected' |
+    'tool.completed' | 'evidence.validated' | 'triage.requirement_evaluated' |
+    'question.evaluated' | 'triage.stopped';
+  phase: 'investigate' | 'test'; reason_code: string; status: string | null;
+  tool: string | null; requirement_ids: string[]; requirement_count: number;
+  question_ids: string[]; question_count: number; evidence_count: number;
+  request_hash: string | null; attempt: number | null; iteration: number | null;
+  candidate_count: number | null; remaining_tool_calls: number | null;
+  source_cutoff_tick: number | null; duration_ms: number | null;
+};
+
 /** Source-safe, per-phase values projected from the Python investigation watcher. */
 export type StageProgress = {
   investigation_id: string; mode: 'triage' | 'deep'; stage: string | null;
@@ -114,6 +127,8 @@ export type StageProgress = {
     evidence_count: number;
   }>;
   requirement_statuses_truncated?: boolean;
+  decide_event_total?: number; decide_events_truncated?: boolean;
+  decide_events_recent?: SafeTriageDecideEvent[];
 };
 export type RunPhaseProgress = {
   latest?: 'triage' | 'deep'; triage?: StageProgress; deep?: StageProgress;

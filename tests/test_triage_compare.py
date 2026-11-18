@@ -181,8 +181,10 @@ def test_unlabelled_root_causes_are_not_judged_and_a_label_judges_them(
 
 
 def test_plan_investigate_and_evidence_test_rows(triaged):
-    fixed = variant(triaged, "cmp/2", triage={"fixed_plan": True})
-    out = table(arm("a", triaged, fixed))
+    # The baseline is now fixed-plan by default. Flip the comparison record
+    # to the explicit legacy model-plan variant to retain a mixed-mode test.
+    model = variant(triaged, "cmp/2", triage={"fixed_plan": False})
+    out = table(arm("a", triaged, model))
     assert out["plan: fixed / model"] == ["1 fixed / 1 model"]
     assert out["investigate: compiled / model"][0].endswith(" model")
     assert out["evidence tests"][0].startswith("on ")

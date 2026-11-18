@@ -112,7 +112,10 @@ def test_recorded_data_runs_through_the_existing_graph_without_actions(monkeypat
     assert not any(
         d.tool in {"propose_action", "execute_action"} for d in state.decisions
     )
-    assert "plan" in policy.asked
+    # PR #295 makes the typed, fixed Plan the triage default. The policy is
+    # still responsible for the evidence-backed conclusion, not planning.
+    assert state.fixed_plan_used is True
+    assert "plan" not in policy.asked
     assert "conclude" in policy.asked
 
 

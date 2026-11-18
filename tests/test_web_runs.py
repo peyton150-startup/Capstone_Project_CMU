@@ -796,6 +796,7 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
 
     from pydantic import ValidationError
 
+    from capstone.agent.triage_trace import TriageTraceEvent
     from capstone.api.runs import SafeStageSnapshot, safe_stage
 
     secret = "sk-real-provider-key-must-not-leak"
@@ -832,7 +833,34 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
         ],
         triage_candidates=[object()],
         triage_test_requirement_ids=("Q5:load",),
-        triage_trace_events=[object()],
+        triage_trace_events=[
+            TriageTraceEvent(
+                sequence=1,
+                event="decide.selected",
+                phase="investigate",
+                reason_code="selected",
+                status="pending",
+                tool="get_sensor_summary",
+                requirement_ids=("Q1:trigger", secret),
+                request_hash="a" * 20,
+                attempt=1,
+                iteration=4,
+            ),
+            TriageTraceEvent(
+                sequence=2,
+                event="tool.completed",
+                phase="investigate",
+                reason_code="provider_error",
+                status="failed",
+                tool=secret,
+                requirement_ids=(secret,),
+            ),
+            SimpleNamespace(
+                sequence=3, event="decide.selected", phase="investigate",
+                reason_code=secret, status=secret, tool=secret,
+                requirement_ids=(secret,),
+            ),
+        ],
         raw_provider_response={"secret": secret},
         hidden_ground_truth={"fault": secret},
     )
@@ -846,7 +874,36 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
     assert payload["triage_candidates"] == 1
     assert payload["clock_verified"] is False
     assert payload["observation_cutoff_tick"] == 48
+    assert payload["decide_event_total"] == 2
+    assert payload["decide_events_recent"][0]["event"] == "decide.selected"
+    assert payload["decide_events_recent"][0]["requirement_ids"] == ["Q1:trigger"]
+    assert payload["decide_events_recent"][0]["reason_code"] == "selected"
+    assert payload["decide_events_recent"][0]["request_hash"] == "a" * 20
+    assert payload["decide_events_recent"][1]["tool"] is None
+    assert payload["decide_events_recent"][1]["requirement_ids"] == []
     assert secret not in json.dumps(payload)
+
+    state.triage_trace_events = [
+        TriageTraceEvent(
+            sequence=n, event="decide.selected", phase="investigate",
+            reason_code="selected", status="pending", tool="get_events",
+        )
+        for n in range(1, 26)
+    ]
+    bounded = safe_stage(state)
+    assert bounded["decide_event_total"] == 25
+    assert bounded["decide_events_truncated"] is True
+    assert len(bounded["decide_events_recent"]) == 20
+    assert bounded["decide_events_recent"][0]["sequence"] == 6
+    state.triage_trace_events = [
+        TriageTraceEvent(
+            sequence=n, event="decide.selected", phase="investigate",
+            reason_code="selected",
+        )
+        for n in (2, 1, 3, 3)
+    ]
+    ordered = safe_stage(state)
+    assert [e["sequence"] for e in ordered["decide_events_recent"]] == [2, 3]
     assert "hidden_ground_truth" not in payload
     with pytest.raises(ValidationError):
         SafeStageSnapshot.model_validate({**payload, "api_key": secret})

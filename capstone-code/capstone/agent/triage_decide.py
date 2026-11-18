@@ -1000,6 +1000,10 @@ def run_deterministic_triage_loop(
             attempt=attempts + 1,
             iteration=state.iteration_count,
         )
+        # Emit a pending selection while the provider is still running.
+        # The watcher receives a copy and cannot mutate the deterministic choice;
+        # its bounded journal queue must not block or affect tool execution.
+        notify(state, deps)
         started = deps.clock()
         trusted_before_read = state.last_tick
         qualification: EvidenceQualification | None = None

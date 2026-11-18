@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 RunState = Literal[
     "queued", "running", "awaiting_review", "completed", "failed", "interrupted"
@@ -74,6 +74,146 @@ class SafeRequirementProgress(BaseModel):
         "failed",
     ]
     evidence_count: int = Field(ge=0)
+
+
+
+# The live timeline is narrower than the private typed trace: fixed codes only.
+# Never copy a free-text reason, model message, tool arguments or evidence into it.
+_SAFE_DECIDE_EVENTS = frozenset({
+    "requirements.compiled",
+    "decide.selected",
+    "tool.completed",
+    "evidence.validated",
+    "triage.requirement_evaluated",
+    "question.evaluated",
+    "triage.stopped",
+})
+_SAFE_DECIDE_TOOLS = frozenset({
+    "get_sensor_summary", "get_events", "get_maintenance_history",
+    "get_settings", "get_inspections", "get_job_history",
+})
+_SAFE_DECIDE_STATUSES = frozenset({
+    "active", "pending", "accepted", "rejected", "failed", "stopped",
+    "satisfied", "unresolved", "partial", "insufficient", "stale",
+    "unavailable", "unsupported",
+})
+_SAFE_DECIDE_REASONS = frozenset({
+    "compiled", "selected", "observed", "unresolved", "closed",
+    "requirements_complete", "no_eligible_read", "capability_unavailable",
+    "data_insufficient", "retries_exhausted", "max_tool_calls",
+    "max_iterations", "timeout", "not_checked", "requirement_satisfied",
+    "requirement_pending", "requirement_partial", "requirement_insufficient",
+    "requirement_stale", "requirement_unavailable", "requirement_unsupported",
+    "requirement_failed", "historical_setting_unproven",
+    "record_coverage_unproven", "record_structure_missing",
+    "inspection_job_ids_missing", "inspection_batches_missing",
+    "job_path_missing", "inspection_machine_unlinked",
+    "inspection_dates_missing", "alarm_coverage_missing",
+    "measurement_coverage_missing", "accepted", "missing_data",
+    "invalid_shape", "invalid_numeric", "invalid_tick", "future_tick",
+    "out_of_order", "outside_window", "wrong_source", "wrong_provider",
+    "unsupported_tool", "invalid_summary", "provider_error",
+    "untrusted_response", "malformed_result", "repeated_call",
+    "unknown_tool", "invalid_arguments", "invalid_result",
+    "validator_error", "read_failed",
+})
+_SAFE_DECIDE_EVENT_LIMIT = 20
+_SAFE_DECIDE_EVENT_IDS = 8
+
+
+class SafeTriageDecideEvent(BaseModel):
+    """One source-safe, chronological Decide trace observation, never a tool result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+    sequence: int = Field(ge=1)
+    event: Literal[
+        "requirements.compiled", "decide.selected", "tool.completed",
+        "evidence.validated", "triage.requirement_evaluated",
+        "question.evaluated", "triage.stopped",
+    ]
+    phase: Literal["investigate", "test"]
+    reason_code: str = Field(pattern=r"^[a-z][a-z0-9_]{0,63}$")
+    status: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9_]{0,63}$")
+    tool: Literal[
+        "get_sensor_summary", "get_events", "get_maintenance_history",
+        "get_settings", "get_inspections", "get_job_history",
+    ] | None = None
+    requirement_ids: list[str] = Field(default_factory=list, max_length=8)
+    requirement_count: int = Field(default=0, ge=0)
+    question_ids: list[str] = Field(default_factory=list, max_length=8)
+    question_count: int = Field(default=0, ge=0)
+    evidence_count: int = Field(default=0, ge=0)
+    request_hash: str | None = Field(default=None, pattern=r"^[a-f0-9]{20}$")
+    attempt: int | None = Field(default=None, ge=1)
+    iteration: int | None = Field(default=None, ge=0)
+    candidate_count: int | None = Field(default=None, ge=0)
+    remaining_tool_calls: int | None = Field(default=None, ge=0)
+    source_cutoff_tick: int | None = Field(default=None, ge=0)
+    duration_ms: float | None = Field(default=None, ge=0)
+
+
+def safe_decide_events(state: Any) -> list[SafeTriageDecideEvent]:
+    """Reduce only validated, typed backend audit events to a public contract.
+
+    The audit may hold more than the current live-window limit. The final
+    approved audit stays private; the frontend displays a bounded recent tail.
+    """
+    from capstone.agent.triage_trace import TriageTraceEvent
+
+    projected: list[SafeTriageDecideEvent] = []
+    last_sequence = 0
+    for trace in getattr(state, "triage_trace_events", ()):
+        if not isinstance(trace, TriageTraceEvent):
+            continue
+        # Do not advertise a replay timeline that moves backward or duplicates
+        # an event sequence. Preserve order even across non-Decide audit events.
+        if trace.sequence <= last_sequence:
+            continue
+        last_sequence = trace.sequence
+        if (
+            trace.event not in _SAFE_DECIDE_EVENTS
+            or trace.phase not in ("investigate", "test")
+        ):
+            continue
+        try:
+            projected.append(
+                SafeTriageDecideEvent(
+                    sequence=trace.sequence,
+                    event=trace.event,
+                    phase=trace.phase,
+                    reason_code=(
+                        trace.reason_code
+                        if trace.reason_code in _SAFE_DECIDE_REASONS
+                        else "other"
+                    ),
+                    status=(
+                        trace.status if trace.status in _SAFE_DECIDE_STATUSES else None
+                    ),
+                    tool=trace.tool if trace.tool in _SAFE_DECIDE_TOOLS else None,
+                    requirement_ids=[
+                        rid for rid in trace.requirement_ids
+                        if isinstance(rid, str) and _SAFE_REQUIREMENT_ID.fullmatch(rid)
+                    ][:_SAFE_DECIDE_EVENT_IDS],
+                    requirement_count=len(trace.requirement_ids),
+                    question_ids=[
+                        qid for qid in trace.question_ids
+                        if isinstance(qid, str) and _SAFE_QUESTION_ID.fullmatch(qid)
+                    ][:_SAFE_DECIDE_EVENT_IDS],
+                    question_count=len(trace.question_ids),
+                    evidence_count=len(trace.evidence_ids),
+                    request_hash=trace.request_hash,
+                    attempt=trace.attempt,
+                    iteration=trace.iteration,
+                    candidate_count=trace.candidate_count,
+                    remaining_tool_calls=trace.remaining_tool_calls,
+                    source_cutoff_tick=trace.source_cutoff_tick,
+                    duration_ms=trace.duration_ms,
+                )
+            )
+        except (AttributeError, TypeError, ValueError, ValidationError):
+            # A malformed observer record never reaches a client or affects Decide.
+            continue
+    return projected
 
 
 class SafeStageSnapshot(BaseModel):
@@ -162,6 +302,12 @@ class SafeStageSnapshot(BaseModel):
         default_factory=list, max_length=32
     )
     requirement_statuses_truncated: bool = False
+    # A bounded chronological tail; counts refer to the entire validated trace.
+    decide_event_total: int = Field(default=0, ge=0)
+    decide_events_truncated: bool = False
+    decide_events_recent: list[SafeTriageDecideEvent] = Field(
+        default_factory=list, max_length=_SAFE_DECIDE_EVENT_LIMIT
+    )
 
 
 # Explicit projection only. Never infer a public schema from state.model_dump().
@@ -180,6 +326,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
     packet = getattr(state, "triage_packet", None)
     packet_calls = () if packet is None else packet.calls
     packet_items = () if packet is None else packet.items
+    decide_events = safe_decide_events(state) if state.mode == "triage" else []
     satisfied_requirements = sum(
         results[rid].status == "satisfied" for rid in requirements if rid in results
     )
@@ -254,6 +401,9 @@ def safe_stage(state: Any) -> dict[str, Any]:
         triage_test_records=len(getattr(state, "triage_test_records", ())),
         requirement_statuses=safe_requirements[:32],
         requirement_statuses_truncated=len(safe_requirements) > 32,
+        decide_event_total=len(decide_events),
+        decide_events_truncated=len(decide_events) > _SAFE_DECIDE_EVENT_LIMIT,
+        decide_events_recent=decide_events[-_SAFE_DECIDE_EVENT_LIMIT:],
     ).model_dump(mode="json")
 
 

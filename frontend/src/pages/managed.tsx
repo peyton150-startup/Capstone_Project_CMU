@@ -181,6 +181,9 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean, 
 }
 
 function readableStage(value: string | null | undefined): string {
+  // Python's historical "decide" stage is actually model-backed Conclude;
+  // do not mislabel it as the deterministic read-selection controller.
+  if (value === 'decide') return 'Conclude (model-backed)';
   return value ? value.replaceAll('_', ' ') : 'Not reported yet';
 }
 
@@ -301,6 +304,44 @@ function LiveProgress({ run }: { run: ManagedRun | null }) {
               {phase.data.requirement_statuses_truncated &&
                 <p className="body-copy">Showing the first 32 requirements.
                   Total and open counts above include the full set.</p>}
+            </div> : null}
+            {phase.mode === 'triage' && phase.data.decide_events_recent?.length ? <div>
+              <h4>Deterministic Decide trace</h4>
+              <p className="body-copy">Safe metadata only. Read selection is not a diagnosis.</p>
+              {phase.data.decide_events_recent.map(event =>
+                <DataRow key={event.sequence}
+                  label={'#' + event.sequence + ' ' + event.event.replaceAll('.', ' · ')}
+                  value={readableStage(event.reason_code)}
+                  extra={[
+                    event.phase, event.tool,
+                    event.status ? 'Status: ' + readableStage(event.status) : null,
+                    event.requirement_ids.length ?
+                      'Requirements: ' + event.requirement_ids.join(', ') : null,
+                    event.requirement_count > event.requirement_ids.length ?
+                      'Requirement IDs omitted: ' +
+                        (event.requirement_count - event.requirement_ids.length) : null,
+                    event.question_ids.length ?
+                      'Questions: ' + event.question_ids.join(', ') : null,
+                    event.question_count > event.question_ids.length ?
+                      'Question IDs omitted: ' +
+                        (event.question_count - event.question_ids.length) : null,
+                    'Evidence references: ' + event.evidence_count,
+                    event.iteration !== null ? 'Iteration: ' + event.iteration : null,
+                    event.attempt !== null ? 'Attempt: ' + event.attempt : null,
+                    event.candidate_count !== null ?
+                      'Eligible reads: ' + event.candidate_count : null,
+                    event.remaining_tool_calls !== null ?
+                      'Remaining calls: ' + event.remaining_tool_calls : null,
+                    event.source_cutoff_tick !== null ?
+                      'Source cutoff: ' + event.source_cutoff_tick : null,
+                    event.duration_ms !== null ?
+                      'Duration: ' + event.duration_ms.toFixed(1) + ' ms' : null,
+                    event.request_hash ? 'Request: ' + event.request_hash : null,
+                  ].filter(Boolean).join(' · ')}/>)}
+              {phase.data.decide_events_truncated &&
+                <p className="body-copy">Showing the latest {phase.data.decide_events_recent.length}
+                  of {phase.data.decide_event_total} safe Decide events. Earlier events remain
+                  in the private audit; no missing events are presented as observed.</p>}
             </div> : null}
           </> : <p className="body-copy">No authenticated stage snapshot for this path yet.</p>}
         </div>)}
