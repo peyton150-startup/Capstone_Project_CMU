@@ -44,6 +44,11 @@ class FirstResearchLook:
 
 
 def triage_look(monkeypatch, setting):
+    # These tests inspect a scripted policy's first research question. Under
+    # the new deterministic default no Decide model callback is expected;
+    # select the model-backed comparison path explicitly.
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "off")
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
     if setting is None:
         monkeypatch.delenv("TRIAGE_OBSERVE_CALLS", raising=False)
     else:

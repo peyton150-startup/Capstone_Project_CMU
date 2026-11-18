@@ -21,6 +21,7 @@ The visible progress is *observations about execution*, never a diagnosis. Read-
 | triage_requirement_total/satisfied/open, triage_question_gaps | qualified requirement results | coverage summary |
 | requirement_statuses (max 32), requirement_statuses_truncated | allowlisted requirement IDs, fixed status enum, evidence-reference count | per-requirement review |
 | triage_evidence_accepted/rejected | precommit qualification count | rejected versus admitted |
+| decide_event_total, decide_events_recent (last 20), decide_events_truncated | Pydantic-validated `TriageTraceEvent` (fixed-code, allowlisted projection) | chronological Investigate/Test read selection, tool outcome, evidence validation, question/requirement status and stop reason |
 | triage_decide_reads/stops, triage_candidates, triage_test_requirements, triage_test_records, triage_trace_events, triage_logging_failures | existing typed trace and candidate collections | deterministic route |
 | packet_roster_verified, packet_roster_size, packet_screened_machines, packet_missing_machines | bounded evidence-packet roster | line coverage |
 | packet_calls_mandatory/optional/qualified/unavailable, packet_items_qualified/missing | packet call/item statuses | source availability |
@@ -33,11 +34,14 @@ If the state lacks a field in an older run, React renders it as unavailable rath
 - The live projection is **constructed field by field**; `InvestigationState.model_dump()`, unknown event keys, tool arguments, raw evidence, question wording, free-text requirement reasons, model prompts, provider responses, simulator hidden truth, anomaly fault labels, configuration secrets and storage URLs are never included.
 - A question ID must match a short Q/R/T numeric identifier. A requirement ID must match a fixed code-like `Q#:name` or `Q#:job:#` pattern, never a free-text token.
 - The 16+ telemetry counters are numeric aggregates, not raw readings. `SafeStageSnapshot` rejects unapproved properties before journal insertion. The API authentication and evaluator-only scorecard separation remain unchanged.
+- Decide trace projection accepts only actual typed `TriageTraceEvent` instances with strictly increasing sequence numbers, approved event types, fixed reason/status codes, approved tool names, safe question/requirement identifiers and fixed hash syntax. It exposes source cutoff, latency, attempt and evidence **counts**, not source values or evidence content. Unknown reason codes become `other`; unknown tool/status values are omitted. The recent 20-event tail is explicitly marked truncated; the full validated trace is included in the private, backward-compatible `AuditRecord` and in experiment records.
+- Deterministic selection notifies the watcher **before** the provider call, so a pending `decide.selected` event becomes visible even when the provider is slow; it never changes read selection, graph routing or the no-model guarantee.
 - Existing *completed authorized audit* and triage-report views are separate from the live stream and retain their pre-existing content/role rules; do not treat this progress patch as general approval to publish audit text or private plant data.
 
 ## Recovery semantics
 
 - `stage.updated` is written atomically with the per-phase snapshot under the run lock in SQLite or PostgreSQL; triage and deep are independently retained.
+- Completed managed-run audit JSONL preserves all typed `triage_trace_events`, beyond the 20 recent public trace entries. Historical audits without this optional field continue to validate.
 - The worker reconciles final phase snapshots from the actual returned Graph states, not the queue's last successful event. This makes the final view correct when intermediate updates are dropped.
 - No late `stage.updated` can alter a terminal completed/failed/interrupted run. The publisher catches storage and validation errors without failing the episode and coalesces unchanged state.
 - The writer's flush is bounded; the final event is still authoritative. Missing intermediate updates are counted in a `resync.required` event if the journal remains available.

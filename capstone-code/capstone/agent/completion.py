@@ -35,6 +35,7 @@ from capstone.agent.state import (
     PrunedCandidate,
     ReasoningMetrics,
 )
+from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.contracts import Contract
 from capstone.contracts.completed_investigations import (
     ActionProposal,
@@ -142,6 +143,9 @@ class AuditRecord(Contract):
     pruned_candidates: tuple[PrunedCandidate, ...] = ()
     # The opt-in observed line packet; absent in older audit lines.
     incident_context: IncidentContext | None = None
+    # Full typed triage diagnostic history survives completed managed runs.
+    # Older JSON audits without this field remain readable.
+    triage_trace_events: tuple[TriageTraceEvent, ...] = ()
 
 
 def audit_record(state: InvestigationState) -> AuditRecord:
@@ -162,6 +166,7 @@ def audit_record(state: InvestigationState) -> AuditRecord:
         metrics=state.metrics(),
         pruned_candidates=tuple(state.pruned_candidates),
         incident_context=state.incident_context,
+        triage_trace_events=tuple(state.triage_trace_events),
     )
 
 

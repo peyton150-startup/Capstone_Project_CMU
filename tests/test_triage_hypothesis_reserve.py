@@ -81,6 +81,10 @@ def test_a_negative_reserve_is_refused(monkeypatch):
 def limits(monkeypatch, reserve):
     """The time limit of each triage question, with a clock that never moves."""
     monkeypatch.setenv("TRIAGE_HYPOTHESIS_SECONDS", reserve)
+    # This test measures time given to model Decide questions. Explicitly
+    # select the legacy model path now that PR #295 defaults to deterministic.
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "off")
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
     policy = TimeLimits(wear_policy("intervene"))
     result = run(
         ByMode(policy, wear_policy()), monkeypatch, then_deep=False, triage=True
@@ -133,6 +137,8 @@ def test_the_conclusion_keeps_its_own_time(monkeypatch):
 
 def test_research_stopped_by_the_reserve_still_asks_for_explanations(monkeypatch):
     monkeypatch.setenv("TRIAGE_HYPOTHESIS_SECONDS", "25")
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "off")
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
     result = run(
         triage_then_deep(),
         monkeypatch,

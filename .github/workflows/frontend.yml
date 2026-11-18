@@ -36,6 +36,7 @@ jobs:
   api:
     name: Local API contract and privacy tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,4 +51,4 @@ jobs:
       - name: Install optional local API dependencies
         run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
       - name: Run API tests against real FastAPI
-        run: uv run --no-sync pytest tests/test_web_api.py tests/test_web_runs.py
+        run: uv run --no-sync pytest -vv -o faulthandler_timeout=45 tests/test_web_api.py tests/test_web_runs.py

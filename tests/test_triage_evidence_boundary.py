@@ -41,6 +41,23 @@ def test_qualified_read_is_committed_with_ordered_source_linked_trace():
     assert [e["sequence"] for e in events] == list(range(1, len(events) + 1))
     assert all("data" not in event and "arguments" not in event for event in events)
 
+    from capstone.agent.artifacts import AgentConclusion, TerminationReason
+    from capstone.agent.completion import AuditRecord, audit_record
+
+    state.conclusion = AgentConclusion(
+        diagnosis="not yet established",
+        confidence=0,
+        recommendation="escalate",
+        assessment="unresolved",
+    )
+    state.termination_reason = TerminationReason.NO_USEFUL_ACTION
+    audit = audit_record(state)
+    assert audit.triage_trace_events == tuple(state.triage_trace_events)
+    assert AuditRecord.model_validate_json(audit.model_dump_json()).triage_trace_events
+    legacy = audit.model_dump(mode="json")
+    legacy.pop("triage_trace_events")
+    assert AuditRecord.model_validate(legacy).triage_trace_events == ()
+
 
 def test_precommit_rejection_keeps_wrong_source_out_of_evidence():
     state = state_for()
