@@ -10,6 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     String,
     UniqueConstraint,
 )
@@ -155,3 +156,24 @@ class SimRunArtifact(RunBase):
     byte_count: Mapped[int] = mapped_column(Integer, nullable=False)
     visibility: Mapped[str] = mapped_column(String(16), nullable=False)
     retention_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Non-public bounded JSONL; never serialize with a run/event model.
+    content: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+
+
+class SimWorkerHeartbeat(RunBase):
+    """Small private liveness row; operational health, never agent state."""
+
+    __tablename__ = "sim_worker_heartbeats"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('idle', 'running')", name="ck_sim_worker_heartbeat_status"
+        ),
+        {"schema": "capstone_private"},
+    )
+
+    worker_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    source_revision: Mapped[str | None] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )

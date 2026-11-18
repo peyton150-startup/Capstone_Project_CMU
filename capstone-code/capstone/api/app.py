@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import json
+import logging
 import os
 import re
 import threading
@@ -61,13 +63,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
     runner = None
-    if cfg.runs_enabled and cfg.run_db is not None:
-        if cfg.run_backend == "postgres":
-            from capstone.api.postgres_runs import PostgresSimulatorRuns
+    if cfg.runs_enabled:
+        if cfg.run_backend == "hosted":
+            from capstone.api.hosted_runs import HostedSimulatorRuns
 
             assert cfg.run_database_url is not None
+            runner = HostedSimulatorRuns(cfg.run_database_url)
+        elif cfg.run_backend == "postgres":
+            from capstone.api.postgres_runs import PostgresSimulatorRuns
+
+            assert cfg.run_database_url is not None and cfg.run_db is not None
             runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
         else:
+            assert cfg.run_db is not None
             runner = SimulatorRuns(cfg.run_db)
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
@@ -91,9 +99,14 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "http://localhost:5173",
             "http://127.0.0.1:4173",
             "http://localhost:4173",
+        ] + ([cfg.browser_origin] if cfg.browser_origin else []),
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "Idempotency-Key",
+            "Last-Event-ID",
         ],
-        allow_methods=["GET"],
-        allow_headers=["Authorization", "Content-Type"],
         allow_credentials=False,
     )
 
@@ -139,6 +152,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "controller_connected": None,
         }
 
+    @app.get("/api/v1/ready")
+    def readiness() -> dict:
+        """Schema-aware HTTP readiness, not proof of worker availability."""
+        if cfg.runs_enabled and cfg.run_backend == "hosted":
+            try:
+                if runner is None or not runner.ready():
+                    raise RuntimeError("Hosted schema unavailable")
+            except Exception:
+                raise HTTPException(
+                    status_code=503, detail="Hosted database unavailable"
+                ) from None
+        return {"status": "ready", "service": "fastapi"}
+
     @app.get("/api/v1/capabilities", dependencies=[Access])
     def capabilities() -> dict:
         return {
@@ -161,7 +187,6 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 "simulation_run_launch": runner is not None,
                 "simulation_approval": runner is not None,
                 "manual_search": True,
-                "neon_manual_search": cfg.neon_manual_enabled,
                 "episodic_memory": cfg.memory_enabled,
                 "setting_changes": False,
                 "siemens_live_subscription_confirmed": False,
@@ -352,7 +377,16 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         snap = recorder_snapshot(cfg.capture)
         return {
             "api": "available",
-            "simulation_worker": "enabled" if runner is not None else "not_integrated",
+            "simulation_worker": (
+                "separate_worker_unverified"
+                if cfg.run_backend == "hosted" and runner is not None
+                else ("enabled" if runner is not None else "not_integrated")
+            ),
+            "run_queue": (
+                runner.queue_metrics()
+                if cfg.run_backend == "hosted" and runner is not None
+                else None
+            ),
             "progress_stream": "enabled" if runner is not None else "not_integrated",
             "recorder_connection": snap["recorder"]["connection_state"]
             if snap["recorder"]
@@ -363,6 +397,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "model_provider": "not_checked",
             "storage": "not_monitored",
         }
+
+    @app.get("/api/v1/system/integrations", dependencies=[Access])
+    def integration_contracts() -> dict:
+        """Report exact Pydantic source-contract coverage, not deployment health."""
+        from capstone.api.integration_status import inspect_hosted_contracts
+
+        return inspect_hosted_contracts().model_dump(mode="json")
 
     @app.get("/api/v1/system/audit", dependencies=[Access])
     def system_audit() -> dict:
@@ -394,7 +435,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/settings/effective", dependencies=[Access])
     def settings_effective() -> dict:
-        """A readonly whitelist; no API keys, certificates, filesystem paths or free text."""
+        """A read-only whitelist without keys, certificates, paths or free text."""
         return {
             "editable": False,
             "items": [
@@ -417,39 +458,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=403, detail="Pilot manuals require OEM authorization"
             )
-        if cfg.neon_manual_enabled:
-            from capstone.manual.neon import open_neon_manual
+        from capstone.manual.index import KeywordManualSearch
+        from capstone.manual.sections import load_manual
 
-            store = None
-            try:
-                store = open_neon_manual()
-                matches = (
-                    store.search(q, limit=5)
-                    if q and q.strip()
-                    else store.list_sections(limit=35)
-                )
-            except Exception:
-                raise HTTPException(
-                    status_code=503, detail="Approved manual store unavailable"
-                ) from None
-            finally:
-                if store is not None:
-                    store.close()
-        else:
-            from capstone.manual.index import KeywordManualSearch
-            from capstone.manual.sections import load_manual
-
-            sections = load_manual()
-            matches = (
-                KeywordManualSearch(sections).search(q, limit=12)
-                if q and q.strip()
-                else sections[:35]
-            )
+        sections = load_manual()
+        matches = (
+            KeywordManualSearch(sections).search(q, limit=12)
+            if q and q.strip()
+            else sections[:35]
+        )
         return {
             "availability": "available",
             "document_id": "SIM-CNC-001",
             "source_scope": "simulator_manual_only",
-            "backend": "neon" if cfg.neon_manual_enabled else "local",
             "items": [
                 {
                     "citation": section.citation,
@@ -541,7 +562,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "availability": "not_integrated",
             "manuals": [],
             "memories": [],
-            "message": "Existing manual and memory providers have no authorized UI read adapter yet",
+            "message": (
+                "Existing manual and memory providers have no authorized "
+                "UI read adapter yet"
+            ),
         }
 
     @app.get("/api/v1/lab/runs", dependencies=[Access])
@@ -567,10 +591,6 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=403, detail="Pilot machine control is prohibited"
             )
         require_role(authorization, "operator")
-        if request.manual == "neon" and not cfg.neon_manual_enabled:
-            raise HTTPException(
-                status_code=403, detail="Neon manual retrieval not configured"
-            )
         if idempotency_key is None or not re.fullmatch(
             r"[A-Za-z0-9_-]{16,96}", idempotency_key
         ):
@@ -578,26 +598,18 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=422,
                 detail="A unique 16-96 character Idempotency-Key is required",
             )
-        # Refuse a 202 if the explicitly selected manual is not published.
-        # The worker must never begin relying on an empty or broken knowledge store.
-        if request.manual == "neon":
-            from capstone.manual.neon import open_neon_manual
-
-            knowledge = None
-            try:
-                knowledge = open_neon_manual()
-                if not knowledge.list_sections(limit=1):
-                    raise LookupError("No published simulator manual")
-            except Exception:
-                raise HTTPException(
-                    status_code=503, detail="Approved manual store unavailable"
-                ) from None
-            finally:
-                if knowledge is not None:
-                    knowledge.close()
         assert runner is not None
         try:
-            return runner.submit(request, idempotency_key)
+            created = runner.submit(request, idempotency_key)
+            if cfg.run_backend == "hosted":
+                logging.getLogger("capstone.api").info(
+                    "%s", json.dumps(
+                        {"service": "fastapi", "event": "run_submitted",
+                         "run_id": created["run_id"]},
+                        separators=(",", ":"),
+                    )
+                )
+            return created
         except ValueError:
             raise HTTPException(
                 status_code=409, detail="Idempotency key belongs to another request"
@@ -619,7 +631,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     def managed_run_model_calls(
         run_id: str, workspace: Workspace = "simulator"
     ) -> dict:
-        """Safe attempt timeline from the durable local/hosted run journal."""
+        """Read #297's strictly validated, durable model-attempt timeline."""
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot model telemetry unavailable"
@@ -629,7 +641,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         try:
             return runner.model_calls(run_id)
         except Exception:
-            # Never leak database or model-provider exception text.
+            # No raw SQL/provider errors, prompts or credentials in HTTP.
             raise HTTPException(
                 status_code=503, detail="Model-call journal unavailable"
             ) from None
@@ -640,35 +652,39 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         workspace: Workspace = "simulator",
         phase: Literal["final", "triage", "deep"] = "final",
     ) -> dict:
-        """Retrieve one completed phase by server-owned investigation id only.
-
-        The legacy no-phase route remains the final investigation. Never accept
-        client-supplied audit paths, run internals, or arbitrary investigation IDs.
-        """
+        """Read one completed phase, chosen by server-owned progress only."""
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot investigation access prohibited"
             )
         run = ensure_run(run_id)
         snapshot = run["snapshot"]
-        final = snapshot.get("investigation") or {}
+        final = snapshot.get("investigation")
+        final = final if isinstance(final, dict) else {}
         target = None
         if phase == "final":
             target = final.get("investigation_id")
         else:
-            progress = snapshot.get("progress") or {}
-            stage = progress.get(phase) if isinstance(progress, dict) else None
+            progress = snapshot.get("progress")
+            stages = progress if isinstance(progress, dict) else {}
+            stage = stages.get(phase)
             if isinstance(stage, dict) and stage.get("mode") == phase:
                 target = stage.get("investigation_id")
-            # Legacy or triage-only records can have a final stage but no
-            # phase-specific progress map. Never infer an absent earlier phase.
+            # Never fabricate a missing earlier phase for older runs.
             if not isinstance(target, str) and final.get("mode") == phase:
                 target = final.get("investigation_id")
-        if not isinstance(target, str):
+        if not isinstance(target, str) or not re.fullmatch(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+            target,
+        ):
             return {"availability": "not_recorded", "detail": None, "phase": phase}
         assert runner is not None
-        path = runner.investigation_audit_path(run_id)
-        detail = safe_investigation_detail(path, target)
+        if cfg.run_backend == "hosted":
+            detail = runner.investigation_detail(run_id, target)
+        else:
+            detail = safe_investigation_detail(
+                runner.investigation_audit_path(run_id), target
+            )
         return {
             "availability": "available" if detail is not None else "not_recorded",
             "detail": detail,
@@ -684,6 +700,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(status_code=403, detail="Pilot diagnostics unavailable")
         ensure_run(run_id)
         assert runner is not None
+        if cfg.run_backend == "hosted":
+            items = runner.observability_items(run_id)
+            return {
+                "availability": "available" if items is not None else "not_recorded",
+                "window_scope": "bounded_recent_tail",
+                "items": items or [],
+            }
         path = runner.investigation_event_path(run_id)
         if not path.is_file():
             return {"availability": "not_recorded", "items": []}
@@ -769,6 +792,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 events = await asyncio.to_thread(runner.events_since, run_id, cursor)
                 for event in events:
                     cursor = event["seq"]
+                    # #297 model-call envelopes are a separate, revalidated
+                    # endpoint. Do not stream private attempt metadata in SSE.
+                    if event["event"].startswith("model."):
+                        continue
                     import json
 
                     payload = json.dumps(event["data"], separators=(",", ":"))
@@ -778,12 +805,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 current = await asyncio.to_thread(runner.get, run_id)
                 if (
                     current
-                    and current["state"] in {"completed", "failed", "interrupted"}
+                    and current["state"] in {
+                        "completed", "failed", "interrupted", "expired",
+                    }
                     and not events
                 ):
-                    # A recovered terminal run need not have a terminal event.
-                    # Explicitly end replay so browser reconnects can stop.
-                    yield 'event: stream.closed\\ndata: {"status":"terminal"}\\n\\n'
+                    yield (
+                        'event: stream.closed\n'
+                        'data: {"reason":"terminal_replay_complete"}\n\n'
+                    )
                     break
                 await asyncio.sleep(1)
 

@@ -21,18 +21,9 @@ MAX_ATTEMPTS = 64
 MAX_CALLS = 200
 
 AttemptOutcome = Literal[
-    "answered",
-    "invalid_reply",
-    "timeout",
-    "rate_limited",
-    "unauthorized",
-    "forbidden",
-    "request_rejected",
-    "provider_error",
-    "unavailable",
-    "budget_exhausted",
-    "skipped",
-    "other_error",
+    "answered", "invalid_reply", "timeout", "rate_limited", "unauthorized",
+    "forbidden", "request_rejected", "provider_error", "unavailable",
+    "budget_exhausted", "skipped", "other_error",
 ]
 
 
@@ -158,8 +149,7 @@ def project_model_call(call: Any, question_index: int) -> dict[str, Any]:
     attempts = []
     first_model = (
         safe_model_name(getattr(raw_attempts[0], "model", None))
-        if raw_attempts
-        else None
+        if raw_attempts else None
     )
     previous_model = None
     for number, source in enumerate(raw_attempts[:MAX_ATTEMPTS], start=1):
@@ -206,18 +196,18 @@ def project_model_call(call: Any, question_index: int) -> dict[str, Any]:
         ),
         stage=(
             safe_identifier(getattr(call, "stage", None))
-            if getattr(call, "stage", None) is not None
-            else None
+            if getattr(call, "stage", None) is not None else None
         ),
         mode=getattr(call, "mode", None)
-        if getattr(call, "mode", None) in ("triage", "deep")
-        else None,
+        if getattr(call, "mode", None) in ("triage", "deep") else None,
         outcome=getattr(call, "outcome"),
         answered_by=answered_by,
         attempts=tuple(attempts),
         omitted_attempts=max(0, len(raw_attempts) - MAX_ATTEMPTS),
         retry_count=sum(a.retry for a in attempts),
-        fallback_selected=any(a.fallback and a.outcome != "skipped" for a in attempts),
+        fallback_selected=any(
+            a.fallback and a.outcome != "skipped" for a in attempts
+        ),
         fallback_succeeded=any(
             a.fallback and a.outcome == "answered" for a in attempts
         ),
