@@ -136,6 +136,21 @@ def test_missing_clock_verdict_fails_closed_before_decide(phase):
     assert state.triage_trace_events[-1].reason_code == "data_insufficient"
 
 
+def test_pending_decide_selection_is_published_before_provider_completion():
+    state = state_for()
+    provider = FakeProvider(answer, tick=45)
+    deps = deps_for(provider)
+    observed = []
+    deps.watch = lambda snapshot: observed.append(
+        tuple(event.event for event in snapshot.triage_trace_events)
+    )
+    run_inner_loop(state, deps, "investigate")
+    assert any(
+        "decide.selected" in events and "tool.completed" not in events
+        for events in observed
+    )
+
+
 def test_shared_sensor_read_supports_two_requirements_once():
     state = state_for()
     provider = FakeProvider(answer, tick=45)
