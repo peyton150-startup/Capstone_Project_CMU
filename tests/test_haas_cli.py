@@ -23,6 +23,7 @@ def test_guarded_cli_qualifies_one_device_and_saves_probe(tmp_path, monkeypatch)
     target = tmp_path / "machine-probe.xml"
     assert main([
         "--haas-profile", str(configuration),
+        "--allow-inside-repo",
         "--save-probe", str(target),
     ]) == 0
     assert observed == ["http://192.168.10.4:8082/VF-4/probe"]
@@ -40,12 +41,14 @@ def test_guarded_cli_refuses_bad_device_or_rate_without_network(tmp_path, monkey
     with pytest.raises(SystemExit):
         main([
             "--haas-profile", str(configuration),
+            "--allow-inside-repo",
             "--device", "different-device",
             "--save-probe", str(tmp_path / "probe.xml"),
         ])
     with pytest.raises(SystemExit):
         main([
             "--haas-profile", str(configuration),
+            "--allow-inside-repo",
             "--interval", "0.1",
             "--save-probe", str(tmp_path / "probe.xml"),
         ])
