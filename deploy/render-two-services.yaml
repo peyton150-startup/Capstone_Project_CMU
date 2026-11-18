@@ -1,4 +1,7 @@
 # REVIEW-ONLY BLUEPRINT: not render.yaml. No deployment or auto-sync.
+# SUPERSEDED FOR THE WORKER (2026-11-18): the web service stays on Render, but
+# the background worker runs on Northflank instead of the worker entry below.
+# See docs/RENDER_FASTAPI_AGENT_WORKER_SPLIT.md, "Hosting change".
 # Reuse existing Render web service Capstone_Project_CMU (Virginia); create ONLY
 # the new background worker after staging gates. Importing this plan before
 # approval would change the existing web service, so keep it unlinked.

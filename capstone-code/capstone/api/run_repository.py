@@ -33,6 +33,30 @@ from capstone.api.run_models import (
 )
 from capstone.api.runs import ReviewDecision, RunRequest
 
+# Where each host publishes the git commit of the running build, in the order
+# they are tried. The API runs on Render and the worker on Northflank, so both
+# sides must find the same commit from their own host's variable.
+SOURCE_REVISION_VARIABLES = (
+    "CAPSTONE_SOURCE_REVISION",  # Explicit operator override on any host.
+    "RENDER_GIT_COMMIT",  # Render web service (and any Render worker).
+    "NF_DEPLOYMENT_SHA",  # Northflank service runtime variable.
+)
+
+
+def source_revision() -> str | None:
+    """Git commit of this build from the first host variable that is set."""
+    # Variables:
+    #   name: One of SOURCE_REVISION_VARIABLES, tried in order so an explicit
+    #     CAPSTONE_SOURCE_REVISION always beats a host's own variable.
+    #   value: That variable's text, stripped; an empty value counts as unset so
+    #     a blank override cannot hide the host's real commit.
+    for name in SOURCE_REVISION_VARIABLES:
+        value = (os.getenv(name) or "").strip()
+        if value:
+            return value
+    return None
+
+
 _IDEMPOTENCY = re.compile(r"[A-Za-z0-9_-]{16,96}\Z")
 _ACTOR = re.compile(r"[A-Za-z0-9_.:-]{1,128}\Z")
 _OWNER = re.compile(r"[A-Za-z0-9_.:-]{1,128}\Z")
@@ -133,15 +157,18 @@ class RunExecutionConfig(BaseModel):
 
     @classmethod
     def current(cls) -> "RunExecutionConfig":
-        """Resolve once identically in web and worker, including Render build SHA."""
+        """Resolve once identically in web and worker, including the build SHA."""
+        # Variables:
+        #   settings: This process's triage settings; the web service and the
+        #     worker must resolve identical values or the worker refuses the run.
+        #   effective: The one-switch triage profile from #301, preferred over
+        #     the raw settings when present.
+        #   revision: The build's git commit from source_revision(), Render's on
+        #     the web side and Northflank's on the worker side.
         from capstone.settings import get_settings
 
         settings = get_settings()
-        revision = (
-            os.getenv("CAPSTONE_SOURCE_REVISION")
-            or os.getenv("RENDER_GIT_COMMIT")
-            or None
-        )
+        revision = source_revision()
         effective = getattr(settings, "effective_triage", None)
         if effective is not None:
             return cls(
@@ -817,6 +844,10 @@ class RunRepository:
         #   now: Database snapshots use wall time; no simulated timestamps.
         #   oldest: Oldest queued job, which is not proof of worker liveness.
         #   recent: Latest previously recorded worker heartbeat, possibly stale.
+        #   required_revision: This web service's build commit; a live worker
+        #     counts as ready only if its heartbeat reports the same commit.
+        #   compatible: Count of fresh heartbeats on that commit, which decides
+        #     "healthy" versus "revision_mismatch".
         now = datetime.now(timezone.utc)
         with Session(self.engine) as session:
             queued = (
@@ -862,13 +893,10 @@ class RunRepository:
                 )
                 or 0
             )
-            # A live worker on the wrong Render commit cannot execute this
-            # web service's jobs. Do not report it as ready.
-            required_revision = (
-                os.getenv("CAPSTONE_SOURCE_REVISION")
-                or os.getenv("RENDER_GIT_COMMIT")
-                or None
-            )
+            # A live worker on a different commit (the Northflank worker
+            # behind the Render web service) cannot execute this web
+            # service's jobs. Do not report it as ready.
+            required_revision = source_revision()
             compatible = alive
             if required_revision is not None:
                 compatible = (

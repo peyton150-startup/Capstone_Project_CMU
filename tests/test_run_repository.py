@@ -621,6 +621,51 @@ def test_worker_liveness_refuses_stale_render_revision(repository, monkeypatch):
     assert repository.queue_metrics()["worker_liveness"] == "healthy"
 
 
+def _clear_revision_variables(monkeypatch):
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+
+
+def test_source_revision_reads_render_and_northflank_in_order(monkeypatch):
+    """Override beats Render, Render beats Northflank, blank counts as unset."""
+    from capstone.api.run_repository import source_revision
+
+    _clear_revision_variables(monkeypatch)
+    assert source_revision() is None
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "c" * 40)
+    assert source_revision() == "c" * 40
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "b" * 40)
+    assert source_revision() == "b" * 40
+    monkeypatch.setenv("CAPSTONE_SOURCE_REVISION", "a" * 40)
+    assert source_revision() == "a" * 40
+    monkeypatch.setenv("CAPSTONE_SOURCE_REVISION", "  ")
+    assert source_revision() == "b" * 40
+
+
+def test_northflank_worker_is_ready_for_render_web_on_same_commit(
+    repository, monkeypatch
+):
+    """Render web (RENDER_GIT_COMMIT) accepts a Northflank worker's heartbeat."""
+    from capstone.api.run_repository import RunExecutionConfig
+
+    # Worker process on Northflank: only NF_DEPLOYMENT_SHA is set.
+    _clear_revision_variables(monkeypatch)
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "d" * 40)
+    worker_revision = RunExecutionConfig.current().source_revision
+    assert worker_revision == "d" * 40
+    repository.worker_heartbeat(
+        "worker:northflank", source_revision=worker_revision, status="idle"
+    )
+    # Web process on Render: only RENDER_GIT_COMMIT is set.
+    _clear_revision_variables(monkeypatch)
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "d" * 40)
+    assert repository.queue_metrics()["worker_liveness"] == "healthy"
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "e" * 40)
+    assert repository.queue_metrics()["worker_liveness"] == "revision_mismatch"
+
+
 def test_model_metadata_is_never_emitted_in_general_sse_journal(repository):
     """#304: model attempts remain in the authorized, revalidated endpoint."""
     from capstone.api.model_calls import SafeModelCall

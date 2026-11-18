@@ -3,6 +3,12 @@
 **Status:** implementation roadmap. R1 hosted run persistence is being implemented in a separate PR; the independent worker, hosted API wiring, security gates and Render deployment are not yet complete.
 **Business requirement:** deploy the Manufacturing Research Assistant to Render as **two separate compute services**: `capstone-fastapi` (Web Service) and `capstone-agent-worker` (Background Worker). Both will use managed Render Postgres. The database is a shared managed dependency, not a third compute deployment.  
 **Audit baseline:** `main` at `13067ed146d9770298ba42b0e86bb664e8b1cb67`, November 16, 2026. The updated main branch includes the latest deterministic triage changes.  
+**Hosting change (2026-11-18):** the FastAPI web service stays on Render, but the background worker now runs on **Northflank** (service `capstone-project-cmu`, project `capstone-cmu`), not as a Render Background Worker. The two share only PostgreSQL. What that needs:
+- **Same commit on both hosts.** Each side stamps its build commit through `source_revision()` (`capstone/api/run_repository.py`): `CAPSTONE_SOURCE_REVISION`, then Render's `RENDER_GIT_COMMIT`, then Northflank's runtime `NF_DEPLOYMENT_SHA`. The worker refuses a run stamped with a different commit (`check_strategy`), and readiness reports `revision_mismatch`, so deploy both from the same `main` commit.
+- **Same triage settings on both hosts.** `check_strategy` also compares every resolved triage setting, so each `TRIAGE_*` value set on Render must be set the same way on Northflank.
+- **Northflank service settings.** Build context `/` (the repo root, where `pyproject.toml` and `uv.lock` are); start command `python -m capstone.worker` (the buildpack's runtime image has no `uv`); `CAPSTONE_WORKER_ENABLED=1`; and `CAPSTONE_UI_RUN_DATABASE_URL` set to the same direct or session-pooler PostgreSQL URL as the web service.
+- `deploy/render-two-services.yaml` describes the original all-Render plan; its worker entry is not used.
+
 **Boundaries:** simulator-first; no live Siemens connection, CNC actuation, physical alarm acknowledgement or pilot capture sent to Render. Existing Pydantic Graph / PydanticAI orchestration remains the agent framework; a queue is transport, not a new reasoning framework.
 
 ## Decision

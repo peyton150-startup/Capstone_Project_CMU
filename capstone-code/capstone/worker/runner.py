@@ -1,4 +1,8 @@
-"""Portless, single-claim Render worker; simulator and Graph never run in FastAPI."""
+"""Portless, single-claim background worker; simulator and Graph never run in FastAPI.
+
+Hosted on Northflank while the FastAPI web service runs on Render. The two
+share only PostgreSQL, and each reads its build commit from its own host.
+"""
 
 from __future__ import annotations
 
@@ -22,6 +26,7 @@ from capstone.api.run_repository import (
     RunExecutionConfig,
     RunRepository,
     StagePayload,
+    source_revision,
 )
 from capstone.api.runs import safe_stage
 
@@ -53,6 +58,11 @@ def record(
     **counts: int,
 ) -> None:
     """Only approved codes, UUIDs and bounded counts; no provider exceptions."""
+    # Variables:
+    #   body: The one JSON log line, built only from allowlisted fields.
+    #   revision: The build commit from source_revision() (Render or
+    #     Northflank), logged as 12 hex characters so the two hosts' log lines
+    #     can be matched up.
     if event not in {
         "ready",
         "claimed",
@@ -79,7 +89,7 @@ def record(
         body["job_id"] = str(claim.job_id)
     if failure_code:
         body["failure_code"] = failure_code
-    revision = os.getenv("CAPSTONE_SOURCE_REVISION") or os.getenv("RENDER_GIT_COMMIT")
+    revision = source_revision()
     if revision and re.fullmatch(r"[a-f0-9]{7,40}", revision):
         body["revision"] = revision[:12]
     for key in ("duration_ms", "count", "queue_wait_ms", "attempt"):
@@ -590,7 +600,7 @@ def serve_worker(
 
 
 def main() -> None:
-    """Explicitly opted-in Render background worker; does not expose a port."""
+    """Explicitly opted-in background worker (Northflank); does not expose a port."""
     if os.getenv("CAPSTONE_WORKER_ENABLED") != "1":
         raise RuntimeError("CAPSTONE_WORKER_ENABLED=1 must be set")
     database_url = os.getenv("CAPSTONE_UI_RUN_DATABASE_URL") or ""

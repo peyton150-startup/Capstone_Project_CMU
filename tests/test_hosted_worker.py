@@ -422,6 +422,26 @@ def test_worker_logs_only_allowlisted_failure_codes_and_build_sha(caplog, monkey
         record("failed", failure_code="private provider exception")
 
 
+def test_northflank_worker_logs_and_matches_render_web_commit(caplog, monkeypatch):
+    """A Northflank worker runs a job a Render web service stamped, same commit."""
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+    from capstone.worker.runner import check_strategy, record
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "f" * 40)
+    submitted = RunExecutionConfig.current()  # Stamped by the Render web side.
+    monkeypatch.delenv("RENDER_GIT_COMMIT")
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "f" * 40)
+    check_strategy(submitted)  # Same commit on Northflank: accepted.
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        record("ready")
+    assert json.loads(caplog.records[-1].message)["revision"] == "f" * 12
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "0" * 40)
+    with pytest.raises(RuntimeError):
+        check_strategy(submitted)  # Different commit: still refused.
+
+
 def test_worker_resolves_pr301_profile_without_reimplementing_it(monkeypatch):
     """Two Render services must persist the true effective Graph control plane."""
     import capstone.settings as settings
@@ -450,6 +470,7 @@ def test_worker_resolves_pr301_profile_without_reimplementing_it(monkeypatch):
     monkeypatch.setattr(settings, "get_settings", lambda: original)
     monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
     monkeypatch.delenv("CAPSTONE_SOURCE_REVISION", raising=False)
+    monkeypatch.delenv("NF_DEPLOYMENT_SHA", raising=False)
     effective = RunExecutionConfig.current()
     assert effective.triage_run_mode == "deterministic"
     assert effective.triage_plan == "fixed"

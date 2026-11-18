@@ -1,4 +1,4 @@
-"""Render worker entrypoint; no FastAPI server."""
+"""Background worker entrypoint (Northflank); no FastAPI server."""
 
 from capstone.worker.runner import main
 
