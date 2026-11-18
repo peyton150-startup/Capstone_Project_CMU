@@ -105,7 +105,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error("--out is required unless --save-probe is given")
     try:
         written = run_collector(
-            collector, args.out, interval=interval, max_polls=args.polls
+            collector,
+            args.out,
+            interval=interval,
+            max_polls=args.polls,
+            enforce_poll_interval=bool(args.haas_profile),
         )
     except KeyboardInterrupt:
         print("stopped", file=sys.stderr)
