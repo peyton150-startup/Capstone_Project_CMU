@@ -84,3 +84,39 @@ class HaasConnectionProfile(BaseModel):
     def endpoint_fingerprint(self) -> str:
         """Safe correlation ID: never log raw shop IP or program data."""
         return hashlib.sha256(self.base_url.encode("ascii")).hexdigest()[:20]
+
+
+class HaasProbeCheck(BaseModel):
+    """Observed device/probe identity; never an authorization decision."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    machine_identity: str
+    data_item_count: int = Field(ge=1)
+    probe_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+def verify_haas_probe(profile: HaasConnectionProfile, xml: str) -> HaasProbeCheck:
+    """Fail closed if the probed device is not the exact approved one.
+
+    This is a read-only capability check, not a license for acquiring a
+    larger unapproved response or running a model against private data.
+    """
+    from capstone.ingestion.channel_map import parse_probe, probe_hash
+
+    entries = parse_probe(xml)
+    if not entries:
+        raise ValueError("approved Haas device exposes no MTConnect data items")
+    actual = {(entry.device, entry.device_uuid) for entry in entries}
+    if len(actual) != 1 or not all(
+        profile.machine_identity in (name, uuid) for name, uuid in actual
+    ):
+        raise ValueError("MTConnect probe identity does not match approved machine")
+    ids = [entry.data_item_id for entry in entries]
+    if not all(ids) or len(ids) != len(set(ids)):
+        raise ValueError("MTConnect device has missing or duplicate data item IDs")
+    return HaasProbeCheck(
+        machine_identity=profile.machine_identity,
+        data_item_count=len(entries),
+        probe_sha256=probe_hash(xml),
+    )
