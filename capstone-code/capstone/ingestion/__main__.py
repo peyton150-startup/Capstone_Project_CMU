@@ -19,6 +19,8 @@ from capstone.ingestion.collector import (
     MTConnectCollector,
     run_collector,
 )
+from capstone.ingestion.haas_http import haas_get
+from capstone.ingestion.haas_profile import HaasConnectionProfile, verify_haas_probe
 from capstone.ingestion.privacy import ALLOW_FLAG, ALLOW_HELP, refusal
 
 
@@ -36,13 +38,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   collector: The agent reader built from those options.
     #   written: Records appended, printed as the run's summary.
     parser = argparse.ArgumentParser(prog="python -m capstone.ingestion")
-    parser.add_argument("--url", required=True, help="MTConnect agent base URL")
+    parser.add_argument("--url", help="legacy MTConnect agent base URL")
+    parser.add_argument(
+        "--haas-profile", type=Path,
+        help="private Pydantic-validated Haas NGC endpoint/authorization profile",
+    )
     parser.add_argument("--device", help="only this device on a multi-device agent")
     parser.add_argument("--out", type=Path, help="JSONL file to append records to")
     parser.add_argument(
         "--interval",
         type=float,
-        default=5.0,
+        default=None,
         help=f"seconds between polls (minimum {MIN_INTERVAL_SECONDS})",
     )
     parser.add_argument(
@@ -59,16 +65,45 @@ def main(argv: Sequence[str] | None = None) -> int:
         problem = path and not args.allow_inside_repo and refusal(path, option)
         if problem:
             parser.error(problem)
-    collector = MTConnectCollector(args.url, device=args.device, count=args.count)
+    # The shop-pinned path does not allow broad URL/device overrides. The
+    # legacy --url path stays available for existing generic MTConnect tests.
+    if bool(args.url) == bool(args.haas_profile):
+        parser.error("provide exactly one of --url or --haas-profile")
+    if args.haas_profile:
+        if args.device:
+            parser.error("--device is not allowed with a pinned Haas profile")
+        if args.count > 1000 or args.count < 1:
+            parser.error("Haas --count must be in [1, 1000]")
+        profile = HaasConnectionProfile.model_validate_json(
+            args.haas_profile.read_text(encoding="utf-8")
+        )
+        if args.interval is not None and args.interval < profile.poll_seconds:
+            parser.error("Haas --interval cannot exceed the approved polling rate")
+        interval = profile.poll_seconds if args.interval is None else args.interval
+        collector = MTConnectCollector(
+            profile.base_url,
+            count=args.count,
+            fetch=lambda url: haas_get(profile, url),
+        )
+        # Identity must be checked before any Current/Sample acquisition.
+        probe = collector.probe()
+        checked = verify_haas_probe(profile, probe)
+        print(f"qualified approved Haas probe: {checked.data_item_count} channels")
+    else:
+        interval = 5.0 if args.interval is None else args.interval
+        collector = MTConnectCollector(args.url, device=args.device, count=args.count)
+        probe = None
     if args.save_probe:
-        args.save_probe.write_text(collector.probe(), encoding="utf-8")
+        args.save_probe.write_text(
+            probe if probe is not None else collector.probe(), encoding="utf-8"
+        )
         print(f"saved the machine's capability list to {args.save_probe}")
         return 0
     if args.out is None:
         parser.error("--out is required unless --save-probe is given")
     try:
         written = run_collector(
-            collector, args.out, interval=args.interval, max_polls=args.polls
+            collector, args.out, interval=interval, max_polls=args.polls
         )
     except KeyboardInterrupt:
         print("stopped", file=sys.stderr)
