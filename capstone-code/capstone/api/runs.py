@@ -76,9 +76,9 @@ class SafeRequirementProgress(BaseModel):
     evidence_count: int = Field(ge=0)
 
 
-
 # The live timeline is narrower than the private typed trace: fixed codes only.
-# Never copy a free-text reason, model message, tool arguments or evidence into it._SAFE_DECIDE_EVENTS = frozenset(
+# Never copy a free-text reason, model message, tool arguments or evidence into it.
+_SAFE_DECIDE_EVENTS = frozenset(
     {
         "requirements.compiled",
         "decide.selected",
