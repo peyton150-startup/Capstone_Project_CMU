@@ -73,6 +73,13 @@ class RecordedObservationTools:
         observations = [line for line in lines if isinstance(line, TelemetryRecord)]
         if not observations:
             raise ValueError("the capture holds no observations")
+        if any(
+            current.source_timestamp < previous.source_timestamp
+            for previous, current in zip(observations, observations[1:])
+        ):
+            raise ValueError(
+                "capture source timestamps are out of order; qualification required"
+            )
         self._lines = list(lines)
         self._channel_map = channel_map
         self._approved_event_item_ids = approved_event_item_ids
@@ -156,6 +163,13 @@ class RecordedObservationTools:
                 raise ToolInputError(
                     f"the capture has no Execution value for {device}, so whether "
                     "it is running is not known"
+                )
+            # Stop/interrupt states do not prove a physical breakdown.
+            # The legacy three-state tool has no 'unknown' representation,
+            # so refuse rather than silently translating STOPPED into idle.
+            if value not in RUNNING and value != "READY":
+                raise ToolInputError(
+                    f"Execution state for {device} cannot establish running or idle"
                 )
             rows.append(
                 {
