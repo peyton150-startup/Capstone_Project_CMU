@@ -414,6 +414,9 @@ class SafeStageSnapshot(BaseModel):
     unresolved_question_count: int = Field(default=0, ge=0)
     termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
     conclusion_available: bool
+    triage_run_mode: Literal["custom", "deterministic"] | None = None
+    hypothesis_progress: dict[str, Any] | None = None
+    executed_triage: dict[str, Any] | None = None
 
     # Every additional field is a *derived count or authorization flag*, not
     # the underlying data. All values are bounded by the Pydantic contract.
@@ -635,6 +638,9 @@ def safe_stage(state: Any) -> dict[str, Any]:
         decide_event_total=len(decide_events),
         decide_events_truncated=len(decide_events) > _SAFE_DECIDE_EVENT_LIMIT,
         decide_events_recent=decide_events[-_SAFE_DECIDE_EVENT_LIMIT:],
+        triage_run_mode=getattr(state, "triage_run_mode", None) if state.mode == "triage" else None,
+        hypothesis_progress=safe_hypothesis_progress(state),
+        executed_triage=safe_executed_triage(state),
     ).model_dump(mode="json")
 
 
