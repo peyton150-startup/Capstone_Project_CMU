@@ -46,7 +46,7 @@
   "capstone-code/capstone/api/postgres_runs.py": "dfc5c6b98ccb0d6c01ec30135f0ff2dd32577e7675428d6c8778c4d914acc9c1",
   "capstone-code/capstone/api/readers.py": "0825005efd3367a42c44c4da371f795cd94ee0b3c1681a93461f31e44182c97b",
   "capstone-code/capstone/api/run_models.py": "d4cd9f22ead88dc0b5b7a8c078c9e7aa717848e870ba83fca1190e49c4e68534",
-  "capstone-code/capstone/api/run_repository.py": "9ebc6a698805e89dfefa0ad80a79a7df53f51f25d98cc90b1ceb0b48ee71acb7",
+  "capstone-code/capstone/api/run_repository.py": "22f1c24fdf2fb3d0e1759f8378dc19d82f39a8b8abbc21a9bc47621cf98ea42d",
   "capstone-code/capstone/api/runs.py": "1dbd4458373204f3771b7979b90bdecf5fc82f4d773d35375754bfbe88702bc1",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
@@ -156,8 +156,8 @@
   "capstone-code/capstone/watchdog/__main__.py": "a8feeb4a5c08c1c881cc707f69764b76f1e1f740f88c172b3c497701a99e3aae",
   "capstone-code/capstone/watchdog/watchdog.py": "c32c0f4b1caa40c190d9091997316df80b7aa579f29cbaff87e5bfa1806ee088",
   "capstone-code/capstone/worker/__init__.py": "24e0b4ab961b7d37a0746b3bda1e0ddcc5d5bbed2022ed47f5901b2489fefce9",
-  "capstone-code/capstone/worker/__main__.py": "e188157303534548265d4c8976cf863167f448268ddfea1f3e4fcd2d031181a0",
-  "capstone-code/capstone/worker/runner.py": "ea72b85ffd8173956fec7f29205399630d44f4b87aea159a2385c9de693128b2",
+  "capstone-code/capstone/worker/__main__.py": "6caa9ce4f84540541f8f9bcfe8ec1d7a6c87da0e9e74c4818fbd738ac04dfd07",
+  "capstone-code/capstone/worker/runner.py": "b7776d45a3e58e583d61a2a0df5825a3419b9ec8324992a5b83a2df188dbc08d",
   "evaluation/evaltools/__init__.py": "5314d29d9291f89ed31ac9a6bcb41be257de9072f6da8f5ae9a40797d721660a",
   "evaluation/evaltools/audit_preflight.py": "3141acb75de422953e52f0cd350f4d53240e2003fc6a82c692513af76a3aadb1",
   "evaluation/evaltools/build_inventory.py": "ac8e0c6f3f92b79215d864344e0e5f40141b2c13e188cc2a5c3e0e79d869749f",
@@ -229,7 +229,7 @@
   "tests/test_generator.py": "bed58811be34af0866d8d3ab6e511823f5d000bea2e42f3076adcb9d22eec885",
   "tests/test_ground_truth.py": "00defedf7c2df521d51af43e528e52e848cae4388114795751fc6f50fcc813fc",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
-  "tests/test_hosted_worker.py": "4086adc278f5ac7ff0bc894753aeec7514b076794d79de6d2c45c3844c9bfd96",
+  "tests/test_hosted_worker.py": "d15c4564acaaac05d300d17372869312f73ea8200268b149b065b4eeb4cf45fa",
   "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
   "tests/test_job_history.py": "739a96c546efc383de834ba834f9844bbf31fae34bc49e3b0204739ea06d3d97",
   "tests/test_known_answers.py": "20f350db974db8521eacf6c26d50d0089bc021567cc79616e5d98bafc71d7b50",
@@ -275,7 +275,7 @@
   "tests/test_request_deadline.py": "373b1d759e84c4e544ab92f00179243f9fc7805a96d96dacd8d35b06a23610c5",
   "tests/test_review_packet.py": "6193ac676b438445756f5ae4466ccea0fa571b0adc2b08d0fbb355315f984193",
   "tests/test_rng.py": "e0515a3b1b93128ac6ee3538a07963f6e9f386c331c0053206f838cb3d23944f",
-  "tests/test_run_repository.py": "428e8c603b7f5b0d965d74b094a0c8141cfcfcdc9f4997fd08d1d19e51c38c31",
+  "tests/test_run_repository.py": "cf7b5d99ab41b09555e62fe46abf8bc5df5f6cc3c6056f1af33bf128bb4ee041",
   "tests/test_scenarios.py": "aecd0d96aa858481068df3ed803fbee1dd3e0bf3023673b5c3c558c8e73dbc7e",
   "tests/test_scoring_integrity.py": "9bd546f2dc3d2bc03c9da3b3c78c1aa09c502e8054bd9bd7065f805ec9c82671",
   "tests/test_sensor_summary.py": "e6268233f469428646200a5b5f05a44bd9a381f64d2fa47422f5ddf12d7d4e25",
@@ -332,29 +332,29 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "55199820863aa74371ae7e4c41b35de8275b59ceebbcd90677625f91a9d6a42e",
- "junit_sha256": "6b61dc9cc48bc42f182fa3986b96eeedb5f2f54e8a1ee9e49deba28fab858238",
+ "coverage_sha256": "a6ad77bcf2c8eefc91875d06b59e627e71d6ba9fcacff30495383a63d35557d7",
+ "junit_sha256": "a1129139d5d30d6ef62678d8489e60974a1d08cd0bf3378763e922296660f64f",
  "counts": {
-  "functions": 1431,
+  "functions": 1432,
   "classes_note": "classes are listed through their methods",
-  "tests": 2546,
+  "tests": 2549,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 629,
    "NOT APPLICABLE": 29,
    "NOT TESTED": 119,
-   "PARTIALLY VERIFIED": 609,
+   "PARTIALLY VERIFIED": 610,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 638,
+   "direct": 639,
    "import-only": 6,
    "indirect": 639,
    "no-statements": 29,
    "none": 119
   },
-  "functions_executed_in_tests": 1277,
-  "functions_with_direct_tests": 638,
+  "functions_executed_in_tests": 1278,
+  "functions_with_direct_tests": 639,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -583,8 +583,8 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2529,
-   "skipped": 17
+   "passed": 2531,
+   "skipped": 18
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -780,6 +780,7 @@
    "tests/test_run_repository.py::test_expiry_preserves_last_good_triage_and_never_replays",
    "tests/test_run_repository.py::test_terminal_progress_is_authoritative_over_late_queue_writer",
    "tests/test_run_repository.py::test_worker_liveness_refuses_stale_render_revision",
+   "tests/test_run_repository.py::test_northflank_worker_is_ready_for_render_web_on_same_commit",
    "tests/test_run_repository.py::test_model_metadata_is_never_emitted_in_general_sse_journal",
    "tests/test_servo_drive.py::test_a_new_drive_is_healthy",
    "tests/test_servo_drive.py::test_the_pack_asks_for_the_drive_replacement_and_counts_as_a_cause",
@@ -989,9 +990,9 @@
    "direct": 0
   },
   "capstone.api.run_repository": {
-   "functions": 32,
-   "executed": 4,
-   "direct": 3
+   "functions": 33,
+   "executed": 5,
+   "direct": 4
   },
   "capstone.api.runs": {
    "functions": 33,
@@ -8814,24 +8815,41 @@
    "direct": [],
    "indirect": []
   },
+  "capstone.api.run_repository:source_revision": {
+   "count": 7,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order"
+   ],
+   "indirect": [
+    "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
+    "tests/test_hosted_worker.py::test_strategy_drift_fails_closed",
+    "tests/test_hosted_worker.py::test_structured_logs_drop_unapproved_fields_and_values",
+    "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
+    "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it"
+   ]
+  },
   "capstone.api.run_repository:RunExecutionConfig.current": {
-   "count": 3,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_strategy_drift_fails_closed",
     "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it"
    ]
   },
   "capstone.api.run_repository:RunExecutionConfig.validate_strategy": {
-   "count": 4,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy"
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_strategy_drift_fails_closed",
     "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it"
    ]
@@ -18849,12 +18867,13 @@
    "indirect": []
   },
   "capstone.settings:TriageExecutionProfile.consistent_effective_route": {
-   "count": 78,
+   "count": 79,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
     "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
@@ -18863,12 +18882,11 @@
     "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
     "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
     "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
-    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed"
+    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
    ]
   },
   "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage": {
-   "count": 347,
+   "count": 348,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -18900,7 +18918,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_triage_needs_fixed_plan": {
-   "count": 347,
+   "count": 348,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -18932,12 +18950,13 @@
    ]
   },
   "capstone.settings:Settings.effective_triage": {
-   "count": 75,
+   "count": 76,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
     "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
@@ -18946,12 +18965,11 @@
     "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
     "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
     "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
-    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed"
+    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
    ]
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 356,
+   "count": 357,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19020,7 +19038,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 239,
+   "count": 240,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -22936,20 +22954,22 @@
    ]
   },
   "capstone.worker.runner:record": {
-   "count": 3,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_structured_logs_drop_unapproved_fields_and_values",
     "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha"
    ]
   },
   "capstone.worker.runner:check_strategy": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_strategy_drift_fails_closed"
    ]
   },
@@ -44158,28 +44178,31 @@
    "functions": []
   },
   "tests/test_hosted_worker.py::test_structured_logs_drop_unapproved_fields_and_values": {
-   "count": 1,
+   "count": 2,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.api.run_repository:source_revision",
     "capstone.worker.runner:record"
    ]
   },
   "tests/test_hosted_worker.py::test_strategy_drift_fails_closed": {
-   "count": 3,
+   "count": 4,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.run_repository:RunExecutionConfig.current",
     "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
     "capstone.worker.runner:check_strategy"
    ]
   },
   "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.integration_status:inspect_hosted_contracts",
     "capstone.api.run_repository:RunExecutionConfig.current",
     "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
@@ -44233,18 +44256,37 @@
    ]
   },
   "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha": {
-   "count": 1,
+   "count": 2,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:record"
+   ]
+  },
+  "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:check_strategy",
     "capstone.worker.runner:record"
    ]
   },
   "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.run_repository:RunExecutionConfig.current",
-    "capstone.api.run_repository:RunExecutionConfig.validate_strategy"
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision"
    ]
   },
   "tests/test_hosted_worker.py::test_cross_pr_contract_inventory_uses_real_pydantic_models": {
@@ -55657,6 +55699,18 @@
    "functions": []
   },
   "tests/test_run_repository.py::test_worker_liveness_refuses_stale_render_revision": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:source_revision"
+   ]
+  },
+  "tests/test_run_repository.py::test_northflank_worker_is_ready_for_render_web_on_same_commit": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []

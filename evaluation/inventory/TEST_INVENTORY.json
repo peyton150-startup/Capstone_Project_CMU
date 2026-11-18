@@ -62734,10 +62734,12 @@
    "claims": "structured logs drop unapproved fields and values",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.api.run_repository:source_revision",
     "capstone.worker.runner:record"
    ],
-   "exercise_count": 1,
+   "exercise_count": 2,
    "modules_exercised": [
+    "capstone.api.run_repository",
     "capstone.worker.runner"
    ],
    "judgment": "NOT ASSESSED",
@@ -62772,9 +62774,10 @@
    "exercises": [
     "capstone.api.run_repository:RunExecutionConfig.current",
     "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
     "capstone.worker.runner:check_strategy"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.api.run_repository",
     "capstone.worker.runner"
@@ -62816,6 +62819,7 @@
     "capstone.api.integration_status:inspect_hosted_contracts",
     "capstone.api.run_repository:RunExecutionConfig.current",
     "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
@@ -62826,7 +62830,7 @@
     "capstone.worker.runner:serve_worker",
     "capstone.worker.runner:serve_worker.<locals>.pulse"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.api.integration_status",
     "capstone.api.run_repository",
@@ -63009,10 +63013,63 @@
    "claims": "worker logs only allowlisted failure codes and build sha",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.api.run_repository:source_revision",
     "capstone.worker.runner:record"
    ],
-   "exercise_count": 1,
+   "exercise_count": 2,
    "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_northflank_worker_logs_and_matches_render_web_commit",
+   "line": 425,
+   "docstring": "A Northflank worker runs a job a Render web service stamped, same commit.",
+   "parametrized": false,
+   "fixtures": [
+    "caplog",
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A Northflank worker runs a job a Render web service stamped, same commit.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:check_strategy",
+    "capstone.worker.runner:record"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings",
     "capstone.worker.runner"
    ],
    "judgment": "NOT ASSESSED",
@@ -63027,7 +63084,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_resolves_pr301_profile_without_reimplementing_it",
-   "line": 425,
+   "line": 445,
    "docstring": "Two Render services must persist the true effective Graph control plane.",
    "parametrized": false,
    "fixtures": [
@@ -63051,9 +63108,10 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.api.run_repository:RunExecutionConfig.current",
-    "capstone.api.run_repository:RunExecutionConfig.validate_strategy"
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision"
    ],
-   "exercise_count": 2,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.api.run_repository"
    ],
@@ -63069,7 +63127,7 @@
    "id": "tests/test_hosted_worker.py::test_cross_pr_contract_inventory_uses_real_pydantic_models",
    "file": "tests/test_hosted_worker.py",
    "name": "test_cross_pr_contract_inventory_uses_real_pydantic_models",
-   "line": 466,
+   "line": 487,
    "docstring": "No absent Decide/deep data may be reported as an implemented contract.",
    "parametrized": false,
    "fixtures": [
@@ -63110,7 +63168,7 @@
    "id": "tests/test_hosted_worker.py::test_pr297_projection_redacts_provider_content_without_graph_rewrite",
    "file": "tests/test_hosted_worker.py",
    "name": "test_pr297_projection_redacts_provider_content_without_graph_rewrite",
-   "line": 502,
+   "line": 523,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99690,10 +99748,85 @@
    ]
   },
   {
+   "id": "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order",
+   "file": "tests/test_run_repository.py",
+   "name": "test_source_revision_reads_render_and_northflank_in_order",
+   "line": 631,
+   "docstring": "Override beats Render, Render beats Northflank, blank counts as unset.",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Override beats Render, Render beats Northflank, blank counts as unset.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_northflank_worker_is_ready_for_render_web_on_same_commit",
+   "file": "tests/test_run_repository.py",
+   "name": "test_northflank_worker_is_ready_for_render_web_on_same_commit",
+   "line": 647,
+   "docstring": "Render web (RENDER_GIT_COMMIT) accepts a Northflank worker's heartbeat.",
+   "parametrized": false,
+   "fixtures": [
+    "repository",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "Render web (RENDER_GIT_COMMIT) accepts a Northflank worker's heartbeat.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_run_repository.py::test_model_metadata_is_never_emitted_in_general_sse_journal",
    "file": "tests/test_run_repository.py",
    "name": "test_model_metadata_is_never_emitted_in_general_sse_journal",
-   "line": 624,
+   "line": 669,
    "docstring": "#304: model attempts remain in the authorized, revalidated endpoint.",
    "parametrized": false,
    "fixtures": [
