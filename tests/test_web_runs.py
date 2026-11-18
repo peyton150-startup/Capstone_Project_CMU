@@ -787,3 +787,169 @@ def test_legacy_final_audit_phase_fallback_is_explicit(tmp_path):
         "detail": None,
         "phase": "deep",
     }
+
+
+def test_render_progress_contract_rejects_secret_fields_and_free_text():
+    """Even a model-produced question ID may not enter the public stream."""
+    from types import SimpleNamespace
+    from uuid import uuid4
+
+    from pydantic import ValidationError
+
+    from capstone.api.runs import SafeStageSnapshot, safe_stage
+
+    secret = "sk-real-provider-key-must-not-leak"
+    state = SimpleNamespace(
+        investigation_id=uuid4(),
+        mode="triage",
+        stage="test",
+        termination_reason=None,
+        iteration_count=4,
+        tool_call_count=7,
+        evidence=[object()] * 3,
+        hypotheses=[object()],
+        unanswered_questions=[
+            SimpleNamespace(id="Q3"),
+            SimpleNamespace(id=secret),
+            SimpleNamespace(id="Q5"),
+        ],
+        conclusion=None,
+        answers={"Q1": ["E1"]},
+        decisions=[object(), object()],
+        remaining_iterations=4,
+        remaining_tool_calls=2,
+        triage_clock_verified=False,
+        last_tick=51,
+        triage_observation_cutoff_tick=48,
+        triage_requirements={"Q3:events": object(), "Q5:load": object()},
+        triage_requirement_results={
+            "Q3:events": SimpleNamespace(status="satisfied"),
+            "Q5:load": SimpleNamespace(status="insufficient"),
+        },
+        triage_evidence_checks=[
+            SimpleNamespace(accepted=True),
+            SimpleNamespace(accepted=False),
+        ],
+        triage_candidates=[object()],
+        triage_test_requirement_ids=("Q5:load",),
+        triage_trace_events=[object()],
+        raw_provider_response={"secret": secret},
+        hidden_ground_truth={"fault": secret},
+    )
+    payload = safe_stage(state)
+    assert payload["unresolved_question_ids"] == ["Q3", "Q5"]
+    assert payload["answered_question_count"] == 1
+    assert payload["decision_count"] == 2
+    assert payload["triage_requirement_satisfied"] == 1
+    assert payload["triage_requirement_open"] == 1
+    assert payload["triage_evidence_rejected"] == 1
+    assert payload["triage_candidates"] == 1
+    assert payload["clock_verified"] is False
+    assert payload["observation_cutoff_tick"] == 48
+    assert secret not in json.dumps(payload)
+    assert "hidden_ground_truth" not in payload
+    with pytest.raises(ValidationError):
+        SafeStageSnapshot.model_validate({**payload, "api_key": secret})
+    with pytest.raises(ValidationError):
+        SafeStageSnapshot.model_validate({**payload, "stage": secret})
+
+
+def test_render_progress_terminal_reconcile_and_late_event_fencing(tmp_path):
+    """The source-of-truth terminal event wins over delayed stage publishers."""
+    from uuid import uuid4
+
+    from pydantic import ValidationError
+
+    from capstone.api.runs import RunRequest, SafeStageSnapshot, SimulatorRuns
+
+    runner = SimulatorRuns(tmp_path / "progress.sqlite")
+    run_id = str(uuid4())
+    with runner._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "render-progress-replay-0001",
+                RunRequest(seed=3).model_dump_json(),
+                "running",
+                json.dumps({"status": "running"}),
+                "2026-11-17T12:00:00Z",
+                "2026-11-17T12:00:00Z",
+            ),
+        )
+
+    def stage(mode, step, calls):
+        return SafeStageSnapshot(
+            investigation_id=str(uuid4()),
+            mode=mode,
+            stage=step,
+            iteration_count=calls,
+            tool_calls=calls,
+            evidence_count=calls,
+            hypothesis_count=0,
+            unresolved_question_ids=["Q5"] if mode == "triage" else [],
+            termination_reason=None,
+            conclusion_available=False,
+        ).model_dump(mode="json")
+
+    early = stage("triage", "investigate", 1)
+    final_triage = {**early, "tool_calls": 4, "evidence_count": 4}
+    final_deep = stage("deep", "conclude", 6)
+    with pytest.raises(ValidationError):
+        runner._emit(run_id, "stage.updated", {**early, "secret": "nope"})
+    assert runner.events_since(run_id, 0) == []
+    runner._emit(run_id, "stage.updated", early)
+    runner._emit(
+        run_id,
+        "run.completed",
+        {
+            "status": "completed",
+            "progress": {
+                "triage": final_triage,
+                "deep": final_deep,
+                "latest": "deep",
+            },
+        },
+        state="completed",
+    )
+    before = runner.get(run_id)
+    assert before["snapshot"]["progress"]["triage"]["tool_calls"] == 4
+    assert before["snapshot"]["progress"]["deep"]["tool_calls"] == 6
+
+    runner._emit(run_id, "stage.updated", stage("triage", "test", 99))
+    after = runner.get(run_id)
+    assert after["state"] == "completed"
+    assert after["snapshot"] == before["snapshot"]
+    assert [item["event"] for item in runner.events_since(run_id, 0)] == [
+        "stage.updated",
+        "run.completed",
+    ]
+
+
+def test_completed_stream_has_explicit_replay_boundary(tmp_path):
+    """Reconnect to a recovered terminal run must not poll forever."""
+    from uuid import uuid4
+
+    cfg = config(tmp_path)
+    runner = SimulatorRuns(cfg.run_db)
+    run_id = str(uuid4())
+    with runner._db() as db:
+        db.execute(
+            "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                "render-terminal-0001",
+                RunRequest(seed=3).model_dump_json(),
+                "completed",
+                json.dumps({"status": "completed"}),
+                "2026-11-17T12:00:00Z",
+                "2026-11-17T12:00:00Z",
+            ),
+        )
+    with TestClient(create_app(cfg)) as client:
+        response = client.get(
+            f"/api/v1/lab/runs/{run_id}/events?since=0",
+            headers=auth(TOKEN),
+        )
+    assert response.status_code == 200
+    assert 'event: stream.closed\\ndata: {"status":"terminal"}' in response.text

@@ -9,8 +9,10 @@ from __future__ import annotations
 
 import json
 import queue
+import re
 import sqlite3
 import threading
+import time
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -45,35 +47,156 @@ class ReviewDecision(BaseModel):
     note: str = Field(default="", max_length=200)
 
 
-class SafeStageSnapshot(BaseModel):
-    """Bounded, typed public progress from the Pydantic Graph watcher.
+# An LLM may suggest question IDs; reject free text, paths, tokens and prompts.
+# Only short generated question identifiers can appear in live progress.
+_SAFE_QUESTION_ID = re.compile(r"(?:[QqRrTt][0-9]{1,3})\Z")
 
-    No model messages, private evidence content, tool arguments or simulator
-    ground truth cross this boundary. Monitoring never invokes another model.
-    """
+
+_SAFE_REQUIREMENT_ID = re.compile(r"Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})\Z")
+
+
+class SafeRequirementProgress(BaseModel):
+    """Source-independent requirement status; never a diagnostic narrative."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    investigation_id: str = Field(min_length=1, max_length=64)
+    requirement_id: str = Field(
+        pattern=r"^Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})$"
+    )
+    status: Literal[
+        "pending",
+        "satisfied",
+        "partial",
+        "insufficient",
+        "stale",
+        "unavailable",
+        "unsupported",
+        "failed",
+    ]
+    evidence_count: int = Field(ge=0)
+
+
+class SafeStageSnapshot(BaseModel):
+    """Allowlisted metadata snapshot of the existing Pydantic Graph state.
+
+    Never serialize the model state itself: it contains simulator truth,
+    raw tool results, tool arguments, hypothesis text and provider content.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+
+    investigation_id: str = Field(
+        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    )
     mode: Literal["triage", "deep"]
-    stage: str | None = Field(default=None, max_length=64)
+    stage: (
+        Literal[
+            "observe",
+            "manual",
+            "plan",
+            "investigate",
+            "hypothesize",
+            "test",
+            "critique",
+            "recheck",
+            "conclude",
+            "decide",
+            "propose",
+            "execute",
+            "verify",
+        ]
+        | None
+    ) = None
     iteration_count: int = Field(ge=0)
     tool_calls: int = Field(ge=0)
     evidence_count: int = Field(ge=0)
     hypothesis_count: int = Field(ge=0)
     unresolved_question_ids: list[str] = Field(max_length=25)
-    termination_reason: str | None = Field(default=None, max_length=80)
+    unresolved_question_count: int = Field(default=0, ge=0)
+    termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
     conclusion_available: bool
 
+    # Every additional field is a *derived count or authorization flag*, not
+    # the underlying data. All values are bounded by the Pydantic contract.
+    answered_question_count: int = Field(default=0, ge=0)
+    decision_count: int = Field(default=0, ge=0)
+    remaining_iterations: int = Field(default=0, ge=0)
+    remaining_tool_calls: int = Field(default=0, ge=0)
+    repeated_calls: int = Field(default=0, ge=0)
+    failed_tool_calls: int = Field(default=0, ge=0)
+    malformed_results: int = Field(default=0, ge=0)
+    interpretation_failures: int = Field(default=0, ge=0)
+    unproductive_steps: int = Field(default=0, ge=0)
+    followup_tool_calls: int = Field(default=0, ge=0)
+    screening_tool_calls: int = Field(default=0, ge=0)
+    observe_tool_calls: int = Field(default=0, ge=0)
+    last_observed_tick: int | None = Field(default=None, ge=0)
+    observation_cutoff_tick: int | None = Field(default=None, ge=0)
+    clock_verified: bool | None = None
+    triage_requirement_total: int = Field(default=0, ge=0)
+    triage_requirement_satisfied: int = Field(default=0, ge=0)
+    triage_requirement_open: int = Field(default=0, ge=0)
+    triage_question_gaps: int = Field(default=0, ge=0)
+    triage_evidence_accepted: int = Field(default=0, ge=0)
+    triage_evidence_rejected: int = Field(default=0, ge=0)
+    triage_decide_reads: int = Field(default=0, ge=0)
+    triage_decide_stops: int = Field(default=0, ge=0)
+    triage_candidates: int = Field(default=0, ge=0)
+    triage_test_requirements: int = Field(default=0, ge=0)
+    triage_trace_events: int = Field(default=0, ge=0)
+    triage_logging_failures: int = Field(default=0, ge=0)
+    deep_recommended: bool | None = None
+    # The packet is source coverage, never its readings or screening scores.
+    packet_roster_verified: bool | None = None
+    packet_roster_size: int = Field(default=0, ge=0)
+    packet_screened_machines: int = Field(default=0, ge=0)
+    packet_missing_machines: int = Field(default=0, ge=0)
+    packet_calls_mandatory: int = Field(default=0, ge=0)
+    packet_calls_optional: int = Field(default=0, ge=0)
+    packet_calls_qualified: int = Field(default=0, ge=0)
+    packet_calls_unavailable: int = Field(default=0, ge=0)
+    packet_items_qualified: int = Field(default=0, ge=0)
+    packet_items_missing: int = Field(default=0, ge=0)
+    triage_test_records: int = Field(default=0, ge=0)
+    requirement_statuses: list[SafeRequirementProgress] = Field(
+        default_factory=list, max_length=32
+    )
+    requirement_statuses_truncated: bool = False
 
-# Only fields from the checked Pydantic watcher projection enter persisted
-# per-phase progress; this is intentionally not a general serializer.
+
+# Explicit projection only. Never infer a public schema from state.model_dump().
 SAFE_STAGE_FIELDS = frozenset(SafeStageSnapshot.model_fields)
 
 
 def safe_stage(state: Any) -> dict[str, Any]:
-    """Project agent state into the validated, source-safe progress contract."""
-    reason = state.termination_reason
+    """Provide field-level progress, without publishing agent-private values."""
+    # All values are already tracked by the same Graph state. The observer
+    # calls no new models/tools, and never reads hidden simulator ground truth.
+    results = getattr(state, "triage_requirement_results", {})
+    checks = getattr(state, "triage_evidence_checks", ())
+    requirements = getattr(state, "triage_requirements", {})
+    raw_reason = getattr(state, "termination_reason", None)
+    reason = getattr(raw_reason, "value", None)
+    packet = getattr(state, "triage_packet", None)
+    packet_calls = () if packet is None else packet.calls
+    packet_items = () if packet is None else packet.items
+    satisfied_requirements = sum(
+        results[rid].status == "satisfied" for rid in requirements if rid in results
+    )
+    safe_requirements = [
+        SafeRequirementProgress(
+            requirement_id=rid,
+            status=result.status,
+            evidence_count=len(getattr(result, "evidence_ids", ())),
+        )
+        for rid, result in sorted(results.items())
+        if rid in requirements and _SAFE_REQUIREMENT_ID.fullmatch(rid)
+    ]
+    ids = [
+        q.id
+        for q in getattr(state, "unanswered_questions", ())[:25]
+        if isinstance(q.id, str) and _SAFE_QUESTION_ID.fullmatch(q.id)
+    ]
     return SafeStageSnapshot(
         investigation_id=str(state.investigation_id),
         mode=state.mode,
@@ -82,11 +205,55 @@ def safe_stage(state: Any) -> dict[str, Any]:
         tool_calls=state.tool_call_count,
         evidence_count=len(state.evidence),
         hypothesis_count=len(state.hypotheses),
-        unresolved_question_ids=[
-            str(q.id)[:64] for q in state.unanswered_questions[:25]
-        ],
-        termination_reason=None if reason is None else reason.value,
+        unresolved_question_ids=ids,
+        unresolved_question_count=len(getattr(state, "unanswered_questions", ())),
+        termination_reason=reason,
         conclusion_available=state.conclusion is not None,
+        answered_question_count=len(getattr(state, "answers", {})),
+        decision_count=len(getattr(state, "decisions", ())),
+        remaining_iterations=getattr(state, "remaining_iterations", 0),
+        remaining_tool_calls=getattr(state, "remaining_tool_calls", 0),
+        repeated_calls=getattr(state, "repeated_calls", 0),
+        failed_tool_calls=getattr(state, "failed_tool_calls", 0),
+        malformed_results=getattr(state, "malformed_results", 0),
+        interpretation_failures=getattr(state, "interpretation_failures", 0),
+        unproductive_steps=getattr(state, "unproductive_steps", 0),
+        followup_tool_calls=getattr(state, "followup_tool_calls_used", 0),
+        screening_tool_calls=getattr(state, "screening_tool_calls_used", 0),
+        observe_tool_calls=getattr(state, "observe_tool_calls_used", 0),
+        last_observed_tick=getattr(state, "last_tick", None),
+        observation_cutoff_tick=getattr(state, "triage_observation_cutoff_tick", None),
+        clock_verified=getattr(state, "triage_clock_verified", None),
+        triage_requirement_total=len(requirements),
+        triage_requirement_satisfied=satisfied_requirements,
+        triage_requirement_open=len(requirements) - satisfied_requirements,
+        triage_question_gaps=len(getattr(state, "triage_question_gaps", {})),
+        triage_evidence_accepted=sum(c.accepted for c in checks),
+        triage_evidence_rejected=sum(not c.accepted for c in checks),
+        triage_decide_reads=getattr(state, "triage_deterministic_reads", 0),
+        triage_decide_stops=getattr(state, "triage_deterministic_stops", 0),
+        triage_candidates=len(getattr(state, "triage_candidates", ())),
+        triage_test_requirements=len(getattr(state, "triage_test_requirement_ids", ())),
+        triage_trace_events=len(getattr(state, "triage_trace_events", ())),
+        triage_logging_failures=getattr(state, "triage_logging_failures", 0),
+        deep_recommended=getattr(state, "deep_recommended", None),
+        packet_roster_verified=None if packet is None else packet.roster_verified,
+        packet_roster_size=0 if packet is None else len(packet.roster),
+        packet_screened_machines=0 if packet is None else len(packet.screened_machines),
+        packet_missing_machines=(
+            0 if packet is None else len(packet.absent_from_screening)
+        ),
+        packet_calls_mandatory=sum(c.role == "mandatory" for c in packet_calls),
+        packet_calls_optional=sum(c.role == "optional" for c in packet_calls),
+        packet_calls_qualified=sum(c.qualified for c in packet_calls),
+        packet_calls_unavailable=sum(
+            c.outcome == "skipped_unavailable" for c in packet_calls
+        ),
+        packet_items_qualified=sum(i.status == "qualified" for i in packet_items),
+        packet_items_missing=sum(i.status == "missing" for i in packet_items),
+        triage_test_records=len(getattr(state, "triage_test_records", ())),
+        requirement_statuses=safe_requirements[:32],
+        requirement_statuses_truncated=len(safe_requirements) > 32,
     ).model_dump(mode="json")
 
 
@@ -224,8 +391,64 @@ class SimulatorRuns:
         *,
         state: RunState | None = None,
     ) -> None:
+        """Atomically journal and snapshot safe progress for SQLite/PostgreSQL.
+
+        A terminal run is immutable to late observer events. The last
+        authoritative Graph state is included in completion/failure, so a
+        bounded watcher queue cannot cause a permanently missing phase.
+        """
         with self.lock, self._db() as db:
             self._lock_event_sequence(db, run_id)
+            row = db.execute(
+                "SELECT state, snapshot FROM runs WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if row is None:
+                raise LookupError("Run not found")
+            current_state, prior = row
+            if current_state in ("completed", "failed", "interrupted"):
+                # A late stage writer cannot replace terminal results.
+                if event == "stage.updated":
+                    return
+            previous = json.loads(prior)
+            previous_progress = (
+                previous.get("progress") if isinstance(previous, dict) else None
+            )
+            progress = (
+                {
+                    key: val
+                    for key, val in previous_progress.items()
+                    if key in ("triage", "deep", "latest")
+                }
+                if isinstance(previous_progress, dict)
+                else {}
+            )
+            if event == "stage.updated":
+                # Prevent a future producer from bypassing the watcher contract.
+                validated = SafeStageSnapshot.model_validate(payload)
+                payload = validated.model_dump(mode="json")
+                progress[validated.mode] = payload
+                progress["latest"] = validated.mode
+            elif event in ("run.completed", "run.failed"):
+                # Final snapshots come from the actual episode return value
+                # (or the last observed state after a failure). No queue
+                # delivery/flush timing may discard the final triage path.
+                final_progress = payload.get("progress")
+                if isinstance(final_progress, dict):
+                    for mode in ("triage", "deep"):
+                        source = final_progress.get(mode)
+                        if source is not None:
+                            checked = SafeStageSnapshot.model_validate(source)
+                            if checked.mode != mode:
+                                raise ValueError("Progress mode mismatch")
+                            progress[mode] = checked.model_dump(mode="json")
+                    latest = final_progress.get("latest")
+                    if latest in ("triage", "deep") and latest in progress:
+                        progress["latest"] = latest
+                    payload = {
+                        key: value
+                        for key, value in payload.items()
+                        if key != "progress"
+                    }
             next_seq = db.execute(
                 "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
                 (run_id,),
@@ -430,13 +653,18 @@ class SimulatorRuns:
     def _execute(self, run_id: str, request: RunRequest) -> None:
         progress: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
         missed = [0]
+        latest_observed: dict[str, dict[str, Any]] = {}
 
         def watch(state: Any) -> None:
             try:
-                progress.put_nowait(safe_stage(state))
+                snapshot = safe_stage(state)
+                if latest_observed.get(snapshot["mode"]) == snapshot:
+                    return  # No change to the public contract; avoid DB churn.
+                latest_observed[snapshot["mode"]] = snapshot
+                progress.put_nowait(snapshot)
             except Exception:
-                # Observability is best-effort and must never abort an episode.
-                # Do not log exceptions here: they may carry private evidence.
+                # Never log observer errors; they may contain private evidence.
+                # The terminal envelope will reconcile the last valid snapshot.
                 missed[0] += 1
 
         def publish() -> None:
@@ -447,8 +675,10 @@ class SimulatorRuns:
                         return
                     try:
                         self._emit(run_id, "stage.updated", row)
-                    except (OSError, sqlite3.Error, RuntimeError):
-                        # Observer storage must never crash or block the agent.
+                    except Exception:
+                        # PostgreSQL driver/validation failures are not sqlite3.Error.
+                        # The observer must not die, deadlock progress.join(), or
+                        # influence the Graph's model/tool decisions.
                         missed[0] += 1
                 finally:
                     progress.task_done()
@@ -497,16 +727,28 @@ class SimulatorRuns:
                     approver=lambda proposal: self._await_review(run_id, proposal),
                     run_key="ui/" + run_id,
                 )
-            progress.join()
+            # PostgreSQL is remote; a stalled publisher must not indefinitely
+            # block the worker's terminal state. The terminal snapshot is
+            # independently rebuilt from the returned Graph state below.
+            flush_deadline = time.monotonic() + 3.0
+            while progress.unfinished_tasks and time.monotonic() < flush_deadline:
+                time.sleep(0.02)
+            if progress.unfinished_tasks:
+                missed[0] += 1
             if missed[0]:
-                self._emit(
-                    run_id,
-                    "resync.required",
-                    {
-                        "dropped_ui_updates": missed[0],
-                        "mode": request.mode,
-                    },
-                )
+                try:
+                    self._emit(
+                        run_id,
+                        "resync.required",
+                        {
+                            "dropped_ui_updates": missed[0],
+                            "mode": request.mode,
+                        },
+                    )
+                except Exception:
+                    # A failed optional warning must not turn a valid episode
+                    # into run.failed; the terminal snapshot still reconciles.
+                    pass
             triage = (
                 result.triage
                 if result.triage is not None
@@ -520,8 +762,16 @@ class SimulatorRuns:
             # A completed run must have a durable audit before it can report
             # success on a hosted backend; SQLite's artifact hook is a no-op.
             self._persist_artifacts(run_id)
+            # Use the returned, authoritative episode states; a full watcher
+            # queue is never a reason to lose triage or deep final progress.
+            final_progress = dict(latest_observed)
+            if result.triage is not None:
+                final_progress["triage"] = safe_stage(result.triage)
+            final_progress[result.state.mode] = safe_stage(result.state)
+            final_progress["latest"] = result.state.mode
             final = {
                 "status": "completed",
+                "progress": final_progress,
                 "mode": request.mode,
                 "investigation": safe_stage(result.state),
                 "triage_report": report,
@@ -550,6 +800,12 @@ class SimulatorRuns:
                         "status": "failed",
                         "error_class": type(error).__name__,
                         "mode": request.mode,
+                        "progress": {
+                            **latest_observed,
+                            "latest": "deep" if "deep" in latest_observed else "triage",
+                        }
+                        if latest_observed
+                        else {},
                     },
                     state="failed",
                 )
@@ -563,8 +819,16 @@ class SimulatorRuns:
                 except Exception:
                     pass  # Cleanup failure must not change the recorded outcome.
             try:
-                progress.put(None, timeout=2)
+                progress.put_nowait(None)
             except queue.Full:
-                pass
+                # The producer is shutting down: discard one stale intermediate
+                # snapshot to ensure the publisher can receive its sentinel.
+                try:
+                    progress.get_nowait()
+                    progress.task_done()
+                    missed[0] += 1
+                    progress.put_nowait(None)
+                except queue.Empty:
+                    pass
             with self.lock:
                 self.active.discard(run_id)

@@ -85,7 +85,35 @@ export type StageProgress = {
   investigation_id: string; mode: 'triage' | 'deep'; stage: string | null;
   iteration_count: number; tool_calls: number; evidence_count: number;
   hypothesis_count: number; unresolved_question_ids: string[];
+  unresolved_question_count?: number;
   termination_reason: string | null; conclusion_available: boolean;
+  // Optional for compatibility with progress produced before the Render patch.
+  answered_question_count?: number; decision_count?: number;
+  remaining_iterations?: number; remaining_tool_calls?: number;
+  repeated_calls?: number; failed_tool_calls?: number;
+  malformed_results?: number; interpretation_failures?: number;
+  unproductive_steps?: number; followup_tool_calls?: number;
+  screening_tool_calls?: number; observe_tool_calls?: number;
+  last_observed_tick?: number | null; observation_cutoff_tick?: number | null;
+  clock_verified?: boolean | null; triage_requirement_total?: number;
+  triage_requirement_satisfied?: number; triage_requirement_open?: number;
+  triage_question_gaps?: number; triage_evidence_accepted?: number;
+  triage_evidence_rejected?: number; triage_decide_reads?: number;
+  triage_decide_stops?: number; triage_candidates?: number;
+  triage_test_requirements?: number; triage_trace_events?: number;
+  triage_logging_failures?: number; deep_recommended?: boolean | null;
+  packet_roster_verified?: boolean | null; packet_roster_size?: number;
+  packet_screened_machines?: number; packet_missing_machines?: number;
+  packet_calls_mandatory?: number; packet_calls_optional?: number;
+  packet_calls_qualified?: number; packet_calls_unavailable?: number;
+  packet_items_qualified?: number; packet_items_missing?: number;
+  triage_test_records?: number;
+  requirement_statuses?: Array<{
+    requirement_id: string; status: 'pending' | 'satisfied' | 'partial' |
+      'insufficient' | 'stale' | 'unavailable' | 'unsupported' | 'failed';
+    evidence_count: number;
+  }>;
+  requirement_statuses_truncated?: boolean;
 };
 export type RunPhaseProgress = {
   latest?: 'triage' | 'deep'; triage?: StageProgress; deep?: StageProgress;
