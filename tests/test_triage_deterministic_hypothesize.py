@@ -17,6 +17,7 @@ from capstone.agent.investigation import (
 )
 from capstone.agent.model_policy import render
 from capstone.agent.triage_hypothesize import (
+    TriageHypothesisPacket,
     compile_candidates,
     update_candidate_packet,
 )
@@ -50,6 +51,136 @@ def case(*, policy=None, event_logger=None):
         event_logger=event_logger,
     )
     return state, deps, provider
+
+
+def test_direct_invalid_hypothesis_and_test_avoid_model_fallback():
+    from capstone.agent.artifacts import TerminationReason
+
+    state, deps, provider = case()
+    deps.triage_investigate = "off"
+    assert hypothesize(state, deps) == "conclude"
+    assert not state.triage_candidates
+    run_test(state, deps)
+    assert state.termination_reason is TerminationReason.NO_USEFUL_ACTION
+    assert not deps.policy.asked
+    assert not provider.calls
+
+
+def test_safe_hypothesis_summary_omits_source_text_and_confidence():
+    from capstone.api.runs import safe_hypothesis_progress
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    public = safe_hypothesis_progress(state)
+    assert public["rule_version"] == "1.1"
+    assert public["candidate_count"] == len(state.triage_candidates)
+    assert all(c["status"] == "unconfirmed" for c in public["candidates"])
+    assert "explanation" not in str(public)
+    assert "confidence" not in str(public)
+    assert "machine_id" not in str(public)
+
+
+def test_deterministic_hypothesize_is_default_for_guarded_triage():
+    cfg = Settings(_env_file=None)
+    assert cfg.triage_hypothesize == "deterministic"
+    assert cfg.triage_plan == "fixed"
+    assert cfg.triage_investigate == "deterministic"
+    legacy = Settings(_env_file=None, triage_hypothesize="model")
+    assert legacy.triage_hypothesize == "model"
+
+
+def test_hypothesis_packet_rejects_duplicate_candidates_and_unsafe_reads():
+    from pydantic import ValidationError
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    candidates = tuple(state.triage_candidates)
+    assert candidates
+    with pytest.raises(ValidationError):
+        TriageHypothesisPacket(candidates=(candidates[0], candidates[0]))
+    with pytest.raises(ValidationError):
+        TriageHypothesisPacket(
+            candidates=candidates,
+            test_requirement_ids=("Q99:unobserved",),
+        )
+    with pytest.raises(ValidationError):
+        type(candidates[0]).model_validate(
+            {**candidates[0].model_dump(), "family": "untrusted_fault_label"}
+        )
+
+
+def test_multi_machine_and_missing_telemetry_remain_unscored_candidates():
+    """Coverage uncertainty adds test possibilities, never a causal conclusion."""
+    from capstone.agent.evidence_packet import EvidencePacket
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    first = compile_candidates(state)
+    state.triage_packet = EvidencePacket(
+        machine_id=state.anomaly.machine_id,
+        trigger_tick=state.anomaly.tick,
+        roster=("CNC-01", "CNC-02", "CNC-03"),
+        roster_verified=True,
+        screened_machines=("CNC-01", "CNC-02"),
+        absent_from_screening=("CNC-03",),
+    )
+    expanded = compile_candidates(state)
+    families = {candidate.family for candidate in expanded[0]}
+    assert "cross_machine_review" in families
+    assert "telemetry_coverage_gap" in families
+    assert expanded == compile_candidates(state)
+    assert len(expanded[0]) > len(first[0])
+    assert all(candidate.status == "unconfirmed" for candidate in expanded[0])
+    assert all(not hasattr(candidate, "confidence") for candidate in expanded[0])
+    state.triage_packet = state.triage_packet.model_copy(
+        update={"roster_verified": False, "screened_machines": ()}
+    )
+    reduced = compile_candidates(state)
+    assert "cross_machine_review" not in {
+        candidate.family for candidate in reduced[0]
+    }
+
+
+def test_invalid_compiled_packet_is_rejected_before_any_test_target(monkeypatch):
+    from capstone.agent import triage_hypothesize as compiler
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    candidates, ids = compiler.compile_candidates(state)
+    original = candidates[0]
+    bad = original.model_copy(
+        update={"observation_evidence_ids": ("forged-evidence",)}
+    )
+    monkeypatch.setattr(
+        compiler, "compile_candidates",
+        lambda state, eligible_requirement_ids=None: ((bad,), ids[:1]),
+    )
+    compiler.update_candidate_packet(state, stage="hypothesize", deps=deps)
+    assert state.triage_candidates == []
+    assert state.triage_test_requirement_ids == ()
+    assert state.triage_hypothesis_trace[-1].action == "rejected"
+    assert state.triage_hypothesis_trace[-1].candidate_ids == ()
+    assert state.triage_hypothesis_trace[-1].requirement_ids == ()
+    assert state.triage_hypothesis_trace[-1].qualified_sources == 0
+    # Direct compiler failure remains distinguishable from a valid empty run.
+    assert state.triage_hypothesis_trace[-1].action != "no_candidates"
+
+
+def test_unchecked_mutation_cannot_leak_fake_candidate_family():
+    from capstone.api.runs import safe_hypothesis_progress
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    original = state.triage_candidates[0]
+    state.triage_candidates = [
+        original.model_copy(update={"family": "api_token_injected"})
+    ]
+    projected = safe_hypothesis_progress(state)
+    assert projected["candidate_count"] == 0
+    assert "api_token_injected" not in json.dumps(projected)
 
 
 def test_candidate_compiler_is_unscored_and_repeatable():
