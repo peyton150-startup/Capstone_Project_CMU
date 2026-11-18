@@ -7,12 +7,14 @@ role credentials. Actor identity is never taken from a request parameter.
 from __future__ import annotations
 
 import json
-import re
 import tempfile
 from pathlib import Path
 from typing import Any
 
-from capstone.api.readers import safe_investigation_detail
+from capstone.api.readers import (
+    project_operational_event,
+    safe_investigation_detail,
+)
 from capstone.api.run_repository import RunExecutionConfig, RunRepository
 from capstone.api.runs import ReviewDecision, RunRequest
 
@@ -138,7 +140,10 @@ class HostedSimulatorRuns:
             return safe_investigation_detail(path, investigation_id)
 
     def observability_items(self, run_id: str) -> list[dict[str, Any]] | None:
-        """Return only the already-approved operational counters from stored logs."""
+        """Return only the already-approved operational fields from stored logs."""
+        # Variables:
+        #   content: The run's stored observability JSONL; only its last 500
+        #     lines are read, and each goes through project_operational_event.
         content = self.repository.read_artifact(
             run_id, "observability", actor_id=_HOSTED_ACTOR
         )
@@ -150,34 +155,7 @@ class HostedSimulatorRuns:
                 row = json.loads(line)
             except (ValueError, TypeError):
                 continue
-            if not isinstance(row, dict):
-                continue
-            event = row.get("event")
-            if not isinstance(event, str) or not re.fullmatch(
-                r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", event
-            ):
-                continue
-            safe: dict[str, Any] = {"event": event}
-            for key in ("run_id", "investigation_id", "tool"):
-                value = row.get(key)
-                if isinstance(value, str) and re.fullmatch(
-                    r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", value
-                ):
-                    safe[key] = value
-            tick = row.get("tick")
-            if type(tick) is int and 0 <= tick <= 1_000_000_000:
-                safe["tick"] = tick
-            if type(row.get("success")) is bool:
-                safe["success"] = row["success"]
-            counts = row.get("counts")
-            if isinstance(counts, dict):
-                safe["counts"] = {
-                    name: count
-                    for name, count in counts.items()
-                    if isinstance(name, str)
-                    and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", name)
-                    and type(count) is int
-                    and 0 <= count <= 1_000_000
-                }
-            items.append(safe)
+            safe = project_operational_event(row)
+            if safe is not None:
+                items.append(safe)
         return items

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import re
 import shutil
 from collections import Counter
 from datetime import datetime, timezone
@@ -761,3 +763,65 @@ def safe_memory_promotions(path: Path | None) -> list[dict[str, Any]]:
             }
         )
     return list(reversed(out))
+
+
+_IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")
+
+
+def project_operational_event(row: Any) -> dict[str, Any] | None:
+    """Re-project one stored observability line onto the privacy allowlist."""
+    # Variables:
+    #   row: One parsed JSONL line from the run's observability log. It is
+    #     never passed through: only the fields below are copied, each checked.
+    #   safe: The projected event. Identifiers (event, run_id,
+    #     investigation_id, tool, phase, status, reason_code) must be short
+    #     codes; tick, attempt and duration_ms must be bounded numbers.
+    #     request_hash must be a 20-hex truncated digest, the same value the
+    #     Decide trace already shows, so the two traces can be matched;
+    #     config_fingerprint stays out.
+    if not isinstance(row, dict):
+        return None
+    event = row.get("event")
+    if not isinstance(event, str) or not _IDENTIFIER.fullmatch(event):
+        return None
+    safe: dict[str, Any] = {"event": event}
+    for key in (
+        "run_id",
+        "investigation_id",
+        "tool",
+        "phase",
+        "status",
+        "reason_code",
+    ):
+        value = row.get(key)
+        if isinstance(value, str) and _IDENTIFIER.fullmatch(value):
+            safe[key] = value
+    tick = row.get("tick")
+    if type(tick) is int and 0 <= tick <= 1_000_000_000:
+        safe["tick"] = tick
+    digest = row.get("request_hash")
+    if isinstance(digest, str) and re.fullmatch(r"[a-f0-9]{20}", digest):
+        safe["request_hash"] = digest
+    attempt = row.get("attempt")
+    if type(attempt) is int and 1 <= attempt <= 1_000_000:
+        safe["attempt"] = attempt
+    duration = row.get("duration_ms")
+    if (
+        type(duration) in (int, float)
+        and math.isfinite(duration)
+        and 0 <= duration <= 86_400_000
+    ):
+        safe["duration_ms"] = round(float(duration), 3)
+    if type(row.get("success")) is bool:
+        safe["success"] = row["success"]
+    counts = row.get("counts")
+    if isinstance(counts, dict):
+        safe["counts"] = {
+            name: count
+            for name, count in counts.items()
+            if isinstance(name, str)
+            and _IDENTIFIER.fullmatch(name)
+            and type(count) is int
+            and 0 <= count <= 1_000_000
+        }
+    return safe

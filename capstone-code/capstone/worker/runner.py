@@ -16,10 +16,12 @@ import tempfile
 import threading
 import time
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from capstone.api.run_repository import (
+    RUN_FAILURE_CODES,
     InvalidRunEnvironment,
     JobClaim,
     LostLease,
@@ -27,6 +29,7 @@ from capstone.api.run_repository import (
     RunExecutionConfig,
     RunRepository,
     StagePayload,
+    WorkerProblem,
     source_revision,
 )
 from capstone.api.runs import safe_stage
@@ -81,6 +84,7 @@ def record(
         "worker_pulse_failed",
         "worker_stopped",
         "contracts_checked",
+        "terminal_write_failed",
     }:
         raise ValueError("Unknown worker event")
     if failure_code is not None and failure_code not in _FAILURE_CODES:
@@ -101,11 +105,43 @@ def record(
     logger.info("%s", json.dumps(body, sort_keys=True, separators=(",", ":")))
 
 
+_MISMATCH_MESSAGE = "Worker configuration does not match submitted settings"
+# Seconds between idle/active worker heartbeats (tests shorten it).
+_PULSE_SECONDS = 10.0
+
+
+def classify_failure(error: BaseException, step: str | None = None) -> str:
+    """Pick a fixed failure code from the error's type and the failing step."""
+    # Variables:
+    #   error: The exception that ended the run; only its type is inspected
+    #     (and, for the one internal RuntimeError, an exact message this module
+    #     raises itself), never provider or SQL text.
+    #   step: The part of the run that was executing ("model_setup" or
+    #     "artifact"); it refines an otherwise generic "execution" failure.
+    #   code: The chosen code, always one of RUN_FAILURE_CODES.
+    from sqlalchemy.exc import SQLAlchemyError
+
+    if isinstance(error, InvalidRunEnvironment):
+        code = "invalid_configuration"
+    elif isinstance(error, RuntimeError) and str(error) == _MISMATCH_MESSAGE:
+        code = "configuration_mismatch"
+    elif isinstance(error, ValueError):
+        code = "contract"
+    elif isinstance(error, (OSError, TimeoutError, SQLAlchemyError)):
+        code = "database"
+    elif step in {"model_setup", "artifact"}:
+        code = step
+    else:
+        code = "execution"
+    assert code in RUN_FAILURE_CODES
+    return code
+
+
 def check_strategy(config: RunExecutionConfig) -> None:
     """Refuse environment drift instead of executing different triage settings."""
     actual = RunExecutionConfig.current()
     if actual != config:
-        raise RuntimeError("Worker configuration does not match submitted settings")
+        raise RuntimeError(_MISMATCH_MESSAGE)
 
 
 def execute_claim(
@@ -122,9 +158,11 @@ def execute_claim(
     #   lost: Sticky fencing failure that forbids actions and terminal writes.
     #   updates: Bounded nonblocking queue for validated UI stage projections.
     #   finished: Stops observer/heartbeat threads after the episode ends.
-    #   category: The safe failure code logged when the run fails, chosen from
-    #     the error's type (invalid_configuration for malformed host settings)
-    #     and never from its message, which may hold provider text.
+    #   step: The part of the run now executing; when an error is otherwise
+    #     generic, model_setup or artifact names where it happened.
+    #   category: The safe failure code from classify_failure(), logged and
+    #     stored on the run.failed event so the UI can show it; never the
+    #     error's message, which may hold provider or SQL text.
     if not 1 <= heartbeat_seconds <= 20:
         raise ValueError("Invalid heartbeat interval")
     stop = stop or threading.Event()
@@ -140,6 +178,7 @@ def execute_claim(
     monitor_enabled = [False]
     critic_seen = [0]
     critic_persisted = [0]
+    step = ["strategy"]
     started = time.monotonic()
 
     def emit_model(event_name: str, payload: dict[str, Any]) -> None:
@@ -308,6 +347,7 @@ def execute_claim(
                 if claim.request.manual != "none"
                 else None
             )
+            step[0] = "model_setup"
             try:
                 policy = model_policy_factory(
                     with_recall=False,
@@ -335,6 +375,7 @@ def execute_claim(
                 )
                 raise
             policy_holder[0] = policy
+            step[0] = "episode"
             emit_model("model.config", {"schema_version": 1, "outcome": "configured"})
             with trace.open("w", encoding="utf-8") as stream:
                 stream.write('{"event":"worker.started"}\n')
@@ -390,11 +431,13 @@ def execute_claim(
                         critic_persisted[0] += 1
             finish_model_monitor()
             # Audit and safe trace must be committed before completed status.
+            step[0] = "artifact"
             repository.store_artifacts(
                 claim,
                 owner,
                 {"audit": audit.read_bytes(), "observability": trace.read_bytes()},
             )
+            step[0] = "finalize"
             final = StagePayload.model_validate(safe_stage(result.state)).model_dump(
                 mode="json"
             )
@@ -481,19 +524,7 @@ def execute_claim(
     except Exception as error:
         # Error messages can include provider bodies and credentials.
         # Classify by trusted Python type or an exact internal code only.
-        if isinstance(error, InvalidRunEnvironment):
-            category = "invalid_configuration"
-        elif isinstance(error, ValueError):
-            category = "contract"
-        elif (
-            isinstance(error, RuntimeError)
-            and str(error) == "Worker configuration does not match submitted settings"
-        ):
-            category = "configuration_mismatch"
-        elif isinstance(error, (OSError, TimeoutError)):
-            category = "database"
-        else:
-            category = "execution"
+        category = classify_failure(error, step[0])
         record("failed", claim=claim, failure_code=category)
         try:
             flush_model_calls()
@@ -512,11 +543,17 @@ def execute_claim(
                     {
                         "status": "failed",
                         "mode": claim.request.mode,
+                        "failure_code": category,
                         "error_class": type(error).__name__[:80],
                     },
                 )
+        except LostLease:
+            # Another owner or recovery now holds the run; it records the end.
+            record("lease_lost", claim=claim)
         except Exception:
-            pass  # Never expose provider/SQL errors or overwrite another lease.
+            # Never expose provider/SQL errors or overwrite another lease, but
+            # leave a fixed trace that the failure itself was not stored.
+            record("terminal_write_failed", claim=claim, failure_code=category)
     finally:
         finished.set()
         try:
@@ -544,6 +581,11 @@ def serve_worker(
     #     invalid_configuration code rather than an unexplained traceback.
     #   active: One-element flag the heartbeat thread reads to report
     #     "running" or "idle".
+    #   problem: The latest process-level failure (poll_failed,
+    #     worker_pulse_failed or contracts_missing), sent with the next
+    #     heartbeat so the System page shows it; it belongs to no run.
+    #   pulse_failures: Consecutive heartbeat writes that failed; stored as
+    #     the problem's count once a pulse reaches the database again.
     #   failures: Consecutive poll failures, driving the capped backoff.
     if not 0.2 <= poll_seconds <= 30:
         raise ValueError("Invalid polling interval")
@@ -562,6 +604,13 @@ def serve_worker(
     # prove the independently deployed background process is running.
     health_stop = threading.Event()
     active = [False]
+    problem: list[WorkerProblem | None] = [None]
+    pulse_failures = [0]
+
+    def note(code: str, count: int = 1) -> None:
+        problem[0] = WorkerProblem(
+            code, datetime.now(timezone.utc), min(max(count, 0), 1_000_000)
+        )
 
     def pulse() -> None:
         while not health_stop.is_set():
@@ -570,10 +619,19 @@ def serve_worker(
                     owner,
                     source_revision=current_config.source_revision,
                     status="running" if active[0] else "idle",
+                    problem=problem[0],
                 )
+                pulse_failures[0] = 0
             except Exception:
-                record("worker_pulse_failed", failure_code="database")
-            health_stop.wait(10)
+                pulse_failures[0] += 1
+                record(
+                    "worker_pulse_failed",
+                    failure_code="database",
+                    attempt=min(pulse_failures[0], 100),
+                )
+                # Stored on the next pulse that reaches the database.
+                note("worker_pulse_failed", pulse_failures[0])
+            health_stop.wait(_PULSE_SECONDS)
 
     health_thread = threading.Thread(
         target=pulse, daemon=True, name="hosted-worker-health"
@@ -586,6 +644,8 @@ def serve_worker(
 
     contracts = inspect_hosted_contracts()
     record("contracts_checked", count=len(contracts.missing))
+    if contracts.missing:
+        note("contracts_missing", len(contracts.missing))
     while not stop.is_set():
         try:
             recovered = repository.recover_expired()
@@ -596,6 +656,7 @@ def serve_worker(
         except Exception:
             failures += 1
             record("poll_failed", failure_code="database", attempt=min(failures, 100))
+            note("poll_failed", failures)
             stop.wait(min(30, 2 ** min(5, failures)))
             continue
         if claim is None:

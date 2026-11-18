@@ -725,3 +725,104 @@ def test_model_metadata_is_never_emitted_in_general_sse_journal(repository):
     tail = repository.events_since(submitted["run_id"], 2, actor_id="hosted-simulator")
     assert [item["event"] for item in tail] == ["run.completed"]
     assert all(not item["event"].startswith("model.") for item in tail)
+
+
+def test_expiry_records_reason_and_how_long_the_worker_was_silent(repository):
+    """A fenced-out worker cannot write, so recovery stores why the run stopped."""
+    submitted = repository.submit(
+        RunRequest(seed=19),
+        "silent-worker-key-0001",
+        actor_id="test-operator",
+        effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-silent")
+    assert claim is not None
+    live = repository.get(submitted["run_id"])
+    assert live["heartbeat_age_seconds"] is not None
+    assert 0 <= live["heartbeat_age_seconds"] <= 5
+    with repository.engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE capstone_private.sim_jobs SET "
+            "heartbeat_at = CURRENT_TIMESTAMP - interval '95 seconds', "
+            "lease_until = CURRENT_TIMESTAMP - interval '35 seconds' "
+            "WHERE run_id = %s",
+            (claim.run_id,),
+        )
+    assert repository.get(submitted["run_id"])["heartbeat_age_seconds"] >= 95
+    assert repository.recover_expired() == [submitted["run_id"]]
+    final = repository.get(submitted["run_id"])
+    assert final["state"] == "interrupted"
+    assert final["snapshot"]["reason"] == "worker_lease_expired"
+    assert 95 <= final["snapshot"]["heartbeat_age_seconds"] <= 120
+    assert final["heartbeat_age_seconds"] is None  # No longer claimed.
+    last = repository.events_since(submitted["run_id"], 0)[-1]
+    assert last["event"] == "run.interrupted"
+    assert last["data"]["reason"] == "worker_lease_expired"
+    assert (
+        last["data"]["heartbeat_age_seconds"]
+        == (final["snapshot"]["heartbeat_age_seconds"])
+    )
+
+
+def test_hosted_failure_journal_keeps_the_failure_code(repository, monkeypatch):
+    """The stored run.failed event names the failure without its message."""
+    import capstone.experiment as experiment
+    import capstone.worker.runner as worker
+
+    submitted = repository.submit(
+        RunRequest(seed=21),
+        "failure-code-key-00001",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
+    )
+
+    def broken_factory(**kwargs):
+        raise RuntimeError("provider said: bad key SECRET")
+
+    monkeypatch.setattr(worker, "check_strategy", lambda _config: None)
+    monkeypatch.setattr(experiment, "model_policy_factory", broken_factory)
+    claim = repository.claim("worker-failing")
+    assert claim is not None
+    worker.execute_claim(repository, claim, "worker-failing", heartbeat_seconds=1)
+    final = repository.get(submitted["run_id"])
+    assert final["state"] == "failed"
+    assert final["snapshot"]["failure_code"] == "model_setup"
+    failed = repository.events_since(submitted["run_id"], 0)[-1]
+    assert failed["event"] == "run.failed"
+    assert failed["data"]["failure_code"] == "model_setup"
+    assert "SECRET" not in str(repository.events_since(submitted["run_id"], 0))
+
+
+def test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes(repository):
+    from datetime import datetime, timedelta, timezone
+
+    from capstone.api.run_repository import WorkerProblem
+
+    assert repository.queue_metrics()["last_worker_problem"] is None
+    earlier = datetime.now(timezone.utc) - timedelta(seconds=30)
+    repository.worker_heartbeat(
+        "worker:struggling",
+        source_revision="b" * 40,
+        status="idle",
+        problem=WorkerProblem("poll_failed", earlier, 3),
+    )
+    # A later pulse without a new problem keeps the earlier one.
+    repository.worker_heartbeat(
+        "worker:struggling", source_revision="b" * 40, status="idle"
+    )
+    problem = repository.queue_metrics()["last_worker_problem"]
+    assert problem["code"] == "poll_failed"
+    assert problem["count"] == 3
+    assert 29 <= problem["age_seconds"] <= 60
+    metrics = repository.queue_metrics()
+    assert "worker:struggling" not in str(metrics)
+    assert "b" * 40 not in str(metrics)
+    # Process problems never enter any run's journal.
+    with repository.engine.connect() as connection:
+        assert (
+            connection.exec_driver_sql(
+                "SELECT count(*) FROM capstone_private.sim_run_events "
+                "WHERE payload::text LIKE '%poll_failed%'"
+            ).scalar_one()
+            == 0
+        )

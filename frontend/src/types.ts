@@ -245,10 +245,15 @@ export type ManagedRun = {
     diagnosis?: string | null; recommendation?: string | null;
     action_executed?: boolean; verification_outcome?: string | null;
     deep_ran?: boolean; review_count?: number; error_class?: string;
+    // Hosted worker: fixed failure code on run.failed; reason and seconds
+    // since the last lease renewal on run.interrupted.
+    failure_code?: string; reason?: string; heartbeat_age_seconds?: number;
     effective_configuration?: TriageRunPreview | null;
     triage_execution?: ActualTriageExecution | null;
     configuration_fingerprint?: string | null };
   created_at: string; updated_at: string;
+  // Hosted only: seconds since the claimed run's worker renewed its lease.
+  heartbeat_age_seconds?: number | null;
 };
 export type TriageReport = {
   machine_id: string | null; alarm: string; alarm_tick?: number; outcome: string;

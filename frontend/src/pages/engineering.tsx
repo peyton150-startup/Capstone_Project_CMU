@@ -15,7 +15,25 @@ type RunQueue = {
   oldest_queued_seconds: number | null; last_heartbeat_age_seconds: number | null;
   worker_liveness: WorkerLiveness; healthy_workers: number;
   last_worker_pulse_age_seconds: number | null;
+  // Latest process-level worker failure from the heartbeat table; it belongs
+  // to the worker, not to any run, so it is shown here and not in a journal.
+  last_worker_problem?: { code: WorkerProblemCode; age_seconds: number | null; count: number } | null;
 };
+type WorkerProblemCode = 'poll_failed' | 'worker_pulse_failed' | 'contracts_missing';
+const PROBLEM_LABELS: Record<WorkerProblemCode, string> = {
+  poll_failed: 'Could not poll the run queue',
+  worker_pulse_failed: 'Could not write its heartbeat',
+  contracts_missing: 'Started with missing source contracts',
+};
+
+function workerProblemText(problem: RunQueue['last_worker_problem']): string {
+  if (!problem) return 'none recorded';
+  const label = PROBLEM_LABELS[problem.code] || problem.code;
+  const count = problem.code === 'contracts_missing' ? problem.count + ' missing' :
+    problem.count + (problem.count === 1 ? ' time' : ' times in a row');
+  return label + ' (' + count + ')' +
+    (problem.age_seconds === null ? '' : ', ' + seconds(problem.age_seconds) + ' ago');
+}
 type SystemStatus = {
   api: string; simulation_worker: string; progress_stream: string;
   recorder_connection: string; recorder_sink: string; model_provider: string; storage: string;
@@ -67,7 +85,7 @@ export function SystemPage() {
       <Panel title="Service components" subtitle="These fields cannot substitute for checks against real measurements">
         {data.data?Object.entries(data.data).filter(([name])=>name!=='run_queue').map(([name,value])=>
           <DataRow key={name} label={name.replaceAll('_',' ')}
-            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(value)}/>}/>):
+            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(String(value))}/>}/>):
           <Unavailable item="System status" detail={data.error||'Connect the local API to inspect service status.'}/>}
       </Panel>
       {data.data?.run_queue?<Panel title="Run queue" subtitle="Hosted worker queue and heartbeat, counts only">
@@ -80,6 +98,8 @@ export function SystemPage() {
         <DataRow label="stale claims" value={String(data.data.run_queue.stale_claims)}/>
         <DataRow label="oldest queued" value={seconds(data.data.run_queue.oldest_queued_seconds)}/>
         <DataRow label="last worker pulse" value={seconds(data.data.run_queue.last_worker_pulse_age_seconds)}/>
+        <DataRow label="last worker problem"
+          value={workerProblemText(data.data.run_queue.last_worker_problem)}/>
       </Panel>:null}
       <Panel title="System boundaries" subtitle="Read-only industrial pilot">
         <div className="quality-check"><span className="check-ring"/><div><strong>Controller connection</strong>
