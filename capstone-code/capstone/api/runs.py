@@ -642,8 +642,8 @@ def safe_stage(state: Any) -> dict[str, Any]:
         decide_events_truncated=len(decide_events) > _SAFE_DECIDE_EVENT_LIMIT,
         decide_events_recent=decide_events[-_SAFE_DECIDE_EVENT_LIMIT:],
         triage_run_mode=getattr(state, "triage_run_mode", None) if state.mode == "triage" else None,
-        hypothesis_progress=safe_hypothesis_progress(state),
-        executed_triage=safe_executed_triage(state),
+        hypothesis_progress=(safe_hypothesis_progress(state) if hasattr(state, "triage_hypothesis_trace") else None),
+        executed_triage=(safe_executed_triage(state) if hasattr(state, "triage_run_mode") else None),
     ).model_dump(mode="json")
 
 
