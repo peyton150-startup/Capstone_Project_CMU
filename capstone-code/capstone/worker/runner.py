@@ -278,9 +278,20 @@ def execute_claim(
             emit_model("model.config", {"schema_version": 1, "outcome": "configured"})
             with trace.open("w", encoding="utf-8") as stream:
                 stream.write('{"event":"worker.started"}\n')
+                # Resolve the same per-run profile used by API preview and local runs.
+                # The Graph receives it explicitly; hosted workers must not
+                # silently fall back to unrelated process-global triage settings.
+                from capstone.settings import get_settings
+                from capstone.triage_run_controls import resolve_triage_run
+
+                effective_triage = (
+                    resolve_triage_run(get_settings(), claim.request.triage_settings)
+                    if claim.request.mode == "triage" else None
+                )
                 result = run_episode(
                     claim.request.seed, policy, kind=claim.request.kind,
                     triage=claim.request.mode == "triage",
+                    triage_configuration=effective_triage,
                     hazards=claim.request.hazards, manual=manual, watch=watch,
                     log=AuditLog(audit), event_logger=EventLogger(
                         stream, name="hosted-" + str(claim.run_id)
