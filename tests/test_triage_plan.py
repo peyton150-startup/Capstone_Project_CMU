@@ -173,6 +173,8 @@ class CountsPlans:
 
 def test_a_fixed_plan_triage_asks_no_plan_question(monkeypatch):
     monkeypatch.setenv("TRIAGE_PLAN", "fixed")
+    # This older test inspects the model's first Decide view, not the new default.
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
     triage, deep = CountsPlans(wear_policy("intervene")), CountsPlans(wear_policy())
     result = run(ByMode(triage, deep), monkeypatch, triage=True)
     assert triage.planned == 0  # the table answered for the triage
@@ -188,13 +190,25 @@ def test_a_fixed_plan_triage_asks_no_plan_question(monkeypatch):
     assert result.state.triage_fixed_plan is False
 
 
-def test_by_default_the_triage_still_asks_the_model_to_plan(monkeypatch):
+def test_default_fixed_plan_and_explicit_legacy_model_plan(monkeypatch):
     monkeypatch.delenv("TRIAGE_PLAN", raising=False)
+    monkeypatch.delenv("TRIAGE_INVESTIGATE", raising=False)
     triage = CountsPlans(wear_policy("intervene"))
     result = run(
         ByMode(triage, wear_policy()), monkeypatch, then_deep=False, triage=True
     )
-    assert triage.planned == 1
+    assert triage.planned == 0
+    assert result.triage.fixed_plan_used is True
+    assert "Q1" in result.triage.question_predicates
+
+    # A legacy benchmark must opt out of both coupled deterministic defaults.
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
+    legacy = CountsPlans(wear_policy("intervene"))
+    result = run(
+        ByMode(legacy, wear_policy()), monkeypatch, then_deep=False, triage=True
+    )
+    assert legacy.planned == 1
     assert result.triage.fixed_plan_used is False
     assert result.triage.question_predicates == {}
 

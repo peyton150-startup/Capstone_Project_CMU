@@ -348,11 +348,14 @@ def test_off_and_deep_never_use_the_compiler(mode, kind):
 # --- the setting and the traces -------------------------------------------------
 
 
-def test_the_setting_is_advisory_by_default(monkeypatch):
+def test_the_setting_defaults_to_deterministic_with_legacy_opt_in(monkeypatch):
     monkeypatch.delenv("TRIAGE_INVESTIGATE", raising=False)
+    assert Settings(_env_file=None).triage_investigate == "deterministic"
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
     assert Settings(_env_file=None).triage_investigate == "advisory"
     monkeypatch.setenv("TRIAGE_INVESTIGATE", "on")
     assert Settings(_env_file=None).triage_investigate == "on"
+    # Bare test dependencies remain explicit; production passes validated Settings.
     assert InvestigationDeps(provider=None, policy=None).triage_investigate == "off"
 
 
@@ -394,6 +397,8 @@ def triaged(monkeypatch, mode):
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "off")
     monkeypatch.setenv("TRIAGE_INVESTIGATE", mode)
+    # Keep the historical compiler arm's model-plan conditions comparable.
+    monkeypatch.setenv("TRIAGE_PLAN", "model")
     (record,) = run_experiment(
         [Case("bearing-6", SEED, "bearing_degradation")],
         triage_then_deep,
