@@ -87,6 +87,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             profile.base_url,
             count=args.count,
             fetch=lambda url: haas_get(profile, url),
+            strict_headers=True,
         )
         # Identity must be checked before any Current/Sample acquisition.
         probe = collector.probe()
