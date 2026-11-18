@@ -259,6 +259,7 @@ def run_collector(
     sleep: Callable[[float], None] = time.sleep,
     log: TextIO | None = None,
     heartbeat_every: float = HEARTBEAT_SECONDS,
+    enforce_poll_interval: bool = False,
 ) -> int:
     """Poll until max_polls (or forever), writing records; returns records written.
 
@@ -319,7 +320,9 @@ def run_collector(
             elif (now - last_write).total_seconds() >= heartbeat_every:
                 append_jsonl(out, [_marker(collector, "heartbeat")])
                 last_write = now
-            if not result.more_waiting:
+            # A shop-approved request-rate limit must also apply during
+            # backlog catch-up, not only while the agent is idle.
+            if enforce_poll_interval or not result.more_waiting:
                 sleep(interval)
         reason = "poll limit reached"
     except KeyboardInterrupt:
