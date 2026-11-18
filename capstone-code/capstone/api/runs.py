@@ -78,45 +78,101 @@ class SafeRequirementProgress(BaseModel):
 
 
 # The live timeline is narrower than the private typed trace: fixed codes only.
-# Never copy a free-text reason, model message, tool arguments or evidence into it.
-_SAFE_DECIDE_EVENTS = frozenset({
-    "requirements.compiled",
-    "decide.selected",
-    "tool.completed",
-    "evidence.validated",
-    "triage.requirement_evaluated",
-    "question.evaluated",
-    "triage.stopped",
-})
-_SAFE_DECIDE_TOOLS = frozenset({
-    "get_sensor_summary", "get_events", "get_maintenance_history",
-    "get_settings", "get_inspections", "get_job_history",
-})
-_SAFE_DECIDE_STATUSES = frozenset({
-    "active", "pending", "accepted", "rejected", "failed", "stopped",
-    "satisfied", "unresolved", "partial", "insufficient", "stale",
-    "unavailable", "unsupported",
-})
-_SAFE_DECIDE_REASONS = frozenset({
-    "compiled", "selected", "observed", "unresolved", "closed",
-    "requirements_complete", "no_eligible_read", "capability_unavailable",
-    "data_insufficient", "retries_exhausted", "max_tool_calls",
-    "max_iterations", "timeout", "not_checked", "requirement_satisfied",
-    "requirement_pending", "requirement_partial", "requirement_insufficient",
-    "requirement_stale", "requirement_unavailable", "requirement_unsupported",
-    "requirement_failed", "historical_setting_unproven",
-    "record_coverage_unproven", "record_structure_missing",
-    "inspection_job_ids_missing", "inspection_batches_missing",
-    "job_path_missing", "inspection_machine_unlinked",
-    "inspection_dates_missing", "alarm_coverage_missing",
-    "measurement_coverage_missing", "accepted", "missing_data",
-    "invalid_shape", "invalid_numeric", "invalid_tick", "future_tick",
-    "out_of_order", "outside_window", "wrong_source", "wrong_provider",
-    "unsupported_tool", "invalid_summary", "provider_error",
-    "untrusted_response", "malformed_result", "repeated_call",
-    "unknown_tool", "invalid_arguments", "invalid_result",
-    "validator_error", "read_failed",
-})
+# Never copy a free-text reason, model message, tool arguments or evidence into it._SAFE_DECIDE_EVENTS = frozenset(
+    {
+        "requirements.compiled",
+        "decide.selected",
+        "tool.completed",
+        "evidence.validated",
+        "triage.requirement_evaluated",
+        "question.evaluated",
+        "triage.stopped",
+    }
+)
+_SAFE_DECIDE_TOOLS = frozenset(
+    {
+        "get_sensor_summary",
+        "get_events",
+        "get_maintenance_history",
+        "get_settings",
+        "get_inspections",
+        "get_job_history",
+    }
+)
+_SAFE_DECIDE_STATUSES = frozenset(
+    {
+        "active",
+        "pending",
+        "accepted",
+        "rejected",
+        "failed",
+        "stopped",
+        "satisfied",
+        "unresolved",
+        "partial",
+        "insufficient",
+        "stale",
+        "unavailable",
+        "unsupported",
+    }
+)
+_SAFE_DECIDE_REASONS = frozenset(
+    {
+        "compiled",
+        "selected",
+        "observed",
+        "unresolved",
+        "closed",
+        "requirements_complete",
+        "no_eligible_read",
+        "capability_unavailable",
+        "data_insufficient",
+        "retries_exhausted",
+        "max_tool_calls",
+        "max_iterations",
+        "timeout",
+        "not_checked",
+        "requirement_satisfied",
+        "requirement_pending",
+        "requirement_partial",
+        "requirement_insufficient",
+        "requirement_stale",
+        "requirement_unavailable",
+        "requirement_unsupported",
+        "requirement_failed",
+        "historical_setting_unproven",
+        "record_coverage_unproven",
+        "record_structure_missing",
+        "inspection_job_ids_missing",
+        "inspection_batches_missing",
+        "job_path_missing",
+        "inspection_machine_unlinked",
+        "inspection_dates_missing",
+        "alarm_coverage_missing",
+        "measurement_coverage_missing",
+        "accepted",
+        "missing_data",
+        "invalid_shape",
+        "invalid_numeric",
+        "invalid_tick",
+        "future_tick",
+        "out_of_order",
+        "outside_window",
+        "wrong_source",
+        "wrong_provider",
+        "unsupported_tool",
+        "invalid_summary",
+        "provider_error",
+        "untrusted_response",
+        "malformed_result",
+        "repeated_call",
+        "unknown_tool",
+        "invalid_arguments",
+        "invalid_result",
+        "validator_error",
+        "read_failed",
+    }
+)
 _SAFE_DECIDE_EVENT_LIMIT = 20
 _SAFE_DECIDE_EVENT_IDS = 8
 
@@ -127,17 +183,28 @@ class SafeTriageDecideEvent(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
     sequence: int = Field(ge=1)
     event: Literal[
-        "requirements.compiled", "decide.selected", "tool.completed",
-        "evidence.validated", "triage.requirement_evaluated",
-        "question.evaluated", "triage.stopped",
+        "requirements.compiled",
+        "decide.selected",
+        "tool.completed",
+        "evidence.validated",
+        "triage.requirement_evaluated",
+        "question.evaluated",
+        "triage.stopped",
     ]
     phase: Literal["investigate", "test"]
     reason_code: str = Field(pattern=r"^[a-z][a-z0-9_]{0,63}$")
     status: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9_]{0,63}$")
-    tool: Literal[
-        "get_sensor_summary", "get_events", "get_maintenance_history",
-        "get_settings", "get_inspections", "get_job_history",
-    ] | None = None
+    tool: (
+        Literal[
+            "get_sensor_summary",
+            "get_events",
+            "get_maintenance_history",
+            "get_settings",
+            "get_inspections",
+            "get_job_history",
+        ]
+        | None
+    ) = None
     requirement_ids: list[str] = Field(default_factory=list, max_length=8)
     requirement_count: int = Field(default=0, ge=0)
     question_ids: list[str] = Field(default_factory=list, max_length=8)
@@ -170,9 +237,9 @@ def safe_decide_events(state: Any) -> list[SafeTriageDecideEvent]:
         if trace.sequence <= last_sequence:
             continue
         last_sequence = trace.sequence
-        if (
-            trace.event not in _SAFE_DECIDE_EVENTS
-            or trace.phase not in ("investigate", "test")
+        if trace.event not in _SAFE_DECIDE_EVENTS or trace.phase not in (
+            "investigate",
+            "test",
         ):
             continue
         try:
@@ -191,12 +258,14 @@ def safe_decide_events(state: Any) -> list[SafeTriageDecideEvent]:
                     ),
                     tool=trace.tool if trace.tool in _SAFE_DECIDE_TOOLS else None,
                     requirement_ids=[
-                        rid for rid in trace.requirement_ids
+                        rid
+                        for rid in trace.requirement_ids
                         if isinstance(rid, str) and _SAFE_REQUIREMENT_ID.fullmatch(rid)
                     ][:_SAFE_DECIDE_EVENT_IDS],
                     requirement_count=len(trace.requirement_ids),
                     question_ids=[
-                        qid for qid in trace.question_ids
+                        qid
+                        for qid in trace.question_ids
                         if isinstance(qid, str) and _SAFE_QUESTION_ID.fullmatch(qid)
                     ][:_SAFE_DECIDE_EVENT_IDS],
                     question_count=len(trace.question_ids),

@@ -856,8 +856,12 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
                 requirement_ids=(secret,),
             ),
             SimpleNamespace(
-                sequence=3, event="decide.selected", phase="investigate",
-                reason_code=secret, status=secret, tool=secret,
+                sequence=3,
+                event="decide.selected",
+                phase="investigate",
+                reason_code=secret,
+                status=secret,
+                tool=secret,
                 requirement_ids=(secret,),
             ),
         ],
@@ -885,8 +889,12 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
 
     state.triage_trace_events = [
         TriageTraceEvent(
-            sequence=n, event="decide.selected", phase="investigate",
-            reason_code="selected", status="pending", tool="get_events",
+            sequence=n,
+            event="decide.selected",
+            phase="investigate",
+            reason_code="selected",
+            status="pending",
+            tool="get_events",
         )
         for n in range(1, 26)
     ]
@@ -897,7 +905,9 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
     assert bounded["decide_events_recent"][0]["sequence"] == 6
     state.triage_trace_events = [
         TriageTraceEvent(
-            sequence=n, event="decide.selected", phase="investigate",
+            sequence=n,
+            event="decide.selected",
+            phase="investigate",
             reason_code="selected",
         )
         for n in (2, 1, 3, 3)
