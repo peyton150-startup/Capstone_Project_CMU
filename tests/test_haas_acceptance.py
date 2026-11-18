@@ -1,7 +1,7 @@
 """No live controller is contacted by this acceptance-gate test."""
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from capstone.ingestion.haas_acceptance import (
     HaasAcceptanceEvidence,
