@@ -32,6 +32,7 @@ from capstone.api.readers import (
     signal_samples,
 )
 from capstone.api.runs import (
+    InvalidRunEnvironment,
     ReviewDecision,
     RunRequest,
     SimulatorRuns,
@@ -760,6 +761,12 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                     ),
                 )
             return created
+        except InvalidRunEnvironment:
+            # A server fault (bad build commit or triage env var on this host),
+            # not the caller's idempotency key or an active run.
+            raise HTTPException(
+                status_code=503, detail="Server run configuration is invalid"
+            ) from None
         except StaleRunConfiguration:
             raise HTTPException(
                 status_code=409,

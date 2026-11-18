@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import Engine, make_url
@@ -31,7 +31,7 @@ from capstone.api.run_models import (
     SimRunReview,
     SimWorkerHeartbeat,
 )
-from capstone.api.runs import ReviewDecision, RunRequest
+from capstone.api.runs import InvalidRunEnvironment, ReviewDecision, RunRequest
 
 # Where each host publishes the git commit of the running build, in the order
 # they are tried. The API runs on Render and the worker on Northflank, so both
@@ -169,30 +169,35 @@ class RunExecutionConfig(BaseModel):
 
         settings = get_settings()
         revision = source_revision()
-        effective = getattr(settings, "effective_triage", None)
-        if effective is not None:
+        try:
+            effective = getattr(settings, "effective_triage", None)
+            if effective is not None:
+                return cls(
+                    triage_run_mode=effective.run_mode,
+                    triage_plan=effective.plan,
+                    triage_investigate=effective.investigate,
+                    triage_hypothesize=effective.hypothesize,
+                    triage_evidence_tests=effective.evidence_tests,
+                    triage_packet=effective.packet,
+                    triage_packet_prompt=effective.packet_prompt,
+                    triage_observe_calls=effective.observe_calls,
+                    triage_hypothesis_seconds=effective.hypothesis_seconds,
+                    triage_critic=effective.critic,
+                    triage_critic_followup=effective.critic_followup,
+                    triage_critic_reinstate=effective.critic_reinstate,
+                    source_revision=revision,
+                )
             return cls(
-                triage_run_mode=effective.run_mode,
-                triage_plan=effective.plan,
-                triage_investigate=effective.investigate,
-                triage_hypothesize=effective.hypothesize,
-                triage_evidence_tests=effective.evidence_tests,
-                triage_packet=effective.packet,
-                triage_packet_prompt=effective.packet_prompt,
-                triage_observe_calls=effective.observe_calls,
-                triage_hypothesis_seconds=effective.hypothesis_seconds,
-                triage_critic=effective.critic,
-                triage_critic_followup=effective.critic_followup,
-                triage_critic_reinstate=effective.critic_reinstate,
+                triage_plan=settings.triage_plan,
+                triage_investigate=settings.triage_investigate,
+                triage_hypothesize=settings.triage_hypothesize,
+                triage_evidence_tests=settings.triage_evidence_tests,
                 source_revision=revision,
             )
-        return cls(
-            triage_plan=settings.triage_plan,
-            triage_investigate=settings.triage_investigate,
-            triage_hypothesize=settings.triage_hypothesize,
-            triage_evidence_tests=settings.triage_evidence_tests,
-            source_revision=revision,
-        )
+        except ValidationError:
+            # The pydantic message would echo the bad value; keep it out of
+            # logs and HTTP responses and name the variables to check instead.
+            raise InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE) from None
 
     @model_validator(mode="after")
     def validate_strategy(self) -> "RunExecutionConfig":

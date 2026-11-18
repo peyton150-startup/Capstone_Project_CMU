@@ -49,6 +49,18 @@ RunState = Literal[
 ]
 
 
+class InvalidRunEnvironment(Exception):
+    """This host's run settings or build commit are malformed."""
+
+    # Deliberately neither ValueError nor RuntimeError, so callers that map
+    # those to client conflicts (409) cannot mistake a server fault for one.
+
+    MESSAGE = (
+        "Run settings on this host are invalid: check CAPSTONE_SOURCE_REVISION,"
+        " RENDER_GIT_COMMIT, NF_DEPLOYMENT_SHA and the TRIAGE_* settings"
+    )
+
+
 class StaleRunConfiguration(ValueError):
     """Preview and admission resolved different server settings."""
 

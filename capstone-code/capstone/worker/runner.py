@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from capstone.api.run_repository import (
+    InvalidRunEnvironment,
     JobClaim,
     LostLease,
     ReviewProposal,
@@ -39,6 +40,7 @@ _FAILURE_CODES = frozenset(
         "lease_expired",
         "contract",
         "configuration_mismatch",
+        "invalid_configuration",
         "model_setup",
         "execution",
         "artifact",
@@ -120,6 +122,9 @@ def execute_claim(
     #   lost: Sticky fencing failure that forbids actions and terminal writes.
     #   updates: Bounded nonblocking queue for validated UI stage projections.
     #   finished: Stops observer/heartbeat threads after the episode ends.
+    #   category: The safe failure code logged when the run fails, chosen from
+    #     the error's type (invalid_configuration for malformed host settings)
+    #     and never from its message, which may hold provider text.
     if not 1 <= heartbeat_seconds <= 20:
         raise ValueError("Invalid heartbeat interval")
     stop = stop or threading.Event()
@@ -476,7 +481,9 @@ def execute_claim(
     except Exception as error:
         # Error messages can include provider bodies and credentials.
         # Classify by trusted Python type or an exact internal code only.
-        if isinstance(error, ValueError):
+        if isinstance(error, InvalidRunEnvironment):
+            category = "invalid_configuration"
+        elif isinstance(error, ValueError):
             category = "contract"
         elif (
             isinstance(error, RuntimeError)
@@ -528,12 +535,26 @@ def serve_worker(
     max_jobs: int | None = None,
 ) -> None:
     """One active run per process; DB SKIP LOCKED prevents duplicate claims."""
+    # Variables:
+    #   owner: This process's lease identity, written on every claim and
+    #     heartbeat so fenced writes can tell workers apart.
+    #   current_config: The triage settings and build commit resolved once at
+    #     startup; only queued runs submitted with an identical config are
+    #     claimed. A malformed value stops the worker here with a logged
+    #     invalid_configuration code rather than an unexplained traceback.
+    #   active: One-element flag the heartbeat thread reads to report
+    #     "running" or "idle".
+    #   failures: Consecutive poll failures, driving the capped backoff.
     if not 0.2 <= poll_seconds <= 30:
         raise ValueError("Invalid polling interval")
     stop = stop or threading.Event()
     owner = "worker:" + uuid.uuid4().hex
     completed, failures = 0, 0
-    current_config = RunExecutionConfig.current()
+    try:
+        current_config = RunExecutionConfig.current()
+    except InvalidRunEnvironment:
+        record("worker_stopped", failure_code="invalid_configuration")
+        raise
     if not repository.ready():
         raise RuntimeError("Hosted database not migrated")
 

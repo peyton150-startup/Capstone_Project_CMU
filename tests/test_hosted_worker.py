@@ -548,3 +548,86 @@ def test_pr297_projection_redacts_provider_content_without_graph_rewrite():
     assert safe["attempts"][0]["seconds"] == 0.42
     assert "NEVER_LEAK" not in str(safe)
     assert "sk-private-token" not in str(safe)
+
+
+@pytest.mark.parametrize("bad", ["F" * 40, "f" * 41, "not-a-commit"])
+def test_malformed_revision_is_a_named_server_fault(monkeypatch, bad):
+    """A bad host commit raises one typed error that never echoes the value."""
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+    from capstone.api.runs import InvalidRunEnvironment
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", bad)
+    with pytest.raises(InvalidRunEnvironment) as raised:
+        RunExecutionConfig.current()
+    # Not a ValueError/RuntimeError, so the API cannot map it to a 409.
+    assert not isinstance(raised.value, (ValueError, RuntimeError))
+    assert bad not in str(raised.value)
+    assert "NF_DEPLOYMENT_SHA" in str(raised.value)
+
+
+def test_worker_with_malformed_revision_logs_why_and_stops(caplog, monkeypatch):
+    """The worker exits with a logged invalid_configuration code, before any DB use."""
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+    from capstone.api.runs import InvalidRunEnvironment
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "F" * 40)
+
+    class UntouchedRepository:
+        def __getattr__(self, name):
+            raise AssertionError("database used before config was valid: " + name)
+
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        with pytest.raises(InvalidRunEnvironment):
+            serve_worker(UntouchedRepository(), max_jobs=1)
+    logged = json.loads(caplog.records[-1].message)
+    assert logged["event"] == "worker_stopped"
+    assert logged["failure_code"] == "invalid_configuration"
+    assert "revision" not in logged  # The malformed value is never logged.
+
+
+def test_hosted_run_submit_with_bad_host_config_is_503_not_409(monkeypatch):
+    """A server-side settings fault must not look like an idempotency conflict."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("Optional FastAPI test dependency not installed")
+    import capstone.api.hosted_runs as hosted
+    from capstone.api.app import create_app
+    from capstone.api.runs import InvalidRunEnvironment
+
+    class BadHostApi:
+        def __init__(self, database_url):
+            pass
+
+        def ready(self):
+            return True
+
+        def close(self):
+            pass
+
+        def submit(self, request, key):
+            raise InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE)
+
+    monkeypatch.setattr(hosted, "HostedSimulatorRuns", BadHostApi)
+    cfg = UiConfig(
+        run_backend="hosted",
+        run_database_url="postgresql://dummy/capstone_test",
+        runs_enabled=True,
+        token="v" * 24,
+        run_token="o" * 24,
+        review_token="r" * 24,
+        browser_origin="https://frontend.example",
+    )
+    client = TestClient(create_app(cfg))
+    response = client.post(
+        "/api/v1/lab/runs",
+        headers={"Authorization": "Bearer " + "o" * 24, "Idempotency-Key": "b" * 20},
+        json={"seed": 11},
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Server run configuration is invalid"
+    assert "NF_DEPLOYMENT_SHA" not in response.text
