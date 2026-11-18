@@ -35,10 +35,6 @@ RunState = Literal[
 ]
 
 
-def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
 class StaleRunConfiguration(ValueError):
     """Preview and admission resolved different server settings."""
 
