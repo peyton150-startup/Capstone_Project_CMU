@@ -33,6 +33,7 @@ from datetime import datetime, timedelta
 from math import floor
 
 from capstone.ingestion.channel_map import ChannelEntry, ChannelMap
+from capstone.ingestion.mtconnect_events import qualify_event
 from capstone.ingestion.record import Line, TelemetryRecord
 from capstone.ingestion.time_stats import Hold, channel_holds
 from capstone.providers.factory import SimulatorFactoryProvider
@@ -56,6 +57,7 @@ class RecordedObservationTools:
         *,
         tick_seconds: int = 60,
         now: datetime | None = None,
+        approved_event_item_ids: frozenset[str] = frozenset(),
     ):
         # Variables:
         #   lines: The capture, observations and collector markers in file order.
@@ -72,6 +74,15 @@ class RecordedObservationTools:
         if not observations:
             raise ValueError("the capture holds no observations")
         self._lines = list(lines)
+        self._channel_map = channel_map
+        self._approved_event_item_ids = approved_event_item_ids
+        candidates = {
+            entry.data_item_id
+            for entry in channel_map.entries
+            if entry.category in ("EVENT", "CONDITION")
+        }
+        if approved_event_item_ids - candidates:
+            raise ValueError("approved event IDs are not present in this probe")
         self._tick = timedelta(seconds=tick_seconds)
         self.start = min(r.source_timestamp for r in observations)
         self.end = max(r.source_timestamp for r in observations)
@@ -279,7 +290,42 @@ class RecordedObservationTools:
         self._not_recorded("a healthy-line reference to screen against")
 
     def get_events(self, from_tick: int, to_tick: int, machine_id: str | None = None):
-        self._not_recorded("the event log")
+        """Approved MTConnect conditions/Execution, never synthesized events.
+
+        Explicit permission and the probe are mandatory. Missing or unknown
+        event state invalidates the requested coverage rather than pretending
+        the machine had no alarms in that interval.
+        """
+        if not self._approved_event_item_ids:
+            self._not_recorded("the approved MTConnect event log")
+        if from_tick > to_tick or from_tick < 0:
+            raise ToolInputError("event time range is invalid")
+        events: list[tuple[int, int, dict]] = []
+        for line in self._visible():
+            if not isinstance(line, TelemetryRecord):
+                continue
+            if line.data_item_id not in self._approved_event_item_ids:
+                continue
+            if machine_id is not None and line.device != machine_id:
+                continue
+            tick = self.tick_of(line.source_timestamp)
+            if not from_tick <= tick <= to_tick:
+                continue
+            admitted = qualify_event(
+                line,
+                self._channel_map,
+                approved_item_ids=self._approved_event_item_ids,
+                tick=tick,
+            )
+            if admitted.value is None:
+                raise ToolInputError(
+                    "approved MTConnect event coverage is incomplete or invalid"
+                )
+            events.append(
+                (tick, line.sequence, admitted.value.event.model_dump())
+            )
+        events.sort(key=lambda row: (row[0], row[1]))
+        return [row for _, _, row in events]
 
     def get_job_history(self, job_id: int):
         self._not_recorded("jobs")
@@ -389,12 +435,17 @@ def replay_provider(
     *,
     tick_seconds: int = 60,
     now: datetime | None = None,
+    approved_event_item_ids: frozenset[str] = frozenset(),
 ) -> SimulatorFactoryProvider:
     """A FactoryProvider over a capture: the same tools and contracts, source 'replay'."""
     # Variables:
     #   look: The recorded observation tools, standing at the cutoff.
     look = RecordedObservationTools(
-        lines, channel_map, tick_seconds=tick_seconds, now=now
+        lines,
+        channel_map,
+        tick_seconds=tick_seconds,
+        now=now,
+        approved_event_item_ids=approved_event_item_ids,
     )
     return SimulatorFactoryProvider(look, RecordedActionTools(look), source="replay")
 
