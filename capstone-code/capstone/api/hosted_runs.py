@@ -68,7 +68,10 @@ class HostedSimulatorRuns:
     def model_calls(self, run_id: str) -> dict[str, Any]:
         """Hosted adapter for #297's existing endpoint and exact public contract."""
         from capstone.api.model_calls import (
-            MAX_CALLS, SafeModelCall, SafeModelConfiguration, SafeModelSummary,
+            MAX_CALLS,
+            SafeModelCall,
+            SafeModelConfiguration,
+            SafeModelSummary,
         )
 
         if self.get(run_id) is None:
