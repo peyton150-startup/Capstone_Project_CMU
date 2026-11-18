@@ -59,17 +59,19 @@ def test_stage_contract_rejects_raw_state_and_question_text():
     with pytest.raises(ValidationError):
         StagePayload.model_validate({**valid, "provider_api_key": "sensitive"})
     with pytest.raises(ValidationError):
-        StagePayload.model_validate({
-            **valid, "unresolved_question_ids": ["What is the API key?"]
-        })
+        StagePayload.model_validate(
+            {**valid, "unresolved_question_ids": ["What is the API key?"]}
+        )
     with pytest.raises(ValidationError):
         StagePayload.model_validate({**valid, "tool_calls": -1})
 
 
 def test_review_contract_does_not_accept_raw_tool_arguments():
     args = {
-        "proposal_id": 1, "machine_id": "CNC-01",
-        "action": "wait", "reason": "verify",
+        "proposal_id": 1,
+        "machine_id": "CNC-01",
+        "action": "wait",
+        "reason": "verify",
         "predicted_effect": "observe",
     }
     assert ReviewProposal.model_validate(args).proposal_id == 1
@@ -78,9 +80,7 @@ def test_review_contract_does_not_accept_raw_tool_arguments():
 
 
 def test_structured_logs_drop_unapproved_fields_and_values(caplog):
-    claim = SimpleNamespace(
-        run_id=uuid.uuid4(), job_id=uuid.uuid4()
-    )
+    claim = SimpleNamespace(run_id=uuid.uuid4(), job_id=uuid.uuid4())
     with caplog.at_level(logging.INFO, logger="capstone.worker"):
         record("claimed", claim=claim, count=1, api_key="NEVER_LOG")
     entry = json.loads(caplog.records[-1].message)
@@ -103,9 +103,7 @@ def test_strategy_drift_fails_closed(monkeypatch):
     )
     monkeypatch.setattr(settings, "get_settings", lambda: current)
     monkeypatch.delenv("CAPSTONE_SOURCE_REVISION", raising=False)
-    good = RunExecutionConfig(
-        triage_plan="fixed", triage_investigate="deterministic"
-    )
+    good = RunExecutionConfig(triage_plan="fixed", triage_investigate="deterministic")
     check_strategy(good)
     with pytest.raises(RuntimeError, match="does not match"):
         check_strategy(RunExecutionConfig())
@@ -186,17 +184,19 @@ def test_extended_progress_matches_pr294_without_raw_readings():
     with pytest.raises(ValidationError):
         StagePayload.model_validate({**safe, "raw_readings": [400.0]})
     with pytest.raises(ValidationError):
-        StagePayload.model_validate({
-            **safe,
-            "requirement_statuses": [
-                {
-                    "requirement_id": "Q1:sensor",
-                    "status": "satisfied",
-                    "evidence_count": 0,
-                    "provider_response": "SECRET",
-                }
-            ],
-        })
+        StagePayload.model_validate(
+            {
+                **safe,
+                "requirement_statuses": [
+                    {
+                        "requirement_id": "Q1:sensor",
+                        "status": "satisfied",
+                        "evidence_count": 0,
+                        "provider_response": "SECRET",
+                    }
+                ],
+            }
+        )
 
 
 def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monkeypatch):
@@ -234,12 +234,14 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
                 "state": "completed",
                 "snapshot": {
                     "investigation": {
-                        "investigation_id": investigation_id, "mode": "deep",
+                        "investigation_id": investigation_id,
+                        "mode": "deep",
                     },
                     "progress": {
                         "triage": {"investigation_id": triage_id, "mode": "triage"},
                         "deep": {
-                            "investigation_id": investigation_id, "mode": "deep",
+                            "investigation_id": investigation_id,
+                            "mode": "deep",
                         },
                         "latest": "deep",
                     },
@@ -261,16 +263,20 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
 
         def events_since(self, _id, cursor, limit=100):
             return [
-                event for event in (
+                event
+                for event in (
                     {
-                        "seq": 1, "event": "model.call",
+                        "seq": 1,
+                        "event": "model.call",
                         "data": {"unsafe_provider_body": "NEVER_STREAM"},
                     },
                     {
-                        "seq": 2, "event": "run.completed",
+                        "seq": 2,
+                        "event": "run.completed",
                         "data": {"status": "completed"},
                     },
-                ) if event["seq"] > cursor
+                )
+                if event["seq"] > cursor
             ]
 
         def pending_reviews(self):
@@ -321,10 +327,14 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     assert isinstance(integr.json()["missing"], list)
     assert "database_url" not in integr.text
     assert "NEVER_STREAM" not in integr.text
-    assert client.post(
-        "/api/v1/lab/runs", headers={**viewer, "Idempotency-Key": "a" * 20},
-        json={"seed": 11},
-    ).status_code == 403
+    assert (
+        client.post(
+            "/api/v1/lab/runs",
+            headers={**viewer, "Idempotency-Key": "a" * 20},
+            json={"seed": 11},
+        ).status_code
+        == 403
+    )
     created = client.post(
         "/api/v1/lab/runs",
         headers={**operator, "Idempotency-Key": "a" * 20},
@@ -332,48 +342,69 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     )
     assert created.status_code == 202
     assert observed["submissions"] == 1
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/investigation", headers=viewer
-    ).json()["detail"]["investigation_id"] == investigation_id
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/investigation", headers=viewer
+        ).json()["detail"]["investigation_id"]
+        == investigation_id
+    )
     triage_view = client.get(
         "/api/v1/lab/runs/" + run_id + "/investigation?phase=triage",
         headers=viewer,
     )
     assert triage_view.json()["detail"]["investigation_id"] == triage_id
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/investigation?phase=deep",
-        headers=viewer,
-    ).json()["detail"]["investigation_id"] == investigation_id
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/investigation?phase=secret",
-        headers=viewer,
-    ).status_code == 422
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/model-calls?workspace=pilot",
-        headers=viewer,
-    ).status_code == 403
-    timeline = client.get(
-        "/api/v1/lab/runs/" + run_id + "/model-calls", headers=viewer
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/investigation?phase=deep",
+            headers=viewer,
+        ).json()["detail"]["investigation_id"]
+        == investigation_id
     )
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/investigation?phase=secret",
+            headers=viewer,
+        ).status_code
+        == 422
+    )
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/model-calls?workspace=pilot",
+            headers=viewer,
+        ).status_code
+        == 403
+    )
+    timeline = client.get("/api/v1/lab/runs/" + run_id + "/model-calls", headers=viewer)
     assert timeline.status_code == 200
     assert timeline.json()["items"][0]["job"] == "conclude"
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/observability", headers=viewer
-    ).json()["items"][0]["counts"]["tool_calls"] == 5
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/observability", headers=viewer
+        ).json()["items"][0]["counts"]["tool_calls"]
+        == 5
+    )
     stream = client.get("/api/v1/lab/runs/" + run_id + "/events", headers=viewer)
     assert stream.status_code == 200
     assert "event: stream.closed" in stream.text
     assert "event: model.call" not in stream.text
     assert "NEVER_STREAM" not in stream.text
     assert "event: run.completed" in stream.text
-    assert client.post(
-        "/api/v1/simulator/reviews/" + run_id,
-        headers=viewer, json={"proposal_id": 1, "decision": "reject"},
-    ).status_code == 403
-    assert client.post(
-        "/api/v1/simulator/reviews/" + run_id,
-        headers=reviewer, json={"proposal_id": 1, "decision": "reject"},
-    ).status_code == 200
+    assert (
+        client.post(
+            "/api/v1/simulator/reviews/" + run_id,
+            headers=viewer,
+            json={"proposal_id": 1, "decision": "reject"},
+        ).status_code
+        == 403
+    )
+    assert (
+        client.post(
+            "/api/v1/simulator/reviews/" + run_id,
+            headers=reviewer,
+            json={"proposal_id": 1, "decision": "reject"},
+        ).status_code
+        == 200
+    )
     assert observed["decisions"] == 1
 
 
@@ -397,14 +428,23 @@ def test_worker_resolves_pr301_profile_without_reimplementing_it(monkeypatch):
 
     # Deliberately contradictory raw knobs: PR #301's profile wins.
     original = SimpleNamespace(
-        triage_plan="model", triage_investigate="off",
-        triage_hypothesize="model", triage_evidence_tests=False,
+        triage_plan="model",
+        triage_investigate="off",
+        triage_hypothesize="model",
+        triage_evidence_tests=False,
         effective_triage=SimpleNamespace(
-            run_mode="deterministic", plan="fixed",
-            investigate="deterministic", hypothesize="deterministic",
-            evidence_tests=True, packet=True, packet_prompt=True,
-            observe_calls="separate", hypothesis_seconds=0.0,
-            critic=False, critic_followup=False, critic_reinstate=False,
+            run_mode="deterministic",
+            plan="fixed",
+            investigate="deterministic",
+            hypothesize="deterministic",
+            evidence_tests=True,
+            packet=True,
+            packet_prompt=True,
+            observe_calls="separate",
+            hypothesis_seconds=0.0,
+            critic=False,
+            critic_followup=False,
+            critic_reinstate=False,
         ),
     )
     monkeypatch.setattr(settings, "get_settings", lambda: original)
@@ -436,14 +476,21 @@ def test_cross_pr_contract_inventory_uses_real_pydantic_models(monkeypatch):
     assert "api_key" not in str(public)
     assert "DATABASE_URL" not in str(public)
     assert set(public) == {
-        "schema_version", "stage_progress", "decide_trace",
-        "deep_lifecycle", "deterministic_profile", "model_attempts",
-        "source_contracts_complete", "missing",
+        "schema_version",
+        "stage_progress",
+        "decide_trace",
+        "deep_lifecycle",
+        "deterministic_profile",
+        "model_attempts",
+        "source_contracts_complete",
+        "missing",
     }
 
     # Simulate an untrusted, malformed replacement for the canonical stage.
     monkeypatch.setattr(
-        runs, "SafeStageSnapshot", SimpleNamespace(model_fields=["unsafe"]),
+        runs,
+        "SafeStageSnapshot",
+        SimpleNamespace(model_fields=["unsafe"]),
         raising=False,
     )
     checked = inspect_hosted_contracts()
@@ -465,8 +512,12 @@ def test_pr297_projection_redacts_provider_content_without_graph_rewrite():
         prompt_version=None,
     )
     call = SimpleNamespace(
-        job="conclude", outcome="no_answer", answered_by=None,
-        mode="triage", stage="conclude", attempts=(attempt,),
+        job="conclude",
+        outcome="no_answer",
+        answered_by=None,
+        mode="triage",
+        stage="conclude",
+        attempts=(attempt,),
     )
     safe = project_model_call(call, 1)
     assert safe["question_index"] == 1

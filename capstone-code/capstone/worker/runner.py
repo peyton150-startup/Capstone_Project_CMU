@@ -16,7 +16,11 @@ from pathlib import Path
 from typing import Any
 
 from capstone.api.run_repository import (
-    JobClaim, LostLease, ReviewProposal, RunExecutionConfig, RunRepository,
+    JobClaim,
+    LostLease,
+    ReviewProposal,
+    RunExecutionConfig,
+    RunRepository,
     StagePayload,
 )
 from capstone.api.runs import safe_stage
@@ -24,23 +28,47 @@ from capstone.api.runs import safe_stage
 logger = logging.getLogger("capstone.worker")
 
 
-_FAILURE_CODES = frozenset({
-    "database", "lease_expired", "contract", "configuration_mismatch",
-    "model_setup", "execution", "artifact", "progress_queue_full",
-    "progress_invalid", "progress_storage", "telemetry_storage",
-})
+_FAILURE_CODES = frozenset(
+    {
+        "database",
+        "lease_expired",
+        "contract",
+        "configuration_mismatch",
+        "model_setup",
+        "execution",
+        "artifact",
+        "progress_queue_full",
+        "progress_invalid",
+        "progress_storage",
+        "telemetry_storage",
+    }
+)
 
 
 def record(
-    event: str, *, claim: JobClaim | None = None,
-    failure_code: str | None = None, **counts: int,
+    event: str,
+    *,
+    claim: JobClaim | None = None,
+    failure_code: str | None = None,
+    **counts: int,
 ) -> None:
     """Only approved codes, UUIDs and bounded counts; no provider exceptions."""
     if event not in {
-        "ready", "claimed", "finished", "failed", "lease_lost", "recovered",
-        "review_requested", "review_decided", "poll_failed", "progress_dropped",
-        "model_telemetry_unavailable", "model_telemetry_dropped",
-        "worker_pulse_failed", "worker_stopped", "contracts_checked",
+        "ready",
+        "claimed",
+        "finished",
+        "failed",
+        "lease_lost",
+        "recovered",
+        "review_requested",
+        "review_decided",
+        "poll_failed",
+        "progress_dropped",
+        "model_telemetry_unavailable",
+        "model_telemetry_dropped",
+        "worker_pulse_failed",
+        "worker_stopped",
+        "contracts_checked",
     }:
         raise ValueError("Unknown worker event")
     if failure_code is not None and failure_code not in _FAILURE_CODES:
@@ -69,9 +97,13 @@ def check_strategy(config: RunExecutionConfig) -> None:
 
 
 def execute_claim(
-    repository: RunRepository, claim: JobClaim, owner: str,
-    *, stop: threading.Event | None = None,
-    heartbeat_seconds: int = 10, review_seconds: int = 240,
+    repository: RunRepository,
+    claim: JobClaim,
+    owner: str,
+    *,
+    stop: threading.Event | None = None,
+    heartbeat_seconds: int = 10,
+    review_seconds: int = 240,
 ) -> None:
     """Heartbeat during model I/O, persist approval, audit, events and outcome."""
     # Variables:
@@ -128,21 +160,27 @@ def execute_claim(
     def finish_model_monitor() -> None:
         if monitor_enabled[0]:
             calls = getattr(policy_holder[0], "calls", ()) or ()
-            emit_model("model.monitor.finished", {
-                "schema_version": 1,
-                "questions_seen": min(len(calls) + critic_seen[0], 100_000),
-                "questions_persisted": min(
-                    persisted_calls[0] + critic_persisted[0], 100_000
-                ),
-                "write_failures": min(telemetry_failures[0], 100_000),
-                "complete": (
-                    len(calls) + critic_seen[0]
-                    == persisted_calls[0] + critic_persisted[0]
-                ),
-            })
+            emit_model(
+                "model.monitor.finished",
+                {
+                    "schema_version": 1,
+                    "questions_seen": min(len(calls) + critic_seen[0], 100_000),
+                    "questions_persisted": min(
+                        persisted_calls[0] + critic_persisted[0], 100_000
+                    ),
+                    "write_failures": min(telemetry_failures[0], 100_000),
+                    "complete": (
+                        len(calls) + critic_seen[0]
+                        == persisted_calls[0] + critic_persisted[0]
+                    ),
+                },
+            )
         if telemetry_failures[0]:
-            record("model_telemetry_dropped", claim=claim,
-                   count=min(telemetry_failures[0], 1_000_000))
+            record(
+                "model_telemetry_dropped",
+                claim=claim,
+                count=min(telemetry_failures[0], 1_000_000),
+            )
 
     def alive() -> None:
         if lost.is_set() or stop.is_set():
@@ -166,9 +204,9 @@ def execute_claim(
     def watch(state: Any) -> None:
         try:
             flush_model_calls()
-            safe = StagePayload.model_validate(
-                safe_stage(state)
-            ).model_dump(mode="json")
+            safe = StagePayload.model_validate(safe_stage(state)).model_dump(
+                mode="json"
+            )
             updates.put_nowait(safe)
         except queue.Full:
             missed[0] += 1
@@ -252,11 +290,13 @@ def execute_claim(
             trace = Path(root) / "trace.jsonl"
             manual = (
                 open_manual(claim.request.manual)
-                if claim.request.manual != "none" else None
+                if claim.request.manual != "none"
+                else None
             )
             try:
                 policy = model_policy_factory(
-                    with_recall=False, with_manual=manual is not None,
+                    with_recall=False,
+                    with_manual=manual is not None,
                     tree_of_thought=claim.request.tree_of_thought,
                 )()
             except Exception as exc:
@@ -267,12 +307,17 @@ def execute_claim(
                     and str(exc).startswith("set ")
                     and "_API_KEY" in str(exc)
                 )
-                emit_model("model.config", {
-                    "schema_version": 1,
-                    "outcome": (
-                        "missing_credentials" if missing else "invalid_configuration"
-                    ),
-                })
+                emit_model(
+                    "model.config",
+                    {
+                        "schema_version": 1,
+                        "outcome": (
+                            "missing_credentials"
+                            if missing
+                            else "invalid_configuration"
+                        ),
+                    },
+                )
                 raise
             policy_holder[0] = policy
             emit_model("model.config", {"schema_version": 1, "outcome": "configured"})
@@ -286,16 +331,24 @@ def execute_claim(
 
                 effective_triage = (
                     resolve_triage_run(get_settings(), claim.request.triage_settings)
-                    if claim.request.mode == "triage" else None
+                    if claim.request.mode == "triage"
+                    else None
                 )
                 result = run_episode(
-                    claim.request.seed, policy, kind=claim.request.kind,
+                    claim.request.seed,
+                    policy,
+                    kind=claim.request.kind,
                     triage=claim.request.mode == "triage",
                     triage_configuration=effective_triage,
-                    hazards=claim.request.hazards, manual=manual, watch=watch,
-                    log=AuditLog(audit), event_logger=EventLogger(
+                    hazards=claim.request.hazards,
+                    manual=manual,
+                    watch=watch,
+                    log=AuditLog(audit),
+                    event_logger=EventLogger(
                         stream, name="hosted-" + str(claim.run_id)
-                    ), approver=approver, run_key="hosted/" + str(claim.run_id),
+                    ),
+                    approver=approver,
+                    run_key="hosted/" + str(claim.run_id),
                 )
             alive()
             flush_model_calls()
@@ -312,9 +365,7 @@ def execute_claim(
                 ):
                     try:
                         safe = project_model_call(critic_call, index)
-                        repository.publish_model_event(
-                            claim, owner, "model.call", safe
-                        )
+                        repository.publish_model_event(claim, owner, "model.call", safe)
                     except LostLease:
                         lost.set()
                         raise
@@ -325,18 +376,20 @@ def execute_claim(
             finish_model_monitor()
             # Audit and safe trace must be committed before completed status.
             repository.store_artifacts(
-                claim, owner,
+                claim,
+                owner,
                 {"audit": audit.read_bytes(), "observability": trace.read_bytes()},
             )
-            final = StagePayload.model_validate(
-                safe_stage(result.state)
-            ).model_dump(mode="json")
+            final = StagePayload.model_validate(safe_stage(result.state)).model_dump(
+                mode="json"
+            )
             triage = result.triage or (
                 result.state if result.state.mode == "triage" else None
             )
             report = (
                 triage.triage_report.model_dump(mode="json")
-                if triage is not None and triage.triage_report is not None else None
+                if triage is not None and triage.triage_report is not None
+                else None
             )
             finished.set()
             writer.join(timeout=5)
@@ -344,9 +397,7 @@ def execute_claim(
             if missed[0]:
                 # Optional observer failures must not fail the investigation.
                 try:
-                    repository.publish_resync(
-                        claim, owner, min(missed[0], 1_000_000)
-                    )
+                    repository.publish_resync(claim, owner, min(missed[0], 1_000_000))
                 except LostLease:
                     raise
                 except Exception:
@@ -354,21 +405,30 @@ def execute_claim(
             # Final progress and terminal state share the same DB transaction.
             # Even a late watcher cannot overwrite the authoritative result.
             repository.transition(
-                claim, owner, "completed", "run.completed", {
-                    "status": "completed", "mode": claim.request.mode,
-                    "investigation": final, "triage_report": report,
+                claim,
+                owner,
+                "completed",
+                "run.completed",
+                {
+                    "status": "completed",
+                    "mode": claim.request.mode,
+                    "investigation": final,
+                    "triage_report": report,
                     "diagnosis": (
                         result.state.conclusion.diagnosis[:1000]
-                        if result.state.conclusion is not None else None
+                        if result.state.conclusion is not None
+                        else None
                     ),
                     "recommendation": (
                         result.state.conclusion.recommendation
-                        if result.state.conclusion is not None else None
+                        if result.state.conclusion is not None
+                        else None
                     ),
                     "action_executed": result.state.action_started_tick is not None,
                     "verification_outcome": (
                         result.state.verification.outcome
-                        if result.state.verification is not None else None
+                        if result.state.verification is not None
+                        else None
                     ),
                     "deep_ran": (
                         result.triage is not None and result.state is not result.triage
@@ -386,13 +446,18 @@ def execute_claim(
                     else None
                 ),
             )
-        record("finished", claim=claim,
-               duration_ms=int((time.monotonic() - started) * 1000))
+        record(
+            "finished",
+            claim=claim,
+            duration_ms=int((time.monotonic() - started) * 1000),
+        )
         if missed[0]:
             for code, count in dropped.items():
                 if count:
                     record(
-                        "progress_dropped", claim=claim, count=count,
+                        "progress_dropped",
+                        claim=claim,
+                        count=count,
                         failure_code=code,
                     )
     except LostLease:
@@ -422,10 +487,17 @@ def execute_claim(
             pass
         try:
             if not lost.is_set() and not stop.is_set():
-                repository.transition(claim, owner, "failed", "run.failed", {
-                    "status": "failed", "mode": claim.request.mode,
-                    "error_class": type(error).__name__[:80],
-                })
+                repository.transition(
+                    claim,
+                    owner,
+                    "failed",
+                    "run.failed",
+                    {
+                        "status": "failed",
+                        "mode": claim.request.mode,
+                        "error_class": type(error).__name__[:80],
+                    },
+                )
         except Exception:
             pass  # Never expose provider/SQL errors or overwrite another lease.
     finally:
@@ -439,8 +511,11 @@ def execute_claim(
 
 
 def serve_worker(
-    repository: RunRepository, *, stop: threading.Event | None = None,
-    poll_seconds: float = 1.5, max_jobs: int | None = None,
+    repository: RunRepository,
+    *,
+    stop: threading.Event | None = None,
+    poll_seconds: float = 1.5,
+    max_jobs: int | None = None,
 ) -> None:
     """One active run per process; DB SKIP LOCKED prevents duplicate claims."""
     if not 0.2 <= poll_seconds <= 30:
@@ -461,7 +536,8 @@ def serve_worker(
         while not health_stop.is_set():
             try:
                 repository.worker_heartbeat(
-                    owner, source_revision=current_config.source_revision,
+                    owner,
+                    source_revision=current_config.source_revision,
                     status="running" if active[0] else "idle",
                 )
             except Exception:
@@ -495,8 +571,10 @@ def serve_worker(
             stop.wait(poll_seconds)
             continue
         record(
-            "claimed", claim=claim,
-            queue_wait_ms=claim.queue_wait_ms, attempt=claim.attempt,
+            "claimed",
+            claim=claim,
+            queue_wait_ms=claim.queue_wait_ms,
+            attempt=claim.attempt,
         )
         active[0] = True
         try:

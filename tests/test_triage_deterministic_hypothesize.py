@@ -138,9 +138,7 @@ def test_multi_machine_and_missing_telemetry_remain_unscored_candidates():
         update={"roster_verified": False, "screened_machines": ()}
     )
     reduced = compile_candidates(state)
-    assert "cross_machine_review" not in {
-        candidate.family for candidate in reduced[0]
-    }
+    assert "cross_machine_review" not in {candidate.family for candidate in reduced[0]}
 
 
 def test_invalid_compiled_packet_is_rejected_before_any_test_target(monkeypatch):
@@ -150,11 +148,10 @@ def test_invalid_compiled_packet_is_rejected_before_any_test_target(monkeypatch)
     investigate(state, deps)
     candidates, ids = compiler.compile_candidates(state)
     original = candidates[0]
-    bad = original.model_copy(
-        update={"observation_evidence_ids": ("forged-evidence",)}
-    )
+    bad = original.model_copy(update={"observation_evidence_ids": ("forged-evidence",)})
     monkeypatch.setattr(
-        compiler, "compile_candidates",
+        compiler,
+        "compile_candidates",
         lambda state, eligible_requirement_ids=None: ((bad,), ids[:1]),
     )
     compiler.update_candidate_packet(state, stage="hypothesize", deps=deps)
