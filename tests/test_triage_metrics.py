@@ -191,6 +191,8 @@ def test_no_rival_is_named_when_the_conclusion_chose_no_hypothesis():
 def test_an_experiment_records_the_triage_metrics_and_reports_them(monkeypatch):
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "on")
+    # Legacy model-Hypothesize arm: #299 made deterministic Hypothesize the default.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     case = Case("bearing-6", SEED, "bearing_degradation")
     (record,) = run_experiment([case], triage_then_deep, name="metrics", triage=True)
     metrics = record.triage.metrics

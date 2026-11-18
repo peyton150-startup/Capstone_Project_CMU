@@ -44,10 +44,13 @@ BEARING = Diagnosis(fault="bearing_degradation", machine_id="CNC-02")
 def triaged():
     """One real scripted triage-then-deep record, made once for the module."""
     # Variables:
-    #   patch: Environment for the run: triage on, no critic, deep run allowed.
+    #   patch: Environment for the run: triage on, no critic, deep run allowed,
+    #     and the legacy model Hypothesize stage the comparison rows count.
     patch = pytest.MonkeyPatch()
     patch.setenv("CRITIC", "off")
     patch.setenv("TRIAGE_THEN_DEEP", "on")
+    # Legacy model-Hypothesize arm: #299 made deterministic Hypothesize the default.
+    patch.setenv("TRIAGE_HYPOTHESIZE", "model")
     case = Case("bearing-6", SEED, "bearing_degradation")
     try:
         (record,) = run_experiment([case], triage_then_deep, name="cmp", triage=True)
