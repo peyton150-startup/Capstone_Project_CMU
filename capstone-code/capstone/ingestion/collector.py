@@ -232,6 +232,15 @@ class MTConnectCollector:
             and document.next_sequence < requested_from
         ):
             raise ValueError("MTConnect sample pagination moved backward")
+        if (
+            self.strict_headers
+            and not starting
+            and requested_from is not None
+            and document.next_sequence == requested_from
+            and document.last_sequence >= requested_from
+            and not document.records
+        ):
+            raise ValueError("MTConnect sample pagination did not advance")
         self._next = document.next_sequence
         records = document.records
         if not starting:
