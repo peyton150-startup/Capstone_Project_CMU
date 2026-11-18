@@ -87,8 +87,8 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
         "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload
     )
     assert preview.status_code == 200
-    config = preview.json()
-    effective = config["effective_triage"]
+    preview_config = preview.json()
+    effective = preview_config["effective_triage"]
     assert effective["run_mode"] == "deterministic"
     assert effective["plan"] == "fixed"
     assert effective["investigate"] == "deterministic"
@@ -96,17 +96,17 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
     assert effective["seconds"] == 70 and effective["tool_calls"] == 4
     assert effective["then_deep"] is False
     assert effective["conclude_brief"] is False
-    assert config["stages"]["conclude"] == "model"
-    assert {"plan", "investigate", "hypothesize", "packet"} <= set(config["overridden"])
+    assert preview_config["stages"]["conclude"] == "model"
+    assert {"plan", "investigate", "hypothesize", "packet"} <= set(preview_config["overridden"])
     assert client.post(
         "/api/v1/lab/runs",
         headers={**auth(TOKEN), "Idempotency-Key": KEY},
-        json={**payload, "configuration_fingerprint": config["fingerprint"]},
+        json={**payload, "configuration_fingerprint": preview_config["fingerprint"]},
     ).status_code == 403
     response = client.post(
         "/api/v1/lab/runs",
         headers={**auth(OPERATOR), "Idempotency-Key": KEY},
-        json={**payload, "configuration_fingerprint": config["fingerprint"]},
+        json={**payload, "configuration_fingerprint": preview_config["fingerprint"]},
     )
     assert response.status_code == 202
     run = client.get(
@@ -193,11 +193,11 @@ def test_deep_only_does_not_apply_triage_controls(tmp_path, monkeypatch):
         "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload
     )
     assert preview.status_code == 200
-    config = preview.json()
-    assert not config["applied"]
-    assert config["effective_triage"] is None
-    assert config["stages"]["triage"] == "not run"
-    assert config["not_applied"] == ["run_mode", "then_deep"]
+    preview_config = preview.json()
+    assert not preview_config["applied"]
+    assert preview_config["effective_triage"] is None
+    assert preview_config["stages"]["triage"] == "not run"
+    assert preview_config["not_applied"] == ["run_mode", "then_deep"]
 
 
 def test_submission_rejects_settings_drift_between_route_and_journal(
