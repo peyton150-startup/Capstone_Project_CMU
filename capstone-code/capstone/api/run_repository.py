@@ -22,6 +22,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session
 
+from capstone.api import runs as _run_contracts
 from capstone.api.run_models import (
     SimJob,
     SimRun,
@@ -280,7 +281,6 @@ class StagePayload(BaseModel):
 # Reuse #294's already-reviewed typed stage contract when that PR is integrated.
 # #296 extends that same class for Decide events; never strip unknown fields,
 # silently accept raw state, or duplicate the nested Decide sanitizer here.
-from capstone.api import runs as _run_contracts
 
 if hasattr(_run_contracts, "SafeStageSnapshot"):
     StagePayload = _run_contracts.SafeStageSnapshot
@@ -289,7 +289,9 @@ if hasattr(_run_contracts, "SafeStageSnapshot"):
 def _safe_model_event(event_name: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Validate via #297's source-owned Pydantic schemas, not a copy."""
     from capstone.api.model_calls import (
-        SafeModelCall, SafeModelConfiguration, SafeModelSummary,
+        SafeModelCall,
+        SafeModelConfiguration,
+        SafeModelSummary,
     )
 
     if event_name == "model.monitor":
