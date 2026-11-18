@@ -22,6 +22,7 @@ from capstone.ingestion.collector import (
 from capstone.ingestion.haas_http import haas_get
 from capstone.ingestion.haas_profile import HaasConnectionProfile, verify_haas_probe
 from capstone.ingestion.privacy import ALLOW_FLAG, ALLOW_HELP, refusal
+from capstone.observability import EventLogger
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -110,6 +111,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             interval=interval,
             max_polls=args.polls,
             enforce_poll_interval=bool(args.haas_profile),
+            safe_errors=bool(args.haas_profile),
+            event_logger=EventLogger(sys.stderr) if args.haas_profile else None,
         )
     except KeyboardInterrupt:
         print("stopped", file=sys.stderr)
