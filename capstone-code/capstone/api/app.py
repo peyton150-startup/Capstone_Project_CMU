@@ -31,7 +31,8 @@ from capstone.api.readers import (
     safe_scorecards,
     signal_samples,
 )
-from capstone.api.runs import ReviewDecision, RunRequest, SimulatorRuns
+from capstone.api.runs import (ReviewDecision, RunRequest, SimulatorRuns, StaleRunConfiguration, public_run_configuration)
+from capstone.settings import get_settings
 
 Workspace = Literal["simulator", "pilot"]
 
@@ -187,6 +188,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 "simulation_run_launch": runner is not None,
                 "simulation_approval": runner is not None,
                 "manual_search": True,
+                "neon_manual_search": cfg.neon_manual_enabled,
                 "episodic_memory": cfg.memory_enabled,
                 "setting_changes": False,
                 "siemens_live_subscription_confirmed": False,
@@ -458,19 +460,39 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=403, detail="Pilot manuals require OEM authorization"
             )
-        from capstone.manual.index import KeywordManualSearch
-        from capstone.manual.sections import load_manual
+        if cfg.neon_manual_enabled:
+            from capstone.manual.neon import open_neon_manual
 
-        sections = load_manual()
-        matches = (
-            KeywordManualSearch(sections).search(q, limit=12)
-            if q and q.strip()
-            else sections[:35]
-        )
+            store = None
+            try:
+                store = open_neon_manual()
+                matches = (
+                    store.search(q, limit=5)
+                    if q and q.strip()
+                    else store.list_sections(limit=35)
+                )
+            except Exception:
+                raise HTTPException(
+                    status_code=503, detail="Approved manual store unavailable"
+                ) from None
+            finally:
+                if store is not None:
+                    store.close()
+        else:
+            from capstone.manual.index import KeywordManualSearch
+            from capstone.manual.sections import load_manual
+
+            sections = load_manual()
+            matches = (
+                KeywordManualSearch(sections).search(q, limit=12)
+                if q and q.strip()
+                else sections[:35]
+            )
         return {
             "availability": "available",
             "document_id": "SIM-CNC-001",
             "source_scope": "simulator_manual_only",
+            "backend": "neon" if cfg.neon_manual_enabled else "local",
             "items": [
                 {
                     "citation": section.citation,
@@ -579,6 +601,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "items": runner.list_runs() if runner is not None else [],
         }
 
+    @app.get("/api/v1/lab/runs/configuration", dependencies=[Access])
+    def run_configuration(workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot run configuration prohibited")
+        return {"editable_per_run": True, "global_environment_editable": False,
+                "defaults": public_run_configuration(RunRequest(seed=0), get_settings())["effective_triage"]}
+
+    @app.post("/api/v1/lab/runs/preview", dependencies=[Access])
+    def preview_run_configuration(request: RunRequest, workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot run configuration prohibited")
+        return public_run_configuration(request, get_settings())
+
     @app.post("/api/v1/lab/runs", status_code=202)
     def start_simulator_run(
         request: RunRequest,
@@ -591,6 +626,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=403, detail="Pilot machine control is prohibited"
             )
         require_role(authorization, "operator")
+        if request.manual == "neon" and not cfg.neon_manual_enabled:
+            raise HTTPException(status_code=403, detail="Neon manual retrieval not configured")
         if idempotency_key is None or not re.fullmatch(
             r"[A-Za-z0-9_-]{16,96}", idempotency_key
         ):
@@ -598,6 +635,18 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=422,
                 detail="A unique 16-96 character Idempotency-Key is required",
             )
+        if request.manual == "neon":
+            from capstone.manual.neon import open_neon_manual
+            knowledge = None
+            try:
+                knowledge = open_neon_manual()
+                if not knowledge.list_sections(limit=1):
+                    raise LookupError("No published simulator manual")
+            except Exception:
+                raise HTTPException(status_code=503, detail="Approved manual store unavailable") from None
+            finally:
+                if knowledge is not None:
+                    knowledge.close()
         assert runner is not None
         try:
             created = runner.submit(request, idempotency_key)
@@ -610,6 +659,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                     )
                 )
             return created
+        except StaleRunConfiguration:
+            raise HTTPException(status_code=409, detail="Settings changed since preview") from None
         except ValueError:
             raise HTTPException(
                 status_code=409, detail="Idempotency key belongs to another request"
