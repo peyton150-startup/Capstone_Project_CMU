@@ -1,6 +1,5 @@
 """No real network: all Haas HTTP acceptance checks are local."""
 
-from io import BytesIO
 from urllib.request import ProxyHandler
 
 import pytest
