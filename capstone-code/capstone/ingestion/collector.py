@@ -34,6 +34,7 @@ from pathlib import Path
 from typing import Literal, TextIO
 
 from capstone.ingestion.mtconnect import MTConnectError, parse_streams
+from capstone.observability import EventLogger
 from capstone.ingestion.record import (
     CollectorMarker,
     GapDetail,
@@ -260,6 +261,8 @@ def run_collector(
     log: TextIO | None = None,
     heartbeat_every: float = HEARTBEAT_SECONDS,
     enforce_poll_interval: bool = False,
+    safe_errors: bool = False,
+    event_logger: EventLogger | None = None,
 ) -> int:
     """Poll until max_polls (or forever), writing records; returns records written.
 
@@ -294,15 +297,36 @@ def run_collector(
     try:
         while max_polls is None or polls < max_polls:
             polls += 1
+            polled_at = time.perf_counter()
             try:
                 result = collector.poll()
             except (OSError, ET.ParseError, ValueError, MTConnectError) as error:
+                if event_logger is not None:
+                    event_logger.log_event(
+                        "mtconnect.poll",
+                        success=False,
+                        reason_code=type(error).__name__,
+                        duration_ms=max(0.0, (time.perf_counter() - polled_at) * 1000),
+                    )
+                # An OS exception may contain a shop address, hostname or
+                # credential. The production Haas path logs type only.
+                detail = "" if safe_errors else f": {error}"
                 print(
-                    f"poll failed, retrying: {type(error).__name__}: {error}",
+                    f"poll failed, retrying: {type(error).__name__}{detail}",
                     file=log or sys.stderr,
                 )
                 sleep(interval)
                 continue
+            if event_logger is not None:
+                event_logger.log_event(
+                    "mtconnect.poll",
+                    success=True,
+                    counts={
+                        "records": len(result.records),
+                        "gaps": int(result.gap),
+                    },
+                    duration_ms=max(0.0, (time.perf_counter() - polled_at) * 1000),
+                )
             if result.gap_detail is not None:
                 # Before the records: the loss happened before they were sent.
                 append_jsonl(out, [_marker(collector, "gap", gap=result.gap_detail)])
