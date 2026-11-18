@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError, field_validator
 
 from capstone.settings import Settings, get_settings
 from capstone.triage_run_controls import (
@@ -466,6 +466,13 @@ class SafeStageSnapshot(BaseModel):
     decide_events_recent: list[SafeTriageDecideEvent] = Field(
         default_factory=list, max_length=_SAFE_DECIDE_EVENT_LIMIT
     )
+
+    @field_validator("unresolved_question_ids")
+    @classmethod
+    def validate_public_question_ids(cls, ids: list[str]) -> list[str]:
+        if any(not re.fullmatch(r"[A-Za-z0-9_.:-]{1,80}", value) for value in ids):
+            raise ValueError("Unapproved question identifier")
+        return ids
 
 
 # Explicit projection only. Never infer a public schema from state.model_dump().
