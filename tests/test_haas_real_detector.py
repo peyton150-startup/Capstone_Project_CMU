@@ -2,11 +2,11 @@
 
 from datetime import UTC, datetime, timedelta
 
+from capstone.ingestion.qualified import QualifiedNumericObservation
 from capstone.ingestion.real_detector import (
     CalibratedSignalBaseline,
     assess_calibrated_window,
 )
-from capstone.ingestion.qualified import QualifiedNumericObservation
 
 
 def baseline():
