@@ -57,6 +57,7 @@ from capstone.providers.hazards import (
 from capstone.providers.manual import ManualProvider, ManualSearch
 from capstone.providers.recall import RecallingProvider
 from capstone.settings import get_settings
+from capstone.triage_run_controls import EffectiveTriageRun
 from capstone.simulator.challenge import build_challenge
 from capstone.simulator.generator import build_scenario
 from capstone.simulator.simulator import Simulator
@@ -229,6 +230,17 @@ def build_world(
     raise ValueError(f"unknown scenario kind {kind}; choose from {SCENARIO_KINDS}")
 
 
+def triage_requested(settings, requested: bool | None) -> bool:
+    """Resolve episode selection without overriding an explicit deep-only run.
+
+    The execution profile only supplies a default when the caller leaves
+    triage unspecified. It never overrides a deliberate per-run choice.
+    """
+    if requested is not None:
+        return requested
+    return settings.triage or settings.triage_run_mode == "deterministic"
+
+
 def run_episode(
     seed: int,
     policy: ReasoningPolicy,
@@ -248,6 +260,7 @@ def run_episode(
     watch: Callable[[InvestigationState], None] | None = None,
     critic: Critic | None = None,
     triage: bool | None = None,
+    triage_configuration: EffectiveTriageRun | None = None,
     stage_context: bool | None = None,
     event_logger: EventLogger | None = None,
 ) -> EpisodeResult:
@@ -292,6 +305,8 @@ def run_episode(
     #   critic: Reviews the two leading hypotheses; None builds one from settings
     #     when CRITIC is on, and otherwise runs without one.
     #   triage: Run a rapid triage first; None reads TRIAGE from settings.
+    #   triage_configuration: Immutable, validated per-run Graph settings.
+    #     None uses the server Settings profile as before; never applies to deep.
     #   stage_context: True or False forces the stage views on or off for this
     #     episode; None reads STAGE_CONTEXT from settings.
     #   event_logger: Optional JSON-line trace (`capstone.observability`); the
@@ -326,7 +341,10 @@ def run_episode(
     #   diagnosis: The cause the judge read from the conclusion, if a judge was given.
     #   judged: Whether a judge was given.
     settings = get_settings()
-    if critic is None and settings.critic:
+    selecting_triage = triage_requested(settings, triage)
+    # Never instantiate a deep-only critic before a triage that may end
+    # without deep escalation. That configuration cannot block triage.
+    if critic is None and settings.critic and not selecting_triage:
         critic = Critic(
             critic_client(settings),
             getattr(policy, "tools", research_tools()),
@@ -442,15 +460,16 @@ def run_episode(
         triage_evidence_tests=settings.triage_evidence_tests,
     )
     research = state.budgets.timeout_seconds - state.budgets.followup_seconds
-    if deps.hypothesis_seconds >= research:
+    if not selecting_triage and deps.hypothesis_seconds >= research:
         raise ValueError(
             "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
             f"(research has {research:g} s)"
         )
     triage_state, triage_seconds = None, None
-    if settings.triage if triage is None else triage:
-        triage_state, state, triage_seconds = run_triage_then_deep(
-            state, deps, budgets, settings, log
+    if selecting_triage:
+        triage_state, state, triage_seconds, critic = run_triage_then_deep(
+            state, deps, budgets, settings, log,
+            manual=manual, configuration=triage_configuration,
         )
     else:
         run_investigation(state, deps)
@@ -492,11 +511,15 @@ def run_triage_then_deep(
     budgets: Budgets | None,
     settings,
     log: AuditLog | None,
-) -> tuple[InvestigationState, InvestigationState, float]:
+    *,
+    manual: ManualSearch | None = None,
+    configuration: EffectiveTriageRun | None = None,
+) -> tuple[InvestigationState, InvestigationState, float, Critic | None]:
     """Run a rapid triage on `first`, then a deep run if it leaves work.
 
     Returns the triage, the investigation to score (the deep run, or the
-    triage when none followed) and the triage's seconds on `deps.clock`.
+    triage when none followed), the triage's seconds on `deps.clock`, and
+    the critic actually used by deep (or None).
     The triage runs without the critic: its own time window would overrun a
     short deadline. The deep run is the next investigation of the same run
     (`investigation_id_for(run_id, 2)`), with normal budgets and approval;
@@ -527,16 +550,32 @@ def run_triage_then_deep(
     #   first.triage_hypothesis_seconds: The triage's hypothesis reserve
     #     (TRIAGE_HYPOTHESIS_SECONDS, capped to its window), passed to its
     #     research as deps.hypothesis_seconds; the deep run keeps its own.
+    profile = (
+        settings.effective_triage if configuration is None
+        else configuration.profile
+    )
     first.mode = "triage"
-    first.triage_packet_enabled = settings.triage_packet
-    first.triage_packet_prompt = settings.triage_packet_prompt
-    first.triage_conclude_brief = settings.triage_conclude_brief
-    first.triage_conclude_cap = settings.triage_conclude_cap
-    first.triage_fixed_plan = settings.triage_plan == "fixed"
-    first.triage_observe_separate = settings.triage_observe_calls == "separate"
-    first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
+    first.triage_run_mode = profile.run_mode
+    first.triage_packet_enabled = profile.packet
+    first.triage_packet_prompt = profile.packet_prompt
+    # The Conclude policy, its brief and budget are unchanged by the switch.
+    first.triage_conclude_brief = (
+        settings.triage_conclude_brief if configuration is None
+        else configuration.conclude_brief
+    )
+    first.triage_conclude_cap = (
+        settings.triage_conclude_cap if configuration is None
+        else configuration.conclude_cap
+    )
+    first.triage_fixed_plan = profile.plan == "fixed"
+    first.triage_observe_separate = profile.observe_calls == "separate"
+    first.budgets = triage_budgets(
+        settings.triage_seconds if configuration is None else configuration.seconds,
+        settings.triage_tool_calls
+        if configuration is None else configuration.tool_calls,
+    )
     first.triage_hypothesis_seconds = triage_hypothesis_reserve(
-        settings.triage_hypothesis_seconds, first.budgets
+        profile.hypothesis_seconds, first.budgets
     )
     started = deps.clock()
     # The triage keeps its own hypothesis reserve (TRIAGE_HYPOTHESIS_SECONDS,
@@ -548,14 +587,35 @@ def run_triage_then_deep(
             deps,
             critic=None,
             critic_followup=False,
+            critic_reinstate=False,
+            triage_run_mode=profile.run_mode,
+            triage_investigate=profile.investigate,
+            triage_hypothesize=profile.hypothesize,
+            triage_evidence_tests=profile.evidence_tests,
             hypothesis_seconds=first.triage_hypothesis_seconds,
         ),
     )
     seconds = deps.clock() - started
     if log is not None and first.conclusion is not None and first.termination_reason:
         log.append(audit_record(first))
-    if not (settings.triage_then_deep and first.deep_recommended):
-        return first, first, seconds
+    then_deep = (
+        settings.triage_then_deep if configuration is None
+        else configuration.then_deep
+    )
+    if not (then_deep and first.deep_recommended):
+        return first, first, seconds, deps.critic
+    # Create a deep-only optional critic only after a deep investigation is
+    # actually required, retaining the configured model/manual/approval path.
+    if deps.critic is None and settings.critic:
+        deps = replace(
+            deps,
+            critic=Critic(
+                critic_client(settings),
+                getattr(deps.policy, "tools", research_tools()),
+                manual=manual,
+                blind=settings.critic_blind,
+            ),
+        )
     deep = InvestigationState(
         run_id=first.run_id,
         investigation_id=investigation_id_for(first.run_id, 2),
@@ -569,5 +629,11 @@ def run_triage_then_deep(
         line_context_enabled=first.line_context_enabled,
         stage_context=first.stage_context,
     )
+    deep_research = deep.budgets.timeout_seconds - deep.budgets.followup_seconds
+    if deps.hypothesis_seconds >= deep_research:
+        raise ValueError(
+            "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
+            f"(research has {deep_research:g} s)"
+        )
     run_investigation(deep, deps)
-    return first, deep, seconds
+    return first, deep, seconds, deps.critic

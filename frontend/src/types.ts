@@ -36,29 +36,17 @@ export type Evidence = { id: string; source_id?: string; source_type?: string;
 export type Hypothesis = { id: string; description?: string; claim?: string;
   status?: string; confidence?: number | null;
   supporting_evidence_ids?: string[]; contradicting_evidence_ids?: string[];
-  unexplained_evidence_ids?: string[]; discriminating_check?: string };
+  discriminating_check?: string };
 export type InvestigationDetail = Investigation & {
   evidence: Evidence[]; hypotheses: Hypothesis[];
-  proposed_action?: { action?: string; reason?: string; machine_id?: string;
-    evidence_ids?: string[] } | null;
-  proposal_status?: 'pending' | 'approved' | 'rejected' | 'not_submitted' | null;
-  proposal_id?: number | null; action_started_tick?: number | null;
-  action_finish_tick?: number | null;
-  conclusion_detail?: { assessment?: 'supported' | 'unresolved' | null;
-    hypothesis_id?: string | null; evidence_ids?: string[];
-    unresolved_questions?: string[]; next_check?: string | null;
-    action_rationale?: string | null };
-  verification_detail?: { status?: string; outcome?: string; summary?: string;
-    evidence_ids?: string[]; observed_tick?: number | null } | null;
+  proposed_action?: { action?: string; reason?: string; machine_id?: string } | null;
+  verification_detail?: { status?: string; outcome?: string; summary?: string } | null;
   decision_trace?: Array<{ sequence:number; phase:string; tool:string|null; outcome:string;
     evidence_ids:string[]; question_id:string|null; hypothesis_id:string|null;
     tick:number|null; termination_reason:string|null }>;
-  reasoning_metrics?: {iterations?:number|null; tool_calls?:number|null;
-    repeated_calls:number|null; failed_tool_calls:number|null;
-    malformed_results:number|null; interpretation_failures:number|null;
-    hypothesis_revisions?:number|null};
-  pruned_candidates?: Array<{id:string; status:string;confidence:number|null;
-    supporting_evidence_ids?:string[];contradicting_evidence_ids?:string[]}>;
+  reasoning_metrics?: {repeated_calls:number|null; failed_tool_calls:number|null;
+    malformed_results:number|null; interpretation_failures:number|null};
+  pruned_candidates?: Array<{id:string; status:string;confidence:number|null}>;
 };
 export type Evaluation = { id: string; scenario: string; seed: number;
   conclusion: string | null; assessment: string | null;
@@ -80,76 +68,94 @@ export type ListResponse<T> = { availability: Availability; items: T[]; message?
 export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
-/** Fixed-code metadata from the typed deterministic Decide trace. */
-export type SafeTriageDecideEvent = {
-  sequence: number; event: 'requirements.compiled' | 'decide.selected' |
-    'tool.completed' | 'evidence.validated' | 'triage.requirement_evaluated' |
-    'question.evaluated' | 'triage.stopped';
-  phase: 'investigate' | 'test'; reason_code: string; status: string | null;
-  tool: string | null; requirement_ids: string[]; requirement_count: number;
-  question_ids: string[]; question_count: number; evidence_count: number;
-  request_hash: string | null; attempt: number | null; iteration: number | null;
-  candidate_count: number | null; remaining_tool_calls: number | null;
-  source_cutoff_tick: number | null; duration_ms: number | null;
-};
-
-/** Source-safe, per-phase values projected from the Python investigation watcher. */
-export type StageProgress = {
-  investigation_id: string; mode: 'triage' | 'deep'; stage: string | null;
-  iteration_count: number; tool_calls: number; evidence_count: number;
-  hypothesis_count: number; unresolved_question_ids: string[];
-  unresolved_question_count?: number;
-  termination_reason: string | null; conclusion_available: boolean;
-  // Optional for compatibility with progress produced before the Render patch.
-  answered_question_count?: number; decision_count?: number;
-  remaining_iterations?: number; remaining_tool_calls?: number;
-  repeated_calls?: number; failed_tool_calls?: number;
-  malformed_results?: number; interpretation_failures?: number;
-  unproductive_steps?: number; followup_tool_calls?: number;
-  screening_tool_calls?: number; observe_tool_calls?: number;
-  last_observed_tick?: number | null; observation_cutoff_tick?: number | null;
-  clock_verified?: boolean | null; triage_requirement_total?: number;
-  triage_requirement_satisfied?: number; triage_requirement_open?: number;
-  triage_question_gaps?: number; triage_evidence_accepted?: number;
-  triage_evidence_rejected?: number; triage_decide_reads?: number;
-  triage_decide_stops?: number; triage_candidates?: number;
-  triage_test_requirements?: number; triage_trace_events?: number;
-  triage_logging_failures?: number; deep_recommended?: boolean | null;
-  packet_roster_verified?: boolean | null; packet_roster_size?: number;
-  packet_screened_machines?: number; packet_missing_machines?: number;
-  packet_calls_mandatory?: number; packet_calls_optional?: number;
-  packet_calls_qualified?: number; packet_calls_unavailable?: number;
-  packet_items_qualified?: number; packet_items_missing?: number;
-  triage_test_records?: number;
-  requirement_statuses?: Array<{
-    requirement_id: string; status: 'pending' | 'satisfied' | 'partial' |
-      'insufficient' | 'stale' | 'unavailable' | 'unsupported' | 'failed';
-    evidence_count: number;
+export type SafeHypothesisProgress = {
+  rule_version: '1.1' | null;
+  last_action: 'compiled' | 'refreshed' | 'no_candidates' | 'rejected' | null;
+  candidate_count: number; candidates_truncated: boolean;
+  candidates: Array<{
+    id: string; family: string; status: 'unconfirmed';
+    qualified_sources: number; required_tests: number; missing_tests: number;
+    unavailable_tests: number; open_questions: number;
   }>;
-  requirement_statuses_truncated?: boolean;
-  decide_event_total?: number; decide_events_truncated?: boolean;
-  decide_events_recent?: SafeTriageDecideEvent[];
+  test_requirements: number; trace_records: number; logging_failures: number;
 };
-export type RunPhaseProgress = {
-  latest?: 'triage' | 'deep'; triage?: StageProgress; deep?: StageProgress;
+export type TriageRunOptions = {
+  run_mode: 'custom' | 'deterministic';
+  plan: 'fixed' | 'model';
+  investigate: 'deterministic' | 'advisory' | 'on' | 'off';
+  hypothesize: 'deterministic' | 'model';
+  evidence_tests: boolean;
+  packet: boolean;
+  packet_prompt: boolean;
+  observe_calls: 'shared' | 'separate';
+  then_deep: boolean;
+  conclude_brief: boolean;
+  conclude_cap: boolean;
+  seconds: number;
+  tool_calls: number;
+  hypothesis_seconds: number;
 };
-
+export type TriageRunPreview = {
+  schema_version: number;
+  applied: boolean;
+  run_inputs: { seed: number; kind: string; mode: string; hazards: boolean;
+    tree_of_thought: boolean; manual: string };
+  requested: Partial<TriageRunOptions>;
+  effective_triage: TriageRunOptions | null;
+  overridden: string[];
+  not_applied: string[];
+  stages: Record<string, string>;
+  configured_conclude_primary: string;
+  model_attempts: string;
+  scope: string;
+  fingerprint: string;
+};
+export type TriageRunDefaults = {
+  schema_version: number;
+  defaults: TriageRunOptions;
+  editable_per_run: boolean;
+  global_environment_editable: boolean;
+};
+export type ActualTriageExecution = {
+  run_mode: 'custom' | 'deterministic';
+  fixed_plan_executed: boolean;
+  packet_enabled: boolean;
+  packet_collected: boolean;
+  observe_calls_separate: boolean;
+  conclude_brief_enabled: boolean;
+  conclude_cap_enabled: boolean;
+  hypothesis_reserve_seconds: number;
+  deadline_seconds: number;
+  research_tool_call_budget: number;
+  actual_research_tool_calls: number;
+  deterministic_decide_reads: number;
+  compiled_candidates: number;
+  conclusion_available: boolean;
+  deep_recommended: boolean;
+};
 export type ManagedRun = {
   run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
-    tree_of_thought: boolean; manual: string };
+    tree_of_thought: boolean; manual: string;
+    triage_settings?: Partial<TriageRunOptions> | null;
+    effective_configuration?: TriageRunPreview | null;
+    configuration_fingerprint?: string | null };
   state: 'queued' | 'running' | 'awaiting_review' | 'completed' | 'failed' | 'interrupted';
   snapshot: { stage?: string | null; status?: string; mode?: string;
-    progress?: RunPhaseProgress;
     triage_report?: TriageReport | null; investigation?: { stage: string | null;
       tool_calls: number; evidence_count: number; hypothesis_count: number;
-      termination_reason: string | null; unresolved_question_ids: string[] };
+      termination_reason: string | null; unresolved_question_ids: string[];
+      hypothesis_progress?: SafeHypothesisProgress | null;
+      triage_run_mode?: 'custom' | 'deterministic' | null };
     diagnosis?: string | null; recommendation?: string | null;
     action_executed?: boolean; verification_outcome?: string | null;
-    deep_ran?: boolean; review_count?: number; error_class?: string };
+    deep_ran?: boolean; error_class?: string;
+    effective_configuration?: TriageRunPreview | null;
+    triage_execution?: ActualTriageExecution | null;
+    configuration_fingerprint?: string | null };
   created_at: string; updated_at: string;
 };
 export type TriageReport = {
-  machine_id: string | null; alarm: string; alarm_tick?: number; outcome: string;
+  machine_id: string | null; alarm: string; outcome: string;
   termination_reason: string | null; diagnosis: string | null;
   assessment: string; recommendation: string; model_recommendation: string | null;
   confidence: number; deep_recommended: boolean; held_open_because: string[];
