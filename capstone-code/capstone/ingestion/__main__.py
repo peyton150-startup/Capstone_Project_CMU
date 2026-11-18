@@ -65,6 +65,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         problem = path and not args.allow_inside_repo and refusal(path, option)
         if problem:
             parser.error(problem)
+    if args.out is None and args.save_probe is None:
+        parser.error("--out is required unless --save-probe is given")
     # The shop-pinned path does not allow broad URL/device overrides. The
     # legacy --url path stays available for existing generic MTConnect tests.
     if bool(args.url) == bool(args.haas_profile):
