@@ -149,5 +149,6 @@ class UiConfig:
             runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
             evaluator_token=os.getenv("CAPSTONE_UI_EVALUATOR_TOKEN") or None,
             memory_enabled=os.getenv("CAPSTONE_UI_MEMORY_READ") == "1",
+            neon_manual_enabled=os.getenv("CAPSTONE_UI_NEON_MANUAL") == "1",
             browser_origin=os.getenv("CAPSTONE_UI_ALLOWED_ORIGIN") or None,
         )
