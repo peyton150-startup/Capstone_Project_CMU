@@ -35,6 +35,7 @@ class UiConfig:
     runs_enabled: bool = False
     evaluator_token: str | None = field(default=None, repr=False)
     memory_enabled: bool = False
+    neon_manual_enabled: bool = False
     browser_origin: str | None = None
 
     def __post_init__(self) -> None:
@@ -48,6 +49,7 @@ class UiConfig:
                 self.audit,
                 self.experiment,
                 self.investigations,
+                self.neon_manual_enabled,
             )
         )
         if configured and (not self.token or len(self.token) < 24):
