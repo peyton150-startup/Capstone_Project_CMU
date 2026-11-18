@@ -63,6 +63,28 @@ class StreamsDocument:
     records: list[TelemetryRecord] = field(default_factory=list)
 
 
+def validate_streams_metadata(document: StreamsDocument) -> None:
+    """Fail closed on corrupted agent sequencing before accepting observations.
+
+    /current may contain older unchanged data-item states, so this check does
+    not incorrectly require every current record to be >= firstSequence.
+    """
+    if not document.instance_id:
+        raise ValueError("MTConnect instanceId is missing")
+    if (
+        document.first_sequence < 1
+        or document.last_sequence < document.first_sequence - 1
+        or not 1 <= document.next_sequence <= document.last_sequence + 1
+    ):
+        raise ValueError("MTConnect sequence header is inconsistent")
+    numbers = [record.sequence for record in document.records]
+    if (
+        any(number < 1 or number > document.last_sequence for number in numbers)
+        or len(numbers) != len(set(numbers))
+    ):
+        raise ValueError("MTConnect observations contain duplicate or invalid sequence")
+
+
 def _local(tag: str) -> str:
     """The element name without its XML namespace."""
     # Variables:
