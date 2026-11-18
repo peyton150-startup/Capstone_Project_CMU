@@ -352,10 +352,28 @@ def test_sse_reconnect_resumes_from_last_event_id(tmp_path, monkeypatch):
     """A reconnect replays only later durable events, never an extra action."""
     finished = threading.Event()
 
+    from uuid import uuid4
+
+    from capstone.api.runs import SafeStageSnapshot
+
+    # #294's strict projection rejects a bare {"stage": ...} payload. Emit a
+    # valid snapshot, or the run never completes and the stream never closes.
+    observe = SafeStageSnapshot(
+        investigation_id=str(uuid4()),
+        mode="triage",
+        stage="observe",
+        iteration_count=0,
+        tool_calls=0,
+        evidence_count=0,
+        hypothesis_count=0,
+        unresolved_question_ids=[],
+        conclusion_available=False,
+    ).model_dump(mode="json")
+
     def worker(self, run_id, request):
         try:
             self._emit(run_id, "run.started", {"status": "running"}, state="running")
-            self._emit(run_id, "stage.updated", {"stage": "observe"})
+            self._emit(run_id, "stage.updated", observe)
             self._emit(
                 run_id, "run.completed", {"status": "completed"}, state="completed"
             )
@@ -374,6 +392,9 @@ def test_sse_reconnect_resumes_from_last_event_id(tmp_path, monkeypatch):
     assert created.status_code == 202
     run_id = created.json()["run_id"]
     assert finished.wait(timeout=2)
+    # Fail fast instead of streaming forever if the fake worker ever breaks.
+    run = client.get(f"/api/v1/lab/runs/{run_id}", headers=auth(TOKEN)).json()
+    assert run["state"] == "completed"
     path = f"/api/v1/lab/runs/{run_id}/events"
     first = client.get(path + "?since=1", headers=auth(TOKEN))
     assert first.status_code == 200
@@ -796,6 +817,7 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
 
     from pydantic import ValidationError
 
+    from capstone.agent.triage_trace import TriageTraceEvent
     from capstone.api.runs import SafeStageSnapshot, safe_stage
 
     secret = "sk-real-provider-key-must-not-leak"
@@ -832,7 +854,38 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
         ],
         triage_candidates=[object()],
         triage_test_requirement_ids=("Q5:load",),
-        triage_trace_events=[object()],
+        triage_trace_events=[
+            TriageTraceEvent(
+                sequence=1,
+                event="decide.selected",
+                phase="investigate",
+                reason_code="selected",
+                status="pending",
+                tool="get_sensor_summary",
+                requirement_ids=("Q1:trigger", secret),
+                request_hash="a" * 20,
+                attempt=1,
+                iteration=4,
+            ),
+            TriageTraceEvent(
+                sequence=2,
+                event="tool.completed",
+                phase="investigate",
+                reason_code="provider_error",
+                status="failed",
+                tool=secret,
+                requirement_ids=(secret,),
+            ),
+            SimpleNamespace(
+                sequence=3,
+                event="decide.selected",
+                phase="investigate",
+                reason_code=secret,
+                status=secret,
+                tool=secret,
+                requirement_ids=(secret,),
+            ),
+        ],
         raw_provider_response={"secret": secret},
         hidden_ground_truth={"fault": secret},
     )
@@ -846,7 +899,42 @@ def test_render_progress_contract_rejects_secret_fields_and_free_text():
     assert payload["triage_candidates"] == 1
     assert payload["clock_verified"] is False
     assert payload["observation_cutoff_tick"] == 48
+    assert payload["decide_event_total"] == 2
+    assert payload["decide_events_recent"][0]["event"] == "decide.selected"
+    assert payload["decide_events_recent"][0]["requirement_ids"] == ["Q1:trigger"]
+    assert payload["decide_events_recent"][0]["reason_code"] == "selected"
+    assert payload["decide_events_recent"][0]["request_hash"] == "a" * 20
+    assert payload["decide_events_recent"][1]["tool"] is None
+    assert payload["decide_events_recent"][1]["requirement_ids"] == []
     assert secret not in json.dumps(payload)
+
+    state.triage_trace_events = [
+        TriageTraceEvent(
+            sequence=n,
+            event="decide.selected",
+            phase="investigate",
+            reason_code="selected",
+            status="pending",
+            tool="get_events",
+        )
+        for n in range(1, 26)
+    ]
+    bounded = safe_stage(state)
+    assert bounded["decide_event_total"] == 25
+    assert bounded["decide_events_truncated"] is True
+    assert len(bounded["decide_events_recent"]) == 20
+    assert bounded["decide_events_recent"][0]["sequence"] == 6
+    state.triage_trace_events = [
+        TriageTraceEvent(
+            sequence=n,
+            event="decide.selected",
+            phase="investigate",
+            reason_code="selected",
+        )
+        for n in (2, 1, 3, 3)
+    ]
+    ordered = safe_stage(state)
+    assert [e["sequence"] for e in ordered["decide_events_recent"]] == [2, 3]
     assert "hidden_ground_truth" not in payload
     with pytest.raises(ValidationError):
         SafeStageSnapshot.model_validate({**payload, "api_key": secret})
@@ -952,7 +1040,12 @@ def test_completed_stream_has_explicit_replay_boundary(tmp_path):
             headers=auth(TOKEN),
         )
     assert response.status_code == 200
-    assert 'event: stream.closed\\ndata: {"status":"terminal"}' in response.text
+    # A real SSE frame (newline-delimited), so EventSource-style parsers see
+    # the named terminal event; the old literal "\\n" text was never parsed.
+    assert (
+        'event: stream.closed\ndata: {"reason":"terminal_replay_complete"}\n\n'
+        in response.text
+    )
 
 
 def test_deep_lifecycle_projection_is_typed_and_keeps_private_content_out():
@@ -1081,16 +1174,17 @@ def test_deep_stage_transition_journal_survives_review_final_and_restart(tmp_pat
     assert progress["latest"] == "deep"
     assert progress["deep_transition_total"] == 4
     assert [item["stage"] for item in progress["deep_timeline"]] == [
-        "observe", "plan", "investigate", "plan"
+        "observe",
+        "plan",
+        "investigate",
+        "plan",
     ]
     assert progress["deep_timeline"][-1]["sequence"] == 6
     assert progress["deep_timeline"][-1]["observed_tick"] == 124
     assert progress["deep"]["deep_signals"]["proposal_status"] == "pending"
     assert "triage" not in progress
 
-    manager._emit(
-        run_id, "run.completed", {"status": "completed"}, state="completed"
-    )
+    manager._emit(run_id, "run.completed", {"status": "completed"}, state="completed")
     old_events = manager.events_since(run_id, 0)
     manager._emit(run_id, "stage.updated", stage("verify", 10))
     assert manager.events_since(run_id, 0) == old_events
@@ -1099,10 +1193,7 @@ def test_deep_stage_transition_journal_survives_review_final_and_restart(tmp_pat
     assert saved["state"] == "completed"
     assert saved["snapshot"]["progress"]["deep_transition_total"] == 4
     assert len(saved["snapshot"]["progress"]["deep_timeline"]) == 4
-    assert (
-        client.get(f"{path}/events?since=2", headers=auth(TOKEN)).status_code
-        == 200
-    )
+    assert client.get(f"{path}/events?since=2", headers=auth(TOKEN)).status_code == 200
     assert "PRIVATE" not in json.dumps(saved)
 
 
