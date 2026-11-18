@@ -302,7 +302,7 @@ export function RunDetailPage() {
         : 'Deep only'}/>
       {run?.requested.mode === 'triage' && <DataRow label="Effective triage profile"
         value={(lastTriage?.data.triage_run_mode as string | undefined) ||
-          run?.snapshot?.investigation?.triage_run_mode || 'Not recorded'}/>
+          run?.snapshot?.investigation?.triage_run_mode || 'Not recorded'}/>}
       <DataRow label="Updated" value={formatStamp(run?.updated_at)}/>
       {run?.state === 'awaiting_review' && <InfoState title="Human decision required" kind="warning"
         detail="Open the Review & verification page with a reviewer token. Approval alone never executes an action."
