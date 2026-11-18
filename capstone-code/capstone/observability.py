@@ -47,6 +47,8 @@ class EventLogger:
         *,
         run_id: str | None = None,
         investigation_id: str | None = None,
+        capture_session_id: str | None = None,
+        incident_id: str | None = None,
         tick: int | None = None,
         tool: str | None = None,
         success: bool | None = None,
@@ -83,6 +85,8 @@ class EventLogger:
         for field, value in (
             ("run_id", run_id),
             ("investigation_id", investigation_id),
+            ("capture_session_id", capture_session_id),
+            ("incident_id", incident_id),
             ("tool", tool),
             ("phase", phase),
             ("status", status),
