@@ -8,8 +8,11 @@ import {
   SlidersHorizontal, Sun, TerminalSquare, Waypoints, X,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { Check, Copy, KeyRound } from 'lucide-react';
 import { useUi } from './context';
-import { useResource } from './api';
+import { getJson, useResource } from './api';
+import { checkProblem, countTokens, describeCheck, emptyTokens, envBlock, generateTokens, ROLES, RUNS_VARIABLE } from './access.mjs';
+import type { Role, RoleTokens } from './access.mjs';
 import { isLoopbackFrontend } from './backend.mjs';
 import { Pill } from './ui';
 import type { Capabilities } from './types';
@@ -101,26 +104,116 @@ function Sidebar({ expanded, setExpanded, mobileOpen, closeMobile }: {
   </>;
 }
 
+type WhoAmI = { open: boolean; roles: Role[]; runs_enabled: boolean };
+
 function AccessDialog({ close }: { close: () => void }) {
-  const { token, setToken, backend } = useUi();
-  const [value, setValue] = useState(token);
+  // Variables:
+  //   values: The four boxes being edited; saved to context only on Save.
+  //   checks: What the backend said each saved token is (null = not checked).
+  //   server: Whether the backend needs a token at all and has runs switched on.
+  //   generated: Keys made in this browser for the user to install server-side.
+  const { roleTokens, setRoleTokens, backend, remember, setRemember } = useUi();
+  const [values, setValues] = useState<RoleTokens>(roleTokens);
+  const [checks, setChecks] = useState<Record<Role, Role[] | null>>(
+    { viewer: null, operator: null, reviewer: null, evaluator: null });
+  const [server, setServer] = useState<Omit<WhoAmI, 'roles'> | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [generated, setGenerated] = useState<RoleTokens | null>(null);
+  const [copied, setCopied] = useState(false);
+  const label = backend === 'local' ? 'Local' : 'Render';
+
+  // Escape closes the dialog, as expected of an aria-modal dialog; before, it
+  // stayed open over the page and swallowed clicks meant for the page.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [close]);
+
+  async function save() {
+    const next = Object.fromEntries(ROLES.map(item => [item.role, values[item.role].trim()])) as RoleTokens;
+    setRoleTokens(next);
+    setValues(next);
+    setChecking(true);
+    setProblem(null);
+    try {
+      const results = await Promise.all(ROLES.map(item => next[item.role] ?
+        getJson<WhoAmI>('/api/v1/access/whoami', next[item.role], backend) : Promise.resolve(null)));
+      const base = results.find(Boolean) || await getJson<WhoAmI>('/api/v1/access/whoami', '', backend);
+      setServer({ open: base.open, runs_enabled: base.runs_enabled });
+      setChecks(Object.fromEntries(ROLES.map((item, index) =>
+        [item.role, results[index] ? results[index]!.roles : null])) as Record<Role, Role[] | null>);
+    } catch (error) {
+      setProblem(checkProblem(error instanceof Error ? error.message : 'Check failed.'));
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function copyGenerated() {
+    if (!generated) return;
+    try { await navigator.clipboard.writeText(envBlock(generated)); setCopied(true); }
+    catch { setCopied(false); }
+  }
+
   return <div className="dialog-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
-    <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="access-title">
+    <div className="dialog dialog-wide" role="dialog" aria-modal="true" aria-labelledby="access-title">
       <div className="dialog-top"><span className="tile-icon"><LockKeyhole size={21}/></span>
         <button className="icon-button" aria-label="Close" onClick={close}><X size={20}/></button></div>
-      <h2 id="access-title">{backend === 'local' ? 'Local' : 'Render'} API access</h2>
-      <p>Enter the token configured for the selected FastAPI service. Tokens stay in browser memory, separated by backend, and are never persisted.</p>
-      <label className="field-label" htmlFor="api-token">Session token</label>
-      <input id="api-token" type="password" autoComplete="off" value={value}
-        placeholder="CAPSTONE_UI_TOKEN" onChange={e => setValue(e.target.value)} />
-      <div className="dialog-actions"><button className="button-secondary" onClick={() => { setToken(''); close(); }}>Clear access</button>
-        <button className="button-primary" onClick={() => { setToken(value.trim()); close(); }}>Save for this session</button></div>
+      <h2 id="access-title">{label} API access</h2>
+      <p>Each role has its own token. Reads use any of them; starting a run sends the operator
+        token and approvals send the reviewer token. Tokens are kept separately for Local and Render.</p>
+      {ROLES.map(item => {
+        const status = values[item.role] && checks[item.role] !== null ?
+          describeCheck(item.role, checks[item.role]) : null;
+        return <div key={item.role} className="access-row">
+          <label className="field-label" htmlFor={'token-' + item.role}>
+            <span className="access-role">{item.role}</span> {item.purpose}
+            <code>{item.variable}</code></label>
+          <input id={'token-' + item.role} type="password" autoComplete="off" value={values[item.role]}
+            onChange={e => { setValues({ ...values, [item.role]: e.target.value }); setChecks({ ...checks, [item.role]: null }); }} />
+          {status && <small className={status.ok ? 'accent-good' : 'accent-warning'} role="status">
+            {status.ok ? '✓ ' : '✗ '}{status.text}</small>}
+        </div>;
+      })}
+      {server && <p role="status">{label} backend: {server.open ? 'reads need no token' : 'reads need a token'} ·
+        runs {server.runs_enabled ? 'switched on' : <>off (set <code>{RUNS_VARIABLE}=1</code> on the API service)</>}</p>}
+      {problem && <p className="accent-warning" role="alert">{problem}</p>}
+      <label className="access-remember"><input type="checkbox" checked={remember}
+        aria-label="Remember in this tab until it closes"
+        onChange={e => setRemember(e.target.checked)}/> Remember in this tab until it closes</label>
+      <div className="dialog-actions">
+        <button className="button-secondary" onClick={() => {
+          setValues(emptyTokens()); setRoleTokens(emptyTokens()); setRemember(false); close(); }}>Clear all</button>
+        <button className="button-primary" disabled={checking} onClick={() => void save()}>
+          {checking ? 'Checking…' : 'Save and check'}</button></div>
+
+      <div className="divider-soft"/>
+      <h3 className="access-heading"><KeyRound size={16}/> Generate keys</h3>
+      <p>Makes four new random tokens in this browser; nothing is sent anywhere. They work only after
+        you add them to the API service's environment ({backend === 'render' ? 'Render → Environment' : 'your local .env'})
+        and it restarts. The old tokens stop working once replaced.</p>
+      {!generated ? <button className="button-secondary" onClick={() => { setGenerated(generateTokens()); setCopied(false); }}>
+        Generate keys</button> : <>
+        <textarea className="access-env" readOnly rows={6} value={envBlock(generated)} aria-label="Generated environment variables"
+          onFocus={event => event.currentTarget.select()}/>
+        <div className="dialog-actions">
+          <button className="button-secondary" onClick={() => { setGenerated(generateTokens()); setCopied(false); }}>Regenerate</button>
+          <button className="button-secondary" onClick={() => void copyGenerated()}>
+            {copied ? <><Check size={15}/> Copied</> : <><Copy size={15}/> Copy for {backend === 'render' ? 'Render' : '.env'}</>}</button>
+          <button className="button-primary" onClick={() => { setValues(generated); setChecks(
+            { viewer: null, operator: null, reviewer: null, evaluator: null }); }}>Fill boxes above</button>
+        </div>
+        <p>After the service restarts with these values, press <strong>Save and check</strong>: each box should show ✓.</p>
+      </>}
     </div>
   </div>;
 }
 
 function Topbar({ openMenu }: { openMenu: () => void }) {
-  const { workspace, preview, setPreview, theme, setTheme, token, backend, setBackend } = useUi();
+  const { workspace, preview, setPreview, theme, setTheme, roleTokens, backend, setBackend } = useUi();
+  const held = countTokens(roleTokens);
   const location = useLocation(), navigate = useNavigate();
   const [showAccess, setShowAccess] = useState(false);
   const [search, setSearch] = useState('');
@@ -166,7 +259,7 @@ function Topbar({ openMenu }: { openMenu: () => void }) {
           {theme === 'dark' ? <Sun size={19}/> : <Moon size={19}/>}
         </button>
         <button className="access-button" onClick={() => setShowAccess(true)}><LockKeyhole size={16}/>
-          <span>{token ? 'Access set' : 'Access'}</span></button>
+          <span>{held ? 'Access · ' + held + (held === 1 ? ' role' : ' roles') : 'Access'}</span></button>
         <span className="header-environment">{workspace === 'pilot' ? 'PILOT' : 'SIM'}</span>
       </div>
     </header>

@@ -181,6 +181,7 @@ GROUPS: dict[str, list[str]] = {
     "Industrial frontend API": [
         "web_api",
         "web_runs",
+        "api_access",
         "postgres_journal",
         "model_call_telemetry",
         "run_repository",
