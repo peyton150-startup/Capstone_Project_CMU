@@ -32146,11 +32146,12 @@
     "capsys",
     "interrupt"
    ],
-   "assertions": 5,
+   "assertions": 6,
    "assert_forms": {
     "equality": 2,
     "identity": 1,
-    "membership": 2
+    "membership": 2,
+    "negation": 1
    },
    "raises_checks": 0,
    "uses": [
@@ -32180,7 +32181,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_cli_rejects_unsafe_alerts_before_reading",
-   "line": 132,
+   "line": 134,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -32219,7 +32220,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_cli_replay_is_read_only_and_passes_thresholds",
-   "line": 152,
+   "line": 154,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -32260,7 +32261,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
-   "line": 196,
+   "line": 198,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -32301,7 +32302,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_follow_processes_another_batch_before_interrupt",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_follow_processes_another_batch_before_interrupt",
-   "line": 234,
+   "line": 236,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -58830,7 +58831,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -61376,6 +61377,663 @@
     "capstone.simulator.simulator",
     "capstone.simulator.state",
     "capstone.simulator.thermal"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+   "file": "tests/test_haas_cli.py",
+   "name": "test_guarded_cli_qualifies_one_device_and_saves_probe",
+   "line": 10,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "guarded cli qualifies one device and saves probe",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.probe",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address",
+    "capstone.ingestion.haas_profile:verify_haas_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.ingestion.__main__",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.collector",
+    "capstone.ingestion.haas_profile",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network",
+   "file": "tests/test_haas_cli.py",
+   "name": "test_guarded_cli_refuses_bad_device_or_rate_without_network",
+   "line": 40,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 3,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "guarded cli refuses bad device or rate without network",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.__main__",
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+   "file": "tests/test_haas_http.py",
+   "name": "test_approved_endpoints_and_bounded_sample_are_allowed",
+   "line": 16,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "approved endpoints and bounded sample are allowed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_http:validate_haas_get",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.haas_http",
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+   "file": "tests/test_haas_http.py",
+   "name": "test_prohibits_host_switch_and_out_of_scope_request",
+   "line": 35,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "url"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "prohibits host switch and out of scope request",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_http:validate_haas_get",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.haas_http",
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect",
+   "file": "tests/test_haas_http.py",
+   "name": "test_transport_sends_get_with_no_proxy_or_redirect",
+   "line": 40,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "ordering": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "transport sends get with no proxy or redirect",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_http:haas_get",
+    "capstone.ingestion.haas_http:validate_haas_get",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.haas_http",
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_poll_budget.py::test_catchup_cannot_bypass_shop_approved_polling_interval",
+   "file": "tests/test_haas_poll_budget.py",
+   "name": "test_catchup_cannot_bypass_shop_approved_polling_interval",
+   "line": 9,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "catchup cannot bypass shop approved polling interval",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:PollResult.gap",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_approved_profile_builds_one_literal_agent_url",
+   "line": 27,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "approved profile builds one literal agent url",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.endpoint_fingerprint",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_device_path_cannot_expand_requests",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_device_path_cannot_expand_requests",
+   "line": 37,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "device"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "device path cannot expand requests",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_rejects_non_machine_targets",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_rejects_non_machine_targets",
+   "line": 43,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "ip"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "rejects non machine targets",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_no_unapproved_full_stream_reads",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_no_unapproved_full_stream_reads",
+   "line": 48,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "no unapproved full stream reads",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_filtered_gateway_is_distinct_from_full_stream_authorization",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_filtered_gateway_is_distinct_from_full_stream_authorization",
+   "line": 53,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "filtered gateway is distinct from full stream authorization",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_rejects_invalid_or_unsafe_poll_intervals",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_rejects_invalid_or_unsafe_poll_intervals",
+   "line": 62,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "bad"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "rejects invalid or unsafe poll intervals",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_refuses_missing_permissions_and_extra_keys",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_refuses_missing_permissions_and_extra_keys",
+   "line": 67,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "refuses missing permissions and extra keys",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+   "file": "tests/test_haas_profile.py",
+   "name": "test_probe_device_must_match_approved_identity",
+   "line": 74,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "ordering": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "probe device must match approved identity",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address",
+    "capstone.ingestion.haas_profile:verify_haas_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_profile",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_protocol.py::test_strict_header_rejects_missing_or_inconsistent_sequences",
+   "file": "tests/test_haas_protocol.py",
+   "name": "test_strict_header_rejects_missing_or_inconsistent_sequences",
+   "line": 18,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "xml"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "strict header rejects missing or inconsistent sequences",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.mtconnect:validate_streams_metadata"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_protocol.py::test_legacy_parser_still_preserves_existing_fixture_contract",
+   "file": "tests/test_haas_protocol.py",
+   "name": "test_legacy_parser_still_preserves_existing_fixture_contract",
+   "line": 23,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "legacy parser still preserves existing fixture contract",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
+   "file": "tests/test_haas_protocol.py",
+   "name": "test_hardening_rejects_stalled_pagination_without_infinite_catchup",
+   "line": 28,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "hardening rejects stalled pagination without infinite catchup",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.mtconnect:validate_streams_metadata"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
