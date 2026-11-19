@@ -156,6 +156,20 @@ changed that lacked one: `validate_haas_get`, `haas_get`, `verify_haas_probe`,
   setup is classified `contract`, not `model_setup`, because `ValueError` is
   checked first. Also its final `assert code in RUN_FAILURE_CODES` vanishes
   under `python -O` (the repository re-checks, so still safe).
+- **The saved triage record can show the wrong evidence-tests setting.**
+  `triage_record()` (`capstone/experiment.py`) sets `evidence_tests` from
+  `get_settings().effective_triage.evidence_tests`, the server's settings at
+  the time the record is written. A hosted run can override triage settings
+  per run (`triage_settings` on the request, resolved by
+  `resolve_triage_run` and passed to `run_episode` as
+  `triage_configuration` in `api/runs.py` and `worker/runner.py`). The other
+  triage fields come from the run itself (`first.fixed_plan_used`,
+  `first.triage_run_mode`). So a run submitted with evidence tests off, on a
+  server where they are on, is stored as "on", and `format_evidence_tests`
+  then counts it in the wrong group when runs are compared. Fix: take the
+  value from the run's `triage_configuration` (keep the settings value only
+  when none was given). (Savant review; confirmed by reading the call path,
+  not reproduced by a test.)
 - **`uv sync --all-extras` alone gives a broken local test run.** FastAPI is
   not in `pyproject.toml`; CI installs `frontend/requirements-api.txt`
   separately. A developer who follows AGENTS.md §9 literally gets
