@@ -631,3 +631,25 @@ def test_hosted_run_submit_with_bad_host_config_is_503_not_409(monkeypatch):
     assert response.status_code == 503
     assert response.json()["detail"] == "Server run configuration is invalid"
     assert "NF_DEPLOYMENT_SHA" not in response.text
+
+
+def test_malformed_triage_setting_is_the_same_named_server_fault(caplog, monkeypatch):
+    """Settings() validation (a bad TRIAGE_* value) also stops the worker readably."""
+    from capstone.api.runs import InvalidRunEnvironment
+
+    monkeypatch.setenv("TRIAGE_PLAN", "not-a-plan")
+    with pytest.raises(InvalidRunEnvironment) as raised:
+        RunExecutionConfig.current()
+    assert "not-a-plan" not in str(raised.value)
+
+    class UntouchedRepository:
+        def __getattr__(self, name):
+            raise AssertionError("database used before config was valid: " + name)
+
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        with pytest.raises(InvalidRunEnvironment):
+            serve_worker(UntouchedRepository(), max_jobs=1)
+    logged = json.loads(caplog.records[-1].message)
+    assert logged["event"] == "worker_stopped"
+    assert logged["failure_code"] == "invalid_configuration"
+    assert "not-a-plan" not in caplog.text
