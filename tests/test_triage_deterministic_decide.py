@@ -498,8 +498,14 @@ def test_requirements_complete_needs_satisfied_requirements_not_just_no_question
     )
 
 
-def test_requirements_complete_when_every_required_requirement_is_satisfied():
-    """The positive case: real qualified evidence for every required check."""
+def test_test_phase_collects_q5_evidence_and_completion_requires_more():
+    """Test collects Q5's reads, but completion is not established by them.
+
+    Aggregate summaries satisfy each sensor requirement independently, yet Q5
+    stays unresolved (they cannot prove time-aligned co-movement) and Q4's
+    historical setting change remains unprovable, so a clean EVIDENCE_SUFFICIENT
+    is not reachable here and this test does not claim it.
+    """
     state = state_for(max_tool_calls=14)
     deps = deps_for(FakeProvider(answer, tick=45))
     # Q5's three sensor reads are collected in Test; a setting change can
@@ -647,12 +653,13 @@ def test_bookkeeping_anomalies_are_current_not_historical():
     state = state_for()
     deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
     # The default provider answers records with an empty list, so Q3's
-    # requirements stay insufficient: recording Q3 as answered is then a
-    # genuine inconsistency. A defensive corruption test -- the lifecycle
-    # cannot produce this (job paths expand before closure, reads are
-    # deduplicated).
+    # requirements stay insufficient. Recording Q3 as answered AND closed is
+    # then a genuine inconsistency. A defensive corruption test -- the
+    # lifecycle cannot produce this (job paths expand before closure, reads
+    # are deduplicated).
     run_inner_loop(state, deps, "investigate")
     state.answers["Q3"] = ["E1"]
+    state.unanswered_questions = [q for q in state.unanswered_questions if q.id != "Q3"]
     evaluate_triage_requirements(state, deps)
     first = list(state.triage_bookkeeping_anomalies)
     assert first and any(a.startswith("Q3:") for a in first)
@@ -662,6 +669,19 @@ def test_bookkeeping_anomalies_are_current_not_historical():
     # Resolving the inconsistency clears the diagnostic: it is current state,
     # not a permanent history that could block completion forever.
     state.answers.pop("Q3")
+    evaluate_triage_requirements(state, deps)
+    assert not any(a.startswith("Q3:") for a in state.triage_bookkeeping_anomalies)
+
+
+def test_an_open_question_with_evidence_is_not_a_bookkeeping_anomaly():
+    """`answers` is an evidence map: evidence for an open question is normal."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    run_inner_loop(state, deps, "investigate")
+    # Q3 stays open (its record reads are insufficient) while gather()
+    # recorded evidence for it -- exactly what question_held_open() allows.
+    state.answers["Q3"] = ["E1"]
+    assert any(q.id == "Q3" for q in state.unanswered_questions)
     evaluate_triage_requirements(state, deps)
     assert not any(a.startswith("Q3:") for a in state.triage_bookkeeping_anomalies)
 

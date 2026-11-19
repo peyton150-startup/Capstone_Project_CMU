@@ -722,16 +722,23 @@ def evaluate_triage_requirements(
                 q for q in state.unanswered_questions if q.id != question_id
             ]
         elif question_id in state.answers:
-            # Not reachable through the current lifecycle: job paths expand
-            # inside the same reconciliation, before closure, and identical
-            # reads are deduplicated. If it ever happens, record it for this
-            # cycle only; no answer state is changed without a reproducer.
-            unmet = sorted(
-                rid
-                for rid in ids
-                if state.triage_requirement_results[rid].status != "satisfied"
-            )
-            found.append(f"{question_id}: answered but {', '.join(unmet)} unsatisfied")
+            # `answers` is an evidence map, not a closure record: gather()
+            # appends evidence for a question it then holds open (an unsettled
+            # predicate). So this is only an inconsistency when the question is
+            # no longer open -- answered, yet its requirements unsatisfied.
+            # Not reachable otherwise through the current lifecycle: job paths
+            # expand inside the same reconciliation, before closure, and
+            # identical reads are deduplicated.
+            still_open = any(q.id == question_id for q in state.unanswered_questions)
+            if not still_open:
+                unmet = sorted(
+                    rid
+                    for rid in ids
+                    if state.triage_requirement_results[rid].status != "satisfied"
+                )
+                found.append(
+                    f"{question_id}: answered but {', '.join(unmet)} unsatisfied"
+                )
     state.triage_bookkeeping_anomalies = sorted(found)
 
 
