@@ -1,22 +1,38 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
-  "model": "subq/subq-preview",
-
-  "provider": {
+  "model": "subq/subq-savant-1.4",
+  "providers": {
     "subq": {
-      "npm": "@ai-sdk/openai-compatible",
-
       "name": "Subquadratic",
-
-      "options": {
+      "env": ["SUBQ_API_KEY"],
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
         "baseURL": "https://api.subq.ai/v1",
         "apiKey": "{env:SUBQ_API_KEY}"
       },
-
       "models": {
-        "subq-preview": {
-          "name": "SubQ Preview"
+        "subq-savant-1.4": {
+          "modelID": "subq-savant-1.4",
+          "name": "SubQ Savant 1.4",
+          "capabilities": {
+            "tools": true,
+            "input": ["text", "image"],
+            "output": ["text"],
+            "temperature": false,
+            "reasoning": {
+              "supported": true,
+              "toggle": false,
+              "effort": ["low", "high", "max"]
+            }
+          },
+          "compatibility": {
+            "reasoningField": "reasoning",
+            "maxTokensField": "max_tokens"
+          },
+          "limit": {
+            "context": 4000000,
+            "output": 32000
+          }
         }
       }
     }
