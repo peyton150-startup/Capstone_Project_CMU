@@ -29,6 +29,9 @@ const Context = createContext<UiContextValue | null>(null);
 const storageKey = (backend: ApiBackend) => 'capstone-access-' + backend;
 
 function loadTokens(backend: ApiBackend): RoleTokens | null {
+  // Variables:
+  //   saved: This backend's tokens from sessionStorage, present only when the
+  //     user ticked "remember in this tab"; null means start empty.
   try {
     const saved = window.sessionStorage.getItem(storageKey(backend));
     if (!saved) return null;

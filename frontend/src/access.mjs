@@ -36,6 +36,10 @@ function base64Url(bytes) {
 
 // Four distinct 43-character tokens made in the browser; nothing is sent anywhere.
 export function generateTokens(fillRandom = bytes => crypto.getRandomValues(bytes)) {
+  // Variables:
+  //   fillRandom: Source of random bytes; the browser's crypto by default,
+  //     replaceable in tests.
+  //   tokens: The candidate set, redrawn until all four values differ.
   let tokens = emptyTokens();
   while (new Set(Object.values(tokens)).size < ROLES.length || !tokens.viewer) {
     tokens = Object.fromEntries(ROLES.map(item => [item.role, base64Url(fillRandom(new Uint8Array(32)))]));
@@ -58,6 +62,9 @@ export const ROLE_DENIED_MESSAGES = [
 
 // What the dialog says about one slot after asking the server who it is.
 export function describeCheck(role, roles) {
+  // Variables:
+  //   role: The box being checked (which role the user meant to paste).
+  //   roles: What /api/v1/access/whoami said the token is; null = unchecked.
   if (!roles) return { ok: false, text: 'Not checked' };
   if (roles.includes(role)) return { ok: true, text: 'Recognised as ' + role };
   if (roles.length) return { ok: false, text: 'This is the ' + roles.join(', ') + ' token, not ' + role };

@@ -8,6 +8,9 @@ import { ROLE_DENIED_MESSAGES } from './access.mjs';
 // A 403 that names a missing role token; null for any other detail, which is
 // never shown because it could carry server data.
 async function roleDenied(response: Response): Promise<string | null> {
+  // Variables:
+  //   detail: The server's 403 reason; shown only if it is one of the fixed
+  //     ROLE_DENIED_MESSAGES.
   const payload: unknown = await response.json().catch(() => null);
   const detail = payload && typeof payload === 'object' && 'detail' in payload ?
     (payload as {detail?: unknown}).detail : null;
