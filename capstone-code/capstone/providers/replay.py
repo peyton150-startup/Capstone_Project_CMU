@@ -142,14 +142,34 @@ class RecordedObservationTools:
     def _visible(self) -> list[Line]:
         """The capture up to the cutoff, in file order, markers included."""
         # Variables:
-        #   visible: Lines before the first observation after the cutoff; a
-        #     marker after that point belongs to time not yet replayed.
-        visible: list[Line] = []
-        for line in self._lines:
-            if isinstance(line, TelemetryRecord) and line.source_timestamp > self.now:
-                break
-            visible.append(line)
-        return visible
+        #   first_late: File position of the first observation after the cutoff.
+        #   last_shown: File position of the last observation at or before it.
+        #   boundary: Markers before this position are shown. It is the later of
+        #     first_late and the line after last_shown, so an ordered capture
+        #     keeps exactly its old cut, and a marker after every shown
+        #     observation still belongs to time not yet replayed.
+        # Channels may interleave in time (a restart's /current repeats older
+        # timestamps), so a later line can still be inside the cutoff: each
+        # observation is judged by its own timestamp, not by its position.
+        first_late = len(self._lines)
+        last_shown = -1
+        for index, line in enumerate(self._lines):
+            if not isinstance(line, TelemetryRecord):
+                continue
+            if line.source_timestamp > self.now:
+                first_late = min(first_late, index)
+            else:
+                last_shown = index
+        boundary = max(first_late, last_shown + 1)
+        return [
+            line
+            for index, line in enumerate(self._lines)
+            if (
+                line.source_timestamp <= self.now
+                if isinstance(line, TelemetryRecord)
+                else index < boundary
+            )
+        ]
 
     # --- tools the recording answers --------------------------------------------
 

@@ -151,6 +151,46 @@ def test_nothing_after_the_cutoff_is_shown_and_wait_moves_it():
     assert call(provider, "wait", ticks=60).data["tick"] == 9  # stops at the end
 
 
+def test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave():
+    # The X channel's 600 s reading sits before the load channel's 120 s one in
+    # the file, as after a collector restart; the cutoff is 300 s.
+    lines = [
+        obs(0, "S1load", "10"),
+        obs(0, "exec", "ACTIVE", type_="Execution"),
+        obs(600, "Xpos", "1"),
+        obs(120, "S1load", "20"),
+    ]
+    provider = replay_provider(lines, channel_map(), now=T0 + timedelta(seconds=300))
+    window = {"machine_id": "VF2", "from_tick": 0, "to_tick": 10}
+    load = call(provider, "get_readings", sensor="load", **window).data
+    assert [r["value"] for r in load] == [10, 20]
+    xpos = call(provider, "get_readings", sensor="following_error", **window).data
+    assert xpos == []  # still after the cutoff
+
+
+def test_a_marker_after_every_shown_observation_stays_hidden():
+    gap = CollectorMarker(
+        source="http://agent:8082",
+        event="gap",
+        at=T0 + timedelta(seconds=700),
+        reason="overrun",
+        gap=GapDetail(cause="buffer_overrun"),
+    )
+    lines = [
+        obs(0, "S1load", "10"),
+        obs(600, "Xpos", "1"),
+        obs(120, "S1load", "20"),
+        gap,
+        obs(700, "S1load", "30"),
+    ]
+    tools = RecordedObservationTools(
+        lines, channel_map(), now=T0 + timedelta(seconds=300)
+    )
+    visible = tools._visible()
+    assert gap not in visible
+    assert [line.value for line in visible] == ["10", "20"]
+
+
 def test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty():
     provider = replay_provider(capture(), channel_map())
     window = {"from_tick": 0, "to_tick": 9}

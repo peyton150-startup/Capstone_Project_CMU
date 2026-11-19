@@ -567,7 +567,10 @@ def triage_record(
     #   first.research_tool_calls: Calls charged to research, without the
     #     screening's own call, beside tool_calls.
     #   first.investigate_advice: Each turn the request compiler ran.
-    #   evidence_tests: The TRIAGE_EVIDENCE_TESTS setting the run used.
+    #   evidence_tests: Whether the triage ran with the evidence-test rules:
+    #     result.triage_evidence_tests, from the profile the run used (its own
+    #     triage settings, else the server's); only a result built without
+    #     run_episode falls back to the server's current setting.
     #   first.triage_test_records: What those rules changed, kept for tracing.
     #   first.fixed_plan_used: Whether the triage planned from the fixed table.
     #   first.conclude_model_seconds, first.conclude_check_seconds: The
@@ -579,10 +582,13 @@ def triage_record(
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
-    from capstone.settings import get_settings
+    # Store the run's effective gate, not the server's setting at write time:
+    # a hosted run may override its triage settings.
+    evidence_tests = result.triage_evidence_tests
+    if evidence_tests is None:
+        from capstone.settings import get_settings
 
-    # Store the effective, not the contradictory raw, safety gate.
-    evidence_tests = get_settings().effective_triage.evidence_tests
+        evidence_tests = get_settings().effective_triage.evidence_tests
     concluded = first.conclusion
     return TriageRecord(
         seconds=result.triage_seconds,
