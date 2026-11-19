@@ -213,6 +213,8 @@ GROUPS: dict[str, list[str]] = {
         "haas_protocol",
         "haas_qualified",
         "haas_real_detector",
+        "haas_event_replay",
+        "haas_mtconnect_events",
     ],
 }
 
