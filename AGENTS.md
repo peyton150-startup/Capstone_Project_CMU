@@ -437,8 +437,12 @@ Tooling: `pytest`. Run tests after every implementation step.
 ## 9. Dev environment
 
 - Python 3.11, Pydantic v2 available.
-- Set up with `uv sync --all-extras` (as CI does), then `uv run pytest`
-  and `uv run ruff check` / `uv run ruff format --check`.
+- Set up with `uv sync --all-extras` (as CI does), then install the web
+  service's packages, which are kept out of `uv.lock` on purpose:
+  `uv pip install -r frontend/requirements-api.txt` (FastAPI, uvicorn, httpx;
+  CI installs them the same way). Without them the API tests fail with
+  `ModuleNotFoundError: fastapi`. Then `uv run pytest` and `uv run ruff check`
+  / `uv run ruff format --check`.
 - No external services. Everything runs locally and offline.
 - **Sandbox checks use Docker Desktop (rule set by the developer, 2026-11-05).**
   If a check needs an isolated sandbox, such as a container or a clean

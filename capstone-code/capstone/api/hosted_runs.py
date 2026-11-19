@@ -15,7 +15,11 @@ from capstone.api.readers import (
     project_operational_event,
     safe_investigation_detail,
 )
-from capstone.api.run_repository import RunExecutionConfig, RunRepository
+from capstone.api.run_repository import (
+    RunExecutionConfig,
+    RunRepository,
+    hosted_revision,
+)
 from capstone.api.runs import ReviewDecision, RunRequest
 
 _HOSTED_ACTOR = "hosted-simulator"
@@ -31,6 +35,8 @@ class HostedSimulatorRuns:
             raise RuntimeError("Hosted run schema not migrated")
 
     def ready(self) -> bool:
+        """Schema migrated; raises InvalidRunEnvironment without a build commit."""
+        hosted_revision()
         return self.repository.ready()
 
     def queue_metrics(self) -> dict[str, Any]:
@@ -41,6 +47,8 @@ class HostedSimulatorRuns:
         self.repository.close()
 
     def submit(self, request: RunRequest, key: str) -> dict[str, Any]:
+        # A run stamped with no commit would match any worker; refuse it.
+        hosted_revision()
         effective = RunExecutionConfig.current()
         return self.repository.submit(
             request, key, actor_id=_HOSTED_ACTOR, effective_config=effective

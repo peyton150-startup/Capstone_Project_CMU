@@ -116,7 +116,9 @@ def test_idle_worker_does_not_start_an_agent(monkeypatch):
         def ready(self):
             return True
 
-        def worker_heartbeat(self, owner, *, source_revision, status, problem=None):
+        def worker_heartbeat(
+            self, owner, *, source_revision, status, problem=None, clear_problem=False
+        ):
             assert status in {"idle", "running"}
             assert owner.startswith("worker:")
 
@@ -777,7 +779,9 @@ def test_worker_problems_reach_the_heartbeat_not_a_run(monkeypatch):
         def ready(self):
             return True
 
-        def worker_heartbeat(self, owner, *, source_revision, status, problem=None):
+        def worker_heartbeat(
+            self, owner, *, source_revision, status, problem=None, clear_problem=False
+        ):
             seen.append(problem)
             if problem is not None and problem.code == "poll_failed":
                 stop.set()
@@ -896,3 +900,53 @@ def test_malformed_triage_setting_is_the_same_named_server_fault(caplog, monkeyp
     assert logged["event"] == "worker_stopped"
     assert logged["failure_code"] == "invalid_configuration"
     assert "not-a-plan" not in caplog.text
+
+
+def test_a_recovered_worker_clears_its_poll_problem(monkeypatch):
+    import capstone.worker.runner as worker
+
+    monkeypatch.setattr(worker, "_PULSE_SECONDS", 0.05)
+    monkeypatch.setattr(
+        "capstone.api.integration_status.inspect_hosted_contracts",
+        lambda: SimpleNamespace(missing=()),
+    )
+    stop = threading.Event()
+    beats: list = []
+    polls = [0]
+
+    class FlakyQueue:
+        def ready(self):
+            return True
+
+        def worker_heartbeat(
+            self, owner, *, source_revision, status, problem=None, clear_problem=False
+        ):
+            beats.append((problem.code if problem else None, clear_problem))
+            seen_problem = any(code == "poll_failed" for code, _ in beats)
+            if seen_problem and clear_problem:
+                stop.set()
+
+        def recover_expired(self):
+            polls[0] += 1
+            if polls[0] == 1:
+                raise OSError("database unreachable")
+            return []
+
+        def claim(self, owner, *, lease_seconds=60, expected_config=None):
+            return None
+
+    runner = threading.Thread(
+        target=serve_worker,
+        args=(FlakyQueue(),),
+        kwargs={"stop": stop, "poll_seconds": 0.2},
+        daemon=True,
+    )
+    runner.start()
+    runner.join(timeout=20)
+    assert not runner.is_alive()
+    first = next(i for i, (code, _) in enumerate(beats) if code == "poll_failed")
+    # Cleared only after the failure was reported, and only once polls work.
+    assert any(clear for _, clear in beats[first:])
+    assert polls[0] >= 1 + worker._CLEAR_AFTER
+    # A heartbeat never both carries and clears a problem.
+    assert all(not (code and clear) for code, clear in beats)
