@@ -201,8 +201,10 @@ export async function runJournal({ fetchImpl, urlFor, headers = {}, signal, slee
   //     events after it, so a dropped connection resumes instead of replaying.
   //   diag: The running diagnostics record; a copy goes to onDiagnostics
   //     after every change so the page never holds a mutable reference.
-  //   attempt: Failed attempts since the last successful connection, which
-  //     sets the backoff delay; a successful connection resets it.
+  //   attempt: Failed attempts since the last healthy connection, which sets
+  //     the backoff delay. Only a connection that delivers a real frame (an
+  //     event, a keepalive or stream.closed) resets it, so a proxy that
+  //     answers 200 and closes at once still backs off to MAX_RETRY_MS.
   //   baseDelayMs: Reconnect delay, taken from the server's retry hint when it
   //     sends one, clamped to MIN_RETRY_MS..MAX_RETRY_MS.
   //   signal: Once aborted, no event or diagnostics callback fires again, so
@@ -266,8 +268,7 @@ export async function runJournal({ fetchImpl, urlFor, headers = {}, signal, slee
     const type = response.headers && response.headers.get ? response.headers.get('content-type') : null;
     if (!response.body || (type && !type.includes('text/event-stream')))
       throw new JournalStop('incompatible', 'The API did not answer with an event stream.');
-    attempt = 0;
-    publish({ state: 'connected', httpStatus: response.status, lastConnectedAt: now(), attempt: 0 });
+    publish({ state: 'connected', httpStatus: response.status, lastConnectedAt: now() });
     log('info', 'open', { status: response.status, cursor });
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -303,10 +304,18 @@ export async function runJournal({ fetchImpl, urlFor, headers = {}, signal, slee
     // Variables:
     //   verdict: acceptFrame's decision for this frame; its cursor is adopted
     //     even for a skipped frame, so a reconnect does not fetch it again.
+    //   attempt: Reset here, on the connection's first real frame, rather
+    //     than when the response headers arrive.
     diag.frames += 1;
     if (frame.retry !== null) baseDelayMs = Math.min(Math.max(frame.retry, MIN_RETRY_MS), MAX_RETRY_MS);
     const verdict = acceptFrame(frame, cursor);
     cursor = verdict.cursor;
+    // A bare retry hint proves little; any other frame shows the stream works.
+    if (attempt !== 0 && (frame.comment || verdict.action !== 'ignore')) {
+      attempt = 0;
+      diag.attempt = 0;
+      log('debug', 'backoff reset', { seq: cursor });
+    }
     if (verdict.action === 'close') return verdict.reason;
     if (verdict.action === 'ignore') {
       if (frame.comment) diag.keepalives += 1;

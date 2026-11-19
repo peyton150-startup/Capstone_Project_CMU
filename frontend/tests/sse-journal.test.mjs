@@ -138,6 +138,17 @@ test('reconnects resume from the cursor, back off, and reset after a good connec
   assert.equal(final.closeReason, 'terminal_replay_complete');
 });
 
+test('a stream that is accepted but delivers nothing still backs off', async () => {
+  const empty = () => streamResponse([]);
+  const { delays, final } = await drive([empty, empty, empty, empty, empty, empty]);
+  assert.deepEqual(delays, [2000, 4000, 8000, 16000, 30000, 30000]);
+  // Six scripted connections plus the attempt the harness aborts to end the run.
+  assert.equal(final.connects, 7);
+  // One keepalive proves the stream works and resets the backoff.
+  const healed = await drive([empty, empty, streamResponse([': keepalive\n\n']), empty]);
+  assert.deepEqual(healed.delays, [2000, 4000, 2000, 4000]);
+});
+
 test('authorization and missing runs stop instead of retrying forever', async () => {
   for (const status of [401, 403, 404]) {
     const { final, urls, delays } = await drive([streamResponse([], { status })]);
@@ -159,8 +170,10 @@ test('a non-stream answer and an oversized frame stop with fixed messages', asyn
 });
 
 test('the server retry hint sets the base delay within bounds', async () => {
+  // A bare retry hint does not reset the backoff, so the second delay is the
+  // clamped 1000 ms base doubled once.
   const { delays } = await drive([streamResponse(['retry: 5000\n\n']), streamResponse(['retry: 10\n\n'])]);
-  assert.deepEqual(delays, [5000, 1000]);
+  assert.deepEqual(delays, [5000, 2000]);
 });
 
 test('logs carry counts and reasons, never tokens, URLs or payloads', async () => {
@@ -173,7 +186,7 @@ test('logs carry counts and reasons, never tokens, URLs or payloads', async () =
   for (const forbidden of ['secret-token', 'payload-text', '/events?since', '{bad'])
     assert.doesNotMatch(text, new RegExp(forbidden.replace(/[?{]/g, '\\$&')));
   assert.deepEqual(logs.map(l => l.message),
-    ['connect', 'retry scheduled', 'connect', 'open', 'frame skipped', 'finished']);
+    ['connect', 'retry scheduled', 'connect', 'open', 'backoff reset', 'frame skipped', 'finished']);
   const lines = [];
   journalLogger('run-1', { warn: (...args) => lines.push(args) })('warn', 'stopped', { status: 401 });
   assert.deepEqual(lines, [['[journal] stopped', { run_id: 'run-1', status: 401 }]]);
