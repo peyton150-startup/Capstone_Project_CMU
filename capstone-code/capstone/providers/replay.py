@@ -33,6 +33,7 @@ from datetime import datetime, timedelta
 from math import floor
 
 from capstone.ingestion.channel_map import ChannelEntry, ChannelMap
+from capstone.ingestion.mtconnect_events import qualify_event
 from capstone.ingestion.record import Line, TelemetryRecord
 from capstone.ingestion.time_stats import Hold, channel_holds
 from capstone.providers.factory import SimulatorFactoryProvider
@@ -56,6 +57,7 @@ class RecordedObservationTools:
         *,
         tick_seconds: int = 60,
         now: datetime | None = None,
+        approved_event_item_ids: frozenset[str] = frozenset(),
     ):
         # Variables:
         #   lines: The capture, observations and collector markers in file order.
@@ -66,12 +68,38 @@ class RecordedObservationTools:
         #   now: The replay's cutoff; nothing after it is ever shown.
         #   _sensors: For each machine, its tool sensor names and their channels.
         #   _factory: The channel behind air_temperature, if one was assigned.
+        #   approved_event_item_ids: EVENT/CONDITION data items a person approved
+        #     for get_events; each must be in the probe, and empty means no events.
+        #   latest: Each channel's newest timestamp so far, so a reading earlier
+        #     than its own channel's previous one refuses the capture.
         if tick_seconds < 1:
             raise ValueError("tick_seconds must be at least 1")
         observations = [line for line in lines if isinstance(line, TelemetryRecord)]
         if not observations:
             raise ValueError("the capture holds no observations")
+        # Each channel's history must move forward in time. The check is per
+        # channel, not across the file: after a gap the collector re-reads
+        # /current, which repeats unchanged values with their original (older)
+        # timestamps, and that is a valid capture, not time travel.
+        latest: dict[tuple[str, str, str], datetime] = {}
+        for record in observations:
+            channel = (record.source, record.device, record.data_item_id)
+            previous = latest.get(channel)
+            if previous is not None and record.source_timestamp < previous:
+                raise ValueError(
+                    "capture source timestamps are out of order; qualification required"
+                )
+            latest[channel] = record.source_timestamp
         self._lines = list(lines)
+        self._channel_map = channel_map
+        self._approved_event_item_ids = approved_event_item_ids
+        candidates = {
+            entry.data_item_id
+            for entry in channel_map.entries
+            if entry.category in ("EVENT", "CONDITION")
+        }
+        if approved_event_item_ids - candidates:
+            raise ValueError("approved event IDs are not present in this probe")
         self._tick = timedelta(seconds=tick_seconds)
         self.start = min(r.source_timestamp for r in observations)
         self.end = max(r.source_timestamp for r in observations)
@@ -145,6 +173,13 @@ class RecordedObservationTools:
                 raise ToolInputError(
                     f"the capture has no Execution value for {device}, so whether "
                     "it is running is not known"
+                )
+            # Stop/interrupt states do not prove a physical breakdown.
+            # The legacy three-state tool has no 'unknown' representation,
+            # so refuse rather than silently translating STOPPED into idle.
+            if value not in RUNNING and value != "READY":
+                raise ToolInputError(
+                    f"Execution state for {device} cannot establish running or idle"
                 )
             rows.append(
                 {
@@ -279,7 +314,52 @@ class RecordedObservationTools:
         self._not_recorded("a healthy-line reference to screen against")
 
     def get_events(self, from_tick: int, to_tick: int, machine_id: str | None = None):
-        self._not_recorded("the event log")
+        """Approved MTConnect conditions/Execution, never synthesized events.
+
+        Explicit permission and the probe are mandatory. Missing or unknown
+        event state invalidates the requested coverage rather than pretending
+        the machine had no alarms in that interval.
+        """
+        if not self._approved_event_item_ids:
+            self._not_recorded("the approved MTConnect event log")
+        if from_tick > to_tick or from_tick < 0:
+            raise ToolInputError("event time range is invalid")
+        # Variables:
+        #   events: (tick, sequence, event) rows, sorted before returning.
+        #   seen: Observations already listed, by (source, instance, sequence);
+        #     a restart's /current repeats unchanged states, and MTConnect's
+        #     sequence number says it is the same observation, not a new event.
+        #   admitted: The event qualification; a refusal fails the whole call,
+        #     because partial alarm coverage must not read as "no alarms".
+        events: list[tuple[int, int, dict]] = []
+        seen: set[tuple[str, str | None, int]] = set()
+        for line in self._visible():
+            if not isinstance(line, TelemetryRecord):
+                continue
+            key = (line.source, line.instance_id, line.sequence)
+            if key in seen:
+                continue
+            if line.data_item_id not in self._approved_event_item_ids:
+                continue
+            if machine_id is not None and line.device != machine_id:
+                continue
+            tick = self.tick_of(line.source_timestamp)
+            if not from_tick <= tick <= to_tick:
+                continue
+            admitted = qualify_event(
+                line,
+                self._channel_map,
+                approved_item_ids=self._approved_event_item_ids,
+                tick=tick,
+            )
+            if admitted.value is None:
+                raise ToolInputError(
+                    "approved MTConnect event coverage is incomplete or invalid"
+                )
+            seen.add(key)
+            events.append((tick, line.sequence, admitted.value.event.model_dump()))
+        events.sort(key=lambda row: (row[0], row[1]))
+        return [row for _, _, row in events]
 
     def get_job_history(self, job_id: int):
         self._not_recorded("jobs")
@@ -389,12 +469,17 @@ def replay_provider(
     *,
     tick_seconds: int = 60,
     now: datetime | None = None,
+    approved_event_item_ids: frozenset[str] = frozenset(),
 ) -> SimulatorFactoryProvider:
     """A FactoryProvider over a capture: the same tools and contracts, source 'replay'."""
     # Variables:
     #   look: The recorded observation tools, standing at the cutoff.
     look = RecordedObservationTools(
-        lines, channel_map, tick_seconds=tick_seconds, now=now
+        lines,
+        channel_map,
+        tick_seconds=tick_seconds,
+        now=now,
+        approved_event_item_ids=approved_event_item_ids,
     )
     return SimulatorFactoryProvider(look, RecordedActionTools(look), source="replay")
 

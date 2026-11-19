@@ -50,6 +50,7 @@ def replay_tool_specs(
     *,
     now: datetime,
     tick_seconds: int = 60,
+    approved_event_item_ids: frozenset[str] = frozenset(),
 ) -> tuple[ToolSpec, ...]:
     """Offer only research capabilities that this recorded window can answer."""
     # Variables:
@@ -58,6 +59,9 @@ def replay_tool_specs(
     #   factory: Whether a mapped ambient-temperature channel has a numeric value.
     #   execution: Devices with observed Execution events, needed for list_machines.
     #   kinds: The device-and-sensor facts included in tool descriptions and schemas.
+    #   event_capable: True only when a person approved event data items and at
+    #     least one of them was recorded before the cutoff; only then is
+    #     get_events offered to the model.
     visible = [
         row
         for row in lines
@@ -65,6 +69,11 @@ def replay_tool_specs(
     ]
     machines: dict[str, set[str]] = {}
     factory = False
+    event_capable = bool(approved_event_item_ids) and any(
+        row.data_item_id in approved_event_item_ids
+        and row.category in ("EVENT", "CONDITION")
+        for row in visible
+    )
     execution = {
         row.device for row in visible if row.type == "Execution" and row.available
     }
@@ -119,6 +128,13 @@ def replay_tool_specs(
             if not factory:
                 continue
             detail = "Recorded air_temperature only; units from the probe."
+        elif name == "get_events":
+            if not event_capable:
+                continue
+            detail = (
+                "Approved, recorded MTConnect status and condition events only; "
+                "unknown/partial coverage is refused rather than returned empty."
+            )
         elif name == "wait":
             if now >= end:
                 continue
@@ -151,6 +167,7 @@ def run_recorded_investigation(
     description: str,
     now: datetime | None = None,
     tick_seconds: int = 60,
+    approved_event_item_ids: frozenset[str] = frozenset(),
     budgets: Budgets | None = None,
     clock: Callable[[], float] = monotonic,
 ) -> InvestigationState:
@@ -162,12 +179,24 @@ def run_recorded_investigation(
     #     It takes the triage settings, including TRIAGE_CONCLUDE_CAP, which
     #     holds its conclusion question to the conclusion window.
     #   deps: Graph dependencies with no live controller or simulator truth.
+    #   approved_event_item_ids: EVENT/CONDITION data items a person approved;
+    #     passed to both the provider and the tool list, so they always agree.
     if not description.strip():
         raise ValueError("a nonempty operator observation is required")
-    provider = replay_provider(lines, channel_map, tick_seconds=tick_seconds, now=now)
+    provider = replay_provider(
+        lines,
+        channel_map,
+        tick_seconds=tick_seconds,
+        now=now,
+        approved_event_item_ids=approved_event_item_ids,
+    )
     look = provider._observations
     available = replay_tool_specs(
-        lines, channel_map, now=look.now, tick_seconds=tick_seconds
+        lines,
+        channel_map,
+        now=look.now,
+        tick_seconds=tick_seconds,
+        approved_event_item_ids=approved_event_item_ids,
     )
     listed = " ".join(tool.description for tool in available)
     if not any(
@@ -264,11 +293,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   captured: Checked stored records; the tool never contacts an MTConnect agent.
     #   tool_specs: Only the recorded capabilities the remote model can request.
     #   state: The graph's typed conclusion and evidence, written to a private path.
+    #   approved_events: The --approved-event-id values; empty keeps get_events off.
     parser = argparse.ArgumentParser(prog="python -m capstone.recorded_investigation")
     parser.add_argument("--capture", required=True, type=Path)
     parser.add_argument("--channel-map", required=True, type=Path)
     parser.add_argument("--probe", required=True, type=Path)
     parser.add_argument("--machine", required=True)
+    parser.add_argument(
+        "--approved-event-id",
+        action="append",
+        default=[],
+        help="explicitly authorized MTConnect EVENT/CONDITION data-item ID (repeatable)",
+    )
     parser.add_argument("--description", required=True)
     parser.add_argument(
         "--at", help="ISO source timestamp with UTC offset; default last"
@@ -309,7 +345,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         cutoff = at or max(
             row.source_timestamp for row in captured if isinstance(row, TelemetryRecord)
         )
-        tool_specs = replay_tool_specs(captured, channel_map, now=cutoff)
+        approved_events = frozenset(args.approved_event_id)
+        tool_specs = replay_tool_specs(
+            captured,
+            channel_map,
+            now=cutoff,
+            approved_event_item_ids=approved_events,
+        )
         if len(tool_specs) <= 1:
             raise ValueError("no supported observation tools in this capture")
         from capstone.agent.model_policy import ModelPolicy
@@ -327,6 +369,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             machine_id=args.machine,
             description=args.description,
             now=cutoff,
+            approved_event_item_ids=approved_events,
         )
         with args.out.open("x", encoding="utf-8") as output:
             output.write(state.model_dump_json(indent=2) + "\n")

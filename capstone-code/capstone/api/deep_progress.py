@@ -53,7 +53,9 @@ class SafeDeepSignals(BaseModel):
     pruned_candidates: int = Field(default=0, ge=0)
     hypothesis_revisions: int = Field(default=0, ge=0)
     conclusion_assessment: Literal["supported", "unresolved"] | None = None
-    conclusion_recommendation: Literal["intervene", "no_action", "escalate"] | None = None
+    conclusion_recommendation: Literal["intervene", "no_action", "escalate"] | None = (
+        None
+    )
     conclusion_evidence_count: int = Field(default=0, ge=0)
     proposal_status: ProposalStatus | None = None
     action_started: bool = False

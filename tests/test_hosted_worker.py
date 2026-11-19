@@ -59,17 +59,19 @@ def test_stage_contract_rejects_raw_state_and_question_text():
     with pytest.raises(ValidationError):
         StagePayload.model_validate({**valid, "provider_api_key": "sensitive"})
     with pytest.raises(ValidationError):
-        StagePayload.model_validate({
-            **valid, "unresolved_question_ids": ["What is the API key?"]
-        })
+        StagePayload.model_validate(
+            {**valid, "unresolved_question_ids": ["What is the API key?"]}
+        )
     with pytest.raises(ValidationError):
         StagePayload.model_validate({**valid, "tool_calls": -1})
 
 
 def test_review_contract_does_not_accept_raw_tool_arguments():
     args = {
-        "proposal_id": 1, "machine_id": "CNC-01",
-        "action": "wait", "reason": "verify",
+        "proposal_id": 1,
+        "machine_id": "CNC-01",
+        "action": "wait",
+        "reason": "verify",
         "predicted_effect": "observe",
     }
     assert ReviewProposal.model_validate(args).proposal_id == 1
@@ -78,9 +80,7 @@ def test_review_contract_does_not_accept_raw_tool_arguments():
 
 
 def test_structured_logs_drop_unapproved_fields_and_values(caplog):
-    claim = SimpleNamespace(
-        run_id=uuid.uuid4(), job_id=uuid.uuid4()
-    )
+    claim = SimpleNamespace(run_id=uuid.uuid4(), job_id=uuid.uuid4())
     with caplog.at_level(logging.INFO, logger="capstone.worker"):
         record("claimed", claim=claim, count=1, api_key="NEVER_LOG")
     entry = json.loads(caplog.records[-1].message)
@@ -103,9 +103,7 @@ def test_strategy_drift_fails_closed(monkeypatch):
     )
     monkeypatch.setattr(settings, "get_settings", lambda: current)
     monkeypatch.delenv("CAPSTONE_SOURCE_REVISION", raising=False)
-    good = RunExecutionConfig(
-        triage_plan="fixed", triage_investigate="deterministic"
-    )
+    good = RunExecutionConfig(triage_plan="fixed", triage_investigate="deterministic")
     check_strategy(good)
     with pytest.raises(RuntimeError, match="does not match"):
         check_strategy(RunExecutionConfig())
@@ -118,7 +116,7 @@ def test_idle_worker_does_not_start_an_agent(monkeypatch):
         def ready(self):
             return True
 
-        def worker_heartbeat(self, owner, *, source_revision, status):
+        def worker_heartbeat(self, owner, *, source_revision, status, problem=None):
             assert status in {"idle", "running"}
             assert owner.startswith("worker:")
 
@@ -186,17 +184,19 @@ def test_extended_progress_matches_pr294_without_raw_readings():
     with pytest.raises(ValidationError):
         StagePayload.model_validate({**safe, "raw_readings": [400.0]})
     with pytest.raises(ValidationError):
-        StagePayload.model_validate({
-            **safe,
-            "requirement_statuses": [
-                {
-                    "requirement_id": "Q1:sensor",
-                    "status": "satisfied",
-                    "evidence_count": 0,
-                    "provider_response": "SECRET",
-                }
-            ],
-        })
+        StagePayload.model_validate(
+            {
+                **safe,
+                "requirement_statuses": [
+                    {
+                        "requirement_id": "Q1:sensor",
+                        "status": "satisfied",
+                        "evidence_count": 0,
+                        "provider_response": "SECRET",
+                    }
+                ],
+            }
+        )
 
 
 def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monkeypatch):
@@ -234,12 +234,14 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
                 "state": "completed",
                 "snapshot": {
                     "investigation": {
-                        "investigation_id": investigation_id, "mode": "deep",
+                        "investigation_id": investigation_id,
+                        "mode": "deep",
                     },
                     "progress": {
                         "triage": {"investigation_id": triage_id, "mode": "triage"},
                         "deep": {
-                            "investigation_id": investigation_id, "mode": "deep",
+                            "investigation_id": investigation_id,
+                            "mode": "deep",
                         },
                         "latest": "deep",
                     },
@@ -261,16 +263,20 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
 
         def events_since(self, _id, cursor, limit=100):
             return [
-                event for event in (
+                event
+                for event in (
                     {
-                        "seq": 1, "event": "model.call",
+                        "seq": 1,
+                        "event": "model.call",
                         "data": {"unsafe_provider_body": "NEVER_STREAM"},
                     },
                     {
-                        "seq": 2, "event": "run.completed",
+                        "seq": 2,
+                        "event": "run.completed",
                         "data": {"status": "completed"},
                     },
-                ) if event["seq"] > cursor
+                )
+                if event["seq"] > cursor
             ]
 
         def pending_reviews(self):
@@ -321,10 +327,14 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     assert isinstance(integr.json()["missing"], list)
     assert "database_url" not in integr.text
     assert "NEVER_STREAM" not in integr.text
-    assert client.post(
-        "/api/v1/lab/runs", headers={**viewer, "Idempotency-Key": "a" * 20},
-        json={"seed": 11},
-    ).status_code == 403
+    assert (
+        client.post(
+            "/api/v1/lab/runs",
+            headers={**viewer, "Idempotency-Key": "a" * 20},
+            json={"seed": 11},
+        ).status_code
+        == 403
+    )
     created = client.post(
         "/api/v1/lab/runs",
         headers={**operator, "Idempotency-Key": "a" * 20},
@@ -332,48 +342,69 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
     )
     assert created.status_code == 202
     assert observed["submissions"] == 1
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/investigation", headers=viewer
-    ).json()["detail"]["investigation_id"] == investigation_id
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/investigation", headers=viewer
+        ).json()["detail"]["investigation_id"]
+        == investigation_id
+    )
     triage_view = client.get(
         "/api/v1/lab/runs/" + run_id + "/investigation?phase=triage",
         headers=viewer,
     )
     assert triage_view.json()["detail"]["investigation_id"] == triage_id
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/investigation?phase=deep",
-        headers=viewer,
-    ).json()["detail"]["investigation_id"] == investigation_id
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/investigation?phase=secret",
-        headers=viewer,
-    ).status_code == 422
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/model-calls?workspace=pilot",
-        headers=viewer,
-    ).status_code == 403
-    timeline = client.get(
-        "/api/v1/lab/runs/" + run_id + "/model-calls", headers=viewer
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/investigation?phase=deep",
+            headers=viewer,
+        ).json()["detail"]["investigation_id"]
+        == investigation_id
     )
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/investigation?phase=secret",
+            headers=viewer,
+        ).status_code
+        == 422
+    )
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/model-calls?workspace=pilot",
+            headers=viewer,
+        ).status_code
+        == 403
+    )
+    timeline = client.get("/api/v1/lab/runs/" + run_id + "/model-calls", headers=viewer)
     assert timeline.status_code == 200
     assert timeline.json()["items"][0]["job"] == "conclude"
-    assert client.get(
-        "/api/v1/lab/runs/" + run_id + "/observability", headers=viewer
-    ).json()["items"][0]["counts"]["tool_calls"] == 5
+    assert (
+        client.get(
+            "/api/v1/lab/runs/" + run_id + "/observability", headers=viewer
+        ).json()["items"][0]["counts"]["tool_calls"]
+        == 5
+    )
     stream = client.get("/api/v1/lab/runs/" + run_id + "/events", headers=viewer)
     assert stream.status_code == 200
     assert "event: stream.closed" in stream.text
     assert "event: model.call" not in stream.text
     assert "NEVER_STREAM" not in stream.text
     assert "event: run.completed" in stream.text
-    assert client.post(
-        "/api/v1/simulator/reviews/" + run_id,
-        headers=viewer, json={"proposal_id": 1, "decision": "reject"},
-    ).status_code == 403
-    assert client.post(
-        "/api/v1/simulator/reviews/" + run_id,
-        headers=reviewer, json={"proposal_id": 1, "decision": "reject"},
-    ).status_code == 200
+    assert (
+        client.post(
+            "/api/v1/simulator/reviews/" + run_id,
+            headers=viewer,
+            json={"proposal_id": 1, "decision": "reject"},
+        ).status_code
+        == 403
+    )
+    assert (
+        client.post(
+            "/api/v1/simulator/reviews/" + run_id,
+            headers=reviewer,
+            json={"proposal_id": 1, "decision": "reject"},
+        ).status_code
+        == 200
+    )
     assert observed["decisions"] == 1
 
 
@@ -391,25 +422,55 @@ def test_worker_logs_only_allowlisted_failure_codes_and_build_sha(caplog, monkey
         record("failed", failure_code="private provider exception")
 
 
+def test_northflank_worker_logs_and_matches_render_web_commit(caplog, monkeypatch):
+    """A Northflank worker runs a job a Render web service stamped, same commit."""
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+    from capstone.worker.runner import check_strategy, record
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "f" * 40)
+    submitted = RunExecutionConfig.current()  # Stamped by the Render web side.
+    monkeypatch.delenv("RENDER_GIT_COMMIT")
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "f" * 40)
+    check_strategy(submitted)  # Same commit on Northflank: accepted.
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        record("ready")
+    assert json.loads(caplog.records[-1].message)["revision"] == "f" * 12
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "0" * 40)
+    with pytest.raises(RuntimeError):
+        check_strategy(submitted)  # Different commit: still refused.
+
+
 def test_worker_resolves_pr301_profile_without_reimplementing_it(monkeypatch):
     """Two Render services must persist the true effective Graph control plane."""
     import capstone.settings as settings
 
     # Deliberately contradictory raw knobs: PR #301's profile wins.
     original = SimpleNamespace(
-        triage_plan="model", triage_investigate="off",
-        triage_hypothesize="model", triage_evidence_tests=False,
+        triage_plan="model",
+        triage_investigate="off",
+        triage_hypothesize="model",
+        triage_evidence_tests=False,
         effective_triage=SimpleNamespace(
-            run_mode="deterministic", plan="fixed",
-            investigate="deterministic", hypothesize="deterministic",
-            evidence_tests=True, packet=True, packet_prompt=True,
-            observe_calls="separate", hypothesis_seconds=0.0,
-            critic=False, critic_followup=False, critic_reinstate=False,
+            run_mode="deterministic",
+            plan="fixed",
+            investigate="deterministic",
+            hypothesize="deterministic",
+            evidence_tests=True,
+            packet=True,
+            packet_prompt=True,
+            observe_calls="separate",
+            hypothesis_seconds=0.0,
+            critic=False,
+            critic_followup=False,
+            critic_reinstate=False,
         ),
     )
     monkeypatch.setattr(settings, "get_settings", lambda: original)
     monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
     monkeypatch.delenv("CAPSTONE_SOURCE_REVISION", raising=False)
+    monkeypatch.delenv("NF_DEPLOYMENT_SHA", raising=False)
     effective = RunExecutionConfig.current()
     assert effective.triage_run_mode == "deterministic"
     assert effective.triage_plan == "fixed"
@@ -436,14 +497,21 @@ def test_cross_pr_contract_inventory_uses_real_pydantic_models(monkeypatch):
     assert "api_key" not in str(public)
     assert "DATABASE_URL" not in str(public)
     assert set(public) == {
-        "schema_version", "stage_progress", "decide_trace",
-        "deep_lifecycle", "deterministic_profile", "model_attempts",
-        "source_contracts_complete", "missing",
+        "schema_version",
+        "stage_progress",
+        "decide_trace",
+        "deep_lifecycle",
+        "deterministic_profile",
+        "model_attempts",
+        "source_contracts_complete",
+        "missing",
     }
 
     # Simulate an untrusted, malformed replacement for the canonical stage.
     monkeypatch.setattr(
-        runs, "SafeStageSnapshot", SimpleNamespace(model_fields=["unsafe"]),
+        runs,
+        "SafeStageSnapshot",
+        SimpleNamespace(model_fields=["unsafe"]),
         raising=False,
     )
     checked = inspect_hosted_contracts()
@@ -465,8 +533,12 @@ def test_pr297_projection_redacts_provider_content_without_graph_rewrite():
         prompt_version=None,
     )
     call = SimpleNamespace(
-        job="conclude", outcome="no_answer", answered_by=None,
-        mode="triage", stage="conclude", attempts=(attempt,),
+        job="conclude",
+        outcome="no_answer",
+        answered_by=None,
+        mode="triage",
+        stage="conclude",
+        attempts=(attempt,),
     )
     safe = project_model_call(call, 1)
     assert safe["question_index"] == 1
@@ -476,3 +548,351 @@ def test_pr297_projection_redacts_provider_content_without_graph_rewrite():
     assert safe["attempts"][0]["seconds"] == 0.42
     assert "NEVER_LEAK" not in str(safe)
     assert "sk-private-token" not in str(safe)
+
+
+@pytest.mark.parametrize("bad", ["F" * 40, "f" * 41, "not-a-commit"])
+def test_malformed_revision_is_a_named_server_fault(monkeypatch, bad):
+    """A bad host commit raises one typed error that never echoes the value."""
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+    from capstone.api.runs import InvalidRunEnvironment
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", bad)
+    with pytest.raises(InvalidRunEnvironment) as raised:
+        RunExecutionConfig.current()
+    # Not a ValueError/RuntimeError, so the API cannot map it to a 409.
+    assert not isinstance(raised.value, (ValueError, RuntimeError))
+    assert bad not in str(raised.value)
+    assert "NF_DEPLOYMENT_SHA" in str(raised.value)
+
+
+def test_worker_with_malformed_revision_logs_why_and_stops(caplog, monkeypatch):
+    """The worker exits with a logged invalid_configuration code, before any DB use."""
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+    from capstone.api.runs import InvalidRunEnvironment
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "F" * 40)
+
+    class UntouchedRepository:
+        def __getattr__(self, name):
+            raise AssertionError("database used before config was valid: " + name)
+
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        with pytest.raises(InvalidRunEnvironment):
+            serve_worker(UntouchedRepository(), max_jobs=1)
+    logged = json.loads(caplog.records[-1].message)
+    assert logged["event"] == "worker_stopped"
+    assert logged["failure_code"] == "invalid_configuration"
+    assert "revision" not in logged  # The malformed value is never logged.
+
+
+def test_hosted_run_submit_with_bad_host_config_is_503_not_409(monkeypatch):
+    """A server-side settings fault must not look like an idempotency conflict."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("Optional FastAPI test dependency not installed")
+    import capstone.api.hosted_runs as hosted
+    from capstone.api.app import create_app
+    from capstone.api.runs import InvalidRunEnvironment
+
+    class BadHostApi:
+        def __init__(self, database_url):
+            pass
+
+        def ready(self):
+            return True
+
+        def close(self):
+            pass
+
+        def submit(self, request, key):
+            raise InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE)
+
+    monkeypatch.setattr(hosted, "HostedSimulatorRuns", BadHostApi)
+    cfg = UiConfig(
+        run_backend="hosted",
+        run_database_url="postgresql://dummy/capstone_test",
+        runs_enabled=True,
+        token="v" * 24,
+        run_token="o" * 24,
+        review_token="r" * 24,
+        browser_origin="https://frontend.example",
+    )
+    client = TestClient(create_app(cfg))
+    response = client.post(
+        "/api/v1/lab/runs",
+        headers={"Authorization": "Bearer " + "o" * 24, "Idempotency-Key": "b" * 20},
+        json={"seed": 11},
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Server run configuration is invalid"
+    assert "NF_DEPLOYMENT_SHA" not in response.text
+
+
+# --- Worker failures traceable from the journal and the UI -----------------
+
+
+def _claim(mode: str = "deep"):
+    """A minimal job claim; the fake repositories below never touch a database."""
+    from capstone.api.run_repository import JobClaim
+    from capstone.api.runs import RunRequest
+
+    return JobClaim(
+        uuid.uuid4(),
+        uuid.uuid4(),
+        uuid.uuid4(),
+        RunRequest(seed=5, mode=mode),
+        RunExecutionConfig(),
+    )
+
+
+class _TerminalRecorder:
+    """Records the terminal transition; optionally fails the write itself."""
+
+    def __init__(self, fail_write: bool = False):
+        self.fail_write = fail_write
+        self.transitions: list[tuple[str, str, dict]] = []
+        self.model_events: list[str] = []
+
+    def heartbeat(self, claim, owner, *, lease_seconds=60):
+        return True
+
+    def publish_model_event(self, claim, owner, event_name, payload):
+        self.model_events.append(event_name)
+
+    def transition(self, claim, owner, state, event_name, snapshot, **kwargs):
+        if self.fail_write:
+            raise RuntimeError("SQL: INSERT ... password=SECRET")
+        self.transitions.append((state, event_name, snapshot))
+
+
+@pytest.mark.parametrize(
+    ("error", "step", "code"),
+    [
+        ("invalid_environment", None, "invalid_configuration"),
+        ("mismatch", None, "configuration_mismatch"),
+        (ValueError("provider body SECRET"), None, "contract"),
+        (OSError("connection refused SECRET"), None, "database"),
+        (TimeoutError(), None, "database"),
+        ("sqlalchemy", None, "database"),
+        (RuntimeError("provider body SECRET"), "model_setup", "model_setup"),
+        (RuntimeError("provider body SECRET"), "artifact", "artifact"),
+        (RuntimeError("provider body SECRET"), "episode", "execution"),
+        (KeyError("SECRET"), None, "execution"),
+        (RuntimeError("Worker configuration does not match"), None, "execution"),
+    ],
+)
+def test_failure_classification_reads_type_and_step_never_message(error, step, code):
+    from sqlalchemy.exc import OperationalError
+
+    from capstone.api.run_repository import RUN_FAILURE_CODES, InvalidRunEnvironment
+    from capstone.worker.runner import _MISMATCH_MESSAGE, classify_failure
+
+    if error == "invalid_environment":
+        error = InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE)
+    elif error == "mismatch":
+        error = RuntimeError(_MISMATCH_MESSAGE)
+    elif error == "sqlalchemy":
+        error = OperationalError("SELECT secret", {}, Exception("SECRET"))
+    assert classify_failure(error, step) == code
+    assert code in RUN_FAILURE_CODES
+
+
+def test_failed_run_stores_its_failure_code_without_the_message(monkeypatch):
+    import capstone.worker.runner as worker
+
+    def drift(_config):
+        raise RuntimeError(worker._MISMATCH_MESSAGE)
+
+    monkeypatch.setattr(worker, "check_strategy", drift)
+    repository = _TerminalRecorder()
+    worker.execute_claim(repository, _claim(), "worker:test", heartbeat_seconds=1)
+    [(state, event_name, payload)] = repository.transitions
+    assert (state, event_name) == ("failed", "run.failed")
+    assert payload["failure_code"] == "configuration_mismatch"
+    assert payload["error_class"] == "RuntimeError"
+    assert "does not match" not in json.dumps(payload)
+
+
+def test_model_setup_failure_is_named_model_setup(monkeypatch):
+    import capstone.experiment as experiment
+    import capstone.worker.runner as worker
+
+    def broken_factory(**kwargs):
+        raise RuntimeError("provider said: invalid key SECRET")
+
+    monkeypatch.setattr(worker, "check_strategy", lambda _config: None)
+    monkeypatch.setattr(experiment, "model_policy_factory", broken_factory)
+    repository = _TerminalRecorder()
+    worker.execute_claim(repository, _claim(), "worker:test", heartbeat_seconds=1)
+    [(_, _, payload)] = repository.transitions
+    assert payload["failure_code"] == "model_setup"
+    assert "SECRET" not in json.dumps(payload)
+
+
+def test_failed_terminal_write_leaves_a_fixed_log_event(caplog, monkeypatch):
+    import capstone.worker.runner as worker
+
+    def contract_error(_config):
+        raise ValueError("bad payload SECRET")
+
+    monkeypatch.setattr(worker, "check_strategy", contract_error)
+    repository = _TerminalRecorder(fail_write=True)
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        worker.execute_claim(repository, _claim(), "worker:test", heartbeat_seconds=1)
+    events = [json.loads(item.message) for item in caplog.records]
+    written = [event for event in events if event["event"] == "terminal_write_failed"]
+    assert len(written) == 1
+    assert written[0]["failure_code"] == "contract"
+    assert set(written[0]) <= {
+        "event",
+        "failure_code",
+        "job_id",
+        "run_id",
+        "service",
+        "revision",
+    }
+    assert "SECRET" not in caplog.text
+    assert "password" not in caplog.text
+
+
+def test_worker_problems_reach_the_heartbeat_not_a_run(monkeypatch):
+    import capstone.worker.runner as worker
+
+    monkeypatch.setattr(worker, "_PULSE_SECONDS", 0.05)
+    # Force no missing contracts, so the problem the worker notes comes from
+    # the failing poll rather than from this checkout's contract inventory.
+    monkeypatch.setattr(
+        "capstone.api.integration_status.inspect_hosted_contracts",
+        lambda: SimpleNamespace(missing=()),
+    )
+    stop = threading.Event()
+    seen: list = []
+
+    class FailingQueue:
+        def ready(self):
+            return True
+
+        def worker_heartbeat(self, owner, *, source_revision, status, problem=None):
+            seen.append(problem)
+            if problem is not None and problem.code == "poll_failed":
+                stop.set()
+
+        def recover_expired(self):
+            raise OSError("could not connect: password=SECRET")
+
+        def claim(self, owner, *, lease_seconds=60, expected_config=None):
+            pytest.fail("A failing poll must not reach claim")
+
+    runner = threading.Thread(
+        target=serve_worker,
+        args=(FailingQueue(),),
+        kwargs={"stop": stop, "poll_seconds": 0.2},
+        daemon=True,
+    )
+    runner.start()
+    runner.join(timeout=15)
+    assert not runner.is_alive()
+    problems = [item for item in seen if item is not None]
+    assert problems and problems[-1].code == "poll_failed"
+    assert problems[-1].count >= 1
+    assert "SECRET" not in repr(problems)
+
+
+def test_worker_problem_and_interrupt_fields_are_validated_before_storage():
+    from datetime import datetime, timezone
+
+    from capstone.api.run_models import SimRun
+    from capstone.api.run_repository import RunRepository, WorkerProblem
+
+    class Session:
+        def scalar(self, *args):
+            pytest.fail("Unsafe event must be refused before querying the database")
+
+    for name, payload in (
+        ("run.failed", {"status": "failed", "failure_code": "provider said no"}),
+        ("run.interrupted", {"status": "interrupted", "heartbeat_age_seconds": -1}),
+        ("run.interrupted", {"status": "interrupted", "heartbeat_age_seconds": "9"}),
+    ):
+        with pytest.raises(ValueError):
+            RunRepository._append(Session(), SimRun(run_id=None), name, payload)
+    repository = RunRepository(
+        "postgresql+psycopg://test:test@localhost/capstone_test?sslmode=require"
+    )
+    try:
+        now = datetime.now(timezone.utc)
+        for problem in (
+            WorkerProblem("database password SECRET", now),
+            WorkerProblem("poll_failed", now, -1),
+            WorkerProblem("poll_failed", now.replace(tzinfo=None)),
+        ):
+            with pytest.raises(ValueError, match="Invalid worker problem"):
+                repository.worker_heartbeat(
+                    "worker:test", source_revision=None, status="idle", problem=problem
+                )
+    finally:
+        repository.close()
+
+
+def test_operational_projection_adds_only_bounded_safe_fields():
+    from capstone.api.readers import project_operational_event
+
+    row = {
+        "event": "triage.decide.read_selected",
+        "phase": "triage",
+        "status": "selected",
+        "reason_code": "requirement_open",
+        "attempt": 2,
+        "duration_ms": 12.34567,
+        "request_hash": "a" * 20,
+        "config_fingerprint": "b" * 20,
+        "prompt": "You are an investigator. SECRET",
+        "tool": "read_sensor",
+    }
+    assert project_operational_event(row) == {
+        "event": "triage.decide.read_selected",
+        "phase": "triage",
+        "status": "selected",
+        "reason_code": "requirement_open",
+        "attempt": 2,
+        "duration_ms": 12.346,
+        "request_hash": "a" * 20,
+        "tool": "read_sensor",
+    }
+    hostile = {
+        "event": "x.y",
+        "phase": "free text with spaces",
+        "status": "a" * 200,
+        "attempt": 0,
+        "duration_ms": float("nan"),
+        "request_hash": "SECRET-not-a-digest",
+    }
+    assert project_operational_event(hostile) == {"event": "x.y"}
+    assert project_operational_event({"event": "bad event"}) is None
+    assert project_operational_event(["not", "a", "row"]) is None
+
+
+def test_malformed_triage_setting_is_the_same_named_server_fault(caplog, monkeypatch):
+    """Settings() validation (a bad TRIAGE_* value) also stops the worker readably."""
+    from capstone.api.runs import InvalidRunEnvironment
+
+    monkeypatch.setenv("TRIAGE_PLAN", "not-a-plan")
+    with pytest.raises(InvalidRunEnvironment) as raised:
+        RunExecutionConfig.current()
+    assert "not-a-plan" not in str(raised.value)
+
+    class UntouchedRepository:
+        def __getattr__(self, name):
+            raise AssertionError("database used before config was valid: " + name)
+
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        with pytest.raises(InvalidRunEnvironment):
+            serve_worker(UntouchedRepository(), max_jobs=1)
+    logged = json.loads(caplog.records[-1].message)
+    assert logged["event"] == "worker_stopped"
+    assert logged["failure_code"] == "invalid_configuration"
+    assert "not-a-plan" not in caplog.text

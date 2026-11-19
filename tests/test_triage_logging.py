@@ -131,6 +131,8 @@ def test_the_report_counts_plans_and_report_outcomes(monkeypatch):
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "off")
     monkeypatch.setenv("TRIAGE_PLAN", "fixed")
+    # Legacy model-Hypothesize arm: #299 made deterministic Hypothesize the default.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     case = Case("bearing-6", SEED, "bearing_degradation")
     (fixed,) = run_experiment([case], triage_then_deep, name="fixed", triage=True)
     monkeypatch.setenv("TRIAGE_PLAN", "model")

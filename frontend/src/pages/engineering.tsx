@@ -8,10 +8,52 @@ import { useRecording } from '../pageData';
 import { DataRow, formatStamp, Metric, PageHeading,
   Panel, Pill, TimelineEvent, toneFor, Unavailable } from '../ui';
 
+type WorkerLiveness = 'healthy' | 'revision_mismatch' | 'unverified';
+// Hosted mode only: bounded counts from the shared PostgreSQL queue.
+type RunQueue = {
+  queued: number; active_claims: number; stale_claims: number;
+  oldest_queued_seconds: number | null; last_heartbeat_age_seconds: number | null;
+  worker_liveness: WorkerLiveness; healthy_workers: number;
+  last_worker_pulse_age_seconds: number | null;
+  // Latest process-level worker failure from the heartbeat table; it belongs
+  // to the worker, not to any run, so it is shown here and not in a journal.
+  last_worker_problem?: { code: WorkerProblemCode; age_seconds: number | null; count: number } | null;
+};
+type WorkerProblemCode = 'poll_failed' | 'worker_pulse_failed' | 'contracts_missing';
+const PROBLEM_LABELS: Record<WorkerProblemCode, string> = {
+  poll_failed: 'Could not poll the run queue',
+  worker_pulse_failed: 'Could not write its heartbeat',
+  contracts_missing: 'Started with missing source contracts',
+};
+
+function workerProblemText(problem: RunQueue['last_worker_problem']): string {
+  if (!problem) return 'none recorded';
+  const label = PROBLEM_LABELS[problem.code] || problem.code;
+  const count = problem.code === 'contracts_missing' ? problem.count + ' missing' :
+    problem.count + (problem.count === 1 ? ' time' : ' times in a row');
+  return label + ' (' + count + ')' +
+    (problem.age_seconds === null ? '' : ', ' + seconds(problem.age_seconds) + ' ago');
+}
 type SystemStatus = {
   api: string; simulation_worker: string; progress_stream: string;
   recorder_connection: string; recorder_sink: string; model_provider: string; storage: string;
+  run_queue?: RunQueue | null;
 };
+
+// What the operator should understand from the worker's heartbeat state.
+// A revision mismatch otherwise looks like an idle queue: runs stay queued.
+function workerNote(queue: RunQueue | null | undefined): string {
+  if (!queue) return 'Runs execute in this API process';
+  if (queue.worker_liveness === 'healthy')
+    return `${queue.healthy_workers} worker(s) on this build`;
+  if (queue.worker_liveness === 'revision_mismatch')
+    return 'A worker is alive on a different build: queued runs wait until both deploy the same commit';
+  return 'No worker heartbeat seen: queued runs will not start';
+}
+
+function seconds(value: number | null): string {
+  return value === null ? 'none' : `${value} s`;
+}
 type AuditEntry = { at?: string; session_epoch?: number; stage?: string; outcome?: string };
 type SettingsRecord = { name: string; value: string | null; configured: boolean };
 type SettingsData = {
@@ -31,8 +73,9 @@ export function SystemPage() {
       description="Operational indicators backed by a source or clearly marked unknown."/>
     <div className="metric-grid">
       <Metric label="Local API" value={data.data?.api||null} note="Read-only FastAPI service" icon={<Gauge size={17}/>}/>
-      <Metric label="Investigation worker" value={data.data?.simulation_worker||null}
-        note="No managed background worker integrated" icon={<Activity size={17}/>}/>
+      <Metric label="Investigation worker"
+        value={data.data?.run_queue?.worker_liveness||data.data?.simulation_worker||null}
+        note={workerNote(data.data?.run_queue)} icon={<Activity size={17}/>}/>
       <Metric label="Recorder connection" value={recorder?.connection_state||null}
         note="Cannot establish machine health" icon={<RadioTower size={17}/>}/>
       <Metric label="Storage health" value={recorder?.sink_state||null}
@@ -40,11 +83,24 @@ export function SystemPage() {
     </div>
     <div className="two-column">
       <Panel title="Service components" subtitle="These fields cannot substitute for checks against real measurements">
-        {data.data?Object.entries(data.data).map(([name,value])=>
+        {data.data?Object.entries(data.data).filter(([name])=>name!=='run_queue').map(([name,value])=>
           <DataRow key={name} label={name.replaceAll('_',' ')}
-            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(value)}/>}/>):
+            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(String(value))}/>}/>):
           <Unavailable item="System status" detail={data.error||'Connect the local API to inspect service status.'}/>}
       </Panel>
+      {data.data?.run_queue?<Panel title="Run queue" subtitle="Hosted worker queue and heartbeat, counts only">
+        <DataRow label="worker liveness"
+          value={<Pill text={data.data.run_queue.worker_liveness.replaceAll('_',' ')}
+            tone={toneFor(data.data.run_queue.worker_liveness)}/>}/>
+        <DataRow label="healthy workers" value={String(data.data.run_queue.healthy_workers)}/>
+        <DataRow label="queued runs" value={String(data.data.run_queue.queued)}/>
+        <DataRow label="active claims" value={String(data.data.run_queue.active_claims)}/>
+        <DataRow label="stale claims" value={String(data.data.run_queue.stale_claims)}/>
+        <DataRow label="oldest queued" value={seconds(data.data.run_queue.oldest_queued_seconds)}/>
+        <DataRow label="last worker pulse" value={seconds(data.data.run_queue.last_worker_pulse_age_seconds)}/>
+        <DataRow label="last worker problem"
+          value={workerProblemText(data.data.run_queue.last_worker_problem)}/>
+      </Panel>:null}
       <Panel title="System boundaries" subtitle="Read-only industrial pilot">
         <div className="quality-check"><span className="check-ring"/><div><strong>Controller connection</strong>
           <small>Only the independent Siemens collector may contact the CNC</small></div></div>

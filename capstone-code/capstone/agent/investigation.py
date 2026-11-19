@@ -391,10 +391,7 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
         )
         if state.hypothesis_reserve_used:
             return "continue"
-    if (
-        state.mode == "triage"
-        and deps.triage_hypothesize == "deterministic"
-    ):
+    if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
         # The alarm is enough to enumerate unscored possibilities; missing
         # sensor evidence is then recorded as missing, never inferred healthy.
         return "continue"

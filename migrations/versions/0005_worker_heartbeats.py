@@ -5,6 +5,7 @@ Revises: 0004_worker_artifacts
 """
 
 from alembic import op
+
 revision = "0005_worker_heartbeats"
 down_revision = "0004_worker_artifacts"
 branch_labels = None
@@ -24,9 +25,7 @@ def upgrade() -> None:
             last_seen_at TIMESTAMPTZ NOT NULL
         )
     """)
-    op.execute(
-        "REVOKE ALL ON TABLE capstone_private.sim_worker_heartbeats FROM PUBLIC"
-    )
+    op.execute("REVOKE ALL ON TABLE capstone_private.sim_worker_heartbeats FROM PUBLIC")
     op.execute(
         "ALTER TABLE capstone_private.sim_worker_heartbeats ENABLE ROW LEVEL SECURITY"
     )

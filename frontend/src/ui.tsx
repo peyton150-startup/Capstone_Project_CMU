@@ -86,7 +86,7 @@ export function toneFor(value: string | null | undefined): 'good' | 'warning' | 
   const v = (value || '').toLowerCase();
   if (['good', 'connected', 'confirmed', 'healthy', 'running', 'supported', 'nominal', 'verified'].includes(v)) return 'good';
   if (['bad', 'failed', 'error', 'disconnected', 'critical', 'down'].includes(v)) return 'critical';
-  if (['warning', 'uncertain', 'degraded', 'unresolved', 'review', 'gap', 'stale_or_none'].includes(v)) return 'warning';
+  if (['warning', 'uncertain', 'degraded', 'unresolved', 'review', 'gap', 'stale_or_none', 'revision_mismatch'].includes(v)) return 'warning';
   if (['received_recently', 'active'].includes(v)) return 'info';
   return 'neutral';
 }
