@@ -61488,6 +61488,384 @@
    ]
   },
   {
+   "id": "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_legacy_replay_still_refuses_unapproved_events",
+   "line": 9,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "legacy replay still refuses unapproved events",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.factory:tool_spec",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._not_recorded",
+    "capstone.providers.replay:RecordedObservationTools.get_events",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider",
+    "capstone.recorded_investigation:replay_tool_specs"
+   ],
+   "exercise_count": 25,
+   "modules_exercised": [
+    "capstone.contracts.tools",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.providers.replay",
+    "capstone.recorded_investigation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+   "line": 25,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1,
+    "membership": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "approved execution events reach typed provider and tool catalog",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.factory:tool_spec",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_events",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider",
+    "capstone.recorded_investigation:replay_tool_specs"
+   ],
+   "exercise_count": 30,
+   "modules_exercised": [
+    "capstone.contracts.tools",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.mtconnect_events",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.providers.replay",
+    "capstone.recorded_investigation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_unknown_approved_event_identifier_is_refused_before_any_read",
+   "line": 48,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unknown approved event identifier is refused before any read",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_stopped_program_is_not_falsely_reported_as_idle",
+   "line": 59,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "stopped program is not falsely reported as idle",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.list_machines",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 20,
+   "modules_exercised": [
+    "capstone.contracts.tools",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_replay_fails_closed_on_out_of_order_source_clocks",
+   "line": 75,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "replay fails closed on out of order source clocks",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_a_capture_with_a_collector_restart_is_still_replayable",
+   "line": 101,
+   "docstring": "Ordering is checked per channel: a /current repeat is not time travel.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Ordering is checked per channel: a /current repeat is not time travel.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_events",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 26,
+   "modules_exercised": [
+    "capstone.contracts.tools",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.mtconnect_events",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_a_channel_going_back_in_time_is_still_refused",
+   "line": 117,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a channel going back in time is still refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
    "file": "tests/test_haas_http.py",
    "name": "test_approved_endpoints_and_bounded_sample_are_allowed",
@@ -61601,6 +61979,188 @@
    "modules_exercised": [
     "capstone.ingestion.haas_http",
     "capstone.ingestion.haas_profile"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_approved_fault_is_an_alarm_with_source_lineage",
+   "line": 20,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "approved fault is an alarm with source lineage",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect_events"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_normal_condition_means_cleared_not_fault",
+   "line": 29,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "normal condition means cleared not fault",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect_events"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_execution_is_a_state_event_not_a_root_cause",
+   "line": 34,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "execution is a state event not a root cause",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect_events"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_unknown_execution_and_condition_states_are_never_invented",
+   "line": 40,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unknown execution and condition states are never invented",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect_events"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_unapproved_controller_channel_is_refused",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_unapproved_controller_channel_is_refused",
+   "line": 47,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unapproved controller channel is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect_events"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
