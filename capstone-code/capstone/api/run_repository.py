@@ -206,9 +206,11 @@ class RunExecutionConfig(BaseModel):
         #     the web side and Northflank's on the worker side.
         from capstone.settings import get_settings
 
-        settings = get_settings()
-        revision = source_revision()
         try:
+            # Settings() itself validates TRIAGE_* values, so it belongs inside
+            # the try as well: a bad value there is the same server fault.
+            settings = get_settings()
+            revision = source_revision()
             effective = getattr(settings, "effective_triage", None)
             if effective is not None:
                 return cls(

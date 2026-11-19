@@ -874,3 +874,25 @@ def test_operational_projection_adds_only_bounded_safe_fields():
     assert project_operational_event(hostile) == {"event": "x.y"}
     assert project_operational_event({"event": "bad event"}) is None
     assert project_operational_event(["not", "a", "row"]) is None
+
+
+def test_malformed_triage_setting_is_the_same_named_server_fault(caplog, monkeypatch):
+    """Settings() validation (a bad TRIAGE_* value) also stops the worker readably."""
+    from capstone.api.runs import InvalidRunEnvironment
+
+    monkeypatch.setenv("TRIAGE_PLAN", "not-a-plan")
+    with pytest.raises(InvalidRunEnvironment) as raised:
+        RunExecutionConfig.current()
+    assert "not-a-plan" not in str(raised.value)
+
+    class UntouchedRepository:
+        def __getattr__(self, name):
+            raise AssertionError("database used before config was valid: " + name)
+
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        with pytest.raises(InvalidRunEnvironment):
+            serve_worker(UntouchedRepository(), max_jobs=1)
+    logged = json.loads(caplog.records[-1].message)
+    assert logged["event"] == "worker_stopped"
+    assert logged["failure_code"] == "invalid_configuration"
+    assert "not-a-plan" not in caplog.text
