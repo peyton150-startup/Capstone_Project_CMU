@@ -9,11 +9,11 @@ import { useResource } from '../api';
 import { useUi } from '../context';
 import { demoInvestigations } from '../preview';
 import { useInvestigations } from '../pageData';
-import { ManagedReviewDesk, ManagedTriageOverview } from './managed';
+import { ManagedReviewDesk, ManagedTriageOverview, ManagedTriageReportPicker } from './managed';
 import type { Evidence, Investigation, InvestigationDetail } from '../types';
 import {
   DataRow, formatNumber, InfoState, PageHeading, Panel, Pill,
-  SummaryLink, toneFor, Unavailable,
+  SourceState, SummaryLink, toneFor, Unavailable,
 } from '../ui';
 
 function InvestigationRows({ items }: { items: Investigation[] }) {
@@ -28,7 +28,10 @@ function InvestigationRows({ items }: { items: Investigation[] }) {
   </div>;
 }
 export function InvestigationListPage() {
-  const { items, error } = useInvestigations();
+  // Variables:
+  //   source: Loading, failure and availability facts for the configured
+  //     completed-investigation audit, so each empty case says why it is empty.
+  const { items, source } = useInvestigations();
   const { workspace } = useUi();
   return <>
     <PageHeading eyebrow="DIAGNOSIS / INVESTIGATIONS" title="Investigations"
@@ -36,7 +39,7 @@ export function InvestigationListPage() {
       right={<SummaryLink to="/investigations/triage" label="Rapid triage" />}/>
     <div className="metric-grid">
       <div className="metric-card"><div className="metric-top">Recorded investigations <BrainCircuit size={17}/></div>
-        <strong>{workspace === 'pilot' ? '—' : items.length || '—'}</strong><div className="metric-note">Only persisted, authorized records</div></div>
+        <strong>{workspace === 'pilot' || !source.availability ? '—' : items.length}</strong><div className="metric-note">Only persisted, authorized records</div></div>
       <div className="metric-card"><div className="metric-top">Evidence-first analysis <FileSearch size={17}/></div>
         <strong>{items.length ? formatNumber(items.reduce((n, x) => n + x.evidence_count,0)) : '—'}</strong>
         <div className="metric-note">Cited evidence in available records</div></div>
@@ -47,10 +50,9 @@ export function InvestigationListPage() {
         <strong>Uncalibrated</strong><div className="metric-note">Rating is separate from evidence support</div></div>
     </div>
     <Panel title="Recorded cases" subtitle="Each case opens source-linked evidence and verification detail">
-      {error && <InfoState kind="warning" title="Audit unavailable" detail={error}/>}
-      {items.length ? <InvestigationRows items={items}/> : <Unavailable item="Investigation history"
+      {items.length ? <InvestigationRows items={items}/> : <SourceState item="Investigation history" {...source}
         detail={workspace === 'pilot' ? 'Real-machine diagnoses remain disabled until field authorization and evidence acceptance.' :
-          'Point the local API at an approved completed-investigation audit file or enter the explicit synthetic preview.'}/>}
+          'Point the local API at an approved completed-investigation audit file or enter the explicit synthetic preview. Managed simulator runs are listed under Lab → Run history.'}/>}
     </Panel>
     <div className="three-column-link">
       <Link className="feature-row-link" to="/investigations/triage"><Activity size={21}/><div><strong>Rapid triage</strong><small>Questions, checks and conservative clearance</small></div><ArrowRight size={18}/></Link>
@@ -61,7 +63,7 @@ export function InvestigationListPage() {
 }
 export function TriagePage() {
   const { preview, workspace } = useUi();
-  const { items } = useInvestigations();
+  const { items, source } = useInvestigations();
   return <>
     <PageHeading eyebrow="INVESTIGATIONS / DETERMINISTIC PATH" title="Rapid triage"
       description="A deliberately bounded investigation; code verifies evidence before the model's recommendation can clear."/>
@@ -82,9 +84,9 @@ export function TriagePage() {
           <DataRow label="Deeper investigation" value="Recommended"/>
           <p className="body-copy"><strong>Synthetic example.</strong> Real triage-specific reports are not retained
             in the current general completion audit.</p>
-        </> : <Unavailable item="Typed triage report" detail={workspace === 'pilot' ?
-          'Physical-machine diagnosis remains gated by field validation.' :
-          'TriageReport requires its own persisted read model. Existing completion audits cannot reconstruct all triage questions and predicate verdicts.'}/>}
+        </> : workspace === 'pilot' ? <Unavailable item="Typed triage report"
+          detail="Physical-machine diagnosis remains gated by field validation."/> :
+          <ManagedTriageReportPicker/>}
       </Panel>
       <Panel title="Clearance policy" subtitle="Why a decision may remain unresolved">
         {[
@@ -99,13 +101,14 @@ export function TriagePage() {
     </div>
     <ManagedTriageOverview />
     <Panel title="Available investigations" subtitle="General completion records; not a replacement for TriageReport">
-      {items.length ? <InvestigationRows items={items}/> : <Unavailable item="Recorded triage cases"/>}
+      {items.length ? <InvestigationRows items={items}/> : <SourceState item="Recorded triage cases" {...source}
+        emptyDetail="The completed-investigation audit is connected and holds no cases."/>}
     </Panel>
   </>;
 }
 export function DeepPage() {
   const { preview } = useUi();
-  const { items } = useInvestigations();
+  const { items, source } = useInvestigations();
   const stages = ['Observe','Manual','Plan','Investigate','Hypothesize','Test','Critique','Recheck','Conclude','Propose','Execute','Verify'];
   return <>
     <PageHeading eyebrow="INVESTIGATIONS / AGENT WORKFLOW" title="Deep investigations"
@@ -118,7 +121,7 @@ export function DeepPage() {
         'The existing completion audit does not persist every live graph transition or triage-only detail. No stage is marked executed without its own event.'}</div>
     </Panel>
     <Panel title="Past investigations" subtitle="Open a case for recorded evidence, hypotheses and verification">
-      {items.length ? <InvestigationRows items={items}/> : <Unavailable item="Deep investigation records"/>}
+      {items.length ? <InvestigationRows items={items}/> : <SourceState item="Deep investigation records" {...source}/>}
     </Panel>
   </>;
 }
@@ -174,8 +177,10 @@ export function InvestigationDetailPage() {
   const [tab,setTab] = useState('evidence');
   const [selectedEvidence,setSelectedEvidence] = useState<Evidence|null>(null);
   if (!item) return <><PageHeading eyebrow="INVESTIGATIONS / DETAIL" title="Investigation detail"/>
-    <InfoState title="No authorized investigation detail" detail={resource.error || 'Select an available investigation; a missing case is not the same as a confirmed normal machine.'}
-      action={<Link className="text-link" to="/investigations">Back to investigations <ArrowRight size={16}/></Link>}/></>;
+    {resource.loading ? <SourceState item="Investigation detail" loading/> :
+    resource.error ? <SourceState item="Investigation detail" error={resource.error} status={resource.status}/> :
+    <InfoState title="No authorized investigation detail" detail={'Select an available investigation; a missing case is not the same as a confirmed normal machine.'}
+      action={<Link className="text-link" to="/investigations">Back to investigations <ArrowRight size={16}/></Link>}/>}</>;
   const sections = [['evidence','Evidence'],['hypotheses','Hypotheses'],['checks','Questions & tests'],
     ['conclusion','Conclusion'],['actions','Actions & verification'],['trace','Technical trace']];
   return <>
@@ -206,7 +211,8 @@ export function InvestigationDetailPage() {
           <span className="evidence-top"><span>{e.id}</span><FileSearch size={18}/></span>
           <strong>{e.source_id || e.source_type || 'Unknown source'}</strong>
           <p>{e.content || 'No recorded content'}</p><small>Observation {e.observed_tick == null ? 'time unknown' : 'tick ' + e.observed_tick}</small>
-        </button>)}</div> : <Unavailable item="Evidence payload"/>}
+        </button>)}</div> : <SourceState item="Evidence" availability="available" count={0}
+          emptyDetail="This case recorded no evidence items. Missing evidence is not a confirmed normal machine."/>}
     </Panel>}
     {tab==='hypotheses' && <Panel title="Competing explanations" subtitle="Sources and discriminating checks stay visible">
       {item.hypotheses.length ? item.hypotheses.map(h=><div className="hypothesis-card" key={h.id}>
@@ -215,7 +221,8 @@ export function InvestigationDetailPage() {
         <div className="hypothesis-sources"><span>Supporting: {(h.supporting_evidence_ids||[]).join(', ')||'None recorded'}</span>
           <span>Contradicting: {(h.contradicting_evidence_ids||[]).join(', ')||'None recorded'}</span></div>
         <p><strong>Discriminating check:</strong> {h.discriminating_check || 'Not recorded'}</p>
-      </div>) : <Unavailable item="Hypothesis history"/>}
+      </div>) : <SourceState item="Hypotheses" availability="available" count={0}
+          emptyDetail="This case recorded no candidate explanations."/>}
     </Panel>}
     {tab==='checks' && <Panel title="Question and predicate checks" subtitle="No inferred test result from a successful read">
       <InfoState title="Detailed predicates not persisted in this record"

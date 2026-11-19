@@ -3,20 +3,25 @@ import type { ApiResource } from './types';
 import { resolveApiUrl } from './backend.mjs';
 import type { ApiBackend } from './backend.mjs';
 import { useUi } from './context';
+import { ApiProblem, problemForStatus } from './sourceState.mjs';
 
 export async function getJson<T>(path: string, token: string, backend: ApiBackend, signal?: AbortSignal): Promise<T> {
+  // Variables:
+  //   response: The raw HTTP response; its status becomes an ApiProblem with a
+  //     fixed message, so server, database or provider detail is never shown.
   const response = await fetch(resolveApiUrl(path, backend, window.location.hostname), {
     signal, cache: 'no-store',
     headers: token ? { Authorization: 'Bearer ' + token } : {},
   });
-  if (!response.ok) {
-    if (response.status === 401) throw new Error('Session token required for the selected API. Open Access in the toolbar.');
-    if (response.status === 403) throw new Error('This source is not authorized for the selected workspace.');
-    throw new Error('API request failed (' + response.status + ').');
-  }
+  if (!response.ok) throw new ApiProblem(response.status, problemForStatus(response.status));
   if (!response.headers.get('content-type')?.includes('application/json'))
-    throw new Error('API returned non-JSON content. Check the selected backend and proxy.');
-  return response.json() as Promise<T>;
+    throw new ApiProblem(null, 'API returned non-JSON content. Check the selected backend and proxy.');
+  try {
+    return await response.json() as T;
+  } catch (problem) {
+    if (problem instanceof Error && problem.name === 'AbortError') throw problem;
+    throw new ApiProblem(null, 'The API returned malformed JSON.');
+  }
 }
 
 export async function postJson<T>(path: string, token: string, body: unknown, backend: ApiBackend, key?: string): Promise<T> {
@@ -57,13 +62,21 @@ export async function postJson<T>(path: string, token: string, body: unknown, ba
 export function useResource<T>(path: string | null, token: string, pause = false, pollMs = 15000): ApiResource<T> {
   // Keep the request identity with its result. During a token or workspace
   // transition, never render a previous authorized source even for one frame.
+  // Variables:
+  //   requestKey: Everything that decides which source and credential a result
+  //     belongs to; a result stored under another key is never returned.
+  //   sequence: Counter for poll attempts, so a superseded response or error
+  //     cannot overwrite a newer one.
+  //   status: HTTP status of the last failure, kept so pages can tell an
+  //     access problem from an outage; a failed poll clears data rather than
+  //     leaving it to read as an empty history.
   const { backend } = useUi();
   const requestKey = JSON.stringify([path, token, pause, pollMs, backend]);
   const [state, setState] = useState<ApiResource<T> & { key: string }>({
-    key: requestKey, data: null, loading: Boolean(path) && !pause, error: null,
+    key: requestKey, data: null, loading: Boolean(path) && !pause, error: null, status: null,
   });
   useEffect(() => {
-    setState({ key: requestKey, data: null, loading: Boolean(path) && !pause, error: null });
+    setState({ key: requestKey, data: null, loading: Boolean(path) && !pause, error: null, status: null });
     if (pause || !path) return;
 
     let active = true;
@@ -76,10 +89,11 @@ export function useResource<T>(path: string | null, token: string, pause = false
       const current = ++sequence;
       getJson<T>(path, token, backend, controller.signal).then(data => {
         if (active && current === sequence)
-          setState({ key: requestKey, data, error: null, loading: false });
+          setState({ key: requestKey, data, error: null, loading: false, status: null });
       }).catch(error => {
         if (active && current === sequence && error.name !== 'AbortError')
-          setState({ key: requestKey, data: null, error: String(error.message), loading: false });
+          setState({ key: requestKey, data: null, error: String(error.message), loading: false,
+            status: error instanceof ApiProblem ? error.status : null });
       });
     };
     reload();
@@ -87,6 +101,6 @@ export function useResource<T>(path: string | null, token: string, pause = false
     return () => { active = false; controller?.abort(); window.clearInterval(timer); };
   }, [path, token, pause, pollMs, backend, requestKey]);
   if (state.key !== requestKey)
-    return { data: null, loading: Boolean(path) && !pause, error: null };
-  return { data: state.data, loading: state.loading, error: state.error };
+    return { data: null, loading: Boolean(path) && !pause, error: null, status: null };
+  return { data: state.data, loading: state.loading, error: state.error, status: state.status };
 }

@@ -6,7 +6,8 @@ import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
 import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, StageProgress, TriageReport, TriageRunDefaults, TriageRunOptions, TriageRunPreview } from '../types';
 import { TriageRunEditor } from './triageRunEditor';
-import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
+import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, SourceState, toneFor, Unavailable } from '../ui';
+import { reportHasAcceptedConclusion, selectTriageReport } from '../sourceState.mjs';
 import { ModelCallTimeline } from './model_call_timeline';
 import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
 import { DeepInvestigationProgress } from './deep_progress';
@@ -177,8 +178,10 @@ export function ManagedRunLauncher() {
       onChange={next=>{setControls(next);resetKey();}}
       preview={confirmed} previewError={previewError}
       pending={previewPending} disabled={!enabled}/> :
-      mode === 'triage' ? <Unavailable item="Validated per-run settings"
-        detail={defaults.error || 'Connect the authorized simulator API to load stage defaults.'}/> :
+      mode === 'triage' ? <SourceState item="Validated per-run settings" loading={defaults.loading}
+        error={defaults.error} status={defaults.status}
+        availability={defaults.loading || defaults.error ? null : 'not_integrated'}
+        detail="The selected API did not return triage stage defaults."/> :
       <p className="body-copy">Deep-only runs do not use triage settings.</p>}
     <p className="body-copy">Only this run receives the selected stage controls.
       Conclude remains model-backed. No pilot data or physical CNC commands are used.</p>
@@ -196,11 +199,13 @@ export function ManagedRunLauncher() {
 }
 
 export function ManagedRunList() {
-  const { data, error } = useManagedRuns();
+  // Variables:
+  //   status: HTTP status of a failed list request, so missing run credentials
+  //     read as an authorization problem rather than "no runs".
+  const { data, error, loading, status } = useManagedRuns();
   const { workspace, preview } = useUi();
   if (workspace === 'pilot' || preview) return null;
   return <Panel title="Managed simulator runs" subtitle="Durable status journal on the selected backend">
-    {error && <InfoState title="Managed run history unavailable" detail={error} kind="warning"/>}
     {data?.items?.length ? <div className="incident-list">{data.items.map(run =>
       <Link to={'/lab/runs/' + encodeURIComponent(run.run_id)} className="incident-row" key={run.run_id}>
         <div className="incident-body"><strong>{run.run_id.slice(0, 13)}</strong>
@@ -211,8 +216,10 @@ export function ManagedRunList() {
             {run.requested.effective_configuration?.fingerprint ?
               ' · config ' + run.requested.effective_configuration.fingerprint : ''}</small></div>
         <Pill text={run.state} tone={toneFor(run.state)}/>
-      </Link>)}</div> : <Unavailable item="Managed run history"
-      detail="No managed simulator runs have been submitted to this backend."/>}
+      </Link>)}</div> : <SourceState item="Managed run history" loading={loading} error={error} status={status}
+      availability={data?.availability ?? null} count={0}
+      emptyDetail="No managed simulator runs have been submitted to this backend."
+      detail="Enable CAPSTONE_UI_SIM_RUNS with approved server storage on the selected API."/>}
   </Panel>;
 }
 
@@ -720,7 +727,8 @@ export function RunDetailPage() {
         detail.evidence.map(e=><div className="hypothesis-card" key={e.id}>
           <strong>{e.id} · {e.source_id || 'Unknown source'}</strong>
           <p>{e.content || 'No content recorded'}</p><small>{e.observed_at || 'Tick ' + (e.observed_tick ?? 'unknown')}</small>
-        </div>) : <Unavailable item="Source evidence"/>)}
+        </div>) : <SourceState item="Source evidence" availability="available" count={0}
+          emptyDetail="This phase audit recorded no evidence items."/>)}
       {detail && section==='hypotheses' && (detail.hypotheses.length ?
         detail.hypotheses.map(h=><div className="hypothesis-card" key={h.id}>
           <h3>{h.id} · {h.description || h.claim || 'Hypothesis'}</h3>
@@ -731,7 +739,8 @@ export function RunDetailPage() {
           <DataRow label="Supporting evidence" value={(h.supporting_evidence_ids || []).join(', ') || 'None'}/>
           <DataRow label="Contradicting evidence" value={(h.contradicting_evidence_ids || []).join(', ') || 'None'}/>
           <DataRow label="Discriminating check" value={h.discriminating_check || 'Not recorded'}/>
-        </div>) : <Unavailable item="Recorded hypotheses"/>)}
+        </div>) : <SourceState item="Recorded hypotheses" availability="available" count={0}
+          emptyDetail="This phase audit recorded no candidate explanations."/>)}
       {detail && section==='trace' && <>
         <DataRow label="Iterations" value={detail.reasoning_metrics?.iterations ?? 'Not recorded'}/>
         <DataRow label="Tool calls" value={detail.reasoning_metrics?.tool_calls ?? 'Not recorded'}/>
@@ -748,7 +757,8 @@ export function RunDetailPage() {
               ' · Evidence: ' + (d.evidence_ids || []).join(', ')}
             value={(d.tool || 'No tool')+' · '+d.outcome +
               (d.termination_reason ? ' · stopped: ' + d.termination_reason : '')}/>) :
-          <Unavailable item="Decision trace"/>}
+          <SourceState item="Decision trace" availability="available" count={0}
+            emptyDetail="This phase audit recorded no decision steps."/>}
         {detail.pruned_candidates?.length ? <div className="soft-note">
           <strong>Pruned Tree-of-Thought candidates:</strong>
           {detail.pruned_candidates.map(candidate =>
@@ -763,7 +773,6 @@ export function RunDetailPage() {
     </Panel>
     <ModelCallTimeline runId={runId}/>
     <Panel title="Operational diagnostics" subtitle="Bounded availability and evidence-packet coverage">
-      {operational.error && <InfoState kind="warning" title="Diagnostics unavailable" detail={operational.error}/>}
       {operational.data?.items.length ? operational.data.items.slice(-60).reverse().map((event,index)=>
         <DataRow key={index} label={readableStage(event.event)}
           extra={['Investigation: ' + (event.investigation_id || 'not recorded'),
@@ -778,7 +787,9 @@ export function RunDetailPage() {
           value={(event.tool || 'No tool selected') + ' · ' + operationalOutcome(event) +
             (event.counts ? ' · ' + Object.entries(event.counts).map(([k,v])=>
               readableStage(k)+': '+v).join(', ') : '')}/>
-      ) : <Unavailable item="Run diagnostics" detail="No operational trace has been recorded for this run."/>}
+      ) : <SourceState item="Run diagnostics" loading={operational.loading} error={operational.error}
+        status={operational.status} availability={operational.data?.availability ?? null} count={0}
+        emptyDetail="No operational trace has been recorded for this run yet."/>}
       <p className="body-copy">Skipped unavailable sources are not failed executions.
         Packet counts and qualified calls indicate observed coverage, not proof of root cause.</p>
     </Panel>
@@ -786,13 +797,18 @@ export function RunDetailPage() {
       {journal.events.length ? journal.events.map(row=>
         <div className="settings-row" key={row.seq}><span>{String(row.seq).padStart(4, '0')} · {row.event}</span>
           <span className="settings-value">{eventStageSummary(row)}</span></div>):
-        <Unavailable item="Stage updates" detail="The worker has not published any permitted stage events yet."/>}
+        <InfoState title={journal.status === 'connecting' ? 'Connecting to the stage journal' : 'No stage updates yet'}
+          detail={'The worker has not published any permitted stage events for this run (stream: ' + journal.status + ').'}/>}
       <p className="body-copy">Event updates are metadata only. If a UI update is dropped, the authoritative persisted run snapshot remains the source of truth.</p>
     </Panel>
   </>;
 }
 
 export function TriageReportView({ report }: { report: TriageReport }) {
+  // Variables:
+  //   accepted: True only for an accepted model conclusion; a refused or
+  //     missing model answer never shows a diagnosis or a 0/100 rating.
+  const accepted = reportHasAcceptedConclusion(report);
   return <Panel title="Deterministic triage report"
     subtitle="The model answer, Python checks, and observed evidence are distinct results">
     <Pill text={report.outcome} tone={toneFor(report.assessment)}/>
@@ -802,8 +818,9 @@ export function TriageReportView({ report }: { report: TriageReport }) {
     <DataRow label="Alarm observed at" value={report.alarm_tick == null ?
       'Not recorded' : 'Tick ' + report.alarm_tick}/>
     <DataRow label="Assessment" value={report.assessment}/>
-    <DataRow label="Diagnosis" value={report.diagnosis || 'No accepted model diagnosis'}/>
-    <DataRow label="Model rating" value={report.outcome !== 'model_conclusion' ?
+    <DataRow label="Diagnosis" value={accepted && report.diagnosis ? report.diagnosis :
+      'No accepted model diagnosis'}/>
+    <DataRow label="Model rating" value={!accepted ?
       'Not applicable — no accepted model answer' :
       Math.round(report.confidence * 100) + '/100 (uncalibrated)'}/>
     <DataRow label="Model's initial recommendation" value={report.model_recommendation || 'Not recorded'}/>
@@ -822,10 +839,37 @@ export function TriageReportView({ report }: { report: TriageReport }) {
         <p>{item.excerpt}</p>
         <DataRow label="Provenance" value={item.origin || 'Not recorded'}/>
         <DataRow label="Observed tick" value={item.observed_tick ?? 'Not recorded'}/>
-      </div>) : <Unavailable item="Evidence citations"/>}
+      </div>) : <SourceState item="Evidence citations" availability="available" count={0}
+        emptyDetail="This report cites no findings."/>}
     <p className="body-copy">A successful sensor read does not imply a passed predicate or a verified fault.
       The listed model rating is not a calibrated fault probability.</p>
   </Panel>;
+}
+
+/** Rapid Triage: choose a managed run and read its persisted TriageReport.
+ * The report comes from the run snapshot the worker wrote, never rebuilt. */
+export function ManagedTriageReportPicker() {
+  // Variables:
+  //   selected: The run id the user picked; selectTriageReport ignores it when
+  //     that run has no report, so a stale choice cannot mislabel another run.
+  //   picked: The runs that carry a report, the chosen run and its report.
+  const resource = useManagedRuns(8000);
+  const [selected, setSelected] = useState<string | null>(null);
+  const picked = selectTriageReport(resource.data?.items, selected);
+  if (!picked.report || !picked.run) return <SourceState item="Typed triage report" loading={resource.loading}
+    error={resource.error} status={resource.status} availability={resource.data?.availability ?? null} count={0}
+    emptyDetail="No managed run on this backend has persisted a typed triage report yet. Start a Rapid triage run in the Experiment lab."
+    detail="Typed triage reports come from managed simulator runs; enable CAPSTONE_UI_SIM_RUNS on the selected API."/>;
+  return <>
+    <label className="field-label" htmlFor="triage-report-run">Managed run</label>
+    <select id="triage-report-run" value={picked.run.run_id}
+      onChange={event => setSelected(event.target.value)}>
+      {picked.runs.map(run => <option key={run.run_id} value={run.run_id}>
+        {run.run_id.slice(0, 12) + ' · seed ' + run.requested.seed + ' · ' + formatStamp(run.updated_at)}</option>)}
+    </select>
+    <TriageReportView report={picked.report}/>
+    <Link to={'/lab/runs/' + encodeURIComponent(picked.run.run_id)} className="text-link">Open the full run</Link>
+  </>;
 }
 
 export function ManagedTriageOverview() {
@@ -837,7 +881,9 @@ export function ManagedTriageOverview() {
     {reports.length ? reports.slice(0, 10).map(run=><div key={run.run_id} className="settings-row">
       <Link to={'/lab/runs/' + encodeURIComponent(run.run_id)} className="text-link">{run.run_id.slice(0,12)}</Link>
       <span>{run.snapshot.triage_report?.assessment} · {run.snapshot.triage_report?.recommendation}</span></div>):
-      <Unavailable item="Managed triage reports" detail="Run a simulator investigation using the managed worker to populate this view."/>}
+      <SourceState item="Managed triage reports" loading={resource.loading} error={resource.error}
+        status={resource.status} availability={resource.data?.availability ?? null} count={0}
+        emptyDetail="No managed run on this backend has persisted a triage report yet. Run a triage investigation from the Experiment lab."/>}
   </Panel>;
 }
 
@@ -869,7 +915,6 @@ export function ManagedReviewDesk() {
   }
   return <Panel title="Pending simulator reviews" subtitle="Authoritative approval requests from the Python worker">
     {message && <div className="soft-note" role="status">{message}</div>}
-    {resource.error && <InfoState kind="warning" title="Review service unavailable" detail={resource.error}/>}
     {resource.data?.items.length ? resource.data.items.map(item=>{
       const key=item.run_id+':'+item.proposal_id;
       return <div className="hypothesis-card" key={key}>
@@ -886,8 +931,9 @@ export function ManagedReviewDesk() {
         </div>
         <Link to={'/lab/runs/'+item.run_id} className="text-link">View investigation</Link>
       </div>;
-    }) : <Unavailable item="Pending simulator reviews"
-      detail="No pending authorized requests. A reviewer token is required to approve or reject when one appears."/>}
+    }) : <SourceState item="Pending simulator reviews" loading={resource.loading} error={resource.error}
+      status={resource.status} availability={resource.data?.availability ?? null} count={0}
+      emptyDetail="No proposal is waiting for review. A reviewer token is required to approve or reject one when it appears."/>}
     <p className="body-copy">No physical-machine commands or approval routes exist in the pilot workspace.</p>
   </Panel>;
 }
