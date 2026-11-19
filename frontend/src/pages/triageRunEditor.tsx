@@ -1,5 +1,5 @@
 import type { TriageRunOptions, TriageRunPreview } from '../types';
-import { DataRow, Panel } from '../ui';
+import { DataRow } from '../ui';
 
 function formatSetting(value: string | number | boolean): string {
   return typeof value === 'boolean' ? value ? 'On' : 'Off' : String(value);
@@ -67,9 +67,10 @@ export function TriageRunEditor({
       'Packet coverage requires the Observe evidence packet.' : null
   );
 
-  return <Panel title="Per-run triage configuration"
-    subtitle="Changes apply to this new simulator run only; existing runs and server .env are unchanged">
-    <div className="quality-check">
+  return <section className="triage-editor" aria-labelledby="triage-editor-title">
+    <h3 id="triage-editor-title">Per-run triage configuration</h3>
+    <p className="body-copy">Changes apply to this new simulator run only; existing runs and server .env are unchanged</p>
+    <div className="setting-control-row">
       <strong>Deterministic triage override</strong>
       <div className="button-group" role="group" aria-label="Deterministic triage">
         <button type="button" className={forced?'button-selected':'button-outline'}
@@ -124,7 +125,7 @@ export function TriageRunEditor({
           disabled={off||forced} value={forced?0:value.hypothesis_seconds}
           onChange={e=>update('hypothesis_seconds',Number(e.target.value))}/></div>
     </div>
-    <div className="quality-check">
+    <div className="setting-control-row">
       {([
         ['evidence_tests','Evidence qualification and rival checks',forced],
         ['packet','Observe evidence packet',forced],
@@ -174,5 +175,5 @@ export function TriageRunEditor({
     </>}
     <p className="body-copy">Conclude remains model-backed in deterministic triage. Actual provider responses,
       retries and fallback models require the run's model-call trace, not this preflight.</p>
-  </Panel>;
+  </section>;
 }
