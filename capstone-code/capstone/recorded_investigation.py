@@ -59,6 +59,9 @@ def replay_tool_specs(
     #   factory: Whether a mapped ambient-temperature channel has a numeric value.
     #   execution: Devices with observed Execution events, needed for list_machines.
     #   kinds: The device-and-sensor facts included in tool descriptions and schemas.
+    #   event_capable: True only when a person approved event data items and at
+    #     least one of them was recorded before the cutoff; only then is
+    #     get_events offered to the model.
     visible = [
         row
         for row in lines
@@ -176,6 +179,8 @@ def run_recorded_investigation(
     #     It takes the triage settings, including TRIAGE_CONCLUDE_CAP, which
     #     holds its conclusion question to the conclusion window.
     #   deps: Graph dependencies with no live controller or simulator truth.
+    #   approved_event_item_ids: EVENT/CONDITION data items a person approved;
+    #     passed to both the provider and the tool list, so they always agree.
     if not description.strip():
         raise ValueError("a nonempty operator observation is required")
     provider = replay_provider(
@@ -288,6 +293,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   captured: Checked stored records; the tool never contacts an MTConnect agent.
     #   tool_specs: Only the recorded capabilities the remote model can request.
     #   state: The graph's typed conclusion and evidence, written to a private path.
+    #   approved_events: The --approved-event-id values; empty keeps get_events off.
     parser = argparse.ArgumentParser(prog="python -m capstone.recorded_investigation")
     parser.add_argument("--capture", required=True, type=Path)
     parser.add_argument("--channel-map", required=True, type=Path)

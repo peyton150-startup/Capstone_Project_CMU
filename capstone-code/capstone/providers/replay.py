@@ -68,18 +68,28 @@ class RecordedObservationTools:
         #   now: The replay's cutoff; nothing after it is ever shown.
         #   _sensors: For each machine, its tool sensor names and their channels.
         #   _factory: The channel behind air_temperature, if one was assigned.
+        #   approved_event_item_ids: EVENT/CONDITION data items a person approved
+        #     for get_events; each must be in the probe, and empty means no events.
+        #   latest: Each channel's newest timestamp so far, so a reading earlier
+        #     than its own channel's previous one refuses the capture.
         if tick_seconds < 1:
             raise ValueError("tick_seconds must be at least 1")
         observations = [line for line in lines if isinstance(line, TelemetryRecord)]
         if not observations:
             raise ValueError("the capture holds no observations")
-        if any(
-            current.source_timestamp < previous.source_timestamp
-            for previous, current in zip(observations, observations[1:])
-        ):
-            raise ValueError(
-                "capture source timestamps are out of order; qualification required"
-            )
+        # Each channel's history must move forward in time. The check is per
+        # channel, not across the file: after a gap the collector re-reads
+        # /current, which repeats unchanged values with their original (older)
+        # timestamps, and that is a valid capture, not time travel.
+        latest: dict[tuple[str, str, str], datetime] = {}
+        for record in observations:
+            channel = (record.source, record.device, record.data_item_id)
+            previous = latest.get(channel)
+            if previous is not None and record.source_timestamp < previous:
+                raise ValueError(
+                    "capture source timestamps are out of order; qualification required"
+                )
+            latest[channel] = record.source_timestamp
         self._lines = list(lines)
         self._channel_map = channel_map
         self._approved_event_item_ids = approved_event_item_ids
@@ -314,9 +324,20 @@ class RecordedObservationTools:
             self._not_recorded("the approved MTConnect event log")
         if from_tick > to_tick or from_tick < 0:
             raise ToolInputError("event time range is invalid")
+        # Variables:
+        #   events: (tick, sequence, event) rows, sorted before returning.
+        #   seen: Observations already listed, by (source, instance, sequence);
+        #     a restart's /current repeats unchanged states, and MTConnect's
+        #     sequence number says it is the same observation, not a new event.
+        #   admitted: The event qualification; a refusal fails the whole call,
+        #     because partial alarm coverage must not read as "no alarms".
         events: list[tuple[int, int, dict]] = []
+        seen: set[tuple[str, str | None, int]] = set()
         for line in self._visible():
             if not isinstance(line, TelemetryRecord):
+                continue
+            key = (line.source, line.instance_id, line.sequence)
+            if key in seen:
                 continue
             if line.data_item_id not in self._approved_event_item_ids:
                 continue
@@ -335,9 +356,8 @@ class RecordedObservationTools:
                 raise ToolInputError(
                     "approved MTConnect event coverage is incomplete or invalid"
                 )
-            events.append(
-                (tick, line.sequence, admitted.value.event.model_dump())
-            )
+            seen.add(key)
+            events.append((tick, line.sequence, admitted.value.event.model_dump()))
         events.sort(key=lambda row: (row[0], row[1]))
         return [row for _, _, row in events]
 

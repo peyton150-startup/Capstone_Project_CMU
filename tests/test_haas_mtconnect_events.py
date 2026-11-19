@@ -40,13 +40,14 @@ def test_execution_is_a_state_event_not_a_root_cause():
 def test_unknown_execution_and_condition_states_are_never_invented():
     assert admit("exec", "EVENT", "Execution", "DIAGNOSTIC").reason == "unknown_state"
     assert (
-        admit("S1temp", "CONDITION", "TEMPERATURE", "OTHER").reason
-        == "unknown_state"
+        admit("S1temp", "CONDITION", "TEMPERATURE", "OTHER").reason == "unknown_state"
     )
 
 
 def test_unapproved_controller_channel_is_refused():
     assert (
-        admit("S1temp", "CONDITION", "TEMPERATURE", "FAULT", approved=frozenset()).reason
+        admit(
+            "S1temp", "CONDITION", "TEMPERATURE", "FAULT", approved=frozenset()
+        ).reason
         == "not_authorized"
     )

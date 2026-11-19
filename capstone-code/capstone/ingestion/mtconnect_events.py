@@ -68,6 +68,13 @@ def qualify_event(
     into the generic triage message. They remain in separately protected raw
     capture records and must never be added to metadata-only logs.
     """
+    # Variables:
+    #   approved_item_ids: Event data items a person approved; others are
+    #     refused before anything else is read.
+    #   entry: The probe's description of this data item, which must agree
+    #     with the record's category and type.
+    #   kind, message: The triage event built only from a fixed list of
+    #     controller states and condition levels, never from machine text.
     if record.data_item_id not in approved_item_ids:
         return EventAdmission(reason="not_authorized")
     entry = channel_map.entry_for(record)
