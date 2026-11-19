@@ -106,7 +106,22 @@ changed that lacked one: `validate_haas_get`, `haas_get`, `verify_haas_probe`,
 - **Deploy order for #313.** Migration `0006_worker_problems` must run
   (`alembic upgrade head`) **before** the new web service or worker starts:
   `ready()` now refuses an unmigrated database, and the worker writes the new
-  heartbeat columns.
+  heartbeat columns. **Update 2026-11-19 (daytime): done on Supabase.** See
+  "Database state after the merges" below. Still needed: point
+  `CAPSTONE_UI_RUN_DATABASE_URL` on Render and Northflank at Supabase's
+  session-pooler connection string.
+- **The Haas detector is not connected to anything (#310).**
+  `qualify_numeric` (`ingestion/qualified.py`) and `assess_calibrated_window`
+  (`ingestion/real_detector.py`) have no caller under `capstone/`; only their
+  tests call them. Real Haas telemetry is collected and replayable, but no
+  sample is qualified and no anomaly is scored from it, so nothing can start
+  an investigation from live data. This is disclosed in #310's own
+  description ("not yet wired to the live collector, background detector, or
+  incident dispatcher"), but it was missing from this report. #310's
+  description was also headed "DRAFT, DO NOT MERGE"; it was merged because
+  the developer listed #309 to #312 for merging. Treat the detector as a
+  tested library, not as working anomaly detection, until a PR connects it.
+  (Found by the Savant review on 2026-11-19, confirmed by a call search.)
 - **Northflank worker not yet deployed.** It needs start command
   `python -m capstone.worker`, the migration above, and a runtime check that
   `NF_DEPLOYMENT_SHA` is the full 40-character commit (a short or empty value
@@ -162,6 +177,25 @@ changed that lacked one: `validate_haas_get`, `haas_get`, `verify_haas_probe`,
   a host address; only the Haas path uses `safe_errors`.
 - `list_runs` rows carry no `heartbeat_age_seconds` (only `get()` does), so a
   frozen run is only visible on its detail page.
+- **The replay cutoff can hide earlier evidence (#311, made reachable by the
+  section 3.2 fix).** `RecordedObservationTools._visible()`
+  (`providers/replay.py`) stops at the first observation, in file order,
+  whose timestamp is after the cutoff. Since captures whose channels
+  interleave in time are now accepted, a later line with an earlier
+  timestamp can be hidden: cutoff t=5, file order (channel A, t=10) then
+  (channel B, t=3) hides B. Mostly this hides repeats re-sent after a
+  collector restart, which were already visible earlier in the file; real
+  evidence is lost only when a channel first appears after a restart with an
+  older timestamp. Fix: skip observations after the cutoff instead of
+  stopping, and keep markers bounded by the cutoff. (Savant review; confirmed
+  by reading, not yet reproduced by a test.)
+- **`ready()` checks one of 0006's three columns.** It checks
+  `sim_worker_heartbeats.last_problem_code` but not `last_problem_at` or
+  `last_problem_count` (`api/run_repository.py`, `ready`). 0006 adds all three
+  in one `ALTER TABLE`, so Alembic cannot apply it partially; only a schema
+  edited by hand would pass `ready()` and then fail on every worker pulse.
+  Fix: count all three columns. (Savant review rated this medium; low here
+  because the migration is atomic.)
 - 4 old CI runs (43097153882, 43097957678, 43098045589, 43098122407) are stuck
   "queued" with no jobs; GitHub refused cancel and delete (403/409). They block
   nothing; GitHub support or time will clear them.
@@ -176,6 +210,28 @@ changed that lacked one: `validate_haas_get`, `haas_get`, `verify_haas_probe`,
   rebuild after merging main, never hand-merge them.
 - Branches of the closed PRs #298 to #306 still exist; delete them once you
   are sure nothing else is needed from them.
+
+### Database state after the merges (2026-11-19, daytime)
+
+The PRs split storage this way: **Supabase** (Capstone-CMU) holds the hosted
+run journal in `capstone_private` (#289, `docs/SUPABASE_STORAGE_PLAN.md`);
+**Neon** holds episodic memory (`DATABASE_URL`) and, later, the manual-knowledge
+tables (#290, `docs/NEON_KNOWLEDGE_ROLLOUT.md`).
+
+- **Supabase:** migrations 0001 to 0006 applied (revision
+  `0006_worker_problems`). Ten `capstone_private` tables plus
+  `episodic_memories`, all empty, row-level security on every table including
+  `alembic_version`.
+- **Neon:** revision `0001_episodic_memory`, with only `episodic_memories` and
+  `alembic_version`. Migrations 0002 to 0006 were applied here by mistake
+  first (the local `.env` has no `CAPSTONE_UI_RUN_DATABASE_URL`, so Alembic
+  used the Neon `DATABASE_URL`); the empty `capstone_private` schema was
+  dropped and the revision reset to 0001. No other Neon data was touched.
+- **Not done, by the developer's choice:** the Neon manual-knowledge tables
+  (`migrations/neon/0001_manual_knowledge.sql`, `0002_oem_approvals.sql`) and
+  `NEON_KNOWLEDGE_DATABASE_URL`.
+- The local `.env` line `REQUESTY-BASE-URL` has a hyphenated name, which stops
+  `uv --env-file` at that line; it should be `REQUESTY_BASE_URL`.
 
 ## 5. Walkthroughs owed (§11.6)
 
