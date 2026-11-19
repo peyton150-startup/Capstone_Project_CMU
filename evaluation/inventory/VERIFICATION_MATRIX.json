@@ -57,7 +57,7 @@
   "capstone-code/capstone/contracts/evidence.py": "617e1e15452fae83c6744f403eb7b903287722b808d07c727db7f35045b5f66d",
   "capstone-code/capstone/contracts/hypotheses.py": "6fa90b62ce785361cf13df7595ac7acfeb844e4e096293cf4b3ab90a6d875da0",
   "capstone-code/capstone/contracts/investigations.py": "a3be1d70277274d68e9a0a4781c1a0c8abcffcd2bda2b9f452a832b8e7d6c2b7",
-  "capstone-code/capstone/contracts/observations.py": "749ccea92262f842df183eda594e9e287f1e7b5dfb81ecb8db5d7b3fdb0e553d",
+  "capstone-code/capstone/contracts/observations.py": "dadfef9fa4806650314a7df1f28de81152443cfc1486fb4357d10775bda473b5",
   "capstone-code/capstone/contracts/provenance.py": "d253fe81e93ee908b9de8904a1021db1a5535d8617773251c2b58db8b91d729c",
   "capstone-code/capstone/contracts/tools.py": "3f4285f114e611422fcbe0a97929007630fca6b97a3564bd4a5ae25d3b8aa340",
   "capstone-code/capstone/database/__init__.py": "d09c50ecc772b0aabdc7cd067402da5c19c986616d912143f9d7c16ebf1d4fcc",
@@ -77,23 +77,24 @@
   "capstone-code/capstone/experiment.py": "7fd244194a06832b7f3f2330bfc2afb56bd9f647eac1c108588f250fac3a8214",
   "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
   "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
-  "capstone-code/capstone/ingestion/__main__.py": "0dd4678789f2e7e8e365810218c52d282fd9290aff5e10bf65eed03633c4b383",
-  "capstone-code/capstone/ingestion/channel_map.py": "80906576c000581de6a8374a4ce874cc0c0cf47803ae10d33c3eea98ad55df5d",
+  "capstone-code/capstone/ingestion/__main__.py": "725ce063d1eabcb2e090d48aa60c471a2f9f661c1e0bdeeffcfbdd5abfc30962",
+  "capstone-code/capstone/ingestion/channel_map.py": "0833d0d4a35ecbd98464785a7f8b132e63dfc142a9564ba576eedf519e8b19a2",
   "capstone-code/capstone/ingestion/cloud_contract.py": "ae947c68a147c955702832d797ada145de2d277707f59723d11c95611b270060",
   "capstone-code/capstone/ingestion/cloud_store.py": "727a627a722fcf4f6d37bc5631687105a56a4fb90f4649fa9f65033967db07d1",
   "capstone-code/capstone/ingestion/cloud_uplink.py": "0a67ed9b67b8431e3e06ed147c749b0ac6c22bc8494600b6f69cab14644957f4",
-  "capstone-code/capstone/ingestion/collector.py": "2b1d9cf6aa0dd9e440baf85e166855b62cb261c46e50626502236587168fac58",
+  "capstone-code/capstone/ingestion/collector.py": "89c4a11904864b99fb935b26e0925f6711b0734ff80b8a3cc9aa65ae6c1b6f75",
   "capstone-code/capstone/ingestion/haas_acceptance.py": "f247c63a83c828508a319fefb9b5f4a705c46db65a17803247630fd0981fea3a",
   "capstone-code/capstone/ingestion/haas_http.py": "fd03507150bd18b5f910aac8924220128eaf51f72fee6462b4e197213bcafa2d",
   "capstone-code/capstone/ingestion/haas_profile.py": "1014378dfdec6569d79aa938cdf8ba52213a4702da11b7e8841988e7e52f6e07",
+  "capstone-code/capstone/ingestion/haas_screen.py": "7e46ba7a586d5a668a84ccb319f07fd6089e33cd0d51d4d94357a9f2c1fbf59c",
   "capstone-code/capstone/ingestion/mtconnect.py": "aa4c59826318b7d162e0a46bab72a832e4b6eae6c8b420f6548a462f29697034",
-  "capstone-code/capstone/ingestion/mtconnect_events.py": "1a5cf435f9643172c32edcc26335b05479503e54dfc22b56acc1497b8e5a7cad",
+  "capstone-code/capstone/ingestion/mtconnect_events.py": "5e9184ee983a5bc5a7481430969bdb5eb4fc0bb23ee49122dca54badcc599739",
   "capstone-code/capstone/ingestion/pilot_acceptance.py": "0d00d997b051b40aae4b8f695bbaa20ce6f08e4b78304f94aee3422c34e7aecd",
   "capstone-code/capstone/ingestion/pilot_preflight.py": "970cfe3c16e0a75ffa045188a93d2b909097c0a3394ef99cb77e48cf452352ae",
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
-  "capstone-code/capstone/ingestion/qualified.py": "b717c8cd674649dcb2fb6bbec13ae936b7925e3800903fbe15860531c3b31d9d",
+  "capstone-code/capstone/ingestion/qualified.py": "56f5331d2dc6544cc51b5954edd4550a50b76556402a029e98d29a04e2492cd6",
   "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
-  "capstone-code/capstone/ingestion/real_detector.py": "85cae9332147743174dfe995c94d343173b3857bcaf658fc8d2d94dc57355c30",
+  "capstone-code/capstone/ingestion/real_detector.py": "44d64e3524f535ff49c78f9365fcdbce7dcf3b5b9065eee19206417a36238f44",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
   "capstone-code/capstone/ingestion/siemens_opcua_adapter.py": "c7427b78e1021beb99b41e17469baeafa363dcd11a45e96983c48869346aeaaa",
   "capstone-code/capstone/ingestion/siemens_opcua_record.py": "351e1639b4037f828731e44d5a7bdec989797bdb0f8be409847006eca67158f0",
@@ -130,9 +131,9 @@
   "capstone-code/capstone/providers/hazards.py": "03190f546d3f2dd6869879e10e38556387aa3a256ed6ab7ca6a290692c8d4b60",
   "capstone-code/capstone/providers/manual.py": "5e459640a8b2f6ab498ff619da3fdd8906ef31263c26d810bf5620e1f4f7c0b0",
   "capstone-code/capstone/providers/recall.py": "177f2da0c829a96c8d89c6448ecba81fd2f6f6e3781d6330497fab145d7eccc7",
-  "capstone-code/capstone/providers/replay.py": "fad670354310f721a5472dafb19fbe8b1e2bb43b2bdebdab7e866d4956fd6eae",
+  "capstone-code/capstone/providers/replay.py": "ba85f8fa85d1799d58247379805eee7676603e60fef8c7b69cceed27c24ff115",
   "capstone-code/capstone/providers/typesafe.py": "73b6cbde2515d5bde8a81fce3dd9fac71833385e75b619c266f6a751555b91e1",
-  "capstone-code/capstone/recorded_investigation.py": "f6674f677bb255ad8518ac99f9bf5a935d39fb85b381a68d01386ffd7f3fef49",
+  "capstone-code/capstone/recorded_investigation.py": "b752f8b3384da28d79e2f9b71b141a9ebb7fb0ada865a130ae5b7273be96fbf9",
   "capstone-code/capstone/replay_investigation.py": "42238f74739e9914463d0433fc0aa9c68b6cb133c299f1776d1df49e17d57116",
   "capstone-code/capstone/settings.py": "fa1f95a69b7304bb5c568da193c7d837301770eed5e4f90139df50212dc76f3e",
   "capstone-code/capstone/simulator/__init__.py": "14ee6627f9e2984cfe3a4f530d8c5675864e4f3cda1b74e7bb27d846c3159e0f",
@@ -209,7 +210,7 @@
   "tests/test_coverage_index_edges.py": "b2b17e264781db6688f8e675fa2fc4b1293c20d630b38cdac7b5188dd1b2587e",
   "tests/test_coverage_reference_edges.py": "80aad4f72f9baaf24dbc5ecd6cc97da018702e54a9f64e0ab8b0fa49bedb67dd",
   "tests/test_coverage_reporting_edges.py": "d42589ed3be5ab6220cdf90bf085fab4f27edf48a2516b7ef853bc147ad9a11c",
-  "tests/test_coverage_telemetry_edges.py": "847a497fd6619096ba1aa01b9218f91a15b369cc511a3503f7e12634b9efdcda",
+  "tests/test_coverage_telemetry_edges.py": "1c2dacac7b4d6079fc9c4bf2b3dbf33bd250b0f6b07661c2546b6c3d76100132",
   "tests/test_coverage_tracing_deep.py": "2ace1452c786cd66e5ef6e354ef8e9687e8b7528b04fae02820514a20c7cd827",
   "tests/test_critic.py": "32afda05598e54b93c2fe03d14700bb0289742348a206368a5b28d8c47653a3d",
   "tests/test_database_connection.py": "9efb08efff306ff4c14c6c7b7dcd628de9bd201ab521fa68d11dc3138ff7e056",
@@ -238,14 +239,15 @@
   "tests/test_ground_truth.py": "00defedf7c2df521d51af43e528e52e848cae4388114795751fc6f50fcc813fc",
   "tests/test_haas_acceptance.py": "4bb5224cad3a0fb8c702b8ee0676e35d03bdb06c26040fc80234c01cae41eb6d",
   "tests/test_haas_cli.py": "a2780fffdc501df03df5484418e2ef72e98e638636a5a7f8cde9c23f69c5b4b5",
-  "tests/test_haas_event_replay.py": "50d1fa12e69a15ba9823abb8d5a9bf7d3be556b004997386097a4d3a4d1b660b",
+  "tests/test_haas_event_replay.py": "af129e0ecb53b0ca0545253d2511aa26b0c661b6e43626a67d35cae8e31133b4",
   "tests/test_haas_http.py": "5ff93d92948ebf9e9adbadaedb8361128cf4a7f665b283747385b229bef1fbe4",
-  "tests/test_haas_mtconnect_events.py": "cb75a4108d354a52c9520b5a089ff2045cfb6a23771879b95901462abb106e70",
+  "tests/test_haas_mtconnect_events.py": "1f849c34ca1d6836af1a5b61711bef06649b02df6814535b32168cf929ad0d5c",
   "tests/test_haas_poll_budget.py": "e5280d923c4f79027968fbf47a0ea55e122ffdceedef058180e22ba3d3477530",
   "tests/test_haas_profile.py": "d490cdaf7b7595cbb4561fc4b20022f4ce6f539dbc6bd93aa4d2c9fdfbc3d1d0",
   "tests/test_haas_protocol.py": "6bb6e1be519c6e17cad96717dcc02639b4372b9012f3eb31085ddcfa4298b4b2",
   "tests/test_haas_qualified.py": "1f1e010bf774acc7eefc4ae647ac26bbe33c4b4ac6adde76e4806b94b66a989e",
   "tests/test_haas_real_detector.py": "7bf83b01f4c9f013f7d52b8fcff461455ff3ff43dfcec7d2fc8561d79b3f4fe1",
+  "tests/test_haas_screen.py": "f62188bfc542d8eea7c070766031c67f9582643d6973a7c5b2c915fc9a81ae2f",
   "tests/test_haas_trace_context.py": "25831671fecaaaf55d9c2aedfdfdb1e7874b99c5464467926d4eb4aaede2438b",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
   "tests/test_hosted_hardening.py": "347578e10c29bf671550ea3442ba2cc506b33fc243c76f81d6226560fd984ed6",
@@ -352,29 +354,29 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "d3ead56cd2d172107f4bf5321dcc58441cd7e8b044386f5b79cacc87386604e0",
- "junit_sha256": "d84332568112b4d759e783fbd57a43e70eb709a4f0d84bd314c259cded23c7ff",
+ "coverage_sha256": "805f5578c2c76043879216b7e75a2565fd26d840ca28306adbc9a415683f75c1",
+ "junit_sha256": "10d92656e0017f4b9cfe0e004b8c508686af2dfa6552e82b13eef49da008379a",
  "counts": {
-  "functions": 1467,
+  "functions": 1472,
   "classes_note": "classes are listed through their methods",
-  "tests": 2629,
+  "tests": 2651,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 656,
    "NOT APPLICABLE": 29,
    "NOT TESTED": 107,
-   "PARTIALLY VERIFIED": 630,
+   "PARTIALLY VERIFIED": 635,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 659,
+   "direct": 664,
    "import-only": 6,
    "indirect": 666,
    "no-statements": 29,
    "none": 107
   },
-  "functions_executed_in_tests": 1325,
-  "functions_with_direct_tests": 659,
+  "functions_executed_in_tests": 1330,
+  "functions_with_direct_tests": 664,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -561,7 +563,7 @@
    "capstone.ingestion.mtconnect:validate_streams_metadata (5/7)",
    "capstone.ingestion.mtconnect:parse_streams (19/24)",
    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive (2/3)",
-   "capstone.ingestion.mtconnect_events:qualify_event (20/27)",
+   "capstone.ingestion.mtconnect_events:qualify_event (23/30)",
    "capstone.ingestion.pilot_preflight:check_pilot (61/78)",
    "capstone.ingestion.pilot_preflight:main (16/31)",
    "capstone.ingestion.qualified:Qualification.exclusive_verdict (2/3)",
@@ -585,7 +587,6 @@
    "capstone.providers.replay:RecordedObservationTools.get_factory_readings (2/3)",
    "capstone.providers.replay:RecordedActionTools.wait (3/4)",
    "capstone.providers.replay:_weighted (3/4)",
-   "capstone.recorded_investigation:main (16/46)",
    "capstone.simulator.scenarios:HydraulicLeak.__init__ (7/9)",
    "capstone.simulator.simulator:Simulator._apply_consequences (3/4)",
    "capstone.simulator.state:FactoryState.next_on_line (3/4)",
@@ -611,7 +612,7 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2605,
+   "passed": 2627,
    "skipped": 24
   },
   "tests_with_no_assertion": [
@@ -1182,6 +1183,11 @@
    "functions": 7,
    "executed": 7,
    "direct": 7
+  },
+  "capstone.ingestion.haas_screen": {
+   "functions": 5,
+   "executed": 5,
+   "direct": 5
   },
   "capstone.ingestion.mtconnect": {
    "functions": 8,
@@ -9961,7 +9967,7 @@
    ]
   },
   "capstone.contracts.tools:TraceContext.consistent_context": {
-   "count": 630,
+   "count": 631,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9980,7 +9986,7 @@
    ]
   },
   "capstone.contracts.tools:ToolResult.consistent_outcome": {
-   "count": 629,
+   "count": 630,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12669,13 +12675,15 @@
    ]
   },
   "capstone.ingestion.channel_map:ChannelMap.verify_probe": {
-   "count": 11,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels"
    ],
    "indirect": [
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
     "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
@@ -12688,21 +12696,22 @@
    ]
   },
   "capstone.ingestion.channel_map:ChannelMap.entry_for": {
-   "count": 11,
+   "count": 28,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+    "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read",
     "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
     "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
     "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
     "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
+    "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
     "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
-    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
-    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
-    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused"
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector"
    ]
   },
   "capstone.ingestion.channel_map:ChannelMap.with_reported": {
@@ -12734,7 +12743,7 @@
    ]
   },
   "capstone.ingestion.channel_map:probe_hash": {
-   "count": 56,
+   "count": 75,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12750,19 +12759,19 @@
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
-    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
-    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector"
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed"
    ]
   },
   "capstone.ingestion.channel_map:parse_probe": {
-   "count": 60,
+   "count": 79,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12779,19 +12788,19 @@
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
-    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
-    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector"
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed"
    ]
   },
   "capstone.ingestion.channel_map:build_channel_map": {
-   "count": 53,
+   "count": 72,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12805,20 +12814,20 @@
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
     "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
     "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
-    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
-    "tests/test_haas_qualified.py::test_unavailable_is_not_zero"
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit"
    ]
   },
   "capstone.ingestion.channel_map:check_capture": {
-   "count": 13,
+   "count": 15,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -12827,6 +12836,8 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
     "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
@@ -12839,7 +12850,7 @@
    ]
   },
   "capstone.ingestion.channel_map:_devices": {
-   "count": 61,
+   "count": 80,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12857,19 +12868,19 @@
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
-    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
-    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector"
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed"
    ]
   },
   "capstone.ingestion.channel_map:_walk": {
-   "count": 59,
+   "count": 78,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12885,19 +12896,43 @@
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed"
+   ]
+  },
+  "capstone.ingestion.channel_map:_probe_type": {
+   "count": 41,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
+    "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
+    "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
+    "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
+   ],
+   "indirect": [
+    "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
+    "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+    "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read",
+    "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
+    "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
+    "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
+    "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
+    "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
     "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
     "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector"
    ]
   },
-  "capstone.ingestion.channel_map:_probe_type": {
-   "count": 24,
+  "capstone.ingestion.channel_map:disagreement": {
+   "count": 41,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -12907,41 +12942,17 @@
    ],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+    "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read",
     "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
     "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
     "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
     "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
+    "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity",
     "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
     "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
-    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
-    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
-    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
-    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance"
-   ]
-  },
-  "capstone.ingestion.channel_map:_disagreement": {
-   "count": 24,
-   "status": "PARTIALLY VERIFIED",
-   "direct": [
-    "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
-    "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
-    "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
-    "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
-   ],
-   "indirect": [
-    "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
-    "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
-    "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
-    "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
-    "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
-    "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
-    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
-    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
-    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
-    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
-    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
-    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance"
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector"
    ]
   },
   "capstone.ingestion.channel_map:load_assignments": {
@@ -12953,13 +12964,15 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:read_capture": {
-   "count": 3,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels"
    ],
    "indirect": [
     "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ]
   },
@@ -13597,6 +13610,82 @@
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe"
    ]
   },
+  "capstone.ingestion.haas_screen:IncidentTrigger.description": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_screen:load_baselines": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_screen.py::test_baselines_for_another_probe_or_twice_for_one_signal_are_refused",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_screen:_operating_state": {
+   "count": 14,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+    "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing",
+    "tests/test_haas_screen.py::test_nothing_after_the_cutoff_is_read",
+    "tests/test_haas_screen.py::test_only_the_newest_source_epoch_is_scored",
+    "tests/test_haas_screen.py::test_refused_samples_are_counted_by_reason_and_never_scored",
+    "tests/test_haas_screen.py::test_the_strongest_of_several_flagged_signals_is_the_trigger",
+    "tests/test_haas_screen.py::test_the_window_keeps_only_samples_shortly_before_the_cutoff"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_screen:screen_signal": {
+   "count": 14,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+    "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing",
+    "tests/test_haas_screen.py::test_nothing_after_the_cutoff_is_read",
+    "tests/test_haas_screen.py::test_only_the_newest_source_epoch_is_scored",
+    "tests/test_haas_screen.py::test_refused_samples_are_counted_by_reason_and_never_scored",
+    "tests/test_haas_screen.py::test_the_strongest_of_several_flagged_signals_is_the_trigger",
+    "tests/test_haas_screen.py::test_the_window_keeps_only_samples_shortly_before_the_cutoff"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_screen:screen_capture": {
+   "count": 16,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_screen.py::test_a_baseline_for_an_unauthorized_item_is_refused",
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_naive_cutoff_or_bad_window_is_refused",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+    "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing",
+    "tests/test_haas_screen.py::test_nothing_after_the_cutoff_is_read",
+    "tests/test_haas_screen.py::test_only_the_newest_source_epoch_is_scored",
+    "tests/test_haas_screen.py::test_refused_samples_are_counted_by_reason_and_never_scored"
+   ],
+   "indirect": []
+  },
   "capstone.ingestion.mtconnect:MTConnectError.__init__": {
    "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
@@ -13617,7 +13706,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_local": {
-   "count": 88,
+   "count": 107,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13636,7 +13725,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_child": {
-   "count": 87,
+   "count": 106,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13731,31 +13820,37 @@
    ]
   },
   "capstone.ingestion.mtconnect_events:EventAdmission.exclusive": {
-   "count": 7,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+    "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read",
     "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
     "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
     "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
     "tests/test_haas_mtconnect_events.py::test_unapproved_controller_channel_is_refused",
-    "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented"
+    "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
+    "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity"
    ]
   },
   "capstone.ingestion.mtconnect_events:qualify_event": {
-   "count": 7,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
+    "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read",
     "tests/test_haas_mtconnect_events.py::test_approved_fault_is_an_alarm_with_source_lineage",
     "tests/test_haas_mtconnect_events.py::test_execution_is_a_state_event_not_a_root_cause",
     "tests/test_haas_mtconnect_events.py::test_normal_condition_means_cleared_not_fault",
     "tests/test_haas_mtconnect_events.py::test_unapproved_controller_channel_is_refused",
-    "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented"
+    "tests/test_haas_mtconnect_events.py::test_unknown_execution_and_condition_states_are_never_invented",
+    "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity"
    ]
   },
   "capstone.ingestion.pilot_acceptance:assess_pilot": {
@@ -13842,7 +13937,7 @@
    ]
   },
   "capstone.ingestion.qualified:Qualification.exclusive_verdict": {
-   "count": 6,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13851,7 +13946,13 @@
     "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
     "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
     "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
-    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused"
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model"
    ]
   },
   "capstone.ingestion.qualified:Qualification.accepted": {
@@ -13864,7 +13965,7 @@
    ]
   },
   "capstone.ingestion.qualified:qualify_numeric": {
-   "count": 6,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13873,7 +13974,13 @@
     "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
     "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
     "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
-    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused"
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model"
    ]
   },
   "capstone.ingestion.quality:UnavailableSpan.seconds": {
@@ -13992,7 +14099,7 @@
    ]
   },
   "capstone.ingestion.real_detector:DetectorWindow.consistent_score": {
-   "count": 5,
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14000,11 +14107,18 @@
     "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
     "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation",
     "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable",
-    "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger"
+    "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger",
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+    "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing"
    ]
   },
   "capstone.ingestion.real_detector:assess_calibrated_window": {
-   "count": 5,
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14012,28 +14126,40 @@
     "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
     "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation",
     "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable",
-    "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger"
+    "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger",
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+    "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+    "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing"
    ]
   },
   "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable": {
-   "count": 3,
+   "count": 7,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
     "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable"
    ],
    "indirect": [
-    "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation"
+    "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation",
+    "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+    "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+    "tests/test_haas_screen.py::test_too_few_samples_in_the_window_cannot_trigger",
+    "tests/test_haas_screen.py::test_without_an_execution_value_the_state_is_unknown_and_nothing_triggers"
    ]
   },
   "capstone.ingestion.record:TelemetryRecord.number": {
-   "count": 52,
+   "count": 53,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
     "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
     "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
     "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
@@ -14041,12 +14167,11 @@
     "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
     "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
     "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested",
-    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-    "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools"
+    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation"
    ]
   },
   "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap": {
-   "count": 70,
+   "count": 71,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14065,7 +14190,7 @@
    ]
   },
   "capstone.ingestion.record:parse_line": {
-   "count": 19,
+   "count": 21,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14075,12 +14200,12 @@
     "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
     "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
-    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
-    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
-    "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates"
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations"
    ]
   },
   "capstone.ingestion.record:gap_free_runs": {
@@ -18395,7 +18520,7 @@
    ]
   },
   "capstone.providers.factory:run_tool": {
-   "count": 370,
+   "count": 371,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -18420,7 +18545,7 @@
    "indirect": []
   },
   "capstone.providers.factory:TickRange.ordered_range": {
-   "count": 383,
+   "count": 384,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18458,7 +18583,7 @@
    ]
   },
   "capstone.providers.factory:tool_spec": {
-   "count": 365,
+   "count": 366,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18477,7 +18602,7 @@
    ]
   },
   "capstone.providers.factory:research_tools": {
-   "count": 346,
+   "count": 347,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_factory_provider.py::test_a_policy_is_offered_research_tools_but_never_the_fixed_procedure"
@@ -18498,7 +18623,7 @@
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.__init__": {
-   "count": 382,
+   "count": 383,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18517,7 +18642,7 @@
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.call": {
-   "count": 374,
+   "count": 375,
    "status": "VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -18883,41 +19008,41 @@
    ]
   },
   "capstone.providers.replay:RecordedObservationTools.__init__": {
-   "count": 24,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_recorded_investigation.py::test_replay_rejects_unknown_or_unmapped_machine",
     "tests/test_replay_investigation.py::test_no_guessing_a_machine_or_symptom",
-    "tests/test_replay_investigation.py::test_recorded_capture_uses_the_existing_graph_without_screening_or_actions",
-    "tests/test_replay_provider.py::test_a_bad_setup_is_refused"
+    "tests/test_replay_investigation.py::test_recorded_capture_uses_the_existing_graph_without_screening_or_actions"
    ]
   },
   "capstone.providers.replay:RecordedObservationTools.tick_of": {
-   "count": 17,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_replay_investigation.py::test_recorded_capture_uses_the_existing_graph_without_screening_or_actions",
     "tests/test_replay_provider.py::test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
-    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
-    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it"
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value"
    ]
   },
   "capstone.providers.replay:RecordedObservationTools.time_of": {
@@ -18941,13 +19066,14 @@
    ]
   },
   "capstone.providers.replay:RecordedObservationTools._visible": {
-   "count": 15,
+   "count": 16,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_replay_investigation.py::test_recorded_capture_uses_the_existing_graph_without_screening_or_actions",
     "tests/test_replay_provider.py::test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
@@ -18955,27 +19081,26 @@
     "tests/test_replay_provider.py::test_a_marker_after_every_shown_observation_stays_hidden",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
     "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
-    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
-    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units"
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it"
    ]
   },
   "capstone.providers.replay:RecordedObservationTools.get_time": {
-   "count": 17,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_replay_investigation.py::test_recorded_capture_uses_the_existing_graph_without_screening_or_actions",
     "tests/test_replay_provider.py::test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
-    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
-    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it"
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value"
    ]
   },
   "capstone.providers.replay:RecordedObservationTools.list_machines": {
@@ -18983,7 +19108,7 @@
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
@@ -19057,11 +19182,12 @@
    ]
   },
   "capstone.providers.replay:RecordedObservationTools.get_events": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
@@ -19135,22 +19261,22 @@
    ]
   },
   "capstone.providers.replay:RecordedActionTools.__init__": {
-   "count": 19,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_recorded_investigation.py::test_replay_rejects_unknown_or_unmapped_machine",
     "tests/test_replay_investigation.py::test_no_guessing_a_machine_or_symptom",
     "tests/test_replay_investigation.py::test_recorded_capture_uses_the_existing_graph_without_screening_or_actions",
     "tests/test_replay_provider.py::test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
-    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
-    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty"
    ]
   },
   "capstone.providers.replay:RecordedActionTools.wait": {
@@ -19188,7 +19314,7 @@
    ]
   },
   "capstone.providers.replay:replay_provider": {
-   "count": 22,
+   "count": 23,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_replay_provider.py::test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
@@ -19206,10 +19332,11 @@
    "indirect": [
     "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
     "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
+    "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
     "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
     "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
-    "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+    "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
     "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_recorded_investigation.py::test_replay_rejects_unknown_or_unmapped_machine",
@@ -19333,7 +19460,7 @@
    ]
   },
   "capstone.recorded_investigation:replay_tool_specs": {
-   "count": 6,
+   "count": 7,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
@@ -19343,7 +19470,8 @@
    ],
    "indirect": [
     "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
-    "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events"
+    "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine"
    ]
   },
   "capstone.recorded_investigation:run_recorded_investigation": {
@@ -19357,13 +19485,18 @@
    "indirect": []
   },
   "capstone.recorded_investigation:main": {
-   "count": 2,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_recorded_investigation.py::test_cli_refuses_to_write_confidential_review_inside_a_checkout",
     "tests/test_recorded_investigation.py::test_cli_requires_explicit_authorization_before_reading_any_capture"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_haas_screen.py::test_cli_refuses_a_machine_or_description_with_a_baseline",
+    "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+    "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+    "tests/test_haas_screen.py::test_cli_without_a_baseline_still_needs_machine_and_description"
+   ]
   },
   "capstone.replay_investigation:recorded_tool_specs": {
    "count": 5,
@@ -19418,7 +19551,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage": {
-   "count": 355,
+   "count": 356,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19450,7 +19583,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_triage_needs_fixed_plan": {
-   "count": 355,
+   "count": 356,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19501,7 +19634,7 @@
    ]
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 366,
+   "count": 367,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19570,7 +19703,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 249,
+   "count": 250,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -32779,11 +32912,11 @@
    "functions": [
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -32796,11 +32929,11 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -32813,11 +32946,11 @@
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.with_reported",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -32832,11 +32965,11 @@
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:ChannelMap.with_reported",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:load_assignments",
     "capstone.ingestion.channel_map:main",
     "capstone.ingestion.channel_map:parse_probe",
@@ -44587,10 +44720,10 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -44621,7 +44754,7 @@
     "capstone.providers.replay:replay_provider"
    ]
   },
-  "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle": {
+  "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down": {
    "count": 20,
    "judgment": "NOT ASSESSED",
    "functions": [
@@ -44645,6 +44778,32 @@
     "capstone.providers.replay:RecordedObservationTools.list_machines",
     "capstone.providers.replay:RecordedObservationTools.tick_of",
     "capstone.providers.replay:replay_provider"
+   ]
+  },
+  "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault": {
+   "count": 26,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__"
    ]
   },
   "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks": {
@@ -44671,10 +44830,10 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -44746,8 +44905,8 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ]
@@ -44757,8 +44916,8 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ]
@@ -44768,8 +44927,8 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ]
@@ -44779,8 +44938,8 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ]
@@ -44789,6 +44948,28 @@
    "count": 2,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ]
+  },
+  "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ]
+  },
+  "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ]
@@ -44930,10 +45111,10 @@
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -44949,10 +45130,10 @@
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -44968,10 +45149,10 @@
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -44986,10 +45167,10 @@
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -45004,10 +45185,10 @@
    "functions": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -45072,6 +45253,402 @@
     "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
     "capstone.ingestion.real_detector:assess_calibrated_window",
     "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation": {
+   "count": 18,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:IncidentTrigger.description",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored": {
+   "count": 18,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored": {
+   "count": 18,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_screen.py::test_without_an_execution_value_the_state_is_unknown_and_nothing_triggers": {
+   "count": 18,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_screen.py::test_refused_samples_are_counted_by_reason_and_never_scored": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_only_the_newest_source_epoch_is_scored": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_nothing_after_the_cutoff_is_read": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_the_window_keeps_only_samples_shortly_before_the_cutoff": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_too_few_samples_in_the_window_cannot_trigger": {
+   "count": 18,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_screen.py::test_the_strongest_of_several_flagged_signals_is_the_trigger": {
+   "count": 17,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_screen.py::test_a_baseline_for_an_unauthorized_item_is_refused": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ]
+  },
+  "tests/test_haas_screen.py::test_a_naive_cutoff_or_bad_window_is_refused": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ]
+  },
+  "tests/test_haas_screen.py::test_baselines_for_another_probe_or_twice_for_one_signal_are_refused": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:load_baselines",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ]
+  },
+  "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model": {
+   "count": 23,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:load_baselines",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score"
+   ]
+  },
+  "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine": {
+   "count": 32,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.haas_screen:IncidentTrigger.description",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:load_baselines",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_screen.py::test_cli_refuses_a_machine_or_description_with_a_baseline": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.recorded_investigation:main"
+   ]
+  },
+  "tests/test_haas_screen.py::test_cli_without_a_baseline_still_needs_machine_and_description": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.recorded_investigation:main"
    ]
   },
   "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only": {
@@ -53625,11 +54202,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53651,11 +54228,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53677,11 +54254,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53748,11 +54325,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53781,11 +54358,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53807,11 +54384,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53833,11 +54410,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53859,11 +54436,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -53885,11 +54462,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",

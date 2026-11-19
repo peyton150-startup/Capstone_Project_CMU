@@ -3,10 +3,14 @@ import { Activity, ArrowRight, Database, RadioTower, ShieldCheck, Signal, Wifi }
 import { useRecording } from '../pageData';
 import { useResource } from '../api';
 import { useUi } from '../context';
-import { DataRow, formatBytes, formatNumber, formatStamp, InfoState, Metric, PageHeading, Panel, Pill, QualityExplanation, SummaryLink, TimelineEvent, toneFor, Unavailable } from '../ui';
+import { DataRow, formatBytes, formatNumber, formatStamp, InfoState, Metric, PageHeading, Panel, Pill, QualityExplanation, SummaryLink, TimelineEvent, toneFor, SourceState } from '../ui';
 
 export function RecordingsPage() {
-  const { snapshot, error } = useRecording();
+  // Variables:
+  //   recording: The Siemens capture read with its loading, failure and
+  //     availability facts, so a missing file and a failed request differ.
+  const recording = useRecording();
+  const { snapshot } = recording;
   const { preview } = useUi();
   const r = snapshot?.recorder;
   const statuses = [
@@ -23,8 +27,8 @@ export function RecordingsPage() {
     <div className="state-grid">{statuses.map(([label, status, note]) =>
       <div className="state-tile" key={label}><div className="state-tile-head"><RadioTower size={17}/>{label}</div>
         <Pill text={(status || 'unknown').replaceAll('_', ' ')} tone={toneFor(status)}/><small>{note}</small></div>)}</div>
-    {error && <InfoState kind="warning" title="Recorder API unavailable" detail={error}/>}
-    {!r && <Unavailable item="Siemens recording" detail="Configure an approved Siemens v2 JSONL capture in the local API. Start the collector independently in PowerShell."/>}
+    {!r && <SourceState item="Siemens recording" loading={recording.loading} error={recording.error} status={recording.status} availability={snapshot?.availability ?? null}
+      detail={snapshot?.message || 'Configure an approved Siemens v2 JSONL capture in the local API. Start the collector independently in PowerShell.'}/>}
     <div className="metric-grid">
       <Metric label="Received" value={r ? formatNumber(r.received) : null} note="Bounded capture window" icon={<Database size={18}/>} />
       <Metric label="Native Good" value={r ? formatNumber(r.good) : null} note="Not automatically eligible for analysis" icon={<ShieldCheck size={18}/>} />
@@ -41,13 +45,18 @@ export function RecordingsPage() {
             <div className="cell-mono">{s.value === null ? 'Restricted / —' : String(s.value) + (s.unit ? ' ' + s.unit : '')}</div>
             <Pill text={s.quality} tone={toneFor(s.quality)}/><span className="cell-muted">{s.freshness}</span>
           </div>)}
-        </div> : <Unavailable item="Approved signal inventory"/>}
+        </div> : r ? <SourceState item="Signals" availability="available" count={0}
+          emptyDetail="The capture holds no approved signal rows in its bounded window."/> :
+          <InfoState title="No signal inventory" detail="Signals appear once a Siemens capture is readable."/>}
       </Panel>
       <Panel title="Collector activity" subtitle="Events from real v2 session markers" action={<SummaryLink to="/recordings/sessions" label="Session details"/>}>
         {snapshot?.events.length ? snapshot.events.slice(0, 7).map((event,i) =>
           <TimelineEvent key={i} label={event.event} at={formatStamp(event.at)} note={'Epoch ' + event.epoch}
             status={event.event === 'gap' || event.event === 'disconnected' ? 'warning' :
-              event.event === 'connected' ? 'good' : 'neutral'}/>) : <Unavailable item="Collector event history"/>}
+              event.event === 'connected' ? 'good' : 'neutral'}/>) : r ?
+          <SourceState item="Collector events" availability="available" count={0}
+            emptyDetail="The capture holds no session markers."/> :
+          <InfoState title="No collector events" detail="Events appear once a Siemens capture is readable."/>}
       </Panel>
     </div>
     <MTConnectPanel />
@@ -60,7 +69,8 @@ export function RecordingsPage() {
   </>;
 }
 export function QualityPage() {
-  const { snapshot } = useRecording();
+  const recording = useRecording();
+  const { snapshot } = recording;
   const r = snapshot?.recorder;
   const share = r?.received ? (100 * r.good / r.received).toFixed(1) + '%' : null;
   return <>
@@ -77,7 +87,8 @@ export function QualityPage() {
         {snapshot?.signals.length ? snapshot.signals.map(s =>
           <DataRow key={s.id} label={s.label} extra={'Eligibility: ' + (s.analysis_eligible ? 'verified' : 'unverified')}
             value={<Pill text={s.quality} tone={toneFor(s.quality)}/>}/>)
-          : <Unavailable item="Signal qualification"/>}
+          : <SourceState item="Signal qualification" loading={recording.loading} error={recording.error} status={recording.status} availability={snapshot?.availability ?? null} count={0}
+            emptyDetail="The capture holds no signal rows to qualify."/>}
       </Panel>
       <Panel title="Qualification checklist" subtitle="Each criterion needs evidence">
         {[
@@ -100,7 +111,8 @@ export function QualityPage() {
   </>;
 }
 export function SessionsPage() {
-  const { snapshot } = useRecording();
+  const recording = useRecording();
+  const { snapshot } = recording;
   const r = snapshot?.recorder;
   return <>
     <PageHeading eyebrow="ACQUISITION / SESSION HISTORY" title="Recording sessions"
@@ -116,7 +128,8 @@ export function SessionsPage() {
           <DataRow label="Durable storage state" value={<Pill text={r.sink_state} tone={toneFor(r.sink_state)}/>}/>
           <DataRow label="Recent-window reconnects" value={r.reconnections}/>
           <DataRow label="Recent-window readings" value={formatNumber(r.received)}/>
-        </> : <Unavailable item="Session inventory"/>}
+        </> : <SourceState item="Session inventory" loading={recording.loading} error={recording.error} status={recording.status} availability={snapshot?.availability ?? null} count={0}
+          detail={snapshot?.message ?? null}/>}
       </Panel>
       <Panel title="Before unattended collection" subtitle="A short capture is not seven-day approval">
         {[
@@ -132,7 +145,8 @@ export function SessionsPage() {
       {snapshot?.events.length ? snapshot.events.map((e,i) =>
         <TimelineEvent key={i} label={'Epoch ' + e.epoch + ' · ' + e.event} at={formatStamp(e.at)}
           status={e.event === 'gap' ? 'warning' : 'neutral'}/>)
-        : <Unavailable item="Session markers"/>}
+        : <SourceState item="Session markers" loading={recording.loading} error={recording.error} status={recording.status} availability={snapshot?.availability ?? null} count={0}
+          emptyDetail="The capture holds no stored connection or session events."/>}
     </Panel>
     <div className="page-bottom-nav"><Link to="/recordings" className="text-link"><Wifi size={16}/> Recorder overview</Link>
       <Link to="/recordings/quality" className="text-link">Quality details <ArrowRight size={17}/></Link></div>
@@ -157,7 +171,6 @@ export function MTConnectPanel() {
   const data=source.data;
   const r=data?.recorder;
   return <Panel title="Legacy MTConnect recorder" subtitle="Separate v1 capture adapter; never parsed as Siemens OPC UA">
-    {source.error && <InfoState kind="warning" title="MTConnect API unavailable" detail={source.error}/>}
     {r ? <>
       <div className="metric-grid">
         <Metric label="v1 observations" value={r.received} note="Bounded recent window"/>
@@ -178,12 +191,15 @@ export function MTConnectPanel() {
             <DataRow key={signal.id} label={signal.machine + ' / ' + signal.label}
               extra={signal.component + ' · ' + signal.category}
               value={<Pill text={signal.quality} tone={toneFor(signal.quality)}/>}/>):
-            <Unavailable item="MTConnect signal inventory"/>}
+            <SourceState item="MTConnect signals" availability="available" count={0}
+              emptyDetail="The legacy capture holds no approved signal rows."/>}
         </Panel>
       </div>
       <div className="soft-note">MTConnect availability does not establish Siemens StatusCode, valid engineering units, freshness policy or diagnostic eligibility.</div>
-    </> : <Unavailable item="MTConnect v1 capture" detail={preview ?
-      'Real capture is hidden during synthetic UI preview.' :
-      'Configure an approved CAPSTONE_UI_MTCONNECT JSONL artifact. No browser-to-MTConnect-agent access is permitted.'}/>}
+    </> : preview ? <InfoState title="MTConnect v1 capture hidden in preview"
+      detail="Real capture is hidden during synthetic UI preview."/> :
+      <SourceState item="MTConnect v1 capture" loading={source.loading} error={source.error}
+        status={source.status} availability={data?.availability ?? null} count={0}
+        detail="Configure an approved CAPSTONE_UI_MTCONNECT JSONL artifact. No browser-to-MTConnect-agent access is permitted."/>}
   </Panel>;
 }

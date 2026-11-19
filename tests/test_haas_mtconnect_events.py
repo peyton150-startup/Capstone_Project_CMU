@@ -51,3 +51,21 @@ def test_unapproved_controller_channel_is_refused():
         ).reason
         == "not_authorized"
     )
+
+
+def test_warning_and_fault_are_both_alarms_with_their_own_severity():
+    warning = admit("S1temp", "CONDITION", "TEMPERATURE", "WARNING").value.event
+    fault = admit("S1temp", "CONDITION", "TEMPERATURE", "FAULT").value.event
+    normal = admit("S1temp", "CONDITION", "TEMPERATURE", "NORMAL").value.event
+    assert (warning.kind, warning.severity) == ("alarm", "warning")
+    assert (fault.kind, fault.severity) == ("alarm", "fault")
+    assert normal.severity is None
+    assert admit("exec", "EVENT", "Execution", "ACTIVE").value.event.severity is None
+
+
+def test_an_unavailable_execution_is_refused_before_its_value_is_read():
+    from capstone.ingestion.channel_map import disagreement
+
+    unavailable = record("exec", "EVENT", "Execution", value=None)
+    assert disagreement(MAP.entry_for(unavailable), unavailable) is None
+    assert admit("exec", "EVENT", "Execution", None).reason == "unknown_state"
