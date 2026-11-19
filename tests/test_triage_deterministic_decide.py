@@ -382,6 +382,64 @@ def test_unavailable_sensor_is_never_sent_to_replay_provider():
     run_inner_loop(state, deps, "investigate")
     assert provider.calls == []
     assert state.triage_decide_trace[-1].reason == "capability_unavailable"
+    # The unsupported requirements stay in the plan and record, marked
+    # unavailable, so the final conclusion can say what could not be checked.
+    assert state.triage_requirements
+    marked = {
+        rid: result
+        for rid, result in state.triage_requirement_results.items()
+        if result.status in ("unavailable", "unsupported")
+    }
+    assert marked
+    assert all("not authorized" in result.reason for result in marked.values())
+    assert state.triage_decide_trace[-1].requirement_ids
+
+
+def test_capability_unavailable_is_not_completion():
+    """No eligible read stops collection, but never counts as evidence sufficient."""
+    state = state_for()
+    # A real catalog that lacks the plan's reads: authorized tools exist, but
+    # none can serve these requirements.
+    deps = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    reason = run_inner_loop(state, deps, "investigate")
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    stop = state.triage_decide_trace[-1]
+    assert stop.kind == "stop"
+    assert stop.reason == "capability_unavailable"
+    # Nothing was removed from the plan to make the investigation look done.
+    assert state.unanswered_questions
+    assert all(
+        state.triage_requirement_results[rid].status != "satisfied"
+        for rid in stop.requirement_ids
+    )
+
+
+def test_ranked_read_prefers_a_shared_discriminating_source():
+    """With several unmet reads, the one settling most requirements comes first."""
+    state = state_for()
+    provider = FakeProvider(answer, tick=45)
+    run_inner_loop(state, deps_for(provider), "investigate")
+    # The vibration window answers both Q1:trigger and Q5:vibration at once,
+    # so it must be the first read, not whatever the dict happened to hold.
+    first = provider.calls[0]
+    assert first.name == "get_sensor_summary"
+    assert first.arguments["sensor"] == "vibration"
+    assert state.triage_decide_trace[0].reason.endswith("(read-ranking-v1)")
+
+
+def test_ranking_is_stable_across_identical_runs():
+    def order():
+        state = state_for()
+        provider = FakeProvider(answer, tick=45)
+        run_inner_loop(state, deps_for(provider), "investigate")
+        return [(r.name, sorted(r.arguments.items())) for r in provider.calls]
+
+    assert order() == order()
 
 
 def test_future_response_is_quarantined_without_moving_the_cutoff():

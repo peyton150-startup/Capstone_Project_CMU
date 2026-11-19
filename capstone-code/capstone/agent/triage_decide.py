@@ -36,6 +36,11 @@ from capstone.providers.factory import TOOL_ARGUMENTS
 if TYPE_CHECKING:
     from capstone.agent.loop import InvestigationDeps
 
+# The deterministic read-ordering policy's version. It is written into a
+# selected read's reason and into saved traces, so a change to the weights is
+# a new version, never a silent reordering of an old run.
+READ_RANKING_POLICY = "read-ranking-v1"
+
 READ_ONLY = frozenset(
     {
         "get_sensor_summary",
@@ -46,6 +51,8 @@ READ_ONLY = frozenset(
         "get_job_history",
     }
 )
+# Reads that measure a machine's signal, rather than query its records.
+SENSOR_READS = frozenset({"get_sensor_summary", "get_readings", "get_sensor_trend"})
 STOP_MAP = {
     "requirements_complete": TerminationReason.EVIDENCE_SUFFICIENT,
     "no_eligible_read": TerminationReason.NO_USEFUL_ACTION,
@@ -85,39 +92,49 @@ def fingerprint(request: ToolRequest, cutoff_tick: int) -> str:
     return json.dumps([request.name, request.arguments, cutoff_tick], sort_keys=True)
 
 
-def permitted_triage_read(
+def unpermitted_reason(
     requirement: ReadRequirement, deps: "InvestigationDeps", state: InvestigationState
-) -> bool:
-    """Check catalog, channel, argument and cutoff before a provider call."""
+) -> str | None:
+    """Why this read is not authorized now, as a safe code, or None when it is."""
     # Variables:
     #   cutoff: The source horizon captured before any controller reads.
     #   names: Authorized read-only operations for this particular provider.
     cutoff = state.triage_observation_cutoff_tick
     names = {spec.name for spec in deps.triage_tool_specs}
     if requirement.tool not in READ_ONLY or requirement.tool not in names:
-        return False
-    if cutoff is None or (
-        requirement.to_tick is not None and requirement.to_tick > cutoff
-    ):
-        return False
+        return "unsupported_tool"
+    if cutoff is None:
+        return "observation_cutoff_unknown"
+    if requirement.to_tick is not None and requirement.to_tick > cutoff:
+        return "window_past_cutoff"
     if (
         requirement.machine_id is not None
         and requirement.machine_id not in known_machines(state)
     ):
-        return False
+        return "unknown_machine"
     if (
         requirement.sensor is not None
         and requirement.sensor
         not in deps.triage_channels.get(requirement.machine_id or "factory", ())
     ):
-        return False
+        return "channel_unavailable"
     try:
         TOOL_ARGUMENTS[requirement.tool].model_validate(
             request_for(requirement).arguments
         )
     except (KeyError, ValueError):
-        return False
-    return True
+        return "invalid_arguments"
+    return None
+
+
+def permitted_triage_read(
+    requirement: ReadRequirement, deps: "InvestigationDeps", state: InvestigationState
+) -> bool:
+    """Check catalog, channel, argument and cutoff before a provider call."""
+    # Variables:
+    #   requirement: The planned read; its tool, machine, sensor and window are
+    #     each checked against this provider's catalog, channels and cutoff.
+    return unpermitted_reason(requirement, deps, state) is None
 
 
 def initialize_requirements(state: InvestigationState) -> None:
@@ -618,6 +635,41 @@ def evaluate_triage_requirements(state: InvestigationState) -> None:
             ]
 
 
+def read_priority(
+    requirement: ReadRequirement,
+    *,
+    state: InvestigationState,
+    shared: int,
+    direct: bool,
+) -> tuple[int, int, int, int]:
+    """A reproducible priority for one unmet authorized requirement.
+
+    Higher is read first. It is an ordinal preference, not a probability: the
+    tuple only orders reads, and the last two fields keep the order stable.
+    """
+    # Variables:
+    #   shared: How many requirements this exact request can answer at once,
+    #     so a grouped read that settles several sources is preferred.
+    #   direct: Whether the read is a measurement of a machine rather than a
+    #     record query, which is more often what distinguishes explanations.
+    #   discriminating: Whether a compiled candidate names this requirement as
+    #     one that could separate its possibilities.
+    #   question_number: The question's number in the plan, so Q1's sources
+    #     come before later questions when everything else ties; 99 if unnamed.
+    discriminating = any(
+        requirement.requirement_id in candidate.discriminating_requirement_ids
+        for candidate in state.triage_candidates
+    )
+    suffix = requirement.question_id.removeprefix("Q")
+    question_number = int(suffix) if suffix.isdigit() else 99
+    return (
+        shared,
+        int(discriminating),
+        int(direct),
+        -question_number,
+    )
+
+
 def choose_next_triage_read(
     state: InvestigationState, deps: "InvestigationDeps", phase: str
 ) -> TriageReadDecision | TriageStopDecision:
@@ -628,6 +680,8 @@ def choose_next_triage_read(
     #   attempts: Count for the exact request at this stable cutoff.
     #   order: Typed candidate-driven Test priority, rebuilt as observed
     #     inspections reveal job-path requirements.
+    #   ranked: Grouped requests best first, by `read_priority` and then by
+    #     their key, so identical inputs always pick the same read.
     cutoff = state.triage_observation_cutoff_tick
     assert cutoff is not None
     pending = [
@@ -684,8 +738,26 @@ def choose_next_triage_read(
     exhausted = False
     insufficient = False
     for requirement in pending:
-        if not permitted_triage_read(requirement, deps, state):
+        reason = unpermitted_reason(requirement, deps, state)
+        if reason is not None:
             unavailable = True
+            # Keep the requirement in the plan and in the record: what the
+            # investigation needed but could not obtain must stay visible.
+            # A requirement that already has evidence keeps its own verdict.
+            current = state.triage_requirement_results.get(requirement.requirement_id)
+            if current is None or (
+                current.status == "pending" and not current.evidence_ids
+            ):
+                state.triage_requirement_results[requirement.requirement_id] = (
+                    RequirementResult(
+                        status=(
+                            "unsupported"
+                            if reason in {"unsupported_tool", "invalid_arguments"}
+                            else "unavailable"
+                        ),
+                        reason=f"read not authorized: {reason}",
+                    )
+                )
             continue
         request = request_for(requirement)
         key = fingerprint(request, cutoff)
@@ -714,7 +786,22 @@ def choose_next_triage_read(
             grouped[key] = (request, [])
         grouped[key][1].append(requirement.requirement_id)
     if grouped:
-        request, ids = next(iter(grouped.values()))
+        ranked = sorted(
+            grouped.items(),
+            key=lambda entry: (
+                tuple(
+                    -field
+                    for field in read_priority(
+                        state.triage_requirements[entry[1][1][0]],
+                        state=state,
+                        shared=len(entry[1][1]),
+                        direct=entry[1][0].name in SENSOR_READS,
+                    )
+                ),
+                entry[0],
+            ),
+        )
+        _, (request, ids) = ranked[0]
         first = state.triage_requirements[ids[0]]
         return TriageReadDecision(
             step=CallTool(
@@ -723,7 +810,7 @@ def choose_next_triage_read(
                 question_id=first.question_id,
             ),
             requirement_ids=tuple(ids),
-            reason="unmet qualified requirement",
+            reason=f"unmet qualified requirement ({READ_RANKING_POLICY})",
             candidate_count=len(grouped),
         )
     reason: TriageStopReason = (
