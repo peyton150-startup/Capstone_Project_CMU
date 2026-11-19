@@ -465,6 +465,8 @@ input:focus,select:focus{border-color:var(--accent)}
 .settings-row strong{display:block;font:600 11px 'IBM Plex Mono',monospace}
 .settings-row small{font-size:10px;color:var(--text-dim);display:block;margin-top:6px}
 .settings-value{font:500 11px 'IBM Plex Mono',monospace;color:var(--text-muted);max-width:45%;overflow-wrap:anywhere}
+.journal-diagnostics{margin-top:16px;border-top:1px solid var(--line-soft);padding-top:12px}
+.journal-diagnostics summary{cursor:pointer;font:600 11px 'IBM Plex Mono',monospace;color:var(--text-muted)}
 .button-group{display:flex;gap:8px}
 .button-selected,.button-outline{border:1px solid var(--line);border-radius:7px;padding:9px 13px;font-size:11px}
 .button-selected{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
