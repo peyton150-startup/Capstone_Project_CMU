@@ -67,7 +67,7 @@ export function SystemPage() {
       <Panel title="Service components" subtitle="These fields cannot substitute for checks against real measurements">
         {data.data?Object.entries(data.data).filter(([name])=>name!=='run_queue').map(([name,value])=>
           <DataRow key={name} label={name.replaceAll('_',' ')}
-            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(value)}/>}/>):
+            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(String(value))}/>}/>):
           <Unavailable item="System status" detail={data.error||'Connect the local API to inspect service status.'}/>}
       </Panel>
       {data.data?.run_queue?<Panel title="Run queue" subtitle="Hosted worker queue and heartbeat, counts only">
