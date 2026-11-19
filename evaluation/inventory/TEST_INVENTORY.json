@@ -61387,6 +61387,136 @@
    ]
   },
   {
+   "id": "tests/test_haas_acceptance.py::test_empty_checklist_is_blocked",
+   "file": "tests/test_haas_acceptance.py",
+   "name": "test_empty_checklist_is_blocked",
+   "line": 22,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "empty checklist is blocked",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+    "capstone.ingestion.haas_acceptance:assess_haas_field_readiness"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.haas_acceptance"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_acceptance.py::test_offline_success_is_never_field_success",
+   "file": "tests/test_haas_acceptance.py",
+   "name": "test_offline_success_is_never_field_success",
+   "line": 28,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "offline success is never field success",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+    "capstone.ingestion.haas_acceptance:assess_haas_field_readiness"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.haas_acceptance"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_acceptance.py::test_field_acceptance_requires_every_gate",
+   "file": "tests/test_haas_acceptance.py",
+   "name": "test_field_acceptance_requires_every_gate",
+   "line": 48,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "field acceptance requires every gate",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+    "capstone.ingestion.haas_acceptance:assess_haas_field_readiness"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.haas_acceptance"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_acceptance.py::test_missing_or_unknown_private_reference_rejected",
+   "file": "tests/test_haas_acceptance.py",
+   "name": "test_missing_or_unknown_private_reference_rejected",
+   "line": 59,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "missing or unknown private reference rejected",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.haas_acceptance"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
    "file": "tests/test_haas_cli.py",
    "name": "test_guarded_cli_qualifies_one_device_and_saves_probe",
@@ -63037,6 +63167,75 @@
    "exercise_count": 3,
    "modules_exercised": [
     "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+   "file": "tests/test_haas_trace_context.py",
+   "name": "test_collector_incident_correlation_keeps_structured_metadata_only",
+   "line": 11,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "collector incident correlation keeps structured metadata only",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.observability:EventLogger.__init__",
+    "capstone.observability:EventLogger.log_event",
+    "capstone.observability:_safe_identifier"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.observability"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
+   "file": "tests/test_haas_trace_context.py",
+   "name": "test_invalid_correlation_identifier_is_never_logged",
+   "line": 31,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "invalid correlation identifier is never logged",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.observability:EventLogger.__init__",
+    "capstone.observability:EventLogger.log_event",
+    "capstone.observability:_safe_identifier"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.observability"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
