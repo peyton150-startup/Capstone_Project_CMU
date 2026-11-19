@@ -57,13 +57,13 @@ from capstone.providers.hazards import (
 from capstone.providers.manual import ManualProvider, ManualSearch
 from capstone.providers.recall import RecallingProvider
 from capstone.settings import get_settings
-from capstone.triage_run_controls import EffectiveTriageRun
 from capstone.simulator.challenge import build_challenge
 from capstone.simulator.generator import build_scenario
 from capstone.simulator.simulator import Simulator
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.diagnosis import Diagnosis
 from capstone.tools.observation import ObservationTools
+from capstone.triage_run_controls import EffectiveTriageRun
 
 # What kind of factory an episode is run on. "standard": the line with one
 # seeded fault (simulator/generator.py). "challenge": the compound challenge
@@ -468,8 +468,13 @@ def run_episode(
     triage_state, triage_seconds = None, None
     if selecting_triage:
         triage_state, state, triage_seconds, critic = run_triage_then_deep(
-            state, deps, budgets, settings, log,
-            manual=manual, configuration=triage_configuration,
+            state,
+            deps,
+            budgets,
+            settings,
+            log,
+            manual=manual,
+            configuration=triage_configuration,
         )
     else:
         run_investigation(state, deps)
@@ -551,8 +556,7 @@ def run_triage_then_deep(
     #     (TRIAGE_HYPOTHESIS_SECONDS, capped to its window), passed to its
     #     research as deps.hypothesis_seconds; the deep run keeps its own.
     profile = (
-        settings.effective_triage if configuration is None
-        else configuration.profile
+        settings.effective_triage if configuration is None else configuration.profile
     )
     first.mode = "triage"
     first.triage_run_mode = profile.run_mode
@@ -560,11 +564,13 @@ def run_triage_then_deep(
     first.triage_packet_prompt = profile.packet_prompt
     # The Conclude policy, its brief and budget are unchanged by the switch.
     first.triage_conclude_brief = (
-        settings.triage_conclude_brief if configuration is None
+        settings.triage_conclude_brief
+        if configuration is None
         else configuration.conclude_brief
     )
     first.triage_conclude_cap = (
-        settings.triage_conclude_cap if configuration is None
+        settings.triage_conclude_cap
+        if configuration is None
         else configuration.conclude_cap
     )
     first.triage_fixed_plan = profile.plan == "fixed"
@@ -572,7 +578,8 @@ def run_triage_then_deep(
     first.budgets = triage_budgets(
         settings.triage_seconds if configuration is None else configuration.seconds,
         settings.triage_tool_calls
-        if configuration is None else configuration.tool_calls,
+        if configuration is None
+        else configuration.tool_calls,
     )
     first.triage_hypothesis_seconds = triage_hypothesis_reserve(
         profile.hypothesis_seconds, first.budgets
@@ -599,8 +606,7 @@ def run_triage_then_deep(
     if log is not None and first.conclusion is not None and first.termination_reason:
         log.append(audit_record(first))
     then_deep = (
-        settings.triage_then_deep if configuration is None
-        else configuration.then_deep
+        settings.triage_then_deep if configuration is None else configuration.then_deep
     )
     if not (then_deep and first.deep_recommended):
         return first, first, seconds, deps.critic

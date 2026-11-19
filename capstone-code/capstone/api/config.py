@@ -93,7 +93,9 @@ class UiConfig:
             )
         if self.runs_enabled and self.run_backend == "hosted":
             if not self.token or not self.run_database_url:
-                raise ValueError("Hosted API requires distinct viewer token and database")
+                raise ValueError(
+                    "Hosted API requires distinct viewer token and database"
+                )
         if self.browser_origin is not None:
             from urllib.parse import urlsplit
 

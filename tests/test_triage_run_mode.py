@@ -31,9 +31,7 @@ def test_triage_mode_selects_run_unless_caller_explicitly_requests_deep():
     assert triage_requested(custom, True)
     assert not triage_requested(custom, False)
 
-    custom_enabled = Settings(
-        _env_file=None, triage_run_mode="custom", triage=True
-    )
+    custom_enabled = Settings(_env_file=None, triage_run_mode="custom", triage=True)
     assert triage_requested(custom_enabled, None)
     assert not triage_requested(custom_enabled, False)
 
@@ -69,9 +67,7 @@ def test_triage_only_does_not_construct_deep_critic(monkeypatch):
             None,
         )
     )
-    result = episode.run_episode(
-        SEED, policy, triage=None, clock=lambda: 0.0
-    )
+    result = episode.run_episode(SEED, policy, triage=None, clock=lambda: 0.0)
     assert result.triage is not None
     assert result.triage.triage_run_mode == "deterministic"
     assert not result.critic_calls
@@ -204,8 +200,7 @@ def test_direct_graph_entry_forces_stages_and_calls_only_conclude_model():
     assert completed.conclusion is not None
     assert completed.proposed_action is None
     assert all(
-        candidate.status == "unconfirmed"
-        for candidate in completed.triage_candidates
+        candidate.status == "unconfirmed" for candidate in completed.triage_candidates
     )
 
 
@@ -213,7 +208,8 @@ def test_saved_profile_marker_and_deep_isolation():
     state = state_for()
     state.triage_run_mode = "deterministic"
     provider = FakeProvider(answer, tick=45)
-    deps = deps_for(provider)
+    # Two-question mode: the scripted deep policy has no interpret_and_decide.
+    deps = deps_for(provider, step_questions=2)
     # Direct calls honoring a persisted profile normalize even if the
     # caller did not set the matching dependency override.
     assert state.triage_run_mode == "deterministic"
