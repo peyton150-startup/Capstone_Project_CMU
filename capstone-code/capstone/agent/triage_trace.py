@@ -33,6 +33,7 @@ TriageEventName = Literal[
     "triage.evidence_rejected",
     "triage.read_failed",
     "triage.requirement_evaluated",
+    "triage.completion_converted",
     "triage.stopped",
 ]
 _CODE = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")

@@ -717,6 +717,16 @@ def evaluate_triage_requirements(
             state.unanswered_questions = [
                 q for q in state.unanswered_questions if q.id != question_id
             ]
+        elif question_id in state.answers:
+            # Not reachable through the current lifecycle: job paths expand
+            # inside the same reconciliation, before closure, and identical
+            # reads are deduplicated. If it ever happens, leave a visible
+            # record instead of a silently stale answer. No state is changed
+            # here yet, since no reproducer exists.
+            state.triage_bookkeeping_anomalies.append(
+                f"{question_id}: answered but its requirements are not all "
+                f"satisfied ({[rid for rid in ids if state.triage_requirement_results[rid].status != 'satisfied']})"
+            )
 
 
 def read_priority(
@@ -954,17 +964,41 @@ def stop(
     from capstone.agent.loop import record
 
     effective = decision
+    converted = False
     if decision.reason == "requirements_complete":
         # A phase-filtered empty list, or an empty question list, never
-        # proves sufficiency on its own.
+        # proves sufficiency on its own. Neither does a satisfied
+        # requirement ledger: a mandatory question may still be open, or
+        # a composite one may have a gap its parts cannot settle.
         outstanding = unresolved_required(state)
-        if outstanding:
+        open_questions = tuple(q.id for q in state.unanswered_questions)
+        gapped = tuple(sorted(state.triage_question_gaps))
+        if (
+            outstanding
+            or open_questions
+            or gapped
+            or state.triage_bookkeeping_anomalies
+        ):
+            converted = True
             effective = TriageStopDecision(
                 reason="data_insufficient",
                 unresolved_requirement_ids=tuple(
                     sorted(set(outstanding) | set(decision.unresolved_requirement_ids))
                 ),
             )
+    if converted:
+        # Observable on purpose: an invalid completion attempt is a controller
+        # bug worth finding in a saved run, not something to swallow.
+        emit_triage_event(
+            state,
+            deps,
+            event="triage.completion_converted",
+            phase=phase,
+            reason_code="data_insufficient",
+            status="stopped",
+            requirement_ids=effective.unresolved_requirement_ids,
+            question_ids=tuple(q.id for q in state.unanswered_questions),
+        )
     state.triage_deterministic_stops += 1
     state.triage_decide_trace.append(
         TriageDecisionRecord(
@@ -1004,7 +1038,7 @@ def stop(
         state,
         phase,
         "stopped",
-        information_needed=decision.reason,
+        information_needed=effective.reason,
         termination_reason=mapped,
     )
     return mapped
