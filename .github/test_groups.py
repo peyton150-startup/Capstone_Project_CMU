@@ -206,6 +206,11 @@ GROUPS: dict[str, list[str]] = {
         "replay_investigation",
         "pilot_preflight",
         "pilot_acceptance",
+        "haas_cli",
+        "haas_http",
+        "haas_poll_budget",
+        "haas_profile",
+        "haas_protocol",
     ],
 }
 

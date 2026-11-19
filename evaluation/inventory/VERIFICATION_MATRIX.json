@@ -76,13 +76,15 @@
   "capstone-code/capstone/experiment.py": "fbbe04300b283042d6e836c8e8d366db3e0dbed9523fc031a4acf3ab5de6956a",
   "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
   "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
-  "capstone-code/capstone/ingestion/__main__.py": "8216845d0f896ce1a99865588a432d2ebe73cee9202508a3e3db190676544f47",
+  "capstone-code/capstone/ingestion/__main__.py": "0dd4678789f2e7e8e365810218c52d282fd9290aff5e10bf65eed03633c4b383",
   "capstone-code/capstone/ingestion/channel_map.py": "80906576c000581de6a8374a4ce874cc0c0cf47803ae10d33c3eea98ad55df5d",
   "capstone-code/capstone/ingestion/cloud_contract.py": "ae947c68a147c955702832d797ada145de2d277707f59723d11c95611b270060",
   "capstone-code/capstone/ingestion/cloud_store.py": "727a627a722fcf4f6d37bc5631687105a56a4fb90f4649fa9f65033967db07d1",
   "capstone-code/capstone/ingestion/cloud_uplink.py": "0a67ed9b67b8431e3e06ed147c749b0ac6c22bc8494600b6f69cab14644957f4",
-  "capstone-code/capstone/ingestion/collector.py": "3ecbc4ec68bc05284892d956046a2966e8086c1c12b19f441945342dd29ec7a9",
-  "capstone-code/capstone/ingestion/mtconnect.py": "ad303b033cf657d86b8be2ffe7047a3eb1fbbac414d2e74df917c2791e213521",
+  "capstone-code/capstone/ingestion/collector.py": "2b1d9cf6aa0dd9e440baf85e166855b62cb261c46e50626502236587168fac58",
+  "capstone-code/capstone/ingestion/haas_http.py": "fd03507150bd18b5f910aac8924220128eaf51f72fee6462b4e197213bcafa2d",
+  "capstone-code/capstone/ingestion/haas_profile.py": "1014378dfdec6569d79aa938cdf8ba52213a4702da11b7e8841988e7e52f6e07",
+  "capstone-code/capstone/ingestion/mtconnect.py": "aa4c59826318b7d162e0a46bab72a832e4b6eae6c8b420f6548a462f29697034",
   "capstone-code/capstone/ingestion/pilot_acceptance.py": "0d00d997b051b40aae4b8f695bbaa20ce6f08e4b78304f94aee3422c34e7aecd",
   "capstone-code/capstone/ingestion/pilot_preflight.py": "970cfe3c16e0a75ffa045188a93d2b909097c0a3394ef99cb77e48cf452352ae",
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
@@ -201,7 +203,7 @@
   "tests/test_coverage_index_edges.py": "b2b17e264781db6688f8e675fa2fc4b1293c20d630b38cdac7b5188dd1b2587e",
   "tests/test_coverage_reference_edges.py": "80aad4f72f9baaf24dbc5ecd6cc97da018702e54a9f64e0ab8b0fa49bedb67dd",
   "tests/test_coverage_reporting_edges.py": "d42589ed3be5ab6220cdf90bf085fab4f27edf48a2516b7ef853bc147ad9a11c",
-  "tests/test_coverage_telemetry_edges.py": "f471bd45c88f3cc4966a4cdb13e3e1b559dbc3aef8c032c02bd6af1cb9669360",
+  "tests/test_coverage_telemetry_edges.py": "847a497fd6619096ba1aa01b9218f91a15b369cc511a3503f7e12634b9efdcda",
   "tests/test_coverage_tracing_deep.py": "2ace1452c786cd66e5ef6e354ef8e9687e8b7528b04fae02820514a20c7cd827",
   "tests/test_critic.py": "32afda05598e54b93c2fe03d14700bb0289742348a206368a5b28d8c47653a3d",
   "tests/test_database_connection.py": "9efb08efff306ff4c14c6c7b7dcd628de9bd201ab521fa68d11dc3138ff7e056",
@@ -228,6 +230,11 @@
   "tests/test_gap_trace.py": "8077948644fa37da301d36576da313f083ce4f35310db304d485a8e451fdcabd",
   "tests/test_generator.py": "bed58811be34af0866d8d3ab6e511823f5d000bea2e42f3076adcb9d22eec885",
   "tests/test_ground_truth.py": "00defedf7c2df521d51af43e528e52e848cae4388114795751fc6f50fcc813fc",
+  "tests/test_haas_cli.py": "a2780fffdc501df03df5484418e2ef72e98e638636a5a7f8cde9c23f69c5b4b5",
+  "tests/test_haas_http.py": "5ff93d92948ebf9e9adbadaedb8361128cf4a7f665b283747385b229bef1fbe4",
+  "tests/test_haas_poll_budget.py": "e5280d923c4f79027968fbf47a0ea55e122ffdceedef058180e22ba3d3477530",
+  "tests/test_haas_profile.py": "d490cdaf7b7595cbb4561fc4b20022f4ce6f539dbc6bd93aa4d2c9fdfbc3d1d0",
+  "tests/test_haas_protocol.py": "6bb6e1be519c6e17cad96717dcc02639b4372b9012f3eb31085ddcfa4298b4b2",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
   "tests/test_hosted_worker.py": "ad5d6cb458bbe5c39c052107560394ae2d729a89fa32b9048cfae556e9e70a48",
   "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
@@ -332,29 +339,29 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "f74837c8289ca3117387dc58841e3ba262b04e3a83faa84a4010f44d6eeb5f39",
- "junit_sha256": "ca835e0c672913b79dbfe5a9ac0d72b590959d8ea4aa87abf64fbc70baf13db0",
+ "coverage_sha256": "4e93dde83a05d86b7ee2147ea953a80b330e0fa2651874dd811c4b6a2423ca32",
+ "junit_sha256": "2a67418654fcd1e52f5d23e5e958a751f130f530e37c44e5e1acd94a4e688ece",
  "counts": {
-  "functions": 1436,
+  "functions": 1447,
   "classes_note": "classes are listed through their methods",
-  "tests": 2563,
+  "tests": 2580,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 640,
+   "INSUFFICIENT EVIDENCE": 641,
    "NOT APPLICABLE": 29,
    "NOT TESTED": 112,
-   "PARTIALLY VERIFIED": 610,
+   "PARTIALLY VERIFIED": 620,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 639,
+   "direct": 649,
    "import-only": 6,
-   "indirect": 650,
+   "indirect": 651,
    "no-statements": 29,
    "none": 112
   },
-  "functions_executed_in_tests": 1289,
-  "functions_with_direct_tests": 639,
+  "functions_executed_in_tests": 1300,
+  "functions_with_direct_tests": 649,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -446,7 +453,7 @@
    "capstone.ingestion.cloud_uplink:validate_collector_scope",
    "capstone.ingestion.cloud_uplink:main",
    "capstone.ingestion.collector:utc_now",
-   "capstone.ingestion.collector:MTConnectCollector.probe",
+   "capstone.ingestion.haas_http:_DenyRedirects.redirect_request",
    "capstone.ingestion.siemens_opcua_adapter:counting_subscription",
    "capstone.manual.neon:NeonManualSearch.close",
    "capstone.manual.neon:main",
@@ -536,6 +543,9 @@
    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes (3/4)",
    "capstone.ingestion.cloud_contract:IngestBatch.digest_format (2/3)",
    "capstone.ingestion.collector:http_get (7/9)",
+   "capstone.ingestion.haas_http:haas_get (8/14)",
+   "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission (2/3)",
+   "capstone.ingestion.mtconnect:validate_streams_metadata (5/7)",
    "capstone.ingestion.mtconnect:parse_streams (19/24)",
    "capstone.ingestion.pilot_preflight:check_pilot (61/78)",
    "capstone.ingestion.pilot_preflight:main (16/31)",
@@ -582,7 +592,8 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2542,
+   "failed": 1,
+   "passed": 2558,
    "skipped": 21
   },
   "tests_with_no_assertion": [
@@ -1128,12 +1139,22 @@
   },
   "capstone.ingestion.collector": {
    "functions": 10,
-   "executed": 8,
-   "direct": 4
+   "executed": 9,
+   "direct": 5
   },
-  "capstone.ingestion.mtconnect": {
+  "capstone.ingestion.haas_http": {
+   "functions": 3,
+   "executed": 2,
+   "direct": 2
+  },
+  "capstone.ingestion.haas_profile": {
    "functions": 7,
    "executed": 7,
+   "direct": 7
+  },
+  "capstone.ingestion.mtconnect": {
+   "functions": 8,
+   "executed": 8,
    "direct": 0
   },
   "capstone.ingestion.pilot_acceptance": {
@@ -12481,7 +12502,7 @@
    ]
   },
   "capstone.ingestion.__main__:main": {
-   "count": 6,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12490,6 +12511,8 @@
     "tests/test_coverage_telemetry_edges.py::test_collector_cli_reports_success_or_graceful_interrupt",
     "tests/test_coverage_telemetry_edges.py::test_collector_cli_requires_output_in_normal_mode",
     "tests/test_coverage_telemetry_edges.py::test_collector_cli_saves_probe_without_polling",
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network",
     "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository"
    ]
   },
@@ -12547,7 +12570,7 @@
    ]
   },
   "capstone.ingestion.channel_map:probe_hash": {
-   "count": 39,
+   "count": 41,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12560,6 +12583,8 @@
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
    "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
@@ -12569,13 +12594,11 @@
     "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
     "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
     "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested",
-    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-    "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools"
+    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
    ]
   },
   "capstone.ingestion.channel_map:parse_probe": {
-   "count": 43,
+   "count": 45,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12589,6 +12612,8 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
@@ -12598,9 +12623,7 @@
     "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
     "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
     "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested",
-    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-    "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools"
+    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
    ]
   },
   "capstone.ingestion.channel_map:build_channel_map": {
@@ -12652,7 +12675,7 @@
    ]
   },
   "capstone.ingestion.channel_map:_devices": {
-   "count": 44,
+   "count": 46,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12667,6 +12690,8 @@
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
    "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
@@ -12676,13 +12701,11 @@
     "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
     "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
     "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested",
-    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-    "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools"
+    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
    ]
   },
   "capstone.ingestion.channel_map:_walk": {
-   "count": 42,
+   "count": 44,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12695,6 +12718,8 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
@@ -12704,9 +12729,7 @@
     "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
     "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
     "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested",
-    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-    "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools"
+    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
    ]
   },
   "capstone.ingestion.channel_map:_probe_type": {
@@ -13119,11 +13142,12 @@
    "indirect": []
   },
   "capstone.ingestion.collector:PollResult.gap": {
-   "count": 6,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_haas_poll_budget.py::test_catchup_cannot_bypass_shop_approved_polling_interval",
     "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
     "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
     "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current",
@@ -13132,12 +13156,14 @@
    ]
   },
   "capstone.ingestion.collector:MTConnectCollector.__init__": {
-   "count": 18,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
     "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
@@ -13145,18 +13171,18 @@
     "tests/test_mtconnect_ingestion.py::test_an_agent_restart_names_both_runs_and_no_sequences",
     "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
-    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
-    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request"
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request"
    ]
   },
   "capstone.ingestion.collector:MTConnectCollector._url": {
-   "count": 17,
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
     "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
@@ -13164,19 +13190,19 @@
     "tests/test_mtconnect_ingestion.py::test_an_agent_restart_names_both_runs_and_no_sequences",
     "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
-    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
-    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request"
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request"
    ]
   },
   "capstone.ingestion.collector:MTConnectCollector.probe": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe"
+   ],
    "indirect": []
   },
   "capstone.ingestion.collector:MTConnectCollector.poll": {
-   "count": 17,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
@@ -13185,6 +13211,7 @@
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
     "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
     "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
@@ -13193,17 +13220,17 @@
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
     "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
     "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
-    "tests/test_mtconnect_ingestion.py::test_out_of_range_knows_where_the_loss_starts_but_not_where_it_ends",
-    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_knows_where_the_loss_starts_but_not_where_it_ends"
    ]
   },
   "capstone.ingestion.collector:append_jsonl": {
-   "count": 7,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_haas_poll_budget.py::test_catchup_cannot_bypass_shop_approved_polling_interval",
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
@@ -13212,7 +13239,7 @@
    ]
   },
   "capstone.ingestion.collector:run_collector": {
-   "count": 8,
+   "count": 9,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
@@ -13221,6 +13248,7 @@
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_haas_poll_budget.py::test_catchup_cannot_bypass_shop_approved_polling_interval",
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
@@ -13228,7 +13256,7 @@
    ]
   },
   "capstone.ingestion.collector:_marker": {
-   "count": 7,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
@@ -13237,9 +13265,145 @@
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_haas_poll_budget.py::test_catchup_cannot_bypass_shop_approved_polling_interval",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ]
+  },
+  "capstone.ingestion.haas_http:_DenyRedirects.redirect_request": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_http:validate_haas_get": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+    "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_http:haas_get": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text": {
+   "count": 13,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url",
+    "tests/test_haas_profile.py::test_device_path_cannot_expand_requests",
+    "tests/test_haas_profile.py::test_filtered_gateway_is_distinct_from_full_stream_authorization",
+    "tests/test_haas_profile.py::test_no_unapproved_full_stream_reads",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_profile.py::test_refuses_missing_permissions_and_extra_keys",
+    "tests/test_haas_profile.py::test_rejects_invalid_or_unsafe_poll_intervals",
+    "tests/test_haas_profile.py::test_rejects_non_machine_targets"
+   ],
+   "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network",
+    "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+    "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ]
+  },
+  "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment": {
+   "count": 13,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url",
+    "tests/test_haas_profile.py::test_device_path_cannot_expand_requests",
+    "tests/test_haas_profile.py::test_filtered_gateway_is_distinct_from_full_stream_authorization",
+    "tests/test_haas_profile.py::test_no_unapproved_full_stream_reads",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_profile.py::test_refuses_missing_permissions_and_extra_keys",
+    "tests/test_haas_profile.py::test_rejects_invalid_or_unsafe_poll_intervals",
+    "tests/test_haas_profile.py::test_rejects_non_machine_targets"
+   ],
+   "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network",
+    "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+    "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ]
+  },
+  "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address": {
+   "count": 13,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url",
+    "tests/test_haas_profile.py::test_device_path_cannot_expand_requests",
+    "tests/test_haas_profile.py::test_filtered_gateway_is_distinct_from_full_stream_authorization",
+    "tests/test_haas_profile.py::test_no_unapproved_full_stream_reads",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_profile.py::test_refuses_missing_permissions_and_extra_keys",
+    "tests/test_haas_profile.py::test_rejects_invalid_or_unsafe_poll_intervals",
+    "tests/test_haas_profile.py::test_rejects_non_machine_targets"
+   ],
+   "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network",
+    "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+    "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ]
+  },
+  "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission": {
+   "count": 9,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url",
+    "tests/test_haas_profile.py::test_filtered_gateway_is_distinct_from_full_stream_authorization",
+    "tests/test_haas_profile.py::test_no_unapproved_full_stream_reads",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity"
+   ],
+   "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network",
+    "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+    "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ]
+  },
+  "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url"
+   ],
+   "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed",
+    "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request",
+    "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect"
+   ]
+  },
+  "capstone.ingestion.haas_profile:HaasConnectionProfile.endpoint_fingerprint": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_profile:verify_haas_probe": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity"
+   ],
+   "indirect": [
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe"
    ]
   },
   "capstone.ingestion.mtconnect:MTConnectError.__init__": {
@@ -13252,8 +13416,17 @@
     "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
    ]
   },
+  "capstone.ingestion.mtconnect:validate_streams_metadata": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
+    "tests/test_haas_protocol.py::test_strict_header_rejects_missing_or_inconsistent_sequences"
+   ]
+  },
   "capstone.ingestion.mtconnect:_local": {
-   "count": 68,
+   "count": 73,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13268,11 +13441,11 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value",
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change",
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
-    "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost"
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe"
    ]
   },
   "capstone.ingestion.mtconnect:_child": {
-   "count": 67,
+   "count": 72,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13286,8 +13459,8 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value",
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change",
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
-    "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
-    "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap"
+    "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
+    "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity"
    ]
   },
   "capstone.ingestion.mtconnect:_value": {
@@ -13310,11 +13483,14 @@
    ]
   },
   "capstone.ingestion.mtconnect:raise_if_error": {
-   "count": 24,
+   "count": 27,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
+    "tests/test_haas_protocol.py::test_legacy_parser_still_preserves_existing_fixture_contract",
+    "tests/test_haas_protocol.py::test_strict_header_rejects_missing_or_inconsistent_sequences",
     "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
     "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
@@ -13322,18 +13498,18 @@
     "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
     "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
-    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
-    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
-    "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request"
    ]
   },
   "capstone.ingestion.mtconnect:parse_streams": {
-   "count": 24,
+   "count": 27,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup",
+    "tests/test_haas_protocol.py::test_legacy_parser_still_preserves_existing_fixture_contract",
+    "tests/test_haas_protocol.py::test_strict_header_rejects_missing_or_inconsistent_sequences",
     "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
     "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
     "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
@@ -13341,10 +13517,7 @@
     "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
     "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
-    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
-    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
-    "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request"
    ]
   },
   "capstone.ingestion.mtconnect:_record": {
@@ -13584,7 +13757,7 @@
    ]
   },
   "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap": {
-   "count": 62,
+   "count": 63,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -43907,6 +44080,207 @@
     "capstone.simulator.sensors:VibrationSensor._measure",
     "capstone.simulator.simulator:Simulator.__init__",
     "capstone.simulator.simulator:Simulator._apply_consequences"
+   ]
+  },
+  "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe": {
+   "count": 16,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.__main__:main",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.probe",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address",
+    "capstone.ingestion.haas_profile:verify_haas_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ]
+  },
+  "tests/test_haas_cli.py::test_guarded_cli_refuses_bad_device_or_rate_without_network": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.__main__:main",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_http.py::test_approved_endpoints_and_bounded_sample_are_allowed": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_http:validate_haas_get",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_http.py::test_prohibits_host_switch_and_out_of_scope_request": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_http:validate_haas_get",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_http.py::test_transport_sends_get_with_no_proxy_or_redirect": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_http:haas_get",
+    "capstone.ingestion.haas_http:validate_haas_get",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_poll_budget.py::test_catchup_cannot_bypass_shop_approved_polling_interval": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:PollResult.gap",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_haas_profile.py::test_approved_profile_builds_one_literal_agent_url": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.base_url",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.endpoint_fingerprint",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_device_path_cannot_expand_requests": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_rejects_non_machine_targets": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_no_unapproved_full_stream_reads": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_filtered_gateway_is_distinct_from_full_stream_authorization": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_rejects_invalid_or_unsafe_poll_intervals": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_refuses_missing_permissions_and_extra_keys": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address"
+   ]
+  },
+  "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.literal_single_device_segment",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.meaningful_text",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission",
+    "capstone.ingestion.haas_profile:HaasConnectionProfile.unicast_machine_address",
+    "capstone.ingestion.haas_profile:verify_haas_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ]
+  },
+  "tests/test_haas_protocol.py::test_strict_header_rejects_missing_or_inconsistent_sequences": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.mtconnect:validate_streams_metadata"
+   ]
+  },
+  "tests/test_haas_protocol.py::test_legacy_parser_still_preserves_existing_fixture_contract": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_haas_protocol.py::test_hardening_rejects_stalled_pagination_without_infinite_catchup": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.mtconnect:validate_streams_metadata"
    ]
   },
   "tests/test_hazards.py::test_a_timeout_fails_only_the_scheduled_call_and_asking_again_works": {
