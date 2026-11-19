@@ -23,21 +23,14 @@ SENSOR_WORDS = (
 )
 
 
-def named_sensor(description: str) -> str | None:
-    """Name the one sensor explicit in observed words, or None when none or several."""
-    # Variables:
-    #   words: The observed description, lowercased; never a fault label.
-    #   named: Distinct sensors named; more than one means no guess.
-    words = description.lower().replace("_", " ")
-    named = {sensor for phrase, sensor in SENSOR_WORDS if phrase in words}
-    return next(iter(named)) if len(named) == 1 else None
-
-
 def incident_sensor(state: InvestigationState) -> str | None:
     """Name the sensor explicit in the trigger, if exactly one is named."""
     # Variables:
-    #   state.anomaly.description: The trigger's observed words, never a fault.
-    return named_sensor(state.anomaly.description)
+    #   words: The trigger's observed description, never a fault label.
+    #   named: Distinct sensors explicitly named; ambiguity means no automatic summary.
+    words = state.anomaly.description.lower().replace("_", " ")
+    named = {sensor for phrase, sensor in SENSOR_WORDS if phrase in words}
+    return next(iter(named)) if len(named) == 1 else None
 
 
 def context_call(
