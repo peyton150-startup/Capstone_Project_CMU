@@ -827,6 +827,13 @@ def choose_next_triage_read(
                         unresolved_requirement_ids=unsupported,
                     )
     if not pending and not state.unanswered_questions:
+        # `pending` is phase-filtered: an empty list here proves nothing about
+        # the whole ledger. Completion is judged globally.
+        outstanding = unresolved_required(state)
+        if outstanding:
+            return TriageStopDecision(
+                reason="data_insufficient", unresolved_requirement_ids=outstanding
+            )
         return TriageStopDecision(reason="requirements_complete")
     grouped: dict[str, tuple[ToolRequest, list[str]]] = {}
     unavailable = False
@@ -935,34 +942,43 @@ def stop(
 ) -> TerminationReason:
     """Record the triage-specific reason and its legacy loop equivalent.
 
-    Asserts the completion invariant at the one boundary every stop crosses:
-    `requirements_complete` is only mapped to `EVIDENCE_SUFFICIENT` when no
-    required requirement is unresolved, so no caller can bypass it.
+    One authoritative completion rule at the boundary every stop crosses: a
+    `requirements_complete` decision is converted to `data_insufficient`,
+    keeping its unresolved ids, when a required requirement is unresolved.
+    This is an explicit recorded transition, not an assertion, so it holds
+    under optimized execution and never interrupts the Graph.
     """
-    if decision.reason == "requirements_complete":
-        # One authoritative completion rule: a phase-filtered empty list, or
-        # an empty question list, never proves sufficiency on its own.
-        outstanding = unresolved_required(state)
-        assert not outstanding, (
-            "requirements_complete with unresolved required evidence: "
-            + ", ".join(outstanding)
-        )
+    # Variables:
+    #   effective: The stop actually recorded; the converted one on violation.
+    #   outstanding: Required requirements still not satisfied, sorted.
     from capstone.agent.loop import record
 
+    effective = decision
+    if decision.reason == "requirements_complete":
+        # A phase-filtered empty list, or an empty question list, never
+        # proves sufficiency on its own.
+        outstanding = unresolved_required(state)
+        if outstanding:
+            effective = TriageStopDecision(
+                reason="data_insufficient",
+                unresolved_requirement_ids=tuple(
+                    sorted(set(outstanding) | set(decision.unresolved_requirement_ids))
+                ),
+            )
     state.triage_deterministic_stops += 1
     state.triage_decide_trace.append(
         TriageDecisionRecord(
             phase=phase,
             iteration=state.iteration_count,
             kind="stop",
-            reason=decision.reason,
-            requirement_ids=decision.unresolved_requirement_ids,
+            reason=effective.reason,
+            requirement_ids=effective.unresolved_requirement_ids,
         )
     )
     # Keep the reason and all outstanding dependencies even for budget stops.
     unresolved = tuple(
         sorted(
-            set(decision.unresolved_requirement_ids)
+            set(effective.unresolved_requirement_ids)
             | {
                 rid
                 for rid in state.triage_requirements
@@ -976,14 +992,14 @@ def stop(
         deps,
         event="triage.stopped",
         phase=phase,
-        reason_code=decision.reason,
+        reason_code=effective.reason,
         status="stopped",
         requirement_ids=unresolved,
         question_ids=tuple(q.id for q in state.unanswered_questions),
         iteration=state.iteration_count,
         remaining_tool_calls=state.remaining_tool_calls,
     )
-    mapped = STOP_MAP[decision.reason]
+    mapped = STOP_MAP[effective.reason]
     record(
         state,
         phase,

@@ -9,7 +9,8 @@ from capstone.agent.artifacts import DetectedAnomaly, TerminationReason
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.loop import InvestigationDeps, run_inner_loop
 from capstone.agent.state import Question
-from capstone.agent.triage_decide import unresolved_required
+from capstone.agent.triage_decide import stop, unresolved_required
+from capstone.agent.triage_decide_contracts import TriageStopDecision
 from capstone.agent.triage_plan import fixed_plan, fixed_predicates
 from capstone.contracts.tools import ToolError, ToolResult
 from capstone.providers.factory import tool_spec
@@ -88,8 +89,14 @@ def answer(request):
     return []
 
 
-def deps_for(provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS):
+def deps_for(
+    provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS, hypothesize="model"
+):
     """Give the controller an explicit read-only catalog and a tripwire policy."""
+    # Variables:
+    #   hypothesize: TRIAGE_HYPOTHESIZE. The Investigate/Test phase filtering in
+    #     choose_next_triage_read only runs when it is "deterministic", so a
+    #     test of that path must set it, not rely on the "model" default.
     return InvestigationDeps(
         provider=provider,
         policy=NoDecideModel(),
@@ -98,6 +105,7 @@ def deps_for(provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS):
         triage_allowed_sources=("fake",),
         triage_tool_specs=tools,
         triage_channels=channels,
+        triage_hypothesize=hypothesize,
         step_questions=step_questions,
     )
 
@@ -420,8 +428,12 @@ def test_capability_unavailable_is_not_completion():
     )
 
 
-def test_ranked_read_prefers_a_shared_discriminating_source():
-    """With several unmet reads, the one settling most requirements comes first."""
+def test_investigate_ranking_prefers_shared_coverage_over_a_single_source():
+    """With several unmet reads, the one settling most requirements comes first.
+
+    In Investigate no candidates exist yet, so this proves shared coverage and
+    direct-measurement preference -- not hypothesis discrimination.
+    """
     state = state_for()
     provider = FakeProvider(answer, tick=45)
     run_inner_loop(state, deps_for(provider), "investigate")
@@ -591,7 +603,7 @@ def test_repeated_reconciliation_is_idempotent():
 def test_phase_filter_cannot_report_completion_with_unresolved_required_evidence():
     """An empty phase-eligible list is not completion while required evidence is unresolved."""
     state = state_for()
-    deps = deps_for(FakeProvider(answer, tick=45))
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
     # First pass initialises the fixed plan; then drop Investigate's only
     # anchor (Q1 sources) and the questions, so the phase-filtered list is
     # empty while Q3/Q4/Q5 remain unsatisfied.
@@ -602,6 +614,28 @@ def test_phase_filter_cannot_report_completion_with_unresolved_required_evidence
     assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
     assert state.triage_decide_trace[-1].reason != "requirements_complete"
     assert unresolved_required(state)
+
+
+def test_stop_converts_an_inconsistent_completion_decision():
+    """The stop boundary never maps invalid completion to EVIDENCE_SUFFICIENT."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    run_inner_loop(state, deps, "investigate")
+    outstanding = unresolved_required(state)
+    assert outstanding
+    # Supply exactly the invalid decision the selector must never produce.
+    reason = stop(
+        state, "investigate", TriageStopDecision(reason="requirements_complete"), deps
+    )
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    last = state.triage_decide_trace[-1]
+    assert last.kind == "stop"
+    assert last.reason == "data_insufficient"
+    assert set(outstanding) <= set(last.requirement_ids)
+    # The event and the loop record agree with the converted stop.
+    assert state.triage_trace_events[-1].reason_code == "data_insufficient"
+    assert state.decisions[-1].termination_reason is TerminationReason.NO_USEFUL_ACTION
 
 
 def test_ranking_is_stable_across_identical_runs():
