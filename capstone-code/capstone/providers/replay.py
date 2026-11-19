@@ -157,11 +157,13 @@ class RecordedObservationTools:
         return {"tick": self.tick_of(self.now), "time": self.now.isoformat()}
 
     def list_machines(self) -> list[dict]:
-        """Each machine, running or idle by its last Execution value."""
+        """Each machine, running, idle or unknown by its last Execution value."""
         # Variables:
         #   execution: Each device's last Execution value up to the cutoff; a
         #     machine without one cannot be called running or idle, so the
         #     tool refuses rather than guess.
+        #   status: running (ACTIVE), idle (READY), or unknown for a stop or
+        #     interrupt state, which shows neither and is not a breakdown.
         execution: dict[str, str | None] = {}
         for line in self._visible():
             if isinstance(line, TelemetryRecord) and line.type == "Execution":
@@ -174,17 +176,18 @@ class RecordedObservationTools:
                     f"the capture has no Execution value for {device}, so whether "
                     "it is running is not known"
                 )
-            # Stop/interrupt states do not prove a physical breakdown.
-            # The legacy three-state tool has no 'unknown' representation,
-            # so refuse rather than silently translating STOPPED into idle.
-            if value not in RUNNING and value != "READY":
-                raise ToolInputError(
-                    f"Execution state for {device} cannot establish running or idle"
-                )
+            # Stop/interrupt states do not prove a physical breakdown, nor
+            # that the machine is idle and healthy: report them as unknown.
+            if value in RUNNING:
+                status = "running"
+            elif value == "READY":
+                status = "idle"
+            else:
+                status = "unknown"
             rows.append(
                 {
                     "machine_id": device,
-                    "status": "running" if value in RUNNING else "idle",
+                    "status": status,
                     "job_id": None,
                     "hydraulics": "hydraulic_pressure" in sensors,
                 }
@@ -357,7 +360,10 @@ class RecordedObservationTools:
                     "approved MTConnect event coverage is incomplete or invalid"
                 )
             seen.add(key)
-            events.append((tick, line.sequence, admitted.value.event.model_dump()))
+            row = admitted.value.event.model_dump()
+            if row["severity"] is None:
+                del row["severity"]  # Execution states and NORMAL have none.
+            events.append((tick, line.sequence, row))
         events.sort(key=lambda row: (row[0], row[1]))
         return [row for _, _, row in events]
 

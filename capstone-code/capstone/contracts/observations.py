@@ -17,7 +17,10 @@ class ClockObservation(Contract):
 
 class MachineObservation(Contract):
     machine_id: str
-    status: Literal["running", "idle", "down"]
+    # "unknown": a recorded machine whose controller state (for example a
+    # STOPPED or INTERRUPTED program) shows neither running nor idle, and
+    # which must not be read as a breakdown. The simulator never reports it.
+    status: Literal["running", "idle", "down", "unknown"]
     job_id: int | None
     hydraulics: bool  # equipment: whether the machine has a hydraulic system
 
@@ -99,6 +102,9 @@ class EventObservation(Contract):
     kind: str
     message: str
     job_id: int | None
+    # Only on recorded MTConnect alarms: a WARNING and a FAULT are both kind
+    # "alarm", and this says which. Left out of tool rows when it is None.
+    severity: Literal["warning", "fault"] | None = None
 
 
 class MaintenanceObservation(Contract):

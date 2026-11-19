@@ -1,5 +1,7 @@
 """Replayed triage only receives explicitly authorized MTConnect events."""
 
+import pytest
+
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.replay import replay_provider
 from capstone.recorded_investigation import replay_tool_specs
@@ -56,20 +58,58 @@ def test_unknown_approved_event_identifier_is_refused_before_any_read():
         )
 
 
-def test_stopped_program_is_not_falsely_reported_as_idle():
+@pytest.mark.parametrize("state", ["STOPPED", "INTERRUPTED", "PROGRAM_STOPPED"])
+def test_stopped_program_is_unknown_not_idle_or_down(state):
+    """The developer's choice (2026-11-19): keep the tool usable, claim nothing."""
     from datetime import timedelta
 
     from tests.test_replay_provider import T0, obs
 
     records = capture()
-    records[0] = obs(0, "exec", "STOPPED", type_="Execution")
+    records[0] = obs(0, "exec", state, type_="Execution")
     provider = replay_provider(
         records,
         channel_map(),
         now=T0 + timedelta(seconds=30),
     )
     status = provider.call(ToolRequest(name="list_machines"))
-    assert not status.success
+    assert status.success, status.error
+    assert status.data[0]["status"] == "unknown"
+
+
+def test_alarm_events_say_whether_they_are_a_warning_or_a_fault():
+    from tests.test_replay_provider import obs
+
+    lines = capture() + [
+        obs(61, "S1temp", "WARNING", type_="Temperature").model_copy(
+            update={"category": "CONDITION", "type": "TEMPERATURE"}
+        ),
+        obs(62, "S1temp", "FAULT", type_="Temperature").model_copy(
+            update={"category": "CONDITION", "type": "TEMPERATURE"}
+        ),
+        obs(63, "S1temp", "NORMAL", type_="Temperature").model_copy(
+            update={"category": "CONDITION", "type": "TEMPERATURE"}
+        ),
+    ]
+    provider = replay_provider(
+        lines, channel_map(), approved_event_item_ids=frozenset({"S1temp", "exec"})
+    )
+    result = provider.call(
+        ToolRequest(name="get_events", arguments={"from_tick": 0, "to_tick": 5})
+    )
+    assert result.success, result.error
+    alarms = [
+        (e["kind"], e.get("severity"))
+        for e in result.data
+        if "condition" in e["message"]
+    ]
+    assert alarms == [
+        ("alarm", "warning"),
+        ("alarm", "fault"),
+        ("condition_clear", None),
+    ]
+    # Execution events carry no severity key at all.
+    assert all("severity" not in e for e in result.data if "execution" in e["message"])
 
 
 def test_replay_fails_closed_on_out_of_order_source_clocks():

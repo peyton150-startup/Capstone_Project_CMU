@@ -21,7 +21,11 @@ class CalibratedSignalBaseline(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     calibration_id: str = Field(min_length=1)
-    machine_id: str = Field(min_length=1)
+    # The MTConnect device name from the probe (for example "VF2"), which
+    # observations carry as `device`; not a separate shop asset number.
+    machine_id: str = Field(
+        min_length=1, description="The MTConnect device name from the probe."
+    )
     data_item_id: str = Field(min_length=1)
     unit: str = Field(min_length=1)
     mapping_revision: str = Field(pattern=r"^[a-f0-9]{64}$")

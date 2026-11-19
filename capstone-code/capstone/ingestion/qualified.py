@@ -12,7 +12,7 @@ from typing import Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-from capstone.ingestion.channel_map import ChannelMap, _disagreement
+from capstone.ingestion.channel_map import ChannelMap, disagreement
 from capstone.ingestion.record import TelemetryRecord
 
 RejectReason = Literal[
@@ -89,7 +89,7 @@ def qualify_numeric(
     entry = channel_map.entry_for(record)
     if entry is None:
         return Qualification(reason="unmapped")
-    if record.category != "SAMPLE" or _disagreement(entry, record):
+    if record.category != "SAMPLE" or disagreement(entry, record):
         return Qualification(reason="wrong_shape")
     if not record.available or record.value is None:
         return Qualification(reason="unavailable")
