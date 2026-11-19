@@ -442,6 +442,9 @@ class InvestigationState(BaseModel):
     # "triage": a read-only first look that never proposes a change; "deep":
     # the full workflow. See `triage_budgets`.
     mode: Mode = "deep"
+    # Which effective triage profile the Graph was admitted under. A deep
+    # investigation always keeps its own independent defaults.
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
     # On a deep run started from a triage: that triage's investigation id,
     # so the two can be traced. Only the reference: the deep run is not shown
     # the triage's conclusion.

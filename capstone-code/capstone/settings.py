@@ -48,6 +48,42 @@ class SamplingOptions(BaseModel):
     top_p: float | None = Field(default=None, gt=0, le=1, allow_inf_nan=False)
 
 
+class TriageExecutionProfile(BaseModel):
+    """Frozen, validated *effective* triage control plane; never deep settings."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    run_mode: Literal["custom", "deterministic"]
+    plan: Literal["fixed", "model"]
+    investigate: Literal["deterministic", "advisory", "on", "off"]
+    hypothesize: Literal["deterministic", "model"]
+    evidence_tests: bool
+    packet: bool
+    packet_prompt: bool
+    observe_calls: Literal["shared", "separate"]
+    hypothesis_seconds: float = Field(ge=0, allow_inf_nan=False)
+    critic: bool
+    critic_followup: bool
+    critic_reinstate: bool
+
+    @model_validator(mode="after")
+    def consistent_effective_route(self):
+        if self.run_mode == "deterministic" and (
+            self.plan != "fixed"
+            or self.investigate != "deterministic"
+            or self.hypothesize != "deterministic"
+            or not self.evidence_tests
+            or not self.packet
+            or not self.packet_prompt
+            or self.observe_calls != "separate"
+            or self.hypothesis_seconds != 0
+            or self.critic
+            or self.critic_followup
+            or self.critic_reinstate
+        ):
+            raise ValueError("deterministic triage profile has incompatible stages")
+        return self
+
+
 class Settings(BaseSettings):
     """Only implemented integrations have settings; credentials are optional."""
 
@@ -338,6 +374,13 @@ class Settings(BaseSettings):
     triage_conclude_cap: bool = Field(
         default=True, validation_alias="TRIAGE_CONCLUDE_CAP"
     )
+    # Top-level override for *triage only*. "deterministic" takes precedence
+    # over individual Plan/Investigate/Hypothesize/evidence/packet/critic knobs,
+    # leaving Conclude and a later deep run model-backed and unchanged.
+    triage_run_mode: Literal["custom", "deterministic"] = Field(
+        default="custom", validation_alias="TRIAGE_RUN_MODE"
+    )
+
     # TRIAGE_INVESTIGATE (Block 4, Investigate/Test): deterministic by
     # default. Pydantic Graph routes these phases to typed, model-free read
     # and stop choices. Legacy "advisory" compares model decisions, "on"
@@ -363,14 +406,17 @@ class Settings(BaseSettings):
         default="fixed", validation_alias="TRIAGE_PLAN"
     )
 
-    # Opt-in model-free Hypothesize; the existing controller stays the default.
+    # Model-free, unscored Hypothesize is the triage default. Explicit
+    # "model" remains a supported comparison arm; deep is unchanged.
     triage_hypothesize: Literal["model", "deterministic"] = Field(
-        default="model", validation_alias="TRIAGE_HYPOTHESIZE"
+        default="deterministic", validation_alias="TRIAGE_HYPOTHESIZE"
     )
 
     @model_validator(mode="after")
     def deterministic_hypothesize_requires_guarded_triage(self):
         """Do not run unscored candidates without the safe fixed evidence path."""
+        if self.triage_run_mode == "deterministic":
+            return self
         if self.triage_hypothesize == "deterministic" and (
             self.triage_investigate != "deterministic"
             or self.triage_plan != "fixed"
@@ -386,11 +432,46 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def deterministic_triage_needs_fixed_plan(self):
         """A deterministic Decide cannot quietly use a model-backed Plan."""
+        if self.triage_run_mode == "deterministic":
+            return self
         if self.triage_investigate == "deterministic" and self.triage_plan != "fixed":
             raise ValueError(
                 "TRIAGE_INVESTIGATE=deterministic requires TRIAGE_PLAN=fixed"
             )
         return self
+
+    @property
+    def effective_triage(self) -> TriageExecutionProfile:
+        """Resolve overrides once; never edit raw knobs or deep dependencies."""
+        if self.triage_run_mode == "deterministic":
+            return TriageExecutionProfile(
+                run_mode="deterministic",
+                plan="fixed",
+                investigate="deterministic",
+                hypothesize="deterministic",
+                evidence_tests=True,
+                packet=True,
+                packet_prompt=True,
+                observe_calls="separate",
+                hypothesis_seconds=0,
+                critic=False,
+                critic_followup=False,
+                critic_reinstate=False,
+            )
+        return TriageExecutionProfile(
+            run_mode="custom",
+            plan=self.triage_plan,
+            investigate=self.triage_investigate,
+            hypothesize=self.triage_hypothesize,
+            evidence_tests=self.triage_evidence_tests,
+            packet=self.triage_packet,
+            packet_prompt=self.triage_packet_prompt,
+            observe_calls=self.triage_observe_calls,
+            hypothesis_seconds=self.triage_hypothesis_seconds,
+            critic=self.critic,
+            critic_followup=self.critic_followup,
+            critic_reinstate=self.tot_reinstate,
+        )
 
     # TRIAGE_OBSERVE_CALLS (2026-11-15): who pays for the reads the loop makes
     # itself before research starts in a triage (get_time, the packet's sensor

@@ -158,6 +158,8 @@ GROUPS: dict[str, list[str]] = {
         "triage_compiled_chain",
         "triage_deterministic_decide",
         "triage_deterministic_hypothesize",
+        "triage_run_mode",
+        "triage_run_controls",
         "triage_evidence_boundary",
         "triage_safety_baseline",
         "triage_clearance_gates",
@@ -183,6 +185,8 @@ GROUPS: dict[str, list[str]] = {
         "model_call_telemetry",
         "run_repository",
         "cloud_ingest_api",
+        "hosted_worker",
+        "web_run_controls",
     ],
     "Live telemetry": [
         "cloud_pilot",

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Activity, ArrowRight, Database, Gauge, LockKeyhole,
   RadioTower, SlidersHorizontal, TerminalSquare } from 'lucide-react';
 import { useResource } from '../api';
@@ -7,13 +8,43 @@ import { useRecording } from '../pageData';
 import { DataRow, formatStamp, Metric, PageHeading,
   Panel, Pill, TimelineEvent, toneFor, Unavailable } from '../ui';
 
+type WorkerLiveness = 'healthy' | 'revision_mismatch' | 'unverified';
+// Hosted mode only: bounded counts from the shared PostgreSQL queue.
+type RunQueue = {
+  queued: number; active_claims: number; stale_claims: number;
+  oldest_queued_seconds: number | null; last_heartbeat_age_seconds: number | null;
+  worker_liveness: WorkerLiveness; healthy_workers: number;
+  last_worker_pulse_age_seconds: number | null;
+};
 type SystemStatus = {
   api: string; simulation_worker: string; progress_stream: string;
   recorder_connection: string; recorder_sink: string; model_provider: string; storage: string;
+  run_queue?: RunQueue | null;
 };
+
+// What the operator should understand from the worker's heartbeat state.
+// A revision mismatch otherwise looks like an idle queue: runs stay queued.
+function workerNote(queue: RunQueue | null | undefined): string {
+  if (!queue) return 'Runs execute in this API process';
+  if (queue.worker_liveness === 'healthy')
+    return `${queue.healthy_workers} worker(s) on this build`;
+  if (queue.worker_liveness === 'revision_mismatch')
+    return 'A worker is alive on a different build: queued runs wait until both deploy the same commit';
+  return 'No worker heartbeat seen: queued runs will not start';
+}
+
+function seconds(value: number | null): string {
+  return value === null ? 'none' : `${value} s`;
+}
 type AuditEntry = { at?: string; session_epoch?: number; stage?: string; outcome?: string };
 type SettingsRecord = { name: string; value: string | null; configured: boolean };
-type SettingsData = { editable: boolean; items: SettingsRecord[] };
+type SettingsData = {
+  editable: boolean;
+  items: SettingsRecord[];
+  triage_profile?: Record<string,string|boolean|number>;
+  triage_stage_modes?: Record<string,string>;
+  conclude?: string;
+};
 
 export function SystemPage() {
   const {token,preview}=useUi();
@@ -24,8 +55,9 @@ export function SystemPage() {
       description="Operational indicators backed by a source or clearly marked unknown."/>
     <div className="metric-grid">
       <Metric label="Local API" value={data.data?.api||null} note="Read-only FastAPI service" icon={<Gauge size={17}/>}/>
-      <Metric label="Investigation worker" value={data.data?.simulation_worker||null}
-        note="No managed background worker integrated" icon={<Activity size={17}/>}/>
+      <Metric label="Investigation worker"
+        value={data.data?.run_queue?.worker_liveness||data.data?.simulation_worker||null}
+        note={workerNote(data.data?.run_queue)} icon={<Activity size={17}/>}/>
       <Metric label="Recorder connection" value={recorder?.connection_state||null}
         note="Cannot establish machine health" icon={<RadioTower size={17}/>}/>
       <Metric label="Storage health" value={recorder?.sink_state||null}
@@ -33,11 +65,22 @@ export function SystemPage() {
     </div>
     <div className="two-column">
       <Panel title="Service components" subtitle="These fields cannot substitute for checks against real measurements">
-        {data.data?Object.entries(data.data).map(([name,value])=>
+        {data.data?Object.entries(data.data).filter(([name])=>name!=='run_queue').map(([name,value])=>
           <DataRow key={name} label={name.replaceAll('_',' ')}
-            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(value)}/>}/>):
+            value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(String(value))}/>}/>):
           <Unavailable item="System status" detail={data.error||'Connect the local API to inspect service status.'}/>}
       </Panel>
+      {data.data?.run_queue?<Panel title="Run queue" subtitle="Hosted worker queue and heartbeat, counts only">
+        <DataRow label="worker liveness"
+          value={<Pill text={data.data.run_queue.worker_liveness.replaceAll('_',' ')}
+            tone={toneFor(data.data.run_queue.worker_liveness)}/>}/>
+        <DataRow label="healthy workers" value={String(data.data.run_queue.healthy_workers)}/>
+        <DataRow label="queued runs" value={String(data.data.run_queue.queued)}/>
+        <DataRow label="active claims" value={String(data.data.run_queue.active_claims)}/>
+        <DataRow label="stale claims" value={String(data.data.run_queue.stale_claims)}/>
+        <DataRow label="oldest queued" value={seconds(data.data.run_queue.oldest_queued_seconds)}/>
+        <DataRow label="last worker pulse" value={seconds(data.data.run_queue.last_worker_pulse_age_seconds)}/>
+      </Panel>:null}
       <Panel title="System boundaries" subtitle="Read-only industrial pilot">
         <div className="quality-check"><span className="check-ring"/><div><strong>Controller connection</strong>
           <small>Only the independent Siemens collector may contact the CNC</small></div></div>
@@ -121,18 +164,19 @@ export function SettingsPage() {
     [data.data,filter]);
   return <>
     <PageHeading eyebrow="ENGINEERING / CONFIGURATION" title="Settings"
-      description="Validated server-owned values. No secret keys or implicit changes to running experiments."
-      right={<Pill text="READ ONLY" tone="neutral"/>}/>
+      description="Server-wide environment is read-only. Simulator experiments can edit and freeze their own validated settings when launched."
+      right={<Pill text="GLOBAL SETTINGS READ ONLY" tone="neutral"/>}/>
     <div className="two-column uneven">
-      <Panel title="Effective runtime settings" subtitle="Strict allowlist; not an editable .env browser">
+      <Panel title="Validated server defaults" subtitle="Explicit allowlist; not an editable .env browser">
         <div className="settings-toolbar"><input aria-label="Filter settings" placeholder="Filter by variable name..."
           value={filter} onChange={e=>setFilter(e.target.value)}/><Pill text="LOCAL API" tone="info"/></div>
         {settings.length?settings.map(s=><div className="settings-row" key={s.name}>
-          <div><strong>{s.name}</strong><small>{s.configured?'Set in server environment':'Not set in process environment'}</small></div>
+          <div><strong>{s.name}</strong><small>{s.configured?'Process override':'Validated default or private .env value'}</small></div>
           <span className="settings-value">{s.value||'Not configured'}</span></div>):
           <Unavailable item="Settings read model" detail={data.error||'Connect an authorized API to inspect allowlisted effective values.'}/>}
-        <div className="soft-note"><LockKeyhole size={17}/> API keys, database credentials,
-          certificates and paths are never returned from this endpoint.</div>
+        <div className="soft-note"><LockKeyhole size={17}/> These are actual validated
+          global scalar settings, not just variables set in process memory.
+          API keys, database credentials, certificates and paths are excluded.</div>
       </Panel>
       <Panel title="Interface preferences" subtitle="These controls affect the browser only">
         <DataRow label="Color scheme" value={<div className="button-group"><button
@@ -141,16 +185,33 @@ export function SettingsPage() {
             onClick={()=>setTheme('light')}>Light</button></div>}/>
         <div className="divider-soft"/>
         <h3>Engineering boundaries</h3>
-        <p className="body-copy">The backend owns model selection, time budgets, critic and triage enforcement.
-          A future settings editor must validate proposed changes and snapshot them at run creation.
-          This release does not expose any runtime-mutation endpoint.</p>
+        <p className="body-copy">The server owns credentials and model-provider routing.
+          The simulator launch editor can select triage mode, stage routes, time/tool budgets
+          and Conclude controls for each new run. Those values are validated by the API
+          and saved at submission; global settings and existing runs do not change.</p>
+        <Link className="button-primary" to="/lab">Open per-run triage settings</Link>
       </Panel>
     </div>
-    <Panel title="Configuration groups" subtitle="Organized for future validated run settings">
+    <Panel title="Effective global triage profile" subtitle="The deterministic override can supersede the individual raw settings above">
+      <DataRow label="Final Conclude stage" value={data.data?.conclude || 'Not recorded'}/>
+      {Object.entries(data.data?.triage_profile || {}).map(([name,value])=>
+        <DataRow key={name} label={name.replaceAll('_',' ')}
+          value={String(value)}/>)}
+      <h3>Actual triage stage routing</h3>
+      {Object.entries(data.data?.triage_stage_modes || {}).map(([stage,execution])=>
+        <DataRow key={stage} label={stage.replaceAll('_',' ')}
+          value={execution}/>)}
+      <p className="body-copy">Critique and Recheck are disabled in triage.
+        A later deep run may use the configured critic independently.
+        The managed simulator launcher can override these triage controls
+        per run and records the resolved settings on submission.</p>
+    </Panel>
+    <Panel title="Configuration groups" subtitle="Global controls remain server-owned; experiment controls can change per run">
       <div className="settings-categories">{['Investigation & triage','Model routing','Critic & review',
         'Manuals & retrieval','Runtime budgets','Recording & privacy'].map((g,i)=>
         <div className="settings-category" key={g}><span>{'0'+(i+1)}</span><strong>{g}</strong>
-          <Pill text="Server controlled" tone="neutral"/></div>)}</div>
+          <Pill text={g==='Investigation & triage'||g==='Runtime budgets'?
+            'Editable per simulator run':'Server controlled'} tone="neutral"/></div>)}</div>
     </Panel>
   </>;
 }

@@ -7,6 +7,7 @@ Web observers cannot block a watcher: stage snapshots use a bounded queue.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import queue
 import re
@@ -19,11 +20,49 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    ValidationError,
+    field_validator,
+)
+
+from capstone.agent.triage_hypothesize import CandidateFamily
+from capstone.api.deep_progress import (
+    SafeDeepCheckpoint,
+    SafeDeepSignals,
+    checkpoint_from_stage,
+    safe_deep_signals,
+)
+from capstone.settings import Settings, get_settings
+from capstone.triage_run_controls import (
+    EffectiveTriageRun,
+    TriageRunOptions,
+    overridden_fields,
+    resolve_triage_run,
+)
 
 RunState = Literal[
     "queued", "running", "awaiting_review", "completed", "failed", "interrupted"
 ]
+
+
+class InvalidRunEnvironment(Exception):
+    """This host's run settings or build commit are malformed."""
+
+    # Deliberately neither ValueError nor RuntimeError, so callers that map
+    # those to client conflicts (409) cannot mistake a server fault for one.
+
+    MESSAGE = (
+        "Run settings on this host are invalid: check CAPSTONE_SOURCE_REVISION,"
+        " RENDER_GIT_COMMIT, NF_DEPLOYMENT_SHA and the TRIAGE_* settings"
+    )
+
+
+class StaleRunConfiguration(ValueError):
+    """Preview and admission resolved different server settings."""
 
 
 def utc_now() -> str:
@@ -38,6 +77,87 @@ class RunRequest(BaseModel):
     hazards: bool = False
     tree_of_thought: bool = False
     manual: Literal["none", "keyword", "neon"] = "none"
+    # Validated request-specific settings; no environment or credential edits.
+    triage_settings: TriageRunOptions | None = None
+    # Optional optimistic concurrency token from the visible server preview.
+    # Legacy clients may omit it; the UI always includes it.
+    configuration_fingerprint: str | None = Field(
+        default=None, pattern=r"^[a-f0-9]{20}$"
+    )
+    _effective_triage: EffectiveTriageRun | None = PrivateAttr(default=None)
+
+
+def public_run_configuration(
+    request: RunRequest,
+    settings: Settings,
+    *,
+    effective: EffectiveTriageRun | None = None,
+) -> dict[str, Any]:
+    """Pure, allowlisted resolution shared by preview, submit and worker."""
+    applied = request.mode == "triage"
+    if applied and effective is None:
+        effective = resolve_triage_run(settings, request.triage_settings)
+    desired = (
+        {}
+        if request.triage_settings is None
+        else request.triage_settings.model_dump(exclude_none=True)
+    )
+    stages = (
+        effective.stage_modes()
+        if applied and effective
+        else {"deep": "model-backed Graph", "triage": "not run"}
+    )
+    if applied:
+        stages["manual"] = (
+            "off"
+            if request.manual == "none"
+            else "dedicated lookup enabled"
+            if settings.manual_step
+            else "manual tool available; dedicated lookup off"
+        )
+        if (
+            effective is not None
+            and effective.investigate == "deterministic"
+            and effective.hypothesize == "model"
+            and request.tree_of_thought
+        ):
+            stages["test"] = "deterministic reads; possible model revaluation"
+    body = {
+        "schema_version": 1,
+        "applied": applied,
+        "run_inputs": {
+            "seed": request.seed,
+            "kind": request.kind,
+            "mode": request.mode,
+            "hazards": request.hazards,
+            "tree_of_thought": request.tree_of_thought,
+            "manual": request.manual,
+        },
+        "requested": desired,
+        "effective_triage": (
+            effective.model_dump(mode="json") if applied and effective else None
+        ),
+        "overridden": (
+            list(overridden_fields(request.triage_settings, effective))
+            if applied and effective
+            else []
+        ),
+        "not_applied": sorted(desired) if not applied else [],
+        "stages": stages,
+        "configured_conclude_primary": (
+            settings.triage_model or settings.conclude_model or settings.default_model
+            if applied
+            else settings.conclude_model or settings.default_model
+        ),
+        "model_attempts": (
+            "Configured only; inspect run model-call audit for actual attempts"
+        ),
+        "scope": "simulator only; per-run; no controller operations",
+    }
+    # Digest is a stable, short correlation aid, never a credential.
+    canonical = json.dumps(body, sort_keys=True, separators=(",", ":"))
+    body["fingerprint"] = hashlib.sha256(canonical.encode()).hexdigest()[:20]
+    return body
 
 
 class ReviewDecision(BaseModel):
@@ -285,6 +405,57 @@ def safe_decide_events(state: Any) -> list[SafeTriageDecideEvent]:
     return projected
 
 
+class SafeHypothesisCandidate(BaseModel):
+    """Counts for one compiled triage candidate; never its evidence or prose."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+    id: str = Field(pattern=r"^TC[1-9][0-9]{0,3}$")
+    family: CandidateFamily
+    status: Literal["unconfirmed"]
+    qualified_sources: int = Field(ge=0)
+    required_tests: int = Field(ge=0)
+    missing_tests: int = Field(ge=0)
+    unavailable_tests: int = Field(ge=0)
+    open_questions: int = Field(ge=0)
+
+
+class SafeHypothesisProgress(BaseModel):
+    """Deterministic Hypothesize compiler metadata (#299) for live progress."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+    rule_version: Literal["1.1"] | None = None
+    last_action: (
+        Literal["compiled", "refreshed", "no_candidates", "rejected"] | None
+    ) = None
+    candidate_count: int = Field(ge=0)
+    candidates_truncated: bool
+    candidates: list[SafeHypothesisCandidate] = Field(max_length=12)
+    test_requirements: int = Field(ge=0)
+    trace_records: int = Field(ge=0)
+    logging_failures: int = Field(ge=0)
+
+
+class SafeExecutedTriage(BaseModel):
+    """Which triage stages actually ran (#306), as observed flags and counts."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+    run_mode: Literal["custom", "deterministic"]
+    fixed_plan_executed: bool
+    packet_enabled: bool
+    packet_collected: bool
+    observe_calls_separate: bool
+    conclude_brief_enabled: bool
+    conclude_cap_enabled: bool
+    hypothesis_reserve_seconds: float = Field(ge=0)
+    deadline_seconds: float = Field(ge=0)
+    research_tool_call_budget: int = Field(ge=0)
+    actual_research_tool_calls: int = Field(ge=0)
+    deterministic_decide_reads: int = Field(ge=0)
+    compiled_candidates: int = Field(ge=0)
+    conclusion_available: bool
+    deep_recommended: bool
+
+
 class SafeStageSnapshot(BaseModel):
     """Allowlisted metadata snapshot of the existing Pydantic Graph state.
 
@@ -324,6 +495,13 @@ class SafeStageSnapshot(BaseModel):
     unresolved_question_count: int = Field(default=0, ge=0)
     termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
     conclusion_available: bool
+    triage_run_mode: Literal["custom", "deterministic"] | None = None
+    # Nested contracts, not free-form dicts: every key is allowlisted.
+    hypothesis_progress: SafeHypothesisProgress | None = None
+    executed_triage: SafeExecutedTriage | None = None
+    # The additional deep lifecycle (#300) is a strict nested Pydantic contract.
+    # A triage state never has deep signals, even when escalation is expected.
+    deep_signals: SafeDeepSignals | None = None
 
     # Every additional field is a *derived count or authorization flag*, not
     # the underlying data. All values are bounded by the Pydantic contract.
@@ -378,15 +556,114 @@ class SafeStageSnapshot(BaseModel):
         default_factory=list, max_length=_SAFE_DECIDE_EVENT_LIMIT
     )
 
+    @field_validator("unresolved_question_ids")
+    @classmethod
+    def validate_public_question_ids(cls, ids: list[str]) -> list[str]:
+        if any(not re.fullmatch(r"[A-Za-z0-9_.:-]{1,80}", value) for value in ids):
+            raise ValueError("Unapproved question identifier")
+        return ids
+
 
 # Explicit projection only. Never infer a public schema from state.model_dump().
 SAFE_STAGE_FIELDS = frozenset(SafeStageSnapshot.model_fields)
+
+
+def safe_executed_triage(state: Any) -> dict[str, Any] | None:
+    """Observed, allowlisted stage flags; excludes sensor values and prompts."""
+    # Variables:
+    #   state: The finished triage Graph state, or None when no triage ran; a
+    #     deep state also yields None, because these flags describe triage only.
+    if state is None or state.mode != "triage":
+        return None
+    return SafeExecutedTriage.model_validate(
+        {
+            "run_mode": state.triage_run_mode,
+            "fixed_plan_executed": state.fixed_plan_used,
+            "packet_enabled": state.triage_packet_enabled,
+            "packet_collected": state.triage_packet is not None,
+            "observe_calls_separate": state.triage_observe_separate,
+            "conclude_brief_enabled": state.triage_conclude_brief,
+            "conclude_cap_enabled": state.triage_conclude_cap,
+            "hypothesis_reserve_seconds": state.triage_hypothesis_seconds,
+            "deadline_seconds": state.budgets.timeout_seconds,
+            "research_tool_call_budget": state.budgets.max_tool_calls,
+            "actual_research_tool_calls": state.research_tool_calls,
+            "deterministic_decide_reads": state.triage_deterministic_reads,
+            "compiled_candidates": len(state.triage_candidates),
+            "conclusion_available": state.conclusion is not None,
+            "deep_recommended": bool(state.deep_recommended),
+        }
+    ).model_dump(mode="json")
+
+
+def safe_hypothesis_progress(state: Any) -> dict[str, Any] | None:
+    """Allowlisted typed compiler metadata; no prose or source payloads."""
+    # Variables:
+    #   candidates: Compiled triage candidates, each revalidated from its own
+    #     values so a mutated instance cannot carry extra data to the browser.
+    #   last: The newest valid Hypothesize trace record, which names the rule
+    #     version and what the compiler last did.
+    if state.mode != "triage":
+        return None
+    from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
+
+    candidates = []
+    for value in state.triage_candidates:
+        if not isinstance(value, TriageCandidate):
+            continue
+        try:
+            # Do not trust Pydantic instances produced by unchecked model_copy
+            # updates or mutated nested references. Validate actual values.
+            candidates.append(TriageCandidate.model_validate(value.model_dump()))
+        except (TypeError, ValueError):
+            continue
+    last = None
+    for value in reversed(state.triage_hypothesis_trace):
+        if not isinstance(value, TriageHypothesisTrace):
+            continue
+        try:
+            last = TriageHypothesisTrace.model_validate(value.model_dump())
+            break
+        except (TypeError, ValueError):
+            continue
+    return SafeHypothesisProgress.model_validate(
+        {
+            "rule_version": None if last is None else last.rule_version,
+            "last_action": None if last is None else last.action,
+            "candidate_count": len(candidates),
+            "candidates_truncated": len(candidates) > 12,
+            "candidates": [
+                {
+                    "id": c.id,
+                    "family": c.family,
+                    "status": c.status,
+                    "qualified_sources": len(c.observation_evidence_ids),
+                    "required_tests": len(c.discriminating_requirement_ids),
+                    "missing_tests": len(c.missing_requirement_ids),
+                    "unavailable_tests": len(c.unavailable_requirement_ids),
+                    "open_questions": len(c.open_question_ids),
+                }
+                for c in candidates[:12]
+            ],
+            "test_requirements": len(state.triage_test_requirement_ids),
+            "trace_records": len(state.triage_hypothesis_trace),
+            "logging_failures": state.triage_hypothesis_logging_failures,
+        }
+    ).model_dump(mode="json")
 
 
 def safe_stage(state: Any) -> dict[str, Any]:
     """Provide field-level progress, without publishing agent-private values."""
     # All values are already tracked by the same Graph state. The observer
     # calls no new models/tools, and never reads hidden simulator ground truth.
+    # Variables:
+    #   decide_events: The sanitized Decide trace (#296); only its latest
+    #     entries are published, with the full count alongside.
+    #   safe_requirements: Requirement statuses whose IDs match the public
+    #     pattern; any other ID is left out rather than shown.
+    #   ids: Open question IDs that pass the strict public pattern.
+    #   deep_signals (field): Deep-loop milestones (#300), set only for a deep
+    #     state so a triage snapshot never claims deep progress.
     results = getattr(state, "triage_requirement_results", {})
     checks = getattr(state, "triage_evidence_checks", ())
     requirements = getattr(state, "triage_requirements", {})
@@ -473,6 +750,18 @@ def safe_stage(state: Any) -> dict[str, Any]:
         decide_event_total=len(decide_events),
         decide_events_truncated=len(decide_events) > _SAFE_DECIDE_EVENT_LIMIT,
         decide_events_recent=decide_events[-_SAFE_DECIDE_EVENT_LIMIT:],
+        triage_run_mode=getattr(state, "triage_run_mode", None)
+        if state.mode == "triage"
+        else None,
+        hypothesis_progress=(
+            safe_hypothesis_progress(state)
+            if hasattr(state, "triage_hypothesis_trace")
+            else None
+        ),
+        executed_triage=(
+            safe_executed_triage(state) if hasattr(state, "triage_run_mode") else None
+        ),
+        deep_signals=safe_deep_signals(state) if state.mode == "deep" else None,
     ).model_dump(mode="json")
 
 
@@ -732,6 +1021,17 @@ class SimulatorRuns:
         authoritative Graph state is included in completion/failure, so a
         bounded watcher queue cannot cause a permanently missing phase.
         """
+        # Variables:
+        #   current_state: The run's stored state; once terminal, late
+        #     stage.updated events are ignored.
+        #   progress: The snapshot's per-path progress (triage, deep, latest,
+        #     deep_timeline, deep_transition_total), carried over from the
+        #     prior snapshot and updated by this event before it is saved.
+        #   final_progress: The authoritative progress sent with run.completed
+        #     or run.failed; it replaces whatever the watcher last delivered.
+        #   next_seq: This event's journal sequence, also used as the deep
+        #     checkpoint's sequence so the timeline matches the journal.
+        #   timeline: The bounded (48) list of observed deep stage changes.
         with self.lock, self._db() as db:
             self._lock_event_sequence(db, run_id)
             row = db.execute(
@@ -752,7 +1052,14 @@ class SimulatorRuns:
                 {
                     key: val
                     for key, val in previous_progress.items()
-                    if key in ("triage", "deep", "latest")
+                    if key
+                    in (
+                        "triage",
+                        "deep",
+                        "latest",
+                        "deep_timeline",
+                        "deep_transition_total",
+                    )
                 }
                 if isinstance(previous_progress, dict)
                 else {}
@@ -788,43 +1095,40 @@ class SimulatorRuns:
                 "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
                 (run_id,),
             ).fetchone()[0]
+            if event == "stage.updated" and payload["mode"] == "deep":
+                # The Pydantic Graph can revisit stages. Record each *observed*
+                # transition exactly once, using the same source sequence as
+                # the durable event journal. Never infer a skipped stage.
+                earlier = progress.get("deep_timeline")
+                timeline: list[dict[str, Any]] = []
+                if isinstance(earlier, list):
+                    for item in earlier[-48:]:
+                        try:
+                            checked = SafeDeepCheckpoint.model_validate(item)
+                        except ValueError:
+                            continue
+                        timeline.append(checked.model_dump(mode="json"))
+                current_stage = payload.get("stage")
+                if current_stage is not None and (
+                    not timeline or timeline[-1]["stage"] != current_stage
+                ):
+                    checkpoint = checkpoint_from_stage(next_seq, payload)
+                    timeline.append(checkpoint.model_dump(mode="json"))
+                    prev_total = progress.get("deep_transition_total")
+                    if type(prev_total) is not int or prev_total < 0:
+                        prev_total = len(timeline) - 1
+                    progress["deep_transition_total"] = prev_total + 1
+                if timeline:
+                    progress["deep_timeline"] = timeline[-48:]
             db.execute(
                 "INSERT INTO run_events VALUES(?,?,?,?,?)",
                 (run_id, next_seq, event, json.dumps(payload), utc_now()),
             )
-            # The event journal contains immutable source events. The run
-            # snapshot additionally retains the latest safe progress for each
-            # investigation path, so a refresh or review event cannot erase
-            # the earlier triage state. Uses the same locked transaction on
-            # SQLite and on the PostgreSQL row-lock backend.
-            row = db.execute(
-                "SELECT snapshot FROM runs WHERE run_id=?", (run_id,)
-            ).fetchone()
-            if row is None:
-                raise LookupError("Run not found")
-            previous = json.loads(row[0])
-            previous_progress = (
-                previous.get("progress") if isinstance(previous, dict) else None
-            )
-            progress = (
-                {
-                    k: v
-                    for k, v in previous_progress.items()
-                    if k in ("triage", "deep", "latest")
-                }
-                if isinstance(previous_progress, dict)
-                else {}
-            )
-            if (
-                event == "stage.updated"
-                and payload.get("mode") in ("triage", "deep")
-                and payload.get("investigation_id")
-            ):
-                mode = payload["mode"]
-                progress[mode] = {
-                    key: payload[key] for key in SAFE_STAGE_FIELDS if key in payload
-                }
-                progress["latest"] = mode
+            # The event journal holds immutable source events; the snapshot
+            # keeps the latest validated progress per path, computed above in
+            # this same locked transaction (SQLite or PostgreSQL row lock).
+            # Never rebuild it from the prior snapshot here: that discarded
+            # the reconciled final progress of run.completed/run.failed.
             snapshot = {**payload, "progress": progress} if progress else payload
             if state is not None:
                 db.execute(
@@ -838,8 +1142,32 @@ class SimulatorRuns:
                 )
 
     def submit(self, request: RunRequest, request_key: str) -> dict[str, Any]:
-        """At most one active episode. Idempotency keys cannot change parameters."""
-        serialized = request.model_dump_json()
+        """At most one active episode; freeze its effective settings at admission."""
+        settings = get_settings()
+        effective = (
+            resolve_triage_run(settings, request.triage_settings)
+            if request.mode == "triage"
+            else None
+        )
+        request._effective_triage = effective
+        configuration = public_run_configuration(request, settings, effective=effective)
+        if (
+            request.configuration_fingerprint is not None
+            and request.configuration_fingerprint != configuration["fingerprint"]
+        ):
+            raise StaleRunConfiguration(
+                "preview fingerprint does not match effective settings"
+            )
+        # Stored alongside the request for durable replay and UI inspection.
+        # Do not reconstruct effective settings from a future process environment.
+        serialized = json.dumps(
+            {
+                **request.model_dump(mode="json"),
+                "effective_configuration": configuration,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
         with self.lock:
             with self._db() as db:
                 self._lock_submission(db)
@@ -856,7 +1184,12 @@ class SimulatorRuns:
                 if self.active or self._store_has_active_run(db):
                     raise RuntimeError("one simulator run is already active")
                 id_ = str(uuid.uuid4())
-                initial = {"stage": None, "mode": request.mode, "status": "queued"}
+                initial = {
+                    "stage": None,
+                    "mode": request.mode,
+                    "status": "queued",
+                    "configuration_fingerprint": configuration["fingerprint"],
+                }
                 db.execute(
                     "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
                     (
@@ -986,6 +1319,17 @@ class SimulatorRuns:
         )
 
     def _execute(self, run_id: str, request: RunRequest) -> None:
+        """Run one episode in the worker thread and journal its lifecycle."""
+        # Variables:
+        #   progress: Bounded queue between the Graph watcher and the journal
+        #     writer, so a slow database never blocks the investigation.
+        #   latest_observed: The last safe snapshot per path, sent with a
+        #     failure so a crash still reports how far each path got.
+        #   configuration: The effective settings frozen at submission (#306);
+        #     its fingerprint goes into run.started and the whole record into
+        #     run.completed, so a reconnecting browser sees what actually ran.
+        #   triage: The triage state of this episode, or None for a deep-only
+        #     run; the source of the triage report and triage_execution flags.
         progress: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
         missed = [0]
         latest_observed: dict[str, dict[str, Any]] = {}
@@ -1061,10 +1405,25 @@ class SimulatorRuns:
         writer.start()
         manual = None
         try:
+            submitted = self.get(run_id)
+            configuration = (
+                None
+                if submitted is None
+                else submitted["requested"].get("effective_configuration")
+            )
             self._emit(
                 run_id,
                 "run.started",
-                {"status": "running", "mode": request.mode},
+                {
+                    "status": "running",
+                    "mode": request.mode,
+                    # Lets a reconnecting browser match the preview it approved.
+                    "configuration_fingerprint": (
+                        None
+                        if configuration is None
+                        else configuration.get("fingerprint")
+                    ),
+                },
                 state="running",
             )
             self._append_model_event(run_id, "model.monitor", {"schema_version": 1})
@@ -1122,6 +1481,7 @@ class SimulatorRuns:
                     policy,
                     kind=request.kind,
                     triage=request.mode == "triage",
+                    triage_configuration=request._effective_triage,
                     hazards=request.hazards,
                     manual=manual,
                     watch=watch,
@@ -1188,10 +1548,20 @@ class SimulatorRuns:
                 final_progress["triage"] = safe_stage(result.triage)
             final_progress[result.state.mode] = safe_stage(result.state)
             final_progress["latest"] = result.state.mode
+            # The immutable submission manifest is the source of truth for
+            # effective settings, including after browser reconnection (#306).
+            persisted = self.get(run_id)
+            configuration = (
+                None
+                if persisted is None
+                else persisted["requested"].get("effective_configuration")
+            )
             final = {
                 "status": "completed",
                 "progress": final_progress,
                 "mode": request.mode,
+                "effective_configuration": configuration,
+                "triage_execution": safe_executed_triage(triage),
                 "investigation": safe_stage(result.state),
                 "triage_report": report,
                 "diagnosis": None

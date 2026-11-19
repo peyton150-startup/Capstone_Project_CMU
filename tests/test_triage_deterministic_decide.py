@@ -414,7 +414,10 @@ def test_identical_inputs_choose_the_same_reads_and_stop():
 def test_invalid_plan_setting_is_rejected():
     with pytest.raises(ValidationError, match="requires TRIAGE_PLAN=fixed"):
         Settings(
-            _env_file=None, TRIAGE_INVESTIGATE="deterministic", TRIAGE_PLAN="model"
+            _env_file=None,
+            TRIAGE_HYPOTHESIZE="model",
+            TRIAGE_INVESTIGATE="deterministic",
+            TRIAGE_PLAN="model",
         )
     settings = Settings(
         _env_file=None, TRIAGE_INVESTIGATE="deterministic", TRIAGE_PLAN="fixed"

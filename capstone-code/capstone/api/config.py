@@ -28,7 +28,7 @@ class UiConfig:
     show_values: bool = False
     machine_label: str = "Authorized CNC"
     run_db: Path | None = None
-    run_backend: Literal["sqlite", "postgres"] = "sqlite"
+    run_backend: Literal["sqlite", "postgres", "hosted"] = "sqlite"
     run_database_url: str | None = field(default=None, repr=False)
     run_token: str | None = field(default=None, repr=False)
     review_token: str | None = field(default=None, repr=False)
@@ -36,6 +36,7 @@ class UiConfig:
     evaluator_token: str | None = field(default=None, repr=False)
     memory_enabled: bool = False
     neon_manual_enabled: bool = False
+    browser_origin: str | None = None
 
     def __post_init__(self) -> None:
         """Reject insecure or ambiguous real-data deployments before serving."""
@@ -55,17 +56,17 @@ class UiConfig:
             raise ValueError(
                 "CAPSTONE_UI_TOKEN must be at least 24 characters for configured files"
             )
-        if self.run_backend not in ("sqlite", "postgres"):
+        if self.run_backend not in ("sqlite", "postgres", "hosted"):
             raise ValueError("Unsupported simulator journal backend")
         if (
             self.runs_enabled
-            and self.run_backend == "postgres"
+            and self.run_backend in ("postgres", "hosted")
             and not self.run_database_url
         ):
             raise ValueError("PostgreSQL journal requires CAPSTONE_UI_RUN_DATABASE_URL")
         if self.runs_enabled:
             if (
-                self.run_db is None
+                (self.run_db is None and self.run_backend != "hosted")
                 or self.run_token is None
                 or self.review_token is None
             ):
@@ -90,6 +91,25 @@ class UiConfig:
             raise ValueError(
                 "Evaluator requires a distinct 24-character token when runs are enabled"
             )
+        if self.runs_enabled and self.run_backend == "hosted":
+            if not self.token or not self.run_database_url:
+                raise ValueError(
+                    "Hosted API requires distinct viewer token and database"
+                )
+        if self.browser_origin is not None:
+            from urllib.parse import urlsplit
+
+            origin = urlsplit(self.browser_origin)
+            if (
+                origin.scheme != "https"
+                or not origin.hostname
+                or origin.username
+                or origin.password
+                or origin.path
+                or origin.query
+                or origin.fragment
+            ):
+                raise ValueError("Browser origin must be a bare HTTPS origin")
         for path in (
             self.capture,
             self.mtconnect,
@@ -132,4 +152,5 @@ class UiConfig:
             evaluator_token=os.getenv("CAPSTONE_UI_EVALUATOR_TOKEN") or None,
             memory_enabled=os.getenv("CAPSTONE_UI_MEMORY_READ") == "1",
             neon_manual_enabled=os.getenv("CAPSTONE_UI_NEON_MANUAL") == "1",
+            browser_origin=os.getenv("CAPSTONE_UI_ALLOWED_ORIGIN") or None,
         )

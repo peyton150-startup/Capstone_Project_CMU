@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import json
+import logging
 import os
 import re
 import threading
@@ -29,29 +31,47 @@ from capstone.api.readers import (
     safe_scorecards,
     signal_samples,
 )
-from capstone.api.runs import ReviewDecision, RunRequest, SimulatorRuns
+from capstone.api.runs import (
+    InvalidRunEnvironment,
+    ReviewDecision,
+    RunRequest,
+    SimulatorRuns,
+    StaleRunConfiguration,
+    public_run_configuration,
+)
+from capstone.settings import get_settings
+from capstone.triage_run_controls import resolve_triage_run
 
 Workspace = Literal["simulator", "pilot"]
 
 # Deliberate allowlist: nothing from the process environment is serialized by default.
-PUBLIC_SETTING_NAMES = (
-    "TRIAGE",
-    "TRIAGE_SECONDS",
-    "TRIAGE_PLAN",
-    "TRIAGE_PACKET",
-    "TRIAGE_INVESTIGATE",
-    "TRIAGE_EVIDENCE_TESTS",
-    "TRIAGE_THEN_DEEP",
-    "STEP_QUESTIONS",
-    "DECIDE_CALLS",
-    "CRITIC",
-    "CRITIC_BLIND",
-    "CRITIC_FOLLOWUP",
-    "MANUAL_STEP",
-    "MEMORY_RETRIEVAL_MODE",
-    "MIN_ACTION_CONFIDENCE",
-    "MODEL_REQUEST_SECONDS",
-)
+PUBLIC_SETTING_FIELDS = {
+    # Only explicitly reviewed, nonsecret scalar Settings fields are exposed.
+    "TRIAGE": "triage",
+    "TRIAGE_SECONDS": "triage_seconds",
+    "TRIAGE_TOOL_CALLS": "triage_tool_calls",
+    "TRIAGE_PLAN": "triage_plan",
+    "TRIAGE_RUN_MODE": "triage_run_mode",
+    "TRIAGE_HYPOTHESIZE": "triage_hypothesize",
+    "TRIAGE_PACKET": "triage_packet",
+    "TRIAGE_PACKET_PROMPT": "triage_packet_prompt",
+    "TRIAGE_OBSERVE_CALLS": "triage_observe_calls",
+    "TRIAGE_INVESTIGATE": "triage_investigate",
+    "TRIAGE_EVIDENCE_TESTS": "triage_evidence_tests",
+    "TRIAGE_CONCLUDE_BRIEF": "triage_conclude_brief",
+    "TRIAGE_CONCLUDE_CAP": "triage_conclude_cap",
+    "TRIAGE_HYPOTHESIS_SECONDS": "triage_hypothesis_seconds",
+    "TRIAGE_THEN_DEEP": "triage_then_deep",
+    "STEP_QUESTIONS": "step_questions",
+    "DECIDE_CALLS": "decide_calls",
+    "CRITIC": "critic",
+    "CRITIC_BLIND": "critic_blind",
+    "CRITIC_FOLLOWUP": "critic_followup",
+    "MANUAL_STEP": "manual_step",
+    "MEMORY_RETRIEVAL_MODE": "memory_retrieval_mode",
+    "MIN_ACTION_CONFIDENCE": "min_action_confidence",
+    "MODEL_REQUEST_SECONDS": "model_request_seconds",
+}
 
 
 def create_app(config: UiConfig | None = None) -> FastAPI:
@@ -61,13 +81,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
     runner = None
-    if cfg.runs_enabled and cfg.run_db is not None:
-        if cfg.run_backend == "postgres":
-            from capstone.api.postgres_runs import PostgresSimulatorRuns
+    if cfg.runs_enabled:
+        if cfg.run_backend == "hosted":
+            from capstone.api.hosted_runs import HostedSimulatorRuns
 
             assert cfg.run_database_url is not None
+            runner = HostedSimulatorRuns(cfg.run_database_url)
+        elif cfg.run_backend == "postgres":
+            from capstone.api.postgres_runs import PostgresSimulatorRuns
+
+            assert cfg.run_database_url is not None and cfg.run_db is not None
             runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
         else:
+            assert cfg.run_db is not None
             runner = SimulatorRuns(cfg.run_db)
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
@@ -91,9 +117,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "http://localhost:5173",
             "http://127.0.0.1:4173",
             "http://localhost:4173",
+        ]
+        + ([cfg.browser_origin] if cfg.browser_origin else []),
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=[
+            "Authorization",
+            "Content-Type",
+            "Idempotency-Key",
+            "Last-Event-ID",
         ],
-        allow_methods=["GET"],
-        allow_headers=["Authorization", "Content-Type"],
         allow_credentials=False,
     )
 
@@ -138,6 +170,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "service": "industrial-console",
             "controller_connected": None,
         }
+
+    @app.get("/api/v1/ready")
+    def readiness() -> dict:
+        """Schema-aware HTTP readiness, not proof of worker availability."""
+        if cfg.runs_enabled and cfg.run_backend == "hosted":
+            try:
+                if runner is None or not runner.ready():
+                    raise RuntimeError("Hosted schema unavailable")
+            except Exception:
+                raise HTTPException(
+                    status_code=503, detail="Hosted database unavailable"
+                ) from None
+        return {"status": "ready", "service": "fastapi"}
 
     @app.get("/api/v1/capabilities", dependencies=[Access])
     def capabilities() -> dict:
@@ -352,7 +397,16 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         snap = recorder_snapshot(cfg.capture)
         return {
             "api": "available",
-            "simulation_worker": "enabled" if runner is not None else "not_integrated",
+            "simulation_worker": (
+                "separate_worker_unverified"
+                if cfg.run_backend == "hosted" and runner is not None
+                else ("enabled" if runner is not None else "not_integrated")
+            ),
+            "run_queue": (
+                runner.queue_metrics()
+                if cfg.run_backend == "hosted" and runner is not None
+                else None
+            ),
             "progress_stream": "enabled" if runner is not None else "not_integrated",
             "recorder_connection": snap["recorder"]["connection_state"]
             if snap["recorder"]
@@ -363,6 +417,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "model_provider": "not_checked",
             "storage": "not_monitored",
         }
+
+    @app.get("/api/v1/system/integrations", dependencies=[Access])
+    def integration_contracts() -> dict:
+        """Report exact Pydantic source-contract coverage, not deployment health."""
+        from capstone.api.integration_status import inspect_hosted_contracts
+
+        return inspect_hosted_contracts().model_dump(mode="json")
 
     @app.get("/api/v1/system/audit", dependencies=[Access])
     def system_audit() -> dict:
@@ -394,17 +455,35 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/settings/effective", dependencies=[Access])
     def settings_effective() -> dict:
-        """A readonly whitelist; no API keys, certificates, filesystem paths or free text."""
+        """Validated global scalars, including .env defaults; never credentials."""
+        # Variables:
+        #   settings: The validated Settings, so values shown match what a run
+        #     would use, including .env defaults the process environment lacks.
+        #   effective: The server's default triage profile after the
+        #     deterministic switch is applied, shown as profile and stage modes.
+        settings = get_settings()
+        effective = resolve_triage_run(settings)
         return {
             "editable": False,
             "items": [
                 {
                     "name": name,
-                    "value": os.environ.get(name),
+                    "value": (
+                        "on"
+                        if value is True
+                        else "off"
+                        if value is False
+                        else str(value)
+                    ),
+                    # Only process-level override marker; .env stays private.
                     "configured": name in os.environ,
                 }
-                for name in PUBLIC_SETTING_NAMES
+                for name, attr in PUBLIC_SETTING_FIELDS.items()
+                for value in (getattr(settings, attr),)
             ],
+            "triage_profile": effective.model_dump(mode="json"),
+            "triage_stage_modes": effective.stage_modes(),
+            "conclude": "model-backed",
         }
 
     @app.get("/api/v1/knowledge/manuals", dependencies=[Access])
@@ -541,7 +620,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "availability": "not_integrated",
             "manuals": [],
             "memories": [],
-            "message": "Existing manual and memory providers have no authorized UI read adapter yet",
+            "message": (
+                "Existing manual and memory providers have no authorized "
+                "UI read adapter yet"
+            ),
         }
 
     @app.get("/api/v1/lab/runs", dependencies=[Access])
@@ -554,6 +636,52 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "availability": "available" if runner is not None else "not_integrated",
             "items": runner.list_runs() if runner is not None else [],
         }
+
+    @app.get("/api/v1/lab/runs/configuration", dependencies=[Access])
+    def managed_run_configuration(workspace: Workspace = "simulator") -> dict:
+        """Validated defaults for the per-run editor; not global env editing."""
+        # Variables:
+        #   effective: The same resolver a submitted run uses, applied to the
+        #     server defaults, so the editor starts from what would really run.
+        if workspace != "simulator":
+            raise HTTPException(
+                status_code=403, detail="Pilot configuration is read-only"
+            )
+        if runner is None:
+            raise HTTPException(
+                status_code=503, detail="Simulator runner is not configured"
+            )
+        # Use the exact resolver as a submitted run. Values are all allowlisted.
+        effective = resolve_triage_run(get_settings())
+        return {
+            "schema_version": 1,
+            "defaults": effective.model_dump(mode="json"),
+            "editable_per_run": True,
+            "global_environment_editable": False,
+        }
+
+    @app.post("/api/v1/lab/runs/preview", dependencies=[Access])
+    def preview_simulator_run(
+        request: RunRequest, workspace: Workspace = "simulator"
+    ) -> dict:
+        """Side-effect-free preflight: same typed resolver as submission."""
+        # Variables:
+        #   request: The proposed run; an incompatible stage combination is a
+        #     422, so the operator fixes it before any run is admitted.
+        if workspace != "simulator":
+            raise HTTPException(
+                status_code=403, detail="Pilot simulator runs prohibited"
+            )
+        if runner is None:
+            raise HTTPException(
+                status_code=503, detail="Simulator runner is not configured"
+            )
+        try:
+            return public_run_configuration(request, get_settings())
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="Incompatible triage settings"
+            ) from None
 
     @app.post("/api/v1/lab/runs", status_code=202)
     def start_simulator_run(
@@ -596,8 +724,54 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 if knowledge is not None:
                     knowledge.close()
         assert runner is not None
+        # Variables:
+        #   preview: The effective configuration resolved now, before the
+        #     durable submission lock, so bad settings are a 422 and a changed
+        #     server default (fingerprint mismatch) is a 409, not a stale run.
+        #   created: The admitted run; on the hosted backend its ID is logged
+        #     as a structured event for the separate worker's operators.
+        # Wrong stage combinations are invalid input, not an idempotency
+        # conflict. Validate before touching the durable submission lock.
         try:
-            return runner.submit(request, idempotency_key)
+            preview = public_run_configuration(request, get_settings())
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="Incompatible triage settings"
+            ) from None
+        if (
+            request.configuration_fingerprint is not None
+            and request.configuration_fingerprint != preview["fingerprint"]
+        ):
+            raise HTTPException(
+                status_code=409,
+                detail="Settings changed after preview; review before starting",
+            )
+        try:
+            created = runner.submit(request, idempotency_key)
+            if cfg.run_backend == "hosted":
+                logging.getLogger("capstone.api").info(
+                    "%s",
+                    json.dumps(
+                        {
+                            "service": "fastapi",
+                            "event": "run_submitted",
+                            "run_id": created["run_id"],
+                        },
+                        separators=(",", ":"),
+                    ),
+                )
+            return created
+        except InvalidRunEnvironment:
+            # A server fault (bad build commit or triage env var on this host),
+            # not the caller's idempotency key or an active run.
+            raise HTTPException(
+                status_code=503, detail="Server run configuration is invalid"
+            ) from None
+        except StaleRunConfiguration:
+            raise HTTPException(
+                status_code=409,
+                detail="Settings changed after preview; validate again",
+            ) from None
         except ValueError:
             raise HTTPException(
                 status_code=409, detail="Idempotency key belongs to another request"
@@ -619,7 +793,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     def managed_run_model_calls(
         run_id: str, workspace: Workspace = "simulator"
     ) -> dict:
-        """Safe attempt timeline from the durable local/hosted run journal."""
+        """Read #297's strictly validated, durable model-attempt timeline."""
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot model telemetry unavailable"
@@ -629,7 +803,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         try:
             return runner.model_calls(run_id)
         except Exception:
-            # Never leak database or model-provider exception text.
+            # No raw SQL/provider errors, prompts or credentials in HTTP.
             raise HTTPException(
                 status_code=503, detail="Model-call journal unavailable"
             ) from None
@@ -651,24 +825,33 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         run = ensure_run(run_id)
         snapshot = run["snapshot"]
-        final = snapshot.get("investigation") or {}
+        final = snapshot.get("investigation")
+        final = final if isinstance(final, dict) else {}
         target = None
         if phase == "final":
             target = final.get("investigation_id")
         else:
-            progress = snapshot.get("progress") or {}
-            stage = progress.get(phase) if isinstance(progress, dict) else None
+            progress = snapshot.get("progress")
+            stages = progress if isinstance(progress, dict) else {}
+            stage = stages.get(phase)
             if isinstance(stage, dict) and stage.get("mode") == phase:
                 target = stage.get("investigation_id")
             # Legacy or triage-only records can have a final stage but no
             # phase-specific progress map. Never infer an absent earlier phase.
             if not isinstance(target, str) and final.get("mode") == phase:
                 target = final.get("investigation_id")
-        if not isinstance(target, str):
+        if not isinstance(target, str) or not re.fullmatch(
+            r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+            target,
+        ):
             return {"availability": "not_recorded", "detail": None, "phase": phase}
         assert runner is not None
-        path = runner.investigation_audit_path(run_id)
-        detail = safe_investigation_detail(path, target)
+        if cfg.run_backend == "hosted":
+            detail = runner.investigation_detail(run_id, target)
+        else:
+            detail = safe_investigation_detail(
+                runner.investigation_audit_path(run_id), target
+            )
         return {
             "availability": "available" if detail is not None else "not_recorded",
             "detail": detail,
@@ -684,6 +867,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(status_code=403, detail="Pilot diagnostics unavailable")
         ensure_run(run_id)
         assert runner is not None
+        if cfg.run_backend == "hosted":
+            items = runner.observability_items(run_id)
+            return {
+                "availability": "available" if items is not None else "not_recorded",
+                "window_scope": "bounded_recent_tail",
+                "items": items or [],
+            }
         path = runner.investigation_event_path(run_id)
         if not path.is_file():
             return {"availability": "not_recorded", "items": []}
@@ -769,6 +959,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 events = await asyncio.to_thread(runner.events_since, run_id, cursor)
                 for event in events:
                     cursor = event["seq"]
+                    # #297 model-call envelopes are a separate, revalidated
+                    # endpoint. Do not stream private attempt metadata in SSE.
+                    if event["event"].startswith("model."):
+                        continue
                     import json
 
                     payload = json.dumps(event["data"], separators=(",", ":"))
@@ -778,12 +972,21 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 current = await asyncio.to_thread(runner.get, run_id)
                 if (
                     current
-                    and current["state"] in {"completed", "failed", "interrupted"}
+                    and current["state"]
+                    in {
+                        "completed",
+                        "failed",
+                        "interrupted",
+                        "expired",
+                    }
                     and not events
                 ):
                     # A recovered terminal run need not have a terminal event.
                     # Explicitly end replay so browser reconnects can stop.
-                    yield 'event: stream.closed\\ndata: {"status":"terminal"}\\n\\n'
+                    yield (
+                        "event: stream.closed\n"
+                        'data: {"reason":"terminal_replay_complete"}\n\n'
+                    )
                     break
                 await asyncio.sleep(1)
 

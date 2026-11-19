@@ -30,8 +30,14 @@ class _PostgresDB:
         self.connection = connection
 
     def execute(self, query: str, parameters: tuple[Any, ...] = ()) -> Any:
-        # The runner only uses positional placeholders; no user SQL is accepted.
-        return self.connection.cursor().execute(query.replace("?", "%s"), parameters)
+        """Run journal SQL written with SQLite "?" placeholders on psycopg."""
+        # Variables:
+        #   query: Fixed server SQL using only "?" placeholders (never "%s").
+        #     Literal "%" (as in LIKE 'model.%') is doubled first so psycopg
+        #     reads it as text, then each "?" becomes psycopg's "%s".
+        return self.connection.cursor().execute(
+            query.replace("%", "%%").replace("?", "%s"), parameters
+        )
 
 
 class PostgresSimulatorRuns(SimulatorRuns):
@@ -145,10 +151,15 @@ class PostgresSimulatorRuns(SimulatorRuns):
 
     def _initialize_store(self) -> None:
         """Require explicit migration and recover only after exclusive ownership."""
+        # Variables:
+        #   row: to_regclass for one required table; None means Alembic head
+        #     was not applied, so the journal refuses to start.
+        #   self._recover_existing: Whether this process holds exclusive
+        #     ownership and may mark earlier unfinished runs interrupted.
         with self._db() as db:
             for name in ("runs", "run_events", "run_reviews", "run_artifacts"):
                 row = db.execute(
-                    "SELECT to_regclass(%s)",
+                    "SELECT to_regclass(?)",
                     (f"capstone_private.{name}",),
                 ).fetchone()
                 if row is None or row[0] is None:
@@ -173,7 +184,7 @@ class PostgresSimulatorRuns(SimulatorRuns):
         return utc_now()
 
     def _lock_submission(self, db: Any) -> None:
-        db.execute("SELECT pg_advisory_xact_lock(%s, %s)", _SUBMIT_LOCK)
+        db.execute("SELECT pg_advisory_xact_lock(?, ?)", _SUBMIT_LOCK)
 
     def _store_has_active_run(self, db: Any) -> bool:
         return (

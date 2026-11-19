@@ -21,6 +21,7 @@ filled in to make a record look complete.
 """
 
 from pathlib import Path
+from typing import Literal
 
 from capstone.agent.artifacts import (
     AgentConclusion,
@@ -146,6 +147,9 @@ class AuditRecord(Contract):
     # Full typed triage diagnostic history survives completed managed runs.
     # Older JSON audits without this field remain readable.
     triage_trace_events: tuple[TriageTraceEvent, ...] = ()
+    # Effective execution mode, independent of raw environment overrides.
+    # A pre-profile audit defaults to its historical custom mode.
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
 
 
 def audit_record(state: InvestigationState) -> AuditRecord:
@@ -153,6 +157,10 @@ def audit_record(state: InvestigationState) -> AuditRecord:
     # Variables:
     #   state.incident_context: Source IDs and missing coverage from the
     #     opt-in packet; retained for audit, not promoted as a belief.
+    #   state.triage_trace_events: The typed Decide trace (#296), kept so a
+    #     completed run's audit still shows every chronological Decide step.
+    #   state.triage_run_mode: The effective triage profile (#301), recorded so
+    #     the audit says whether the run was deterministic or custom.
     return AuditRecord(
         completed=complete(state),
         provenance=tuple(state.provenance),
@@ -167,6 +175,7 @@ def audit_record(state: InvestigationState) -> AuditRecord:
         pruned_candidates=tuple(state.pruned_candidates),
         incident_context=state.incident_context,
         triage_trace_events=tuple(state.triage_trace_events),
+        triage_run_mode=state.triage_run_mode,
     )
 
 

@@ -4,10 +4,12 @@ import { postJson, useResource } from '../api';
 import { resolveApiUrl } from '../backend.mjs';
 import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
-import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, StageProgress, TriageReport } from '../types';
+import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, StageProgress, TriageReport, TriageRunDefaults, TriageRunOptions, TriageRunPreview } from '../types';
+import { TriageRunEditor } from './triageRunEditor';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 import { ModelCallTimeline } from './model_call_timeline';
 import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
+import { DeepInvestigationProgress } from './deep_progress';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
   tick?: number; tool?: string; success?: boolean; counts?: Record<string,number> };
@@ -35,20 +37,91 @@ export function ManagedRunLauncher() {
   const key = useRef<string | null>(null);
   const enabled = workspace === 'simulator' && !preview &&
     capability.data?.features.simulation_run_launch === true;
+  const defaults = useResource<TriageRunDefaults>(
+    enabled ? '/api/v1/lab/runs/configuration?workspace=simulator' : null,
+    token, !enabled, 60000,
+  );
+  const [controls, setControls] = useState<TriageRunOptions | null>(null);
+  const initializedFor = useRef<string | null>(null);
+  const sourceKey = JSON.stringify([backend, token, workspace, preview]);
+  useEffect(() => {
+    if (defaults.data && initializedFor.current !== sourceKey) {
+      initializedFor.current = sourceKey;
+      setControls(defaults.data.defaults);
+      key.current = null;
+    }
+  }, [defaults.data, sourceKey]);
   const parsedSeed = Number(seed);
-  const validSeed = Number.isInteger(parsedSeed) && parsedSeed >= 0 && parsedSeed <= 1000000;
+  const validSeed = seed.trim() !== '' && Number.isInteger(parsedSeed) &&
+    parsedSeed >= 0 && parsedSeed <= 1000000;
+  const validBudget = mode === 'deep' || (controls != null &&
+    Number.isFinite(controls.seconds) && controls.seconds >= 5 && controls.seconds <= 900 &&
+    Number.isInteger(controls.tool_calls) && controls.tool_calls >= 1 &&
+    controls.tool_calls <= 30 && Number.isFinite(controls.hypothesis_seconds) &&
+    controls.hypothesis_seconds >= 0 && controls.hypothesis_seconds <= 300);
+  const requested = controls || mode === 'deep' ? {
+    seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual,
+    ...(mode === 'triage' && controls ? {triage_settings: controls} : {}),
+  } : null;
+  const requestSignature = JSON.stringify(requested);
+  const [previewRevision, setPreviewRevision] = useState(0);
+  const previewIdentity = JSON.stringify([
+    requestSignature, token, backend, sourceKey, previewRevision,
+  ]);
+  const [resolved, setResolved] = useState<{
+    identity: string; value: TriageRunPreview;
+  } | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewPending, setPreviewPending] = useState(false);
+  const confirmed = resolved?.identity === previewIdentity ? resolved.value : null;
+
+  useEffect(() => {
+    let active = true;
+    setResolved(null);
+    setPreviewError(null);
+    if (!enabled || !validSeed || !validBudget || !requested) {
+      setPreviewPending(false);
+      return;
+    }
+    setPreviewPending(true);
+    const timer = window.setTimeout(() => {
+      void postJson<TriageRunPreview>('/api/v1/lab/runs/preview?workspace=simulator',
+        token, requested, backend).then(value => {
+          if (active) {
+            setResolved({ identity: previewIdentity, value });
+            setPreviewPending(false);
+          }
+        }).catch(problem => {
+          if (active) {
+            setPreviewError(problem instanceof Error ? problem.message : 'Preview failed');
+            setPreviewPending(false);
+          }
+        });
+    }, 250);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [previewIdentity, enabled, validSeed, validBudget]);
 
   async function submit() {
-    if (!enabled || !validSeed || pending) return;
+    if (!enabled || !validSeed || !validBudget || !requested ||
+      !confirmed || pending) return;
     setPending(true);
     setError(null);
     if (!key.current) key.current = crypto.randomUUID().replaceAll('-', '');
     try {
       const run = await postJson<ManagedRun>('/api/v1/lab/runs?workspace=simulator', token,
-        { seed: parsedSeed, kind, mode, hazards, tree_of_thought: tree, manual }, backend, key.current);
+        { ...requested, configuration_fingerprint: confirmed.fingerprint },
+        backend, key.current);
       navigate('/lab/runs/' + encodeURIComponent(run.run_id));
     } catch (problem) {
-      setError(problem instanceof Error ? problem.message : 'Unable to start run');
+      const message = problem instanceof Error ?
+        problem.message : 'Unable to start run';
+      setError(message);
+      if (message.includes('409') || message.includes('Settings changed')) {
+        // The server may have changed after validation. Re-fetch a fresh
+        // authoritative preview and avoid reusing a stale idempotency key.
+        key.current = null;
+        setPreviewRevision(previous => previous + 1);
+      }
     } finally {
       setPending(false);
     }
@@ -67,7 +140,7 @@ export function ManagedRunLauncher() {
         </select></div>
       <div><label className="field-label" htmlFor="managed-mode">Investigation path</label>
         <select id="managed-mode" value={mode} onChange={event=>{setMode(event.target.value as 'triage'|'deep');resetKey();}}>
-          <option value="triage">Rapid triage → deep if needed</option>
+          <option value="triage">Rapid triage (optional deep escalation configured below)</option>
           <option value="deep">Deep investigation only</option>
         </select></div>
       <div><label className="field-label" htmlFor="managed-manual">Manual retrieval</label>
@@ -76,13 +149,23 @@ export function ManagedRunLauncher() {
           {capability.data?.features.neon_manual_search && <option value="neon">Neon manual (SIM-CNC-001)</option>}
         </select></div>
     </div>
-    <div className="quality-check"><label><input type="checkbox" checked={hazards} onChange={e=>{setHazards(e.target.checked);resetKey();}}/> Seeded tool hazards</label></div>
-    <div className="quality-check"><label><input type="checkbox" checked={tree} onChange={e=>{setTree(e.target.checked);resetKey();}}/> Tree-of-Thought policy</label></div>
-    <p className="body-copy">The run uses server-owned model configuration. A triage run can escalate into a deep investigation under the Python decision policy. No pilot data or physical CNC commands are used.</p>
+    <div className="quality-check"><label><input type="checkbox" checked={hazards} onChange={e=>{setHazards(e.target.checked);resetKey();}}/> Seeded tool hazards (synthetic faults)</label></div>
+    <div className="quality-check"><label><input type="checkbox" checked={tree} onChange={e=>{setTree(e.target.checked);resetKey();}}/> Tree-of-Thought policy (model-only stages; deep unaffected by deterministic triage)</label></div>
+    {controls ? <TriageRunEditor value={controls} mode={mode}
+      onChange={next=>{setControls(next);resetKey();}}
+      preview={confirmed} previewError={previewError}
+      pending={previewPending} disabled={!enabled}/> :
+      mode === 'triage' ? <Unavailable item="Validated per-run settings"
+        detail={defaults.error || 'Connect the authorized simulator API to load stage defaults.'}/> :
+      <p className="body-copy">Deep-only runs do not use triage settings.</p>}
+    <p className="body-copy">Only this run receives the selected stage controls.
+      Conclude remains model-backed. No pilot data or physical CNC commands are used.</p>
     {error && <InfoState kind="warning" title="Run not started" detail={error}/>}
     {!validSeed && <p role="alert">Seed must be an integer between 0 and 1,000,000.</p>}
-    {enabled ? <button className="button-primary" type="button" disabled={!validSeed || pending} onClick={submit}>
-      {pending ? 'Submitting…' : 'Start authorized simulator run'}</button> :
+    {enabled ? <button className="button-primary" type="button"
+      disabled={!validSeed || !validBudget || !confirmed || pending} onClick={submit}>
+      {pending ? 'Submitting…' : !confirmed ? 'Validate settings to start' :
+        'Start run with confirmed settings'}</button> :
       <Unavailable item="Managed simulator runner" detail={preview ?
         'Exit synthetic preview to run a real simulator episode.' :
         capability.error || 'Enable CAPSTONE_UI_SIM_RUNS with approved server storage and operator credentials.'}/>}
@@ -100,8 +183,11 @@ export function ManagedRunList() {
       <Link to={'/lab/runs/' + encodeURIComponent(run.run_id)} className="incident-row" key={run.run_id}>
         <div className="incident-body"><strong>{run.run_id.slice(0, 13)}</strong>
           <p>Seed {run.requested.seed} · {run.requested.kind} · {run.requested.mode === 'triage' ?
-            'Triage (deep if needed)' : 'Deep only'}</p>
-          <small>{formatStamp(run.updated_at)}</small></div>
+            (run.requested.effective_configuration?.effective_triage?.then_deep === false ?
+              'Triage only' : 'Triage (deep if needed)') : 'Deep only'}</p>
+          <small>{formatStamp(run.updated_at)}
+            {run.requested.effective_configuration?.fingerprint ?
+              ' · config ' + run.requested.effective_configuration.fingerprint : ''}</small></div>
         <Pill text={run.state} tone={toneFor(run.state)}/>
       </Link>)}</div> : <Unavailable item="Managed run history"
       detail="No managed simulator runs have been submitted to this backend."/>}
@@ -408,6 +494,15 @@ export function RunDetailPage() {
   const packet = operational.data?.items.slice().reverse().find(
     item => item.event === 'triage_packet_built',
   );
+  const configuration = run?.requested.effective_configuration ||
+    run?.snapshot?.effective_configuration;
+  const lastTriage = [...journal.events].reverse().find(event =>
+    event.event === 'stage.updated' && event.data.mode === 'triage' &&
+    event.data.hypothesis_progress != null
+  );
+  const hypothesis = (lastTriage?.data.hypothesis_progress ??
+    run?.snapshot?.investigation?.hypothesis_progress) as
+    SafeHypothesisProgress | null | undefined;
   if (!enabled) return <Unavailable item="Managed simulator run" detail="Select Simulator Lab and exit synthetic preview."/>;
   return <>
     <PageHeading eyebrow="LAB / LIVE EXPERIMENT" title="Managed investigation"
@@ -416,7 +511,14 @@ export function RunDetailPage() {
     <Panel title="Run status" subtitle={runId}>
       <DataRow label="State" value={<Pill text={run?.state || 'Unknown'} tone={toneFor(run?.state)}/>}/>
       <DataRow label="Scenario" value={run ? run.requested.kind + ', seed ' + run.requested.seed : 'Unconfirmed'}/>
-      <DataRow label="Mode" value={run?.requested.mode === 'triage' ? 'Triage then deep if needed' : 'Deep only'}/>
+      <DataRow label="Mode" value={run?.requested.mode === 'triage'
+        ? configuration?.effective_triage?.then_deep === false
+          ? 'Triage only — no deep escalation'
+          : 'Triage → deep if recommended'
+        : 'Deep only'}/>
+      {run?.requested.mode === 'triage' && <DataRow label="Effective triage profile"
+        value={(lastTriage?.data.triage_run_mode as string | undefined) ||
+          run?.snapshot?.investigation?.triage_run_mode || 'Not recorded'}/>}
       <DataRow label="Updated" value={formatStamp(run?.updated_at)}/>
       {run?.state === 'awaiting_review' && <InfoState title="Human decision required" kind="warning"
         detail="Open the Review & verification page with a reviewer token. Approval alone never executes an action."
@@ -424,6 +526,7 @@ export function RunDetailPage() {
       {run?.snapshot?.error_class && <DataRow label="Failure classification" value={run.snapshot.error_class}/>}
     </Panel>
     <LiveProgress run={run}/>
+    <DeepInvestigationProgress run={run}/>
     {run?.requested.mode === 'triage' && <Panel title="Triage evidence packet"
       subtitle="Source-linked coverage, not a root-cause finding">
       {packet?.counts ? <>
@@ -440,10 +543,94 @@ export function RunDetailPage() {
       </> : <InfoState title="Triage packet not reported"
         detail="The collector has not published an approved packet summary for this run yet."/>}
     </Panel>}
+    <Panel title="Effective configuration for this run"
+      subtitle="Immutable at submission; compare with requested stage settings">
+      <DataRow label="Configuration fingerprint"
+        value={configuration?.fingerprint || 'Not recorded (older run)'}/>
+      <DataRow label="Triage applied"
+        value={configuration ? configuration.applied ? 'Yes' : 'No, deep-only' : 'Not recorded'}/>
+      <DataRow label="Conclude configured primary"
+        value={configuration?.configured_conclude_primary || 'Not recorded'}/>
+      <DataRow label="Model provider status"
+        value={configuration?.model_attempts || 'Check run model-call observability'}/>
+      {configuration?.effective_triage && ([
+        ['run_mode','Deterministic override'],
+        ['plan','Plan'],['investigate','Investigate / Decide / Interpret / Test'],
+        ['hypothesize','Hypothesize'],['evidence_tests','Evidence tests'],
+        ['packet','Observe packet'],['packet_prompt','Packet in model context'],
+        ['observe_calls','Observe calls'],['then_deep','Deep escalation'],
+        ['conclude_brief','Conclude evidence brief'],['conclude_cap','Conclude cap'],
+        ['seconds','Triage seconds'],['tool_calls','Research tool calls'],
+        ['hypothesis_seconds','Hypothesis reserve seconds'],
+      ] as const).map(([key,label])=>{
+        const value = configuration.effective_triage?.[key];
+        const display = typeof value === 'boolean' ? value ? 'On' : 'Off' :
+          value == null ? 'Unknown' : String(value);
+        return <DataRow key={key} label={label} value={display}/>;
+      })}
+      {configuration?.overridden?.length ? <p className="body-copy">
+        Requested values overridden by deterministic profile: {configuration.overridden.join(', ')}
+      </p> : null}
+      {configuration && <DataRow label="Graph routing"
+        value={Object.entries(configuration.stages).map(([stage,method])=>
+          stage + ': ' + method).join(' · ')}/>}
+      <p className="body-copy">Settings are saved with the submission and cannot
+        retroactively change a run. Actual model attempts require the separate audit.</p>
+    </Panel>
+    {run?.snapshot?.triage_execution && <Panel title="Observed triage execution"
+      subtitle="Stage flags captured from the completed Graph, even if a deep investigation followed">
+      {([
+        ['run_mode','Executed profile'],
+        ['fixed_plan_executed','Fixed Plan completed'],
+        ['packet_enabled','Evidence packet enabled'],
+        ['packet_collected','Evidence packet collected'],
+        ['observe_calls_separate','Separate Observe allowance'],
+        ['conclude_brief_enabled','Conclude evidence brief enabled'],
+        ['conclude_cap_enabled','Conclude time cap enabled'],
+        ['hypothesis_reserve_seconds','Effective hypothesis reserve (seconds)'],
+        ['deadline_seconds','Triage deadline (seconds)'],
+        ['research_tool_call_budget','Research tool-call limit'],
+        ['actual_research_tool_calls','Research tool calls used'],
+        ['deterministic_decide_reads','Deterministic Decide reads'],
+        ['compiled_candidates','Compiled candidate count'],
+        ['conclusion_available','Conclude stage completed'],
+        ['deep_recommended','Deep investigation recommended'],
+      ] as const).map(([key,label])=>{
+        const value = run.snapshot.triage_execution?.[key];
+        const shown = typeof value === 'boolean' ? value ? 'On' : 'Off' :
+          value == null ? 'Unknown' : String(value);
+        return <DataRow key={key} label={label} value={shown}/>;
+      })}
+      <p className="body-copy">These fields describe actual Graph state, not
+        model-call success. See model-call observability for provider attempts.</p>
+    </Panel>}
     {finalAudit.error && <InfoState kind="warning" title="Final audit request failed"
       detail={finalAudit.error}/>}
     <FinalRunOutcome run={run} detail={finalDetail}/>
     {run?.snapshot?.triage_report && <TriageReportView report={run.snapshot.triage_report}/>}
+    {run?.requested.mode === 'triage' && <Panel title="Deterministic hypothesis candidates"
+      subtitle="Model-free, unscored possibilities and their evidence gaps">
+      <DataRow label="Rule version" value={hypothesis?.rule_version || 'Not recorded'}/>
+      <DataRow label="Compiler outcome" value={hypothesis?.last_action || 'Not recorded'}/>
+      <DataRow label="Candidates" value={hypothesis?.candidate_count ?? 'Not recorded'}/>
+      <DataRow label="Test requirements" value={hypothesis?.test_requirements ?? 'Not recorded'}/>
+      <DataRow label="Trace records" value={hypothesis?.trace_records ?? 'Not recorded'}/>
+      <DataRow label="Logging failures" value={hypothesis?.logging_failures ?? 'Not recorded'}/>
+      {hypothesis?.candidates.map(candidate=>
+        <div key={candidate.id} className="hypothesis-card">
+          <strong>{candidate.id} · {candidate.family.replaceAll('_', ' ')}</strong>
+          <DataRow label="Status" value={candidate.status}/>
+          <DataRow label="Qualified source references" value={candidate.qualified_sources}/>
+          <DataRow label="Required checks" value={candidate.required_tests}/>
+          <DataRow label="Missing checks" value={candidate.missing_tests}/>
+          <DataRow label="Unavailable checks" value={candidate.unavailable_tests}/>
+          <DataRow label="Open questions" value={candidate.open_questions}/>
+        </div>)}
+      {hypothesis?.candidates_truncated && <p className="body-copy">
+        Showing the first 12 candidates.</p>}
+      <p className="body-copy">Compiled candidates do not prove causation, clearance,
+        or confidence. Missing telemetry remains unresolved.</p>
+    </Panel>}
     <Panel title="Audited technical investigation"
       subtitle="Select a completed phase; the viewer never receives simulator hidden truth">
       <div className="content-tabs" role="tablist" aria-label="Completed audit phase">

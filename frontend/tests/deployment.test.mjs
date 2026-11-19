@@ -30,3 +30,17 @@ test('Vite has independent localhost and Render proxy routes', () => {
   assert.match(vite, /https:\/\/capstone-project-cmu\.onrender\.com/);
   assert.match(vite, /rewrite: path => path\.replace/);
 });
+
+test('system page shows the hosted run queue instead of [object Object]', () => {
+  const page = readFileSync(new URL('../src/pages/engineering.tsx', import.meta.url), 'utf8');
+  // The nested queue object is excluded from the generic String(value) rows.
+  assert.match(page, /filter\(\(\[name\]\)=>name!=='run_queue'\)/);
+  assert.match(page, /<Panel title="Run queue"/);
+  for (const field of ['worker_liveness', 'healthy_workers', 'queued', 'active_claims',
+    'stale_claims', 'oldest_queued_seconds', 'last_worker_pulse_age_seconds']) {
+    assert.ok(page.includes(field), field);
+  }
+  // A revision mismatch is explained, and the stale "no worker" note is gone.
+  assert.match(page, /different build: queued runs wait/);
+  assert.doesNotMatch(page, /No managed background worker integrated/);
+});

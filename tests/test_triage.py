@@ -63,6 +63,9 @@ def triage_then_deep(triage_recommends="intervene"):
 
 
 def run(policy, monkeypatch, *, then_deep=True, clock=lambda: 0.0, **options):
+    # Historical clearance tests exercise model-authored hypotheses; keep this
+    # comparison fixture explicit now that deterministic Hypothesize is default.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "on" if then_deep else "off")
     return run_episode(
@@ -237,6 +240,8 @@ def test_triage_budgets_keep_nothing_for_a_fix_and_time_for_the_conclusion():
 def test_an_experiment_records_and_reports_the_triage(monkeypatch):
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "on")
+    # Legacy model-Hypothesize arm: #299 made deterministic Hypothesize the default.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     case = Case("bearing-6", SEED, "bearing_degradation")
     (record,) = run_experiment([case], triage_then_deep, name="triaged", triage=True)
     assert record.triage is not None

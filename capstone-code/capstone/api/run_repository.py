@@ -9,19 +9,53 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy import create_engine, func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session
 
-from capstone.api.run_models import SimJob, SimRun, SimRunEvent, SimRunReview
-from capstone.api.runs import RunRequest
+from capstone.api import runs as _run_contracts
+from capstone.api.run_models import (
+    SimJob,
+    SimRun,
+    SimRunArtifact,
+    SimRunEvent,
+    SimRunReview,
+    SimWorkerHeartbeat,
+)
+from capstone.api.runs import InvalidRunEnvironment, ReviewDecision, RunRequest
+
+# Where each host publishes the git commit of the running build, in the order
+# they are tried. The API runs on Render and the worker on Northflank, so both
+# sides must find the same commit from their own host's variable.
+SOURCE_REVISION_VARIABLES = (
+    "CAPSTONE_SOURCE_REVISION",  # Explicit operator override on any host.
+    "RENDER_GIT_COMMIT",  # Render web service (and any Render worker).
+    "NF_DEPLOYMENT_SHA",  # Northflank service runtime variable.
+)
+
+
+def source_revision() -> str | None:
+    """Git commit of this build from the first host variable that is set."""
+    # Variables:
+    #   name: One of SOURCE_REVISION_VARIABLES, tried in order so an explicit
+    #     CAPSTONE_SOURCE_REVISION always beats a host's own variable.
+    #   value: That variable's text, stripped; an empty value counts as unset so
+    #     a blank override cannot hide the host's real commit.
+    for name in SOURCE_REVISION_VARIABLES:
+        value = (os.getenv(name) or "").strip()
+        if value:
+            return value
+    return None
+
 
 _IDEMPOTENCY = re.compile(r"[A-Za-z0-9_-]{16,96}\Z")
 _ACTOR = re.compile(r"[A-Za-z0-9_.:-]{1,128}\Z")
@@ -90,6 +124,8 @@ class JobClaim:
     lease_token: uuid.UUID
     request: RunRequest
     effective_config: RunExecutionConfig
+    queue_wait_ms: int = 0
+    attempt: int = 1
 
 
 class LostLease(RuntimeError):
@@ -105,7 +141,65 @@ class RunExecutionConfig(BaseModel):
     triage_investigate: Literal["off", "advisory", "on", "deterministic"] = "advisory"
     triage_hypothesize: Literal["model", "deterministic"] = "model"
     triage_evidence_tests: bool = True
+    # #301 owns the one-switch control plane. Record its *resolved* values
+    # when available, never duplicate its Graph routing or raw setting logic.
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
+    triage_packet: bool | None = None
+    triage_packet_prompt: bool | None = None
+    triage_observe_calls: Literal["shared", "separate"] | None = None
+    triage_hypothesis_seconds: float | None = Field(
+        default=None, ge=0, allow_inf_nan=False
+    )
+    triage_critic: bool | None = None
+    triage_critic_followup: bool | None = None
+    triage_critic_reinstate: bool | None = None
     source_revision: str | None = Field(default=None, pattern=r"^[a-f0-9]{7,40}$")
+
+    @classmethod
+    def current(cls) -> "RunExecutionConfig":
+        """Resolve once identically in web and worker, including the build SHA."""
+        # Variables:
+        #   settings: This process's triage settings; the web service and the
+        #     worker must resolve identical values or the worker refuses the run.
+        #   effective: The one-switch triage profile from #301, preferred over
+        #     the raw settings when present.
+        #   revision: The build's git commit from source_revision(), Render's on
+        #     the web side and Northflank's on the worker side.
+        from capstone.settings import get_settings
+
+        try:
+            # Settings() itself validates TRIAGE_* values, so it belongs inside
+            # the try as well: a bad value there is the same server fault.
+            settings = get_settings()
+            revision = source_revision()
+            effective = getattr(settings, "effective_triage", None)
+            if effective is not None:
+                return cls(
+                    triage_run_mode=effective.run_mode,
+                    triage_plan=effective.plan,
+                    triage_investigate=effective.investigate,
+                    triage_hypothesize=effective.hypothesize,
+                    triage_evidence_tests=effective.evidence_tests,
+                    triage_packet=effective.packet,
+                    triage_packet_prompt=effective.packet_prompt,
+                    triage_observe_calls=effective.observe_calls,
+                    triage_hypothesis_seconds=effective.hypothesis_seconds,
+                    triage_critic=effective.critic,
+                    triage_critic_followup=effective.critic_followup,
+                    triage_critic_reinstate=effective.critic_reinstate,
+                    source_revision=revision,
+                )
+            return cls(
+                triage_plan=settings.triage_plan,
+                triage_investigate=settings.triage_investigate,
+                triage_hypothesize=settings.triage_hypothesize,
+                triage_evidence_tests=settings.triage_evidence_tests,
+                source_revision=revision,
+            )
+        except ValidationError:
+            # The pydantic message would echo the bad value; keep it out of
+            # logs and HTTP responses and name the variables to check instead.
+            raise InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE) from None
 
     @model_validator(mode="after")
     def validate_strategy(self) -> "RunExecutionConfig":
@@ -121,6 +215,175 @@ class RunExecutionConfig(BaseModel):
                 "Deterministic hypothesize requires fixed deterministic triage"
             )
         return self
+
+
+class SafeRequirementProgress(BaseModel):
+    """Exact safe requirement identity and disposition; no evidence payload."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    requirement_id: str = Field(
+        pattern=r"^Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})$"
+    )
+    status: Literal[
+        "pending",
+        "satisfied",
+        "partial",
+        "insufficient",
+        "stale",
+        "unavailable",
+        "unsupported",
+        "failed",
+    ]
+    evidence_count: int = Field(ge=0, le=100_000)
+
+
+class StagePayload(BaseModel):
+    """Source-matched safe progress for #294, with legacy fields optional."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+    investigation_id: str = Field(
+        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    )
+    mode: Literal["triage", "deep"]
+    stage: (
+        Literal[
+            "observe",
+            "manual",
+            "plan",
+            "investigate",
+            "hypothesize",
+            "test",
+            "critique",
+            "recheck",
+            "conclude",
+            "decide",
+            "propose",
+            "execute",
+            "verify",
+        ]
+        | None
+    ) = None
+    iteration_count: int = Field(ge=0, le=100_000)
+    tool_calls: int = Field(ge=0, le=100_000)
+    evidence_count: int = Field(ge=0, le=100_000)
+    hypothesis_count: int = Field(ge=0, le=100_000)
+    unresolved_question_ids: list[str] = Field(max_length=25)
+    unresolved_question_count: int = Field(default=0, ge=0)
+    termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
+    conclusion_available: bool
+
+    # The following are only Graph-derived counts and booleans. Raw tool
+    # responses, provider content and simulator ground truth are excluded.
+    answered_question_count: int = Field(default=0, ge=0)
+    decision_count: int = Field(default=0, ge=0)
+    remaining_iterations: int = Field(default=0, ge=0)
+    remaining_tool_calls: int = Field(default=0, ge=0)
+    repeated_calls: int = Field(default=0, ge=0)
+    failed_tool_calls: int = Field(default=0, ge=0)
+    malformed_results: int = Field(default=0, ge=0)
+    interpretation_failures: int = Field(default=0, ge=0)
+    unproductive_steps: int = Field(default=0, ge=0)
+    followup_tool_calls: int = Field(default=0, ge=0)
+    screening_tool_calls: int = Field(default=0, ge=0)
+    observe_tool_calls: int = Field(default=0, ge=0)
+    last_observed_tick: int | None = Field(default=None, ge=0)
+    observation_cutoff_tick: int | None = Field(default=None, ge=0)
+    clock_verified: bool | None = None
+    triage_requirement_total: int = Field(default=0, ge=0)
+    triage_requirement_satisfied: int = Field(default=0, ge=0)
+    triage_requirement_open: int = Field(default=0, ge=0)
+    triage_question_gaps: int = Field(default=0, ge=0)
+    triage_evidence_accepted: int = Field(default=0, ge=0)
+    triage_evidence_rejected: int = Field(default=0, ge=0)
+    triage_decide_reads: int = Field(default=0, ge=0)
+    triage_decide_stops: int = Field(default=0, ge=0)
+    triage_candidates: int = Field(default=0, ge=0)
+    triage_test_requirements: int = Field(default=0, ge=0)
+    triage_trace_events: int = Field(default=0, ge=0)
+    triage_logging_failures: int = Field(default=0, ge=0)
+    deep_recommended: bool | None = None
+    packet_roster_verified: bool | None = None
+    packet_roster_size: int = Field(default=0, ge=0)
+    packet_screened_machines: int = Field(default=0, ge=0)
+    packet_missing_machines: int = Field(default=0, ge=0)
+    packet_calls_mandatory: int = Field(default=0, ge=0)
+    packet_calls_optional: int = Field(default=0, ge=0)
+    packet_calls_qualified: int = Field(default=0, ge=0)
+    packet_calls_unavailable: int = Field(default=0, ge=0)
+    packet_items_qualified: int = Field(default=0, ge=0)
+    packet_items_missing: int = Field(default=0, ge=0)
+    triage_test_records: int = Field(default=0, ge=0)
+    requirement_statuses: list[SafeRequirementProgress] = Field(
+        default_factory=list, max_length=32
+    )
+    requirement_statuses_truncated: bool = False
+
+    @model_validator(mode="after")
+    def check_ids(self) -> "StagePayload":
+        if any(
+            not re.fullmatch(r"[A-Za-z0-9_.:-]{1,80}", item)
+            for item in self.unresolved_question_ids
+        ):
+            raise ValueError("Unapproved question identifier")
+        return self
+
+
+# Reuse #294's already-reviewed typed stage contract when that PR is integrated.
+# #296 extends that same class for Decide events; never strip unknown fields,
+# silently accept raw state, or duplicate the nested Decide sanitizer here.
+
+if hasattr(_run_contracts, "SafeStageSnapshot"):
+    StagePayload = _run_contracts.SafeStageSnapshot
+
+
+def _safe_model_event(event_name: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """Validate via #297's source-owned Pydantic schemas, not a copy."""
+    from capstone.api.model_calls import (
+        SafeModelCall,
+        SafeModelConfiguration,
+        SafeModelSummary,
+    )
+
+    if event_name == "model.monitor":
+        if payload != {"schema_version": 1}:
+            raise ValueError("Invalid model monitor marker")
+        return {"schema_version": 1}
+    contracts = {
+        "model.call": SafeModelCall,
+        "model.config": SafeModelConfiguration,
+        "model.monitor.finished": SafeModelSummary,
+    }
+    contract = contracts.get(event_name)
+    if contract is None:
+        raise ValueError("Unapproved model telemetry event")
+    return contract.model_validate(payload).model_dump(mode="json")
+
+
+_MODEL_EVENTS = frozenset(
+    {
+        "model.monitor",
+        "model.call",
+        "model.config",
+        "model.monitor.finished",
+    }
+)
+
+
+# Durable event allowlist evolves with the exact typed safe contract.
+# No raw state/model dumps are accepted, even when the frontend expands.
+_EVENT_FIELDS["stage.updated"] = frozenset(StagePayload.model_fields)
+
+
+class ReviewProposal(BaseModel):
+    """Bounded, machine-facing proposal for the authorized reviewer."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    proposal_id: int = Field(ge=1)
+    machine_id: str = Field(min_length=1, max_length=80)
+    action: str = Field(min_length=1, max_length=160)
+    reason: str = Field(max_length=600)
+    predicted_effect: str = Field(max_length=600)
+    note: str = Field(default="", max_length=200)
 
 
 class RunRepository:
@@ -140,6 +403,10 @@ class RunRepository:
             raise ValueError("Hosted run repository requires PostgreSQL TLS")
         if engine is None:
             connect_args = {"connect_timeout": 10}
+            # Transaction poolers such as Supabase :6543 do not support
+            # Psycopg's automatic named prepared statements.
+            if url.port == 6543:
+                connect_args["prepare_threshold"] = None
             if "sslmode" not in url.query:
                 connect_args["sslmode"] = "require"
             self.engine = create_engine(
@@ -173,10 +440,25 @@ class RunRepository:
                            to_regclass('capstone_private.sim_jobs'),
                            to_regclass('capstone_private.sim_run_events'),
                            to_regclass('capstone_private.sim_run_reviews'),
-                           to_regclass('capstone_private.sim_run_artifacts')
+                           to_regclass('capstone_private.sim_run_artifacts'),
+                           to_regclass('capstone_private.sim_worker_heartbeats')
                 """)
             ).one()
-        return all(table is not None for table in tables)
+        if not all(table is not None for table in tables):
+            return False
+        with self.engine.connect() as connection:
+            from sqlalchemy import text
+
+            return bool(
+                connection.execute(
+                    text(
+                        "SELECT 1 FROM information_schema.columns "
+                        "WHERE table_schema='capstone_private' "
+                        "AND table_name='sim_run_artifacts' "
+                        "AND column_name='content'"
+                    )
+                ).scalar_one_or_none()
+            )
 
     @staticmethod
     def _view(run: SimRun) -> dict[str, Any]:
@@ -199,11 +481,17 @@ class RunRepository:
         #   session: The caller's open transaction, shared with its state change.
         #   run: Locked parent row that serializes event cursor allocation.
         #   seq: Next per-run cursor; row locking makes this allocation serial.
-        if not _EVENT.fullmatch(event_name) or event_name not in _EVENT_FIELDS:
+        if not _EVENT.fullmatch(event_name):
             raise ValueError("Invalid event name")
-        if not payload.keys() <= _EVENT_FIELDS[event_name]:
-            raise ValueError("Run event contains unapproved fields")
-        if len(json.dumps(payload, separators=(",", ":")).encode("utf-8")) > 16_384:
+        if event_name in _MODEL_EVENTS:
+            payload = _safe_model_event(event_name, payload)
+        elif (
+            event_name not in _EVENT_FIELDS
+            or not payload.keys() <= _EVENT_FIELDS[event_name]
+        ):
+            raise ValueError("Invalid event: unapproved fields")
+        size_limit = 48_000 if event_name == "model.call" else 16_384
+        if len(json.dumps(payload, separators=(",", ":")).encode("utf-8")) > size_limit:
             raise ValueError("Run event exceeds safe size limit")
         seq = session.scalar(
             select(func.coalesce(func.max(SimRunEvent.seq), 0) + 1).where(
@@ -328,7 +616,7 @@ class RunRepository:
     def events_since(
         self, run_id: str, seq: int, *, actor_id: str | None = None, limit: int = 100
     ) -> list[dict[str, Any]]:
-        """Replay ordered safe events after the client's last cursor."""
+        """Replay operator-safe events only; private model.* has its own endpoint."""
         # Variables:
         #   seq: Last event the client observed; replay begins after it.
         #   actor_id: Optional owner filter; hosted API callers must supply it.
@@ -338,7 +626,11 @@ class RunRepository:
         with Session(self.engine) as session:
             events = session.scalars(
                 select(SimRunEvent)
-                .where(SimRunEvent.run_id == parsed, SimRunEvent.seq > seq)
+                .where(
+                    SimRunEvent.run_id == parsed,
+                    SimRunEvent.seq > seq,
+                    SimRunEvent.event_name.notin_(_MODEL_EVENTS),
+                )
                 .order_by(SimRunEvent.seq)
                 .limit(min(max(limit, 1), 100))
             )
@@ -347,8 +639,14 @@ class RunRepository:
                 for item in events
             ]
 
-    def claim(self, owner: str, *, lease_seconds: int = 60) -> JobClaim | None:
-        """Claim one queued job without blocking another worker's claim."""
+    def claim(
+        self,
+        owner: str,
+        *,
+        lease_seconds: int = 60,
+        expected_config: RunExecutionConfig | None = None,
+    ) -> JobClaim | None:
+        """Claim only an execution-compatible job, without consuming mismatches."""
         # Variables:
         #   owner: Stable identity of this worker process for lease checks.
         #   lease_seconds: Bounded interval before an abandoned claim expires.
@@ -358,11 +656,20 @@ class RunRepository:
             raise ValueError("Invalid worker identity or lease duration")
         now = datetime.now(timezone.utc)
         with Session(self.engine) as session, session.begin():
-            job = session.scalar(
+            query = (
                 select(SimJob)
+                .join(SimRun, SimRun.run_id == SimJob.run_id)
                 .where(SimJob.status == "queued")
-                .order_by(SimJob.priority.desc(), SimJob.enqueued_at, SimJob.job_id)
-                .with_for_update(skip_locked=True)
+            )
+            if expected_config is not None:
+                query = query.where(
+                    SimRun.effective_config == expected_config.model_dump(mode="json")
+                )
+            job = session.scalar(
+                query.order_by(
+                    SimJob.priority.desc(), SimJob.enqueued_at, SimJob.job_id
+                )
+                .with_for_update(skip_locked=True, of=SimJob)
                 .limit(1)
             )
             if job is None:
@@ -390,6 +697,8 @@ class RunRepository:
                 token,
                 RunRequest.model_validate(run.request),
                 RunExecutionConfig.model_validate(run.effective_config),
+                max(0, int((now - job.enqueued_at).total_seconds() * 1000)),
+                job.attempt,
             )
 
     def heartbeat(
@@ -424,8 +733,11 @@ class RunRepository:
         state: str,
         event_name: str,
         snapshot: dict[str, Any],
+        *,
+        final_progress: dict[str, Any] | None = None,
+        final_phases: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        """Commit a fenced state and event in the same short transaction."""
+        """Commit terminal progress and status atomically under the claim fence."""
         # Variables:
         #   claim: Token issued at claim time; a stale worker cannot publish.
         #   owner: Worker identity checked together with the fencing token.
@@ -450,8 +762,31 @@ class RunRepository:
             )
             if run is None or state not in _TRANSITIONS.get(run.state, ()):
                 raise ValueError("Invalid run state transition")
+            # Retain the live phase counters on completion and failure.
+            # The public event payload remains the original allowlisted snapshot.
+            previous_progress = (run.snapshot or {}).get("progress")
+            progress = dict(previous_progress or {})
+            if final_progress is not None or final_phases:
+                if state not in _TERMINAL:
+                    raise ValueError("Final stage requires a terminal transition")
+                # Both phases are independently derived from the episode's
+                # returned states, never from lossy async stage watchers.
+                candidates = list((final_phases or {}).values())
+                if final_progress is not None:
+                    candidates.append(final_progress)
+                for candidate in candidates:
+                    final = StagePayload.model_validate(candidate).model_dump(
+                        mode="json"
+                    )
+                    progress[final["mode"]] = final
+                    progress["latest"] = final["mode"]
+                    # Atomically journal stage(s) before terminal replay.
+                    self._append(session, run, "stage.updated", final)
             run.state = state
-            run.snapshot = snapshot
+            run.snapshot = {
+                **snapshot,
+                **({"progress": progress} if state in _TERMINAL and progress else {}),
+            }
             run.version += 1
             run.updated_at = now
             if state in _TERMINAL:
@@ -463,6 +798,499 @@ class RunRepository:
                 job.lease_until = None
             self._append(session, run, event_name, snapshot)
             return self._view(run)
+
+    @staticmethod
+    def _fenced_job(session: Session, claim: JobClaim, owner: str) -> SimJob:
+        """Validate the committed lease before every worker-owned mutation."""
+        # Variables:
+        #   claim: Immutable job and fencing token from the atomic queue claim.
+        #   owner: Expected process identity; the same owner heartbeats the lease.
+        job = session.scalar(
+            select(SimJob).where(SimJob.job_id == claim.job_id).with_for_update()
+        )
+        if (
+            job is None
+            or job.run_id != claim.run_id
+            or job.status != "claimed"
+            or job.lease_owner != owner
+            or job.lease_token != claim.lease_token
+            or job.lease_until is None
+            or job.lease_until <= datetime.now(timezone.utc)
+        ):
+            raise LostLease("Worker lease is no longer current")
+        return job
+
+    def publish_progress(
+        self, claim: JobClaim, owner: str, progress: dict[str, Any]
+    ) -> None:
+        """Commit a typed phase update and replay event with the active lease."""
+        # Variables:
+        #   safe: The only graph-derived payload allowed into the public journal.
+        #   phase_progress: Previous other-phase progress, preserved during updates.
+        safe = StagePayload.model_validate(progress).model_dump(
+            mode="json", exclude_unset=True
+        )
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state not in {"running", "awaiting_review"}:
+                raise LostLease("Run cannot receive progress")
+            phase_progress = dict(run.snapshot.get("progress") or {})
+            phase_progress[safe["mode"]] = safe
+            phase_progress["latest"] = safe["mode"]
+            run.snapshot = {**run.snapshot, "progress": phase_progress}
+            run.version += 1
+            run.updated_at = datetime.now(timezone.utc)
+            self._append(session, run, "stage.updated", safe)
+
+    def queue_metrics(self) -> dict[str, Any]:
+        """Non-identifying backlog and lease diagnostics for authenticated system UI."""
+        # Variables:
+        #   now: Database snapshots use wall time; no simulated timestamps.
+        #   oldest: Oldest queued job, which is not proof of worker liveness.
+        #   recent: Latest previously recorded worker heartbeat, possibly stale.
+        #   required_revision: This web service's build commit; a live worker
+        #     counts as ready only if its heartbeat reports the same commit.
+        #   compatible: Count of fresh heartbeats on that commit, which decides
+        #     "healthy" versus "revision_mismatch".
+        now = datetime.now(timezone.utc)
+        with Session(self.engine) as session:
+            queued = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimJob)
+                    .where(SimJob.status == "queued")
+                )
+                or 0
+            )
+            active = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimJob)
+                    .where(
+                        SimJob.status == "claimed",
+                        SimJob.lease_until > now,
+                    )
+                )
+                or 0
+            )
+            stale = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimJob)
+                    .where(
+                        SimJob.status == "claimed",
+                        SimJob.lease_until <= now,
+                    )
+                )
+                or 0
+            )
+            oldest = session.scalar(
+                select(func.min(SimJob.enqueued_at)).where(SimJob.status == "queued")
+            )
+            recent = session.scalar(select(func.max(SimJob.heartbeat_at)))
+            fresh_after = now - timedelta(seconds=45)
+            alive = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimWorkerHeartbeat)
+                    .where(SimWorkerHeartbeat.last_seen_at >= fresh_after)
+                )
+                or 0
+            )
+            # A live worker on a different commit (the Northflank worker
+            # behind the Render web service) cannot execute this web
+            # service's jobs. Do not report it as ready.
+            required_revision = source_revision()
+            compatible = alive
+            if required_revision is not None:
+                compatible = (
+                    session.scalar(
+                        select(func.count())
+                        .select_from(SimWorkerHeartbeat)
+                        .where(
+                            SimWorkerHeartbeat.last_seen_at >= fresh_after,
+                            SimWorkerHeartbeat.source_revision == required_revision,
+                        )
+                    )
+                    or 0
+                )
+            last_pulse = session.scalar(
+                select(func.max(SimWorkerHeartbeat.last_seen_at))
+            )
+
+        def elapsed(when: datetime | None) -> int | None:
+            if when is None:
+                return None
+            return min(86_400_000, max(0, int((now - when).total_seconds())))
+
+        return {
+            "queued": int(queued),
+            "active_claims": int(active),
+            "stale_claims": int(stale),
+            "oldest_queued_seconds": elapsed(oldest),
+            "last_heartbeat_age_seconds": elapsed(recent),
+            # No durable idle-worker heartbeat table: never imply presence
+            # when the queue is empty and there is no active claim.
+            "worker_liveness": (
+                "healthy"
+                if compatible
+                else ("revision_mismatch" if alive else "unverified")
+            ),
+            "healthy_workers": min(int(compatible), 100),
+            "last_worker_pulse_age_seconds": elapsed(last_pulse),
+        }
+
+    def publish_model_event(
+        self,
+        claim: JobClaim,
+        owner: str,
+        event_name: str,
+        payload: dict[str, Any],
+    ) -> None:
+        """Fenced, content-free model-call telemetry. Never mutate run snapshot."""
+        if event_name not in _MODEL_EVENTS:
+            raise ValueError("Unapproved model event")
+        safe = _safe_model_event(event_name, payload)
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state not in {"running", "awaiting_review"}:
+                raise LostLease("Cannot record model calls on an inactive run")
+            self._append(session, run, event_name, safe)
+
+    def model_events(
+        self,
+        run_id: str,
+        event_name: str,
+        *,
+        actor_id: str,
+        limit: int = 201,
+    ) -> list[dict[str, Any]]:
+        """Actor-scoped, bounded newest-first events; projection revalidates reads."""
+        if event_name not in _MODEL_EVENTS:
+            raise ValueError("Unapproved model event")
+        try:
+            ident = uuid.UUID(run_id)
+        except ValueError:
+            return []
+        with Session(self.engine) as session:
+            rows = session.scalars(
+                select(SimRunEvent)
+                .join(SimRun, SimRun.run_id == SimRunEvent.run_id)
+                .where(
+                    SimRunEvent.run_id == ident,
+                    SimRunEvent.event_name == event_name,
+                    SimRun.actor_id == actor_id,
+                )
+                .order_by(SimRunEvent.seq.desc())
+                .limit(min(max(limit, 1), 201))
+            ).all()
+        return [{"seq": row.seq, "data": row.payload} for row in rows]
+
+    def worker_heartbeat(
+        self,
+        worker_id: str,
+        *,
+        source_revision: str | None,
+        status: str,
+    ) -> None:
+        """Durable idle/active worker pulse, independent of a claimed job."""
+        if not _OWNER.fullmatch(worker_id) or status not in {"idle", "running"}:
+            raise ValueError("Invalid worker heartbeat")
+        if source_revision is not None and not re.fullmatch(
+            r"[a-f0-9]{7,40}", source_revision
+        ):
+            raise ValueError("Invalid worker revision")
+        now = datetime.now(timezone.utc)
+        stmt = pg_insert(SimWorkerHeartbeat).values(
+            worker_id=worker_id,
+            source_revision=source_revision,
+            status=status,
+            last_seen_at=now,
+        )
+        stmt = stmt.on_conflict_do_update(
+            index_elements=[SimWorkerHeartbeat.worker_id],
+            set_={
+                "source_revision": source_revision,
+                "status": status,
+                "last_seen_at": now,
+            },
+        )
+        with Session(self.engine) as session, session.begin():
+            session.execute(stmt)
+
+    def publish_resync(self, claim: JobClaim, owner: str, dropped_count: int) -> None:
+        """Record lost UI messages without exception or provider text."""
+        # Variables:
+        #   dropped_count: Bounded number of failed live progress updates.
+        if type(dropped_count) is not int or not 1 <= dropped_count <= 1_000_000:
+            raise ValueError("Invalid dropped progress count")
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state != "running":
+                raise LostLease("Cannot mark resync on inactive run")
+            self._append(
+                session,
+                run,
+                "resync.required",
+                {"dropped_ui_updates": dropped_count, "mode": claim.request.mode},
+            )
+
+    def request_review(
+        self,
+        claim: JobClaim,
+        owner: str,
+        proposal: ReviewProposal,
+        *,
+        timeout_seconds: int = 240,
+    ) -> None:
+        """Persist exact proposal and review event before human polling starts."""
+        # Variables:
+        #   proposal: Typed reviewer-facing text, not the raw graph or model trace.
+        #   timeout_seconds: Absolute database-visible approval deadline.
+        if not 10 <= timeout_seconds <= 1800:
+            raise ValueError("Approval timeout out of range")
+        safe = proposal.model_dump(mode="json")
+        now = datetime.now(timezone.utc)
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state != "running":
+                raise ValueError("Run not available for review")
+            if session.get(SimRunReview, (claim.run_id, proposal.proposal_id)):
+                raise ValueError("Proposal review already exists")
+            session.add(
+                SimRunReview(
+                    run_id=claim.run_id,
+                    proposal_id=proposal.proposal_id,
+                    proposal=safe,
+                    status="pending",
+                    decision_actor=None,
+                    decision_at=None,
+                    deadline_at=now + timedelta(seconds=timeout_seconds),
+                    version=0,
+                )
+            )
+            run.state = "awaiting_review"
+            run.snapshot = {**run.snapshot, "status": "awaiting_review"}
+            run.version += 1
+            run.updated_at = now
+            self._append(session, run, "review.requested", safe)
+
+    def review_status(self, claim: JobClaim, owner: str, proposal_id: int) -> str:
+        """Read a durable verdict only while the original worker still owns work."""
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            row = session.get(SimRunReview, (claim.run_id, proposal_id))
+            if row is None:
+                raise LookupError("Proposal review missing")
+            if row.status == "pending" and row.deadline_at <= datetime.now(
+                timezone.utc
+            ):
+                # Polling never treats a late approval as permission to execute.
+                row.status = "expired"
+                row.version += 1
+            return row.status
+
+    def resume_review(self, claim: JobClaim, owner: str) -> None:
+        """Resume the graph without discarding the persisted phase snapshots."""
+        now = datetime.now(timezone.utc)
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state != "awaiting_review":
+                raise ValueError("Run is not awaiting review")
+            run.state = "running"
+            run.snapshot = {**run.snapshot, "status": "running"}
+            run.version += 1
+            run.updated_at = now
+            self._append(
+                session,
+                run,
+                "run.started",
+                {"status": "running", "mode": claim.request.mode},
+            )
+
+    def pending_reviews(
+        self, *, actor_id: str, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        """Return only still-pending proposals owned by the authorized actor."""
+        with Session(self.engine) as session:
+            items = session.execute(
+                select(SimRunReview, SimRun)
+                .join(SimRun, SimRun.run_id == SimRunReview.run_id)
+                .where(
+                    SimRun.actor_id == actor_id,
+                    SimRun.state == "awaiting_review",
+                    SimRunReview.status == "pending",
+                    SimRunReview.deadline_at > datetime.now(timezone.utc),
+                )
+                .order_by(SimRunReview.deadline_at)
+                .limit(min(max(limit, 1), 100))
+            ).all()
+            return [
+                {
+                    "run_id": str(run.run_id),
+                    **review.proposal,
+                    "status": "pending",
+                }
+                for review, run in items
+            ]
+
+    def decide_review(
+        self,
+        run_id: str,
+        decision: "ReviewDecision",
+        *,
+        actor_id: str,
+        reviewer_id: str,
+    ) -> dict[str, Any]:
+        """Commit a reviewer verdict once; duplicates or expired approvals fail."""
+        # Variables:
+        #   actor_id: Server-authorized owner; never browser-supplied.
+        #   reviewer_id: Safe, server-provided reviewer principal, not a credential.
+        if not _ACTOR.fullmatch(reviewer_id):
+            raise ValueError("Invalid reviewer identity")
+        try:
+            ident = uuid.UUID(run_id)
+        except ValueError:
+            raise LookupError("Run not found") from None
+        now = datetime.now(timezone.utc)
+        with Session(self.engine) as session, session.begin():
+            run = session.scalar(
+                select(SimRun)
+                .where(SimRun.run_id == ident, SimRun.actor_id == actor_id)
+                .with_for_update()
+            )
+            if run is None:
+                raise LookupError("Run not found")
+            review = session.scalar(
+                select(SimRunReview)
+                .where(
+                    SimRunReview.run_id == ident,
+                    SimRunReview.proposal_id == decision.proposal_id,
+                )
+                .with_for_update()
+            )
+            active_job = session.scalar(select(SimJob).where(SimJob.run_id == ident))
+            if (
+                review is None
+                or run.state != "awaiting_review"
+                or review.status != "pending"
+                or review.deadline_at <= now
+                or active_job is None
+                or active_job.status != "claimed"
+                or active_job.lease_until is None
+                or active_job.lease_until <= now
+            ):
+                raise ValueError("Review is no longer pending")
+            review.status = decision.decision
+            review.decision_actor = reviewer_id
+            review.decision_at = now
+            review.version += 1
+            # Reviewer note stays private. Never emit raw supplied text in SSE.
+            review.proposal = {
+                **review.proposal,
+                "note": decision.note,
+            }
+            self._append(
+                session,
+                run,
+                "review.decided",
+                {
+                    "proposal_id": decision.proposal_id,
+                    "decision": decision.decision,
+                    "status": "decided_not_executed",
+                    "mode": run.request["mode"],
+                },
+            )
+            run.version += 1
+            run.updated_at = now
+            return {
+                "run_id": run_id,
+                "proposal_id": decision.proposal_id,
+                "decision": decision.decision,
+            }
+
+    def store_artifacts(
+        self, claim: JobClaim, owner: str, artifacts: dict[str, bytes]
+    ) -> None:
+        """Store bounded private audits under the lease before declaring success."""
+        # Variables:
+        #   artifacts: Audit and operational JSONL bytes, never streamed to a browser.
+        #   digest: Content checksum for detecting corrupted private storage.
+        if set(artifacts) != {"audit", "observability"}:
+            raise ValueError("Both private artifacts are required")
+        for data in artifacts.values():
+            if not isinstance(data, bytes) or not 0 < len(data) <= 8_388_608:
+                raise ValueError("Private artifact is empty or exceeds 8 MiB")
+        with Session(self.engine) as session, session.begin():
+            self._fenced_job(session, claim, owner)
+            run = session.scalar(
+                select(SimRun).where(SimRun.run_id == claim.run_id).with_for_update()
+            )
+            if run is None or run.state != "running":
+                raise LostLease("Run cannot persist artifacts")
+            existing = session.scalars(
+                select(SimRunArtifact).where(SimRunArtifact.run_id == claim.run_id)
+            ).all()
+            if existing:
+                raise ValueError("Run artifacts already persisted")
+            for kind, data in artifacts.items():
+                session.add(
+                    SimRunArtifact(
+                        artifact_id=uuid.uuid4(),
+                        run_id=claim.run_id,
+                        kind=kind,
+                        storage_key=f"postgres-private/{claim.run_id}/{kind}",
+                        sha256=hashlib.sha256(data).hexdigest(),
+                        byte_count=len(data),
+                        visibility="private",
+                        retention_until=None,
+                        content=data,
+                    )
+                )
+
+    def read_artifact(
+        self,
+        run_id: str,
+        kind: Literal["audit", "observability"],
+        *,
+        actor_id: str,
+    ) -> bytes | None:
+        """Read a private blob for server-side safe projection only."""
+        try:
+            ident = uuid.UUID(run_id)
+        except ValueError:
+            return None
+        with Session(self.engine) as session:
+            row = session.scalar(
+                select(SimRunArtifact)
+                .join(SimRun, SimRun.run_id == SimRunArtifact.run_id)
+                .where(
+                    SimRunArtifact.run_id == ident,
+                    SimRunArtifact.kind == kind,
+                    SimRun.actor_id == actor_id,
+                )
+            )
+            if row is None or row.content is None:
+                return None
+            body = bytes(row.content)
+            if hashlib.sha256(body).hexdigest() != row.sha256:
+                raise RuntimeError("Private artifact checksum mismatch")
+            return body
 
     def recover_expired(self) -> list[str]:
         """Interrupt expired started jobs without replaying their episodes."""
@@ -486,9 +1314,11 @@ class RunRepository:
                 job.status = "interrupted"
                 job.lease_until = None
                 run.state = "interrupted"
+                earlier_progress = (run.snapshot or {}).get("progress")
                 run.snapshot = {
                     "status": "interrupted",
                     "reason": "worker_lease_expired",
+                    **({"progress": earlier_progress} if earlier_progress else {}),
                 }
                 run.version += 1
                 run.updated_at = now
@@ -502,6 +1332,13 @@ class RunRepository:
                 ):
                     review.status = "expired"
                     review.version += 1
-                self._append(session, run, "run.interrupted", run.snapshot)
+                # The terminal run snapshot retains prior safe progress, but
+                # the replay event keeps its original small allowlisted payload.
+                self._append(
+                    session,
+                    run,
+                    "run.interrupted",
+                    {"status": "interrupted", "reason": "worker_lease_expired"},
+                )
                 interrupted.append(str(run.run_id))
         return interrupted
