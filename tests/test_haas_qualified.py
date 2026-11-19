@@ -44,7 +44,8 @@ def test_unmapped_and_wrong_signal_type_are_refused():
             record("unknown", "SAMPLE", "Load", "1"),
             mapped,
             authorized_item_ids=frozenset({"unknown"}),
-        ).reason == "unmapped"
+        ).reason
+        == "unmapped"
     )
     assert check("12", sequence=0).reason == "invalid_sequence"
 

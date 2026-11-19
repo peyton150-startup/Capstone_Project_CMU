@@ -77,6 +77,13 @@ def qualify_numeric(
     The caller must first establish that the whole MTConnect reply was
     authorized to acquire; this function is NOT a network privacy filter.
     """
+    # Variables:
+    #   authorized_item_ids: The data items a person approved for analysis;
+    #     anything else is refused first, before any other check.
+    #   entry: The probe's description of this data item (type, units,
+    #     device); None means the probe never listed it.
+    #   value: The reading as a finite number; any other text is refused,
+    #     never guessed or treated as zero.
     if record.data_item_id not in authorized_item_ids:
         return Qualification(reason="not_authorized")
     entry = channel_map.entry_for(record)

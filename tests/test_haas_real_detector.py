@@ -45,7 +45,9 @@ def samples(value=20.0):
 
 
 def test_calibrated_running_deviation_is_a_score_not_a_diagnosis():
-    outcome = assess_calibrated_window(baseline(), samples(40), operating_state="running")
+    outcome = assess_calibrated_window(
+        baseline(), samples(40), operating_state="running"
+    )
     assert outcome.status == "scored"
     assert outcome.threshold_exceeded
     assert outcome.robust_score == 5
@@ -60,7 +62,9 @@ def test_normal_running_readings_do_not_trigger():
 
 def test_idle_and_unknown_states_are_unscorable():
     for state in ("not_running", "unknown"):
-        outcome = assess_calibrated_window(baseline(), samples(99), operating_state=state)
+        outcome = assess_calibrated_window(
+            baseline(), samples(99), operating_state=state
+        )
         assert outcome.status == "unscorable"
         assert not outcome.threshold_exceeded
 
@@ -75,9 +79,13 @@ def test_mixed_provenance_is_unscorable():
 def test_lost_order_and_missing_coverage_never_claim_deviation():
     rows = samples(99)
     rows[1] = rows[1].model_copy(update={"sequence": 1})
-    assert assess_calibrated_window(
-        baseline(), rows, operating_state="running"
-    ).reason == "out_of_order"
-    assert assess_calibrated_window(
-        baseline(), samples(99)[:2], operating_state="running"
-    ).reason == "too_few_samples"
+    assert (
+        assess_calibrated_window(baseline(), rows, operating_state="running").reason
+        == "out_of_order"
+    )
+    assert (
+        assess_calibrated_window(
+            baseline(), samples(99)[:2], operating_state="running"
+        ).reason
+        == "too_few_samples"
+    )

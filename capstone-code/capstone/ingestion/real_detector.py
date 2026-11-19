@@ -69,6 +69,16 @@ def assess_calibrated_window(
     operating_state: Literal["running", "not_running", "unknown"],
 ) -> DetectorWindow:
     """Score a chronological homogeneous window; abstain on any ambiguity."""
+    # Variables:
+    #   baseline: The approved fault-free reference for one signal: its
+    #     median, spread, threshold and the minimum window it needs.
+    #   operating_state: Whether the machine was running; only a running
+    #     machine is scored, because idle readings are not comparable.
+    #   count: How many samples the window holds, reported even when the
+    #     window cannot be scored.
+    #   span: Seconds between the first and last sample.
+    #   score: How many spreads the window's median sits from the baseline
+    #     median; at or above score_threshold flags an anomaly, not a cause.
     count = len(observations)
 
     def unscorable(reason: str) -> DetectorWindow:
@@ -81,7 +91,9 @@ def assess_calibrated_window(
 
     if operating_state != "running":
         return unscorable(
-            "not_running" if operating_state == "not_running" else "operating_state_unknown"
+            "not_running"
+            if operating_state == "not_running"
+            else "operating_state_unknown"
         )
     if count < baseline.min_samples:
         return unscorable("too_few_samples")
