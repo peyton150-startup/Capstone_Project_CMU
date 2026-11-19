@@ -22,3 +22,23 @@ test('styles include industrial layout and high-contrast light option', () => {
 test('operator navigation does not offer CNC control', () => {
   assert.doesNotMatch(source, /CNC write|Start machine|Acknowledge alarm/i);
 });
+
+test('mobile drawer reveals navigation labels after desktop collapse', () => {
+  const sidebar = source.slice(source.indexOf('function Sidebar'), source.indexOf('type WhoAmI'));
+  assert.match(sidebar, /const showLabels = expanded \|\| mobileOpen/);
+  assert.match(sidebar, /showLabels && <span>{item\.title}<\/span>/);
+  assert.match(sidebar, /showLabels && <div className="workspace-switch">/);
+});
+test('System cards use client-side links and selected backend labels', () => {
+  const engineering = readFileSync(new URL('../src/pages/engineering.tsx', import.meta.url), 'utf8');
+  for (const path of ['/system/observability', '/system/audit', '/system/settings']) {
+    assert.ok(engineering.includes('to="' + path + '"'), path);
+    assert.ok(!engineering.includes('href="' + path + '"'), path);
+  }
+  assert.match(engineering, /backend === "local" \? "LOCAL API" : "RENDER API"/);
+});
+test('form controls keep intrinsic checkbox sizing and reduced motion', () => {
+  assert.match(stylesheet, /input:not\(\[type='checkbox'\]\):not\(\[type='radio'\]\),select/);
+  assert.match(stylesheet, /input\[type='checkbox'\],input\[type='radio'\]/);
+  assert.match(stylesheet, /prefers-reduced-motion:reduce/);
+});
