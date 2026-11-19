@@ -38,13 +38,13 @@ from capstone.ingestion.mtconnect import (
     parse_streams,
     validate_streams_metadata,
 )
-from capstone.observability import EventLogger
 from capstone.ingestion.record import (
     CollectorMarker,
     GapDetail,
     Line,
     TelemetryRecord,
 )
+from capstone.observability import EventLogger
 
 # The fastest a collector may poll. Real machines are shared production
 # equipment; agree the actual rate with the shop before running.
@@ -312,6 +312,14 @@ def run_collector(
     #     successful poll writes a heartbeat. A failed poll never does, so an
     #     unreachable agent shows up as silence.
     #   last_write: When the collector last wrote any line, on its own clock.
+    #   enforce_poll_interval: True on the approved Haas path: always wait
+    #     interval between requests, even while a backlog is waiting, so the
+    #     shop-approved request rate is never exceeded.
+    #   safe_errors: True on the Haas path: a failed poll is reported by its
+    #     exception type only, because the message may hold a shop address.
+    #   event_logger: Optional structured trace; each poll logs success,
+    #     record/gap counts or the exception type, and its duration.
+    #   polled_at: When the current poll started, for that duration.
     if interval < MIN_INTERVAL_SECONDS:
         raise ValueError(f"interval must be at least {MIN_INTERVAL_SECONDS} s")
     written = 0

@@ -28,6 +28,14 @@ class _DenyRedirects(HTTPRedirectHandler):
 
 def validate_haas_get(profile: HaasConnectionProfile, url: str) -> str:
     """Allow exactly the approved probe/current/sample URLs and bounded query."""
+    # Variables:
+    #   parsed: The requested URL split into scheme, host, path and query.
+    #   expected: The profile's fixed base URL, the only host and path prefix
+    #     a request may use.
+    #   endpoint: Which MTConnect call this is (probe, current or sample);
+    #     only sample may carry a query.
+    #   pairs: The sample query's key/value pairs; exactly from and count,
+    #     both digits, count 1 to 1000.
     parsed = urlsplit(url)
     expected = urlsplit(profile.base_url)
     if (
@@ -36,7 +44,8 @@ def validate_haas_get(profile: HaasConnectionProfile, url: str) -> str:
         or parsed.username is not None
         or parsed.password is not None
         or parsed.fragment
-        or parsed.path not in {
+        or parsed.path
+        not in {
             expected.path + "/probe",
             expected.path + "/current",
             expected.path + "/sample",
@@ -70,6 +79,12 @@ def haas_get(profile: HaasConnectionProfile, url: str) -> str:
     The operator must have already verified machine/agent identity and
     permission; this function does not independently prove controller consent.
     """
+    # Variables:
+    #   opener: A urllib opener with proxies disabled and redirects refused,
+    #     so the request can only reach the approved address.
+    #   body: The response, read at most MAX_RESPONSE_BYTES + 1 bytes so an
+    #     oversized reply is detected without reading it all; an HTTP error
+    #     body is returned only when it is a small MTConnectError document.
     validate_haas_get(profile, url)
     opener = build_opener(ProxyHandler({}), _DenyRedirects())
     request = Request(

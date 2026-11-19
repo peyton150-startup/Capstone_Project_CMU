@@ -69,6 +69,11 @@ def validate_streams_metadata(document: StreamsDocument) -> None:
     /current may contain older unchanged data-item states, so this check does
     not incorrectly require every current record to be >= firstSequence.
     """
+    # Variables:
+    #   document: One parsed /current or /sample reply; its header sequence
+    #     numbers (first, last, next) must be consistent with each other.
+    #   numbers: The observations' sequence numbers, each within 1..last and
+    #     never repeated.
     if not document.instance_id:
         raise ValueError("MTConnect instanceId is missing")
     if (
@@ -78,10 +83,9 @@ def validate_streams_metadata(document: StreamsDocument) -> None:
     ):
         raise ValueError("MTConnect sequence header is inconsistent")
     numbers = [record.sequence for record in document.records]
-    if (
-        any(number < 1 or number > document.last_sequence for number in numbers)
-        or len(numbers) != len(set(numbers))
-    ):
+    if any(number < 1 or number > document.last_sequence for number in numbers) or len(
+        numbers
+    ) != len(set(numbers)):
         raise ValueError("MTConnect observations contain duplicate or invalid sequence")
 
 

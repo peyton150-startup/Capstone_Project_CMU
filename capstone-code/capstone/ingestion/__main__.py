@@ -41,7 +41,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m capstone.ingestion")
     parser.add_argument("--url", help="legacy MTConnect agent base URL")
     parser.add_argument(
-        "--haas-profile", type=Path,
+        "--haas-profile",
+        type=Path,
         help="private Pydantic-validated Haas NGC endpoint/authorization profile",
     )
     parser.add_argument("--device", help="only this device on a multi-device agent")

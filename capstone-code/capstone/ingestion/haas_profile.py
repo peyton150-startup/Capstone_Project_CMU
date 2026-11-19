@@ -71,8 +71,13 @@ class HaasConnectionProfile(BaseModel):
 
     @model_validator(mode="after")
     def require_full_reply_permission(self) -> "HaasConnectionProfile":
-        if self.acquisition_scope == "full_agent_stream" and not self.full_stream_approved:
-            raise ValueError("full MTConnect replies require explicit full-stream approval")
+        if (
+            self.acquisition_scope == "full_agent_stream"
+            and not self.full_stream_approved
+        ):
+            raise ValueError(
+                "full MTConnect replies require explicit full-stream approval"
+            )
         return self
 
     @property
@@ -102,6 +107,11 @@ def verify_haas_probe(profile: HaasConnectionProfile, xml: str) -> HaasProbeChec
     This is a read-only capability check, not a license for acquiring a
     larger unapproved response or running a model against private data.
     """
+    # Variables:
+    #   entries: Every data item the probe lists, with its device name/UUID.
+    #   actual: The distinct (device name, UUID) pairs in the probe; there
+    #     must be exactly one, and it must match profile.machine_identity.
+    #   ids: The data item IDs, which must all be present and unique.
     from capstone.ingestion.channel_map import parse_probe, probe_hash
 
     entries = parse_probe(xml)
