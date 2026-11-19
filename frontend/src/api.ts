@@ -3,6 +3,20 @@ import type { ApiResource } from './types';
 import { resolveApiUrl } from './backend.mjs';
 import type { ApiBackend } from './backend.mjs';
 import { useUi } from './context';
+import { ROLE_DENIED_MESSAGES } from './access.mjs';
+
+// A 403 that names a missing role token; null for any other detail, which is
+// never shown because it could carry server data.
+async function roleDenied(response: Response): Promise<string | null> {
+  // Variables:
+  //   detail: The server's 403 reason; shown only if it is one of the fixed
+  //     ROLE_DENIED_MESSAGES.
+  const payload: unknown = await response.json().catch(() => null);
+  const detail = payload && typeof payload === 'object' && 'detail' in payload ?
+    (payload as {detail?: unknown}).detail : null;
+  return typeof detail === 'string' && ROLE_DENIED_MESSAGES.includes(detail) ?
+    detail + '. Add it in Access (top right).' : null;
+}
 
 export async function getJson<T>(path: string, token: string, backend: ApiBackend, signal?: AbortSignal): Promise<T> {
   const response = await fetch(resolveApiUrl(path, backend, window.location.hostname), {
@@ -11,7 +25,8 @@ export async function getJson<T>(path: string, token: string, backend: ApiBacken
   });
   if (!response.ok) {
     if (response.status === 401) throw new Error('Session token required for the selected API. Open Access in the toolbar.');
-    if (response.status === 403) throw new Error('This source is not authorized for the selected workspace.');
+    if (response.status === 403)
+      throw new Error(await roleDenied(response) || 'This source is not authorized for the selected workspace.');
     throw new Error('API request failed (' + response.status + ').');
   }
   if (!response.headers.get('content-type')?.includes('application/json'))
@@ -30,7 +45,9 @@ export async function postJson<T>(path: string, token: string, body: unknown, ba
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    if (response.status === 403) throw new Error('This role or workspace is not authorized.');
+    if (response.status === 401) throw new Error('Session token required for the selected API. Open Access in the toolbar.');
+    if (response.status === 403)
+      throw new Error(await roleDenied(response) || 'This role or workspace is not authorized.');
     if (response.status === 409) {
       // Only fixed, reviewed server conflict messages are displayed. Never
       // forward arbitrary exception detail, which may contain provider data.

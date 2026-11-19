@@ -147,6 +147,10 @@ class EpisodeResult:
     # itself when no deep run followed. None: triage was off.
     triage: InvestigationState | None = None
     triage_seconds: float | None = None
+    # Whether this triage ran with the evidence-test rules, from the profile it
+    # actually used (a run's own triage settings, else the server's). None:
+    # triage was off, or the result was built without run_episode.
+    triage_evidence_tests: bool | None = None
 
     @property
     def conclusion(self) -> str | None:
@@ -307,6 +311,9 @@ def run_episode(
     #   triage: Run a rapid triage first; None reads TRIAGE from settings.
     #   triage_configuration: Immutable, validated per-run Graph settings.
     #     None uses the server Settings profile as before; never applies to deep.
+    #   triage_evidence_tests: The evidence-test switch of the profile the
+    #     triage used, kept on the result so the saved record shows this run's
+    #     value rather than the server's setting at write time.
     #   stage_context: True or False forces the stage views on or off for this
     #     episode; None reads STAGE_CONTEXT from settings.
     #   event_logger: Optional JSON-line trace (`capstone.observability`); the
@@ -466,7 +473,14 @@ def run_episode(
             f"(research has {research:g} s)"
         )
     triage_state, triage_seconds = None, None
+    triage_evidence_tests = None
     if selecting_triage:
+        # The same choice run_triage_then_deep makes for its profile.
+        triage_evidence_tests = (
+            settings.effective_triage
+            if triage_configuration is None
+            else triage_configuration.profile
+        ).evidence_tests
         triage_state, state, triage_seconds, critic = run_triage_then_deep(
             state,
             deps,
@@ -507,6 +521,7 @@ def run_episode(
         () if critic is None else tuple(critic.calls),
         triage_state,
         triage_seconds,
+        triage_evidence_tests=triage_evidence_tests,
     )
 
 

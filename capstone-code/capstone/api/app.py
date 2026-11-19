@@ -18,7 +18,9 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
 
+from capstone.api.access import roles_for
 from capstone.api.config import UiConfig
 from capstone.api.readers import (
     mtconnect_snapshot,
@@ -40,10 +42,19 @@ from capstone.api.runs import (
     StaleRunConfiguration,
     public_run_configuration,
 )
-from capstone.settings import get_settings
-from capstone.triage_run_controls import resolve_triage_run
+from capstone.settings import Settings, get_settings
+from capstone.triage_run_controls import EffectiveTriageRun, resolve_triage_run
 
 Workspace = Literal["simulator", "pilot"]
+
+# Fixed 403 messages, each naming the token the action needs. The browser shows
+# only these exact strings, so no other server detail reaches the page.
+ROLE_DENIED = {
+    "operator": "Starting a run needs the operator token (CAPSTONE_UI_RUN_TOKEN)",
+    "reviewer": "Review decisions need the reviewer token (CAPSTONE_UI_REVIEW_TOKEN)",
+    "evaluator": "Evaluation records need the evaluator token "
+    "(CAPSTONE_UI_EVALUATOR_TOKEN)",
+}
 
 # Deliberate allowlist: nothing from the process environment is serialized by default.
 PUBLIC_SETTING_FIELDS = {
@@ -80,6 +91,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     # Variables:
     #   cfg: Immutable, validated server-side path and authentication authority.
     #   authorize: Bearer-token boundary for configured private data.
+    #   require_role: Operator/reviewer check whose error names the token needed.
     cfg = config if config is not None else UiConfig.from_env()
     runner = None
     if cfg.runs_enabled:
@@ -140,9 +152,30 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             for key in (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token)
             if key
         ):
-            raise HTTPException(status_code=401, detail="Local session token required")
+            raise HTTPException(status_code=401, detail="Session token required")
 
     Access = Depends(authorize)
+
+    def server_settings() -> Settings:
+        """This host's validated settings, or a 503 naming a server fault."""
+        # A malformed TRIAGE_* value fails Settings() validation. That is the
+        # server's fault, not the caller's request, so every endpoint answers
+        # with the same 503 the run submission uses, never a 500 or a 422.
+        try:
+            return get_settings()
+        except ValidationError:
+            raise HTTPException(
+                status_code=503, detail="Server run configuration is invalid"
+            ) from None
+
+    def server_default_triage(settings: Settings) -> EffectiveTriageRun:
+        """The server's default triage profile, or the same 503 if it is invalid."""
+        try:
+            return resolve_triage_run(settings)
+        except ValueError:
+            raise HTTPException(
+                status_code=503, detail="Server run configuration is invalid"
+            ) from None
 
     def require_role(
         authorization: str | None, role: Literal["operator", "reviewer"]
@@ -151,10 +184,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=403, detail="Managed simulator execution is not configured"
             )
+        # Variables:
+        #   expected: The one token this action accepts; the viewer token and
+        #     the other role's token are refused.
         provided = (authorization or "").removeprefix("Bearer ")
         expected = cfg.run_token if role == "operator" else cfg.review_token
         if not expected or not hmac.compare_digest(provided, expected):
-            raise HTTPException(status_code=403, detail="Simulator role not authorized")
+            raise HTTPException(status_code=403, detail=ROLE_DENIED[role])
 
     def ensure_run(run_id: str) -> dict:
         if runner is None or not re.fullmatch(r"[a-f0-9-]{36}", run_id):
@@ -172,6 +208,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "controller_connected": None,
         }
 
+    @app.get("/api/v1/access/whoami")
+    def whoami(authorization: Annotated[str | None, Header()] = None) -> dict:
+        """Name the roles the supplied token holds, never the tokens themselves."""
+        # Variables:
+        #   open: True when no viewer token is configured, so reads need none.
+        #   roles: Every role whose configured token equals the supplied one.
+        supplied = (authorization or "").removeprefix("Bearer ")
+        return {
+            "open": cfg.token is None,
+            "roles": roles_for(supplied, cfg),
+            "runs_enabled": runner is not None,
+        }
+
     @app.get("/api/v1/ready")
     def readiness() -> dict:
         """Schema-aware HTTP readiness, not proof of worker availability."""
@@ -179,6 +228,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             try:
                 if runner is None or not runner.ready():
                     raise RuntimeError("Hosted schema unavailable")
+            except InvalidRunEnvironment:
+                raise HTTPException(
+                    status_code=503, detail="Hosted build commit missing"
+                ) from None
             except Exception:
                 raise HTTPException(
                     status_code=503, detail="Hosted database unavailable"
@@ -357,7 +410,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             if not cfg.evaluator_token or not hmac.compare_digest(
                 provided, cfg.evaluator_token
             ):
-                raise HTTPException(status_code=403, detail="Evaluator role required")
+                raise HTTPException(status_code=403, detail=ROLE_DENIED["evaluator"])
 
     @app.get("/api/v1/evaluations", dependencies=[Access])
     def evaluations(
@@ -462,8 +515,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         #     would use, including .env defaults the process environment lacks.
         #   effective: The server's default triage profile after the
         #     deterministic switch is applied, shown as profile and stage modes.
-        settings = get_settings()
-        effective = resolve_triage_run(settings)
+        #   Both come from server_settings()/server_default_triage(), so a bad
+        #     TRIAGE_* value is a named 503, not a 500.
+        settings = server_settings()
+        effective = server_default_triage(settings)
         return {
             "editable": False,
             "items": [
@@ -643,7 +698,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         """Validated defaults for the per-run editor; not global env editing."""
         # Variables:
         #   effective: The same resolver a submitted run uses, applied to the
-        #     server defaults, so the editor starts from what would really run.
+        #     server defaults, so the editor starts from what would really run;
+        #     an invalid server default is a 503 rather than an unhandled 500.
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot configuration is read-only"
@@ -653,7 +709,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=503, detail="Simulator runner is not configured"
             )
         # Use the exact resolver as a submitted run. Values are all allowlisted.
-        effective = resolve_triage_run(get_settings())
+        effective = server_default_triage(server_settings())
         return {
             "schema_version": 1,
             "defaults": effective.model_dump(mode="json"),
@@ -669,6 +725,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         # Variables:
         #   request: The proposed run; an incompatible stage combination is a
         #     422, so the operator fixes it before any run is admitted.
+        #   settings: This host's validated settings; a malformed server value
+        #     is a 503, the same answer submission gives.
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot simulator runs prohibited"
@@ -677,8 +735,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=503, detail="Simulator runner is not configured"
             )
+        settings = server_settings()
         try:
-            return public_run_configuration(request, get_settings())
+            return public_run_configuration(request, settings)
         except ValueError:
             raise HTTPException(
                 status_code=422, detail="Incompatible triage settings"
@@ -726,15 +785,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                     knowledge.close()
         assert runner is not None
         # Variables:
+        #   settings: This host's validated settings; a malformed TRIAGE_* value
+        #     is a 503 server fault here, never the caller's 422.
         #   preview: The effective configuration resolved now, before the
-        #     durable submission lock, so bad settings are a 422 and a changed
-        #     server default (fingerprint mismatch) is a 409, not a stale run.
+        #     durable submission lock, so bad request settings are a 422 and a
+        #     changed server default (fingerprint mismatch) is a 409, not a
+        #     stale run.
         #   created: The admitted run; on the hosted backend its ID is logged
         #     as a structured event for the separate worker's operators.
         # Wrong stage combinations are invalid input, not an idempotency
         # conflict. Validate before touching the durable submission lock.
+        settings = server_settings()
         try:
-            preview = public_run_configuration(request, get_settings())
+            preview = public_run_configuration(request, settings)
         except ValueError:
             raise HTTPException(
                 status_code=422, detail="Incompatible triage settings"

@@ -181,11 +181,13 @@ GROUPS: dict[str, list[str]] = {
     "Industrial frontend API": [
         "web_api",
         "web_runs",
+        "api_access",
         "postgres_journal",
         "model_call_telemetry",
         "run_repository",
         "cloud_ingest_api",
         "hosted_worker",
+        "hosted_hardening",
         "web_run_controls",
     ],
     "Live telemetry": [
@@ -213,6 +215,7 @@ GROUPS: dict[str, list[str]] = {
         "haas_protocol",
         "haas_qualified",
         "haas_real_detector",
+        "haas_screen",
         "haas_event_replay",
         "haas_mtconnect_events",
         "haas_acceptance",
