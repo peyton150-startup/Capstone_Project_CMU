@@ -933,7 +933,20 @@ def stop(
     decision: TriageStopDecision,
     deps: "InvestigationDeps",
 ) -> TerminationReason:
-    """Record the triage-specific reason and its legacy loop equivalent."""
+    """Record the triage-specific reason and its legacy loop equivalent.
+
+    Asserts the completion invariant at the one boundary every stop crosses:
+    `requirements_complete` is only mapped to `EVIDENCE_SUFFICIENT` when no
+    required requirement is unresolved, so no caller can bypass it.
+    """
+    if decision.reason == "requirements_complete":
+        # One authoritative completion rule: a phase-filtered empty list, or
+        # an empty question list, never proves sufficiency on its own.
+        outstanding = unresolved_required(state)
+        assert not outstanding, (
+            "requirements_complete with unresolved required evidence: "
+            + ", ".join(outstanding)
+        )
     from capstone.agent.loop import record
 
     state.triage_deterministic_stops += 1

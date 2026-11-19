@@ -588,6 +588,22 @@ def test_repeated_reconciliation_is_idempotent():
     assert first == second
 
 
+def test_phase_filter_cannot_report_completion_with_unresolved_required_evidence():
+    """An empty phase-eligible list is not completion while required evidence is unresolved."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45))
+    # First pass initialises the fixed plan; then drop Investigate's only
+    # anchor (Q1 sources) and the questions, so the phase-filtered list is
+    # empty while Q3/Q4/Q5 remain unsatisfied.
+    run_inner_loop(state, deps, "investigate")
+    state.triage_requirements.pop("Q1:trigger")
+    state.unanswered_questions = []
+    reason = run_inner_loop(state, deps, "investigate")
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    assert state.triage_decide_trace[-1].reason != "requirements_complete"
+    assert unresolved_required(state)
+
+
 def test_ranking_is_stable_across_identical_runs():
     def order():
         state = state_for()
