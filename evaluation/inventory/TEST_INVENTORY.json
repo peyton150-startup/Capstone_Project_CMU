@@ -15556,6 +15556,257 @@
    ]
   },
   {
+   "id": "tests/test_api_access.py::test_generated_tokens_are_distinct_long_and_pass_the_api_rules",
+   "file": "tests/test_api_access.py",
+   "name": "test_generated_tokens_are_distinct_long_and_pass_the_api_rules",
+   "line": 39,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "generated tokens are distinct long and pass the api rules",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:check_environment",
+    "capstone.api.access:env_block",
+    "capstone.api.access:generate_tokens",
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.access",
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_check_names_problems_without_printing_values",
+   "file": "tests/test_api_access.py",
+   "name": "test_check_names_problems_without_printing_values",
+   "line": 59,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "capsys",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 1,
+    "membership": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "check names problems without printing values",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:check_environment",
+    "capstone.api.access:main"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.access"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_check_warns_when_role_tokens_are_set_but_runs_are_off",
+   "file": "tests/test_api_access.py",
+   "name": "test_check_warns_when_role_tokens_are_set_but_runs_are_off",
+   "line": 81,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "check warns when role tokens are set but runs are off",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:check_environment"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.access"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_roles_for_matches_only_the_exact_token",
+   "file": "tests/test_api_access.py",
+   "name": "test_roles_for_matches_only_the_exact_token",
+   "line": 88,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "roles for matches only the exact token",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:roles_for",
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.access",
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_whoami_and_named_role_errors",
+   "file": "tests/test_api_access.py",
+   "name": "test_whoami_and_named_role_errors",
+   "line": 97,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 5,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "whoami and named role errors",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:roles_for",
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.decide_simulator_review",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.app:create_app.<locals>.whoami",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.api.access",
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_evaluator_endpoints_name_the_evaluator_token",
+   "file": "tests/test_api_access.py",
+   "name": "test_evaluator_endpoints_name_the_evaluator_token",
+   "line": 128,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "evaluator endpoints name the evaluator token",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.evaluations",
+    "capstone.api.app:create_app.<locals>.require_evaluator",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:recent_lines",
+    "capstone.api.readers:safe_evaluations",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.readers",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_approval.py::test_the_agent_can_wait_propose_check_and_execute_but_not_decide",
    "file": "tests/test_approval.py",
    "name": "test_the_agent_can_wait_propose_check_and_execute_but_not_decide",
@@ -64479,6 +64730,257 @@
    ]
   },
   {
+   "id": "tests/test_hosted_hardening.py::test_hosted_mode_needs_the_full_build_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_hosted_mode_needs_the_full_build_commit",
+   "line": 26,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "hosted mode needs the full build commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_hosted_runner_refuses_readiness_and_submission_without_a_commit",
+   "line": 36,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "hosted runner refuses readiness and submission without a commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
+    "capstone.api.hosted_runs:HostedSimulatorRuns.submit",
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.hosted_runs",
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_ready_endpoint_names_a_missing_commit",
+   "line": 59,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "importorskip"
+   ],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "ready endpoint names a missing commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.readiness",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.hosted_runs",
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_worker_refuses_to_start_without_a_commit",
+   "line": 94,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision",
+    "caplog"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "worker refuses to start without a commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:main",
+    "capstone.worker.runner:record"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_a_bad_triage_setting_is_one_named_server_fault",
+   "line": 123,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "method",
+    "path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "importorskip",
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "may_skip"
+   ],
+   "claims": "a bad triage setting is one named server fault",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.managed_run_configuration",
+    "capstone.api.app:create_app.<locals>.preview_simulator_run",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
+    "capstone.api.app:create_app.<locals>.settings_effective",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_a_validation_error_during_model_setup_is_model_setup",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_a_validation_error_during_model_setup_is_model_setup",
+   "line": 144,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a validation error during model setup is model setup",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.worker.runner:classify_failure"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_hosted_worker.py::test_hosted_config_requires_distinct_roles_and_no_local_disk",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_config_requires_distinct_roles_and_no_local_disk",
@@ -64688,9 +65190,10 @@
     "capstone.settings:get_settings",
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker",
-    "capstone.worker.runner:serve_worker.<locals>.pulse"
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.integration_status",
     "capstone.api.run_repository",
@@ -64709,7 +65212,7 @@
    "id": "tests/test_hosted_worker.py::test_hosted_api_adapter_is_actored_and_never_runs_episode",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_api_adapter_is_actored_and_never_runs_episode",
-   "line": 136,
+   "line": 138,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -64743,7 +65246,7 @@
    "id": "tests/test_hosted_worker.py::test_extended_progress_matches_pr294_without_raw_readings",
    "file": "tests/test_hosted_worker.py",
    "name": "test_extended_progress_matches_pr294_without_raw_readings",
-   "line": 154,
+   "line": 156,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -64777,7 +65280,7 @@
    "id": "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
-   "line": 202,
+   "line": 204,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -64813,6 +65316,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.app:create_app.<locals>.system",
     "capstone.api.config:UiConfig.__post_init__",
@@ -64829,7 +65333,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -64851,7 +65355,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
-   "line": 411,
+   "line": 413,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -64893,7 +65397,7 @@
    "id": "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
    "file": "tests/test_hosted_worker.py",
    "name": "test_northflank_worker_logs_and_matches_render_web_commit",
-   "line": 425,
+   "line": 427,
    "docstring": "A Northflank worker runs a job a Render web service stamped, same commit.",
    "parametrized": false,
    "fixtures": [
@@ -64944,7 +65448,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_resolves_pr301_profile_without_reimplementing_it",
-   "line": 445,
+   "line": 447,
    "docstring": "Two Render services must persist the true effective Graph control plane.",
    "parametrized": false,
    "fixtures": [
@@ -64987,7 +65491,7 @@
    "id": "tests/test_hosted_worker.py::test_cross_pr_contract_inventory_uses_real_pydantic_models",
    "file": "tests/test_hosted_worker.py",
    "name": "test_cross_pr_contract_inventory_uses_real_pydantic_models",
-   "line": 487,
+   "line": 489,
    "docstring": "No absent Decide/deep data may be reported as an implemented contract.",
    "parametrized": false,
    "fixtures": [
@@ -65028,7 +65532,7 @@
    "id": "tests/test_hosted_worker.py::test_pr297_projection_redacts_provider_content_without_graph_rewrite",
    "file": "tests/test_hosted_worker.py",
    "name": "test_pr297_projection_redacts_provider_content_without_graph_rewrite",
-   "line": 523,
+   "line": 525,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -65066,7 +65570,7 @@
    "id": "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
    "file": "tests/test_hosted_worker.py",
    "name": "test_malformed_revision_is_a_named_server_fault",
-   "line": 554,
+   "line": 556,
    "docstring": "A bad host commit raises one typed error that never echoes the value.",
    "parametrized": true,
    "fixtures": [
@@ -65114,7 +65618,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_with_malformed_revision_logs_why_and_stops",
-   "line": 570,
+   "line": 572,
    "docstring": "The worker exits with a logged invalid_configuration code, before any DB use.",
    "parametrized": false,
    "fixtures": [
@@ -65165,7 +65669,7 @@
    "id": "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_run_submit_with_bad_host_config_is_503_not_409",
-   "line": 592,
+   "line": 594,
    "docstring": "A server-side settings fault must not look like an idempotency conflict.",
    "parametrized": false,
    "fixtures": [
@@ -65189,6 +65693,7 @@
    "exercises": [
     "capstone.api.app:create_app",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:public_run_configuration",
@@ -65202,7 +65707,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -65222,7 +65727,7 @@
    "id": "tests/test_hosted_worker.py::test_failure_classification_reads_type_and_step_never_message",
    "file": "tests/test_hosted_worker.py",
    "name": "test_failure_classification_reads_type_and_step_never_message",
-   "line": 689,
+   "line": 691,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -65259,7 +65764,7 @@
    "id": "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
    "file": "tests/test_hosted_worker.py",
    "name": "test_failed_run_stores_its_failure_code_without_the_message",
-   "line": 705,
+   "line": 707,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65307,7 +65812,7 @@
    "id": "tests/test_hosted_worker.py::test_model_setup_failure_is_named_model_setup",
    "file": "tests/test_hosted_worker.py",
    "name": "test_model_setup_failure_is_named_model_setup",
-   "line": 721,
+   "line": 723,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65356,7 +65861,7 @@
    "id": "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
    "file": "tests/test_hosted_worker.py",
    "name": "test_failed_terminal_write_leaves_a_fixed_log_event",
-   "line": 737,
+   "line": 739,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65406,7 +65911,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_problems_reach_the_heartbeat_not_a_run",
-   "line": 763,
+   "line": 765,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65441,9 +65946,10 @@
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker",
     "capstone.worker.runner:serve_worker.<locals>.note",
-    "capstone.worker.runner:serve_worker.<locals>.pulse"
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.run_repository",
     "capstone.settings",
@@ -65461,7 +65967,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_problem_and_interrupt_fields_are_validated_before_storage",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_problem_and_interrupt_fields_are_validated_before_storage",
-   "line": 806,
+   "line": 810,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -65494,7 +66000,7 @@
    "id": "tests/test_hosted_worker.py::test_operational_projection_adds_only_bounded_safe_fields",
    "file": "tests/test_hosted_worker.py",
    "name": "test_operational_projection_adds_only_bounded_safe_fields",
-   "line": 841,
+   "line": 845,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -65527,7 +66033,7 @@
    "id": "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
    "file": "tests/test_hosted_worker.py",
    "name": "test_malformed_triage_setting_is_the_same_named_server_fault",
-   "line": 879,
+   "line": 883,
    "docstring": "Settings() validation (a bad TRIAGE_* value) also stops the worker readably.",
    "parametrized": false,
    "fixtures": [
@@ -65557,6 +66063,61 @@
     "capstone.worker.runner:serve_worker"
    ],
    "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_a_recovered_worker_clears_its_poll_problem",
+   "line": 905,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "negation": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a recovered worker clears its poll problem",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker",
+    "capstone.worker.runner:serve_worker.<locals>.note",
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
+   ],
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.run_repository",
     "capstone.settings",
@@ -101649,7 +102210,7 @@
    "id": "tests/test_run_repository.py::test_repository_rejects_non_postgres_url_without_connecting",
    "file": "tests/test_run_repository.py",
    "name": "test_repository_rejects_non_postgres_url_without_connecting",
-   "line": 15,
+   "line": 20,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101679,7 +102240,7 @@
    "id": "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy",
    "file": "tests/test_run_repository.py",
    "name": "test_execution_config_excludes_secrets_and_invalid_strategy",
-   "line": 24,
+   "line": 29,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101709,7 +102270,7 @@
    "id": "tests/test_run_repository.py::test_event_contract_refuses_unapproved_fields",
    "file": "tests/test_run_repository.py",
    "name": "test_event_contract_refuses_unapproved_fields",
-   "line": 31,
+   "line": 36,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101739,7 +102300,7 @@
    "id": "tests/test_run_repository.py::test_empty_hosted_migration_round_trip",
    "file": "tests/test_run_repository.py",
    "name": "test_empty_hosted_migration_round_trip",
-   "line": 47,
+   "line": 52,
    "docstring": "A new empty hosted schema can roll back without touching legacy rows.",
    "parametrized": false,
    "fixtures": [
@@ -101773,7 +102334,7 @@
    "id": "tests/test_run_repository.py::test_ready_refuses_a_schema_missing_any_worker_problem_column",
    "file": "tests/test_run_repository.py",
    "name": "test_ready_refuses_a_schema_missing_any_worker_problem_column",
-   "line": 75,
+   "line": 80,
    "docstring": "Each of 0006's three columns is checked, not only the first.",
    "parametrized": true,
    "fixtures": [
@@ -101807,7 +102368,7 @@
    "id": "tests/test_run_repository.py::test_concurrent_idempotency_creates_one_run_and_one_job",
    "file": "tests/test_run_repository.py",
    "name": "test_concurrent_idempotency_creates_one_run_and_one_job",
-   "line": 139,
+   "line": 144,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -101840,7 +102401,7 @@
    "id": "tests/test_run_repository.py::test_parallel_claims_fence_state_and_preserve_event_order",
    "file": "tests/test_run_repository.py",
    "name": "test_parallel_claims_fence_state_and_preserve_event_order",
-   "line": 180,
+   "line": 185,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -101875,7 +102436,7 @@
    "id": "tests/test_run_repository.py::test_expired_started_claim_interrupts_without_retry",
    "file": "tests/test_run_repository.py",
    "name": "test_expired_started_claim_interrupts_without_retry",
-   "line": 228,
+   "line": 233,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -101910,7 +102471,7 @@
    "id": "tests/test_run_repository.py::test_hosted_review_is_durable_actor_scoped_and_lease_fenced",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_review_is_durable_actor_scoped_and_lease_fenced",
-   "line": 249,
+   "line": 254,
    "docstring": "Two independent processes can agree on an exact approved proposal.",
    "parametrized": false,
    "fixtures": [
@@ -101943,7 +102504,7 @@
    "id": "tests/test_run_repository.py::test_hosted_progress_artifact_and_terminal_are_fenced",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_progress_artifact_and_terminal_are_fenced",
-   "line": 310,
+   "line": 315,
    "docstring": "Persisted audit is private; late stage writes cannot regress completion.",
    "parametrized": false,
    "fixtures": [
@@ -101978,7 +102539,7 @@
    "id": "tests/test_run_repository.py::test_worker_uses_pydantic_graph_episode_without_a_web_thread",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_uses_pydantic_graph_episode_without_a_web_thread",
-   "line": 366,
+   "line": 371,
    "docstring": "Fixture policy exercises a real job claim, audit persistence and completion.",
    "parametrized": false,
    "fixtures": [
@@ -102017,7 +102578,7 @@
    "id": "tests/test_run_repository.py::test_model_journal_is_fenced_private_and_source_validated",
    "file": "tests/test_run_repository.py",
    "name": "test_model_journal_is_fenced_private_and_source_validated",
-   "line": 427,
+   "line": 432,
    "docstring": "#297 owns sanitization: hosted stores only its exact Pydantic projection.",
    "parametrized": false,
    "fixtures": [
@@ -102055,7 +102616,7 @@
    "id": "tests/test_run_repository.py::test_hosted_uses_prior_safe_stage_contract_after_pr294_merge",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_uses_prior_safe_stage_contract_after_pr294_merge",
-   "line": 504,
+   "line": 509,
    "docstring": "Never reimplement #296 nested Decide event sanitizer in hosted.",
    "parametrized": false,
    "fixtures": [],
@@ -102086,7 +102647,7 @@
    "id": "tests/test_run_repository.py::test_queued_run_stays_queued_until_matching_build_can_claim",
    "file": "tests/test_run_repository.py",
    "name": "test_queued_run_stays_queued_until_matching_build_can_claim",
-   "line": 515,
+   "line": 520,
    "docstring": "Never execute on a worker with different immutable strategy/build.",
    "parametrized": false,
    "fixtures": [
@@ -102120,22 +102681,26 @@
    "id": "tests/test_run_repository.py::test_worker_idle_pulse_is_durable_and_never_exposes_revision",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_idle_pulse_is_durable_and_never_exposes_revision",
-   "line": 538,
+   "line": 543,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
-    "repository"
+    "repository",
+    "monkeypatch"
    ],
-   "assertions": 5,
+   "assertions": 6,
    "assert_forms": {
-    "equality": 1,
+    "equality": 2,
     "is_not_none": 1,
     "membership": 2,
     "ordering": 1
    },
    "raises_checks": 1,
-   "uses": [],
+   "uses": [
+    "monkeypatch"
+   ],
    "quality_flags": [
+    "patches_dependencies",
     "exercises_no_project_function"
    ],
    "claims": "worker idle pulse is durable and never exposes revision",
@@ -102155,7 +102720,7 @@
    "id": "tests/test_run_repository.py::test_expiry_preserves_last_good_triage_and_never_replays",
    "file": "tests/test_run_repository.py",
    "name": "test_expiry_preserves_last_good_triage_and_never_replays",
-   "line": 554,
+   "line": 566,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102189,7 +102754,7 @@
    "id": "tests/test_run_repository.py::test_terminal_progress_is_authoritative_over_late_queue_writer",
    "file": "tests/test_run_repository.py",
    "name": "test_terminal_progress_is_authoritative_over_late_queue_writer",
-   "line": 592,
+   "line": 604,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102222,7 +102787,7 @@
    "id": "tests/test_run_repository.py::test_worker_liveness_refuses_stale_render_revision",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_liveness_refuses_stale_render_revision",
-   "line": 642,
+   "line": 654,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102258,7 +102823,7 @@
    "id": "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order",
    "file": "tests/test_run_repository.py",
    "name": "test_source_revision_reads_render_and_northflank_in_order",
-   "line": 659,
+   "line": 671,
    "docstring": "Override beats Render, Render beats Northflank, blank counts as unset.",
    "parametrized": false,
    "fixtures": [
@@ -102297,7 +102862,7 @@
    "id": "tests/test_run_repository.py::test_northflank_worker_is_ready_for_render_web_on_same_commit",
    "file": "tests/test_run_repository.py",
    "name": "test_northflank_worker_is_ready_for_render_web_on_same_commit",
-   "line": 675,
+   "line": 687,
    "docstring": "Render web (RENDER_GIT_COMMIT) accepts a Northflank worker's heartbeat.",
    "parametrized": false,
    "fixtures": [
@@ -102333,7 +102898,7 @@
    "id": "tests/test_run_repository.py::test_model_metadata_is_never_emitted_in_general_sse_journal",
    "file": "tests/test_run_repository.py",
    "name": "test_model_metadata_is_never_emitted_in_general_sse_journal",
-   "line": 697,
+   "line": 709,
    "docstring": "#304: model attempts remain in the authorized, revalidated endpoint.",
    "parametrized": false,
    "fixtures": [
@@ -102367,7 +102932,7 @@
    "id": "tests/test_run_repository.py::test_expiry_records_reason_and_how_long_the_worker_was_silent",
    "file": "tests/test_run_repository.py",
    "name": "test_expiry_records_reason_and_how_long_the_worker_was_silent",
-   "line": 758,
+   "line": 770,
    "docstring": "A fenced-out worker cannot write, so recovery stores why the run stopped.",
    "parametrized": false,
    "fixtures": [
@@ -102402,7 +102967,7 @@
    "id": "tests/test_run_repository.py::test_hosted_failure_journal_keeps_the_failure_code",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_failure_journal_keeps_the_failure_code",
-   "line": 795,
+   "line": 807,
    "docstring": "The stored run.failed event names the failure without its message.",
    "parametrized": false,
    "fixtures": [
@@ -102440,7 +103005,7 @@
    "id": "tests/test_run_repository.py::test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
-   "line": 824,
+   "line": 836,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102459,6 +103024,74 @@
     "exercises_no_project_function"
    ],
    "claims": "worker problem is kept on its heartbeat and shown as codes",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page",
+   "file": "tests/test_run_repository.py",
+   "name": "test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page",
+   "line": 871,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 2
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "a cleared problem and a dead workers problem leave the system page",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_run_list_shows_how_long_a_claimed_run_has_been_silent",
+   "file": "tests/test_run_repository.py",
+   "name": "test_run_list_shows_how_long_a_claimed_run_has_been_silent",
+   "line": 915,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1,
+    "is_not_none": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "run list shows how long a claimed run has been silent",
    "execution_outcome": "skipped",
    "exercises": [],
    "exercise_count": 0,
@@ -149876,6 +150509,8 @@
     "capstone.api.app:create_app.<locals>.managed_run_configuration",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_default_triage",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149897,7 +150532,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 27,
+   "exercise_count": 29,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149943,6 +150578,7 @@
     "capstone.api.app:create_app.<locals>.managed_run_configuration",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149964,7 +150600,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150010,6 +150646,7 @@
     "capstone.api.app:create_app",
     "capstone.api.app:create_app.<locals>.authorize",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
@@ -150021,7 +150658,7 @@
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150067,6 +150704,7 @@
     "capstone.api.app:create_app.<locals>.list_managed_runs",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -150085,7 +150723,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 22,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150135,6 +150773,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -150152,7 +150791,7 @@
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150202,6 +150841,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -150226,7 +150866,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150319,6 +150959,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -150343,7 +150984,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150390,6 +151031,7 @@
     "capstone.api.app:create_app.<locals>.ensure_run",
     "capstone.api.app:create_app.<locals>.managed_run_observability",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.readers:project_operational_event",
@@ -150415,7 +151057,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150466,6 +151108,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SafeStageSnapshot.validate_public_question_ids",
@@ -150489,7 +151132,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",

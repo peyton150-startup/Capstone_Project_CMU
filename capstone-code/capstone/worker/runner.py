@@ -30,6 +30,7 @@ from capstone.api.run_repository import (
     RunRepository,
     StagePayload,
     WorkerProblem,
+    hosted_revision,
     source_revision,
 )
 from capstone.api.runs import safe_stage
@@ -108,6 +109,8 @@ def record(
 _MISMATCH_MESSAGE = "Worker configuration does not match submitted settings"
 # Seconds between idle/active worker heartbeats (tests shorten it).
 _PULSE_SECONDS = 10.0
+# Successes in a row after which a transient worker problem is cleared.
+_CLEAR_AFTER = 3
 
 
 def classify_failure(error: BaseException, step: str | None = None) -> str:
@@ -118,13 +121,20 @@ def classify_failure(error: BaseException, step: str | None = None) -> str:
     #     raises itself), never provider or SQL text.
     #   step: The part of the run that was executing ("model_setup" or
     #     "artifact"); it refines an otherwise generic "execution" failure.
-    #   code: The chosen code, always one of RUN_FAILURE_CODES.
+    #   code: The chosen code, always one of RUN_FAILURE_CODES; anything else
+    #     falls back to "execution" (an explicit check, not an assert, so it
+    #     still holds under python -O).
+    from pydantic import ValidationError
     from sqlalchemy.exc import SQLAlchemyError
 
     if isinstance(error, InvalidRunEnvironment):
         code = "invalid_configuration"
     elif isinstance(error, RuntimeError) and str(error) == _MISMATCH_MESSAGE:
         code = "configuration_mismatch"
+    elif isinstance(error, ValidationError) and step == "model_setup":
+        # Pydantic's ValidationError is a ValueError, but while models are
+        # being set up it means a bad model configuration, not a contract.
+        code = "model_setup"
     elif isinstance(error, ValueError):
         code = "contract"
     elif isinstance(error, (OSError, TimeoutError, SQLAlchemyError)):
@@ -133,7 +143,8 @@ def classify_failure(error: BaseException, step: str | None = None) -> str:
         code = step
     else:
         code = "execution"
-    assert code in RUN_FAILURE_CODES
+    if code not in RUN_FAILURE_CODES:
+        code = "execution"
     return code
 
 
@@ -586,6 +597,13 @@ def serve_worker(
     #     heartbeat so the System page shows it; it belongs to no run.
     #   pulse_failures: Consecutive heartbeat writes that failed; stored as
     #     the problem's count once a pulse reaches the database again.
+    #   good: Consecutive successes since a transient problem was noted
+    #     (polls for poll_failed, heartbeat writes for worker_pulse_failed);
+    #     at _CLEAR_AFTER the problem is cleared, so a recovered worker stops
+    #     reporting it. contracts_missing never clears: it is checked once at
+    #     startup and only a redeploy changes it.
+    #   lock: Guards problem and good, which the poll loop and the heartbeat
+    #     thread both read and change.
     #   failures: Consecutive poll failures, driving the capped backoff.
     if not 0.2 <= poll_seconds <= 30:
         raise ValueError("Invalid polling interval")
@@ -606,22 +624,40 @@ def serve_worker(
     active = [False]
     problem: list[WorkerProblem | None] = [None]
     pulse_failures = [0]
+    good = [0]
+    lock = threading.Lock()
 
     def note(code: str, count: int = 1) -> None:
-        problem[0] = WorkerProblem(
-            code, datetime.now(timezone.utc), min(max(count, 0), 1_000_000)
-        )
+        with lock:
+            problem[0] = WorkerProblem(
+                code, datetime.now(timezone.utc), min(max(count, 0), 1_000_000)
+            )
+            good[0] = 0
+
+    def succeeded(code: str) -> None:
+        # Count a success of the operation whose failure is on record, and
+        # clear that problem once it has worked _CLEAR_AFTER times in a row.
+        with lock:
+            if problem[0] is None or problem[0].code != code:
+                return
+            good[0] += 1
+            if good[0] >= _CLEAR_AFTER:
+                problem[0], good[0] = None, 0
 
     def pulse() -> None:
         while not health_stop.is_set():
+            with lock:
+                current = problem[0]
             try:
                 repository.worker_heartbeat(
                     owner,
                     source_revision=current_config.source_revision,
                     status="running" if active[0] else "idle",
-                    problem=problem[0],
+                    problem=current,
+                    clear_problem=current is None,
                 )
                 pulse_failures[0] = 0
+                succeeded("worker_pulse_failed")
             except Exception:
                 pulse_failures[0] += 1
                 record(
@@ -653,6 +689,7 @@ def serve_worker(
                 record("recovered", count=len(recovered))
             claim = repository.claim(owner, expected_config=current_config)
             failures = 0
+            succeeded("poll_failed")
         except Exception:
             failures += 1
             record("poll_failed", failure_code="database", attempt=min(failures, 100))
@@ -683,12 +720,24 @@ def serve_worker(
 
 def main() -> None:
     """Explicitly opted-in background worker (Northflank); does not expose a port."""
+    # Variables:
+    #   database_url: The private Supabase run journal the worker claims from.
+    #   hosted_revision(): The full build commit, checked before anything else
+    #     connects; without it the worker stops with invalid_configuration.
+    #   stop: Set by SIGTERM/SIGINT so the current run ends cleanly.
     if os.getenv("CAPSTONE_WORKER_ENABLED") != "1":
         raise RuntimeError("CAPSTONE_WORKER_ENABLED=1 must be set")
     database_url = os.getenv("CAPSTONE_UI_RUN_DATABASE_URL") or ""
     if not database_url:
         raise RuntimeError("Missing private hosted PostgreSQL URL")
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    try:
+        # Without the full commit, this worker would accept runs stamped by a
+        # web service on different code (both report no commit).
+        hosted_revision()
+    except InvalidRunEnvironment:
+        record("worker_stopped", failure_code="invalid_configuration")
+        raise
     stop = threading.Event()
 
     def signal_stop(_signum: int, _frame: Any) -> None:
