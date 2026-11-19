@@ -124,6 +124,17 @@ def fixed_plan(anomaly: DetectedAnomaly) -> tuple[Question, ...]:
             "Have recent inspections started failing?",
         ]
         direct = 1
+        # An anomaly that names a machine and one sensor can be measured, even
+        # when its kind has no list of its own: plan the real reading rather
+        # than only record queries that a recorded or sparse source may lack.
+        from capstone.agent.incident_context import named_sensor
+
+        sensor = named_sensor(anomaly.description)
+        if anomaly.machine_id is not None and sensor is not None:
+            texts.append(
+                f"How did {machine}'s {sensor.replace('_', ' ')} readings change "
+                "recently, and do they match what was noticed?"
+            )
     return tuple(
         Question(
             id=f"Q{number}",
@@ -370,6 +381,22 @@ def fixed_requirements(
             windowed=True,
             qualification="inspection_recent",
         )
+        from capstone.agent.incident_context import named_sensor
+
+        sensor = named_sensor(anomaly.description)
+        if anomaly.machine_id is not None and sensor is not None:
+            # The generic list's extra question, as a real bounded measurement.
+            add(
+                "Q4",
+                sensor,
+                "get_sensor_summary",
+                machine_id=anomaly.machine_id,
+                sensor=sensor,
+                windowed=True,
+                min_samples=2,
+                min_span_ticks=1,
+                qualification="movement",
+            )
     return requirements
 
 
