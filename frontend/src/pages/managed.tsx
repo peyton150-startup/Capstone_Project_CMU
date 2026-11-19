@@ -12,7 +12,29 @@ import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
 import { DeepInvestigationProgress } from './deep_progress';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
-  tick?: number; tool?: string; success?: boolean; counts?: Record<string,number> };
+  tick?: number; tool?: string; success?: boolean; counts?: Record<string,number>;
+  phase?: string; status?: string; reason_code?: string; attempt?: number; duration_ms?: number;
+  request_hash?: string };
+
+// Plain-English labels for the hosted worker's fixed run failure codes.
+const FAILURE_LABELS: Record<string, string> = {
+  artifact: 'Could not store the audit and trace files',
+  configuration_mismatch: 'Worker settings differ from the submitted run',
+  contract: 'A result failed its safety contract',
+  database: 'Database unavailable',
+  execution: 'Investigation raised an error',
+  invalid_configuration: 'Malformed host run settings',
+  model_setup: 'Model provider could not be configured',
+};
+
+function failureLabel(code: string | undefined, errorClass: string | undefined): string | null {
+  if (code) return FAILURE_LABELS[code] ? FAILURE_LABELS[code] + ' (' + code + ')' : code;
+  return errorClass ?? null;
+}
+
+const INTERRUPT_LABELS: Record<string, string> = {
+  worker_lease_expired: 'Worker stopped renewing its lease',
+};
 
 function useManagedRuns(pollMs = 5000) {
   const { workspace, preview, token } = useUi();
@@ -447,6 +469,22 @@ function operationalOutcome(event: OperationalEvent): string {
 }
 
 function eventStageSummary(event: RunEvent): string {
+  if (event.event === 'resync.required')
+    return typeof event.data.dropped_ui_updates === 'number' ?
+      'Live updates dropped: ' + event.data.dropped_ui_updates : 'Live updates dropped';
+  if (event.event === 'run.failed') {
+    const label = failureLabel(event.data.failure_code as string | undefined,
+      event.data.error_class as string | undefined);
+    return label ? 'failed · ' + label : 'failed';
+  }
+  if (event.event === 'run.interrupted') {
+    const reason = typeof event.data.reason === 'string' ?
+      INTERRUPT_LABELS[event.data.reason] || readableStage(event.data.reason) : null;
+    const age = event.data.heartbeat_age_seconds;
+    return ['interrupted', reason,
+      typeof age === 'number' ? 'Last heartbeat ' + age + ' s before recovery' : null]
+      .filter(Boolean).join(' · ');
+  }
   if (event.event !== 'stage.updated')
     return typeof event.data.status === 'string' ? event.data.status : 'Recorded';
   const mode = event.data.mode === 'triage' ? 'Triage' :
@@ -523,7 +561,22 @@ export function RunDetailPage() {
       {run?.state === 'awaiting_review' && <InfoState title="Human decision required" kind="warning"
         detail="Open the Review & verification page with a reviewer token. Approval alone never executes an action."
         action={<Link className="text-link" to="/investigations/review">Review pending proposal</Link>}/>}
-      {run?.snapshot?.error_class && <DataRow label="Failure classification" value={run.snapshot.error_class}/>}
+      {(run?.state === 'running' || run?.state === 'awaiting_review') &&
+        typeof run.heartbeat_age_seconds === 'number' &&
+        <DataRow label="Last worker heartbeat"
+          value={<Pill text={run.heartbeat_age_seconds + ' s ago'}
+            tone={run.heartbeat_age_seconds > 30 ? 'warning' : 'neutral'}/>}
+          extra={run.heartbeat_age_seconds > 30 ?
+            'The worker renews every 10 s; a run silent this long may be frozen.' : undefined}/>}
+      {run?.state === 'failed' && failureLabel(run.snapshot?.failure_code, run.snapshot?.error_class) &&
+        <DataRow label="Failure classification"
+          value={failureLabel(run.snapshot?.failure_code, run.snapshot?.error_class)}/>}
+      {run?.state === 'interrupted' && run.snapshot?.reason &&
+        <DataRow label="Interruption reason"
+          value={INTERRUPT_LABELS[run.snapshot.reason] || readableStage(run.snapshot.reason)}
+          extra={typeof run.snapshot.heartbeat_age_seconds === 'number' ?
+            'Last worker heartbeat ' + run.snapshot.heartbeat_age_seconds +
+              ' s before recovery' : undefined}/>}
     </Panel>
     <LiveProgress run={run}/>
     <DeepInvestigationProgress run={run}/>
@@ -713,8 +766,15 @@ export function RunDetailPage() {
       {operational.error && <InfoState kind="warning" title="Diagnostics unavailable" detail={operational.error}/>}
       {operational.data?.items.length ? operational.data.items.slice(-60).reverse().map((event,index)=>
         <DataRow key={index} label={readableStage(event.event)}
-          extra={'Investigation: ' + (event.investigation_id || 'not recorded') +
-            ' · Tick: ' + (event.tick ?? 'unknown')}
+          extra={['Investigation: ' + (event.investigation_id || 'not recorded'),
+            'Tick: ' + (event.tick ?? 'unknown'),
+            event.phase ? 'Phase: ' + readableStage(event.phase) : null,
+            event.status ? 'Status: ' + readableStage(event.status) : null,
+            event.reason_code ? 'Reason: ' + readableStage(event.reason_code) : null,
+            event.attempt != null ? 'Attempt ' + event.attempt : null,
+            event.duration_ms != null ? Math.round(event.duration_ms) + ' ms' : null,
+            event.request_hash ? 'Request: ' + event.request_hash : null]
+            .filter(Boolean).join(' · ')}
           value={(event.tool || 'No tool selected') + ' · ' + operationalOutcome(event) +
             (event.counts ? ' · ' + Object.entries(event.counts).map(([k,v])=>
               readableStage(k)+': '+v).join(', ') : '')}/>

@@ -116,7 +116,7 @@ def test_idle_worker_does_not_start_an_agent(monkeypatch):
         def ready(self):
             return True
 
-        def worker_heartbeat(self, owner, *, source_revision, status):
+        def worker_heartbeat(self, owner, *, source_revision, status, problem=None):
             assert status in {"idle", "running"}
             assert owner.startswith("worker:")
 
@@ -631,6 +631,249 @@ def test_hosted_run_submit_with_bad_host_config_is_503_not_409(monkeypatch):
     assert response.status_code == 503
     assert response.json()["detail"] == "Server run configuration is invalid"
     assert "NF_DEPLOYMENT_SHA" not in response.text
+
+
+# --- Worker failures traceable from the journal and the UI -----------------
+
+
+def _claim(mode: str = "deep"):
+    """A minimal job claim; the fake repositories below never touch a database."""
+    from capstone.api.run_repository import JobClaim
+    from capstone.api.runs import RunRequest
+
+    return JobClaim(
+        uuid.uuid4(),
+        uuid.uuid4(),
+        uuid.uuid4(),
+        RunRequest(seed=5, mode=mode),
+        RunExecutionConfig(),
+    )
+
+
+class _TerminalRecorder:
+    """Records the terminal transition; optionally fails the write itself."""
+
+    def __init__(self, fail_write: bool = False):
+        self.fail_write = fail_write
+        self.transitions: list[tuple[str, str, dict]] = []
+        self.model_events: list[str] = []
+
+    def heartbeat(self, claim, owner, *, lease_seconds=60):
+        return True
+
+    def publish_model_event(self, claim, owner, event_name, payload):
+        self.model_events.append(event_name)
+
+    def transition(self, claim, owner, state, event_name, snapshot, **kwargs):
+        if self.fail_write:
+            raise RuntimeError("SQL: INSERT ... password=SECRET")
+        self.transitions.append((state, event_name, snapshot))
+
+
+@pytest.mark.parametrize(
+    ("error", "step", "code"),
+    [
+        ("invalid_environment", None, "invalid_configuration"),
+        ("mismatch", None, "configuration_mismatch"),
+        (ValueError("provider body SECRET"), None, "contract"),
+        (OSError("connection refused SECRET"), None, "database"),
+        (TimeoutError(), None, "database"),
+        ("sqlalchemy", None, "database"),
+        (RuntimeError("provider body SECRET"), "model_setup", "model_setup"),
+        (RuntimeError("provider body SECRET"), "artifact", "artifact"),
+        (RuntimeError("provider body SECRET"), "episode", "execution"),
+        (KeyError("SECRET"), None, "execution"),
+        (RuntimeError("Worker configuration does not match"), None, "execution"),
+    ],
+)
+def test_failure_classification_reads_type_and_step_never_message(error, step, code):
+    from sqlalchemy.exc import OperationalError
+
+    from capstone.api.run_repository import RUN_FAILURE_CODES, InvalidRunEnvironment
+    from capstone.worker.runner import _MISMATCH_MESSAGE, classify_failure
+
+    if error == "invalid_environment":
+        error = InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE)
+    elif error == "mismatch":
+        error = RuntimeError(_MISMATCH_MESSAGE)
+    elif error == "sqlalchemy":
+        error = OperationalError("SELECT secret", {}, Exception("SECRET"))
+    assert classify_failure(error, step) == code
+    assert code in RUN_FAILURE_CODES
+
+
+def test_failed_run_stores_its_failure_code_without_the_message(monkeypatch):
+    import capstone.worker.runner as worker
+
+    def drift(_config):
+        raise RuntimeError(worker._MISMATCH_MESSAGE)
+
+    monkeypatch.setattr(worker, "check_strategy", drift)
+    repository = _TerminalRecorder()
+    worker.execute_claim(repository, _claim(), "worker:test", heartbeat_seconds=1)
+    [(state, event_name, payload)] = repository.transitions
+    assert (state, event_name) == ("failed", "run.failed")
+    assert payload["failure_code"] == "configuration_mismatch"
+    assert payload["error_class"] == "RuntimeError"
+    assert "does not match" not in json.dumps(payload)
+
+
+def test_model_setup_failure_is_named_model_setup(monkeypatch):
+    import capstone.experiment as experiment
+    import capstone.worker.runner as worker
+
+    def broken_factory(**kwargs):
+        raise RuntimeError("provider said: invalid key SECRET")
+
+    monkeypatch.setattr(worker, "check_strategy", lambda _config: None)
+    monkeypatch.setattr(experiment, "model_policy_factory", broken_factory)
+    repository = _TerminalRecorder()
+    worker.execute_claim(repository, _claim(), "worker:test", heartbeat_seconds=1)
+    [(_, _, payload)] = repository.transitions
+    assert payload["failure_code"] == "model_setup"
+    assert "SECRET" not in json.dumps(payload)
+
+
+def test_failed_terminal_write_leaves_a_fixed_log_event(caplog, monkeypatch):
+    import capstone.worker.runner as worker
+
+    def contract_error(_config):
+        raise ValueError("bad payload SECRET")
+
+    monkeypatch.setattr(worker, "check_strategy", contract_error)
+    repository = _TerminalRecorder(fail_write=True)
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        worker.execute_claim(repository, _claim(), "worker:test", heartbeat_seconds=1)
+    events = [json.loads(item.message) for item in caplog.records]
+    written = [event for event in events if event["event"] == "terminal_write_failed"]
+    assert len(written) == 1
+    assert written[0]["failure_code"] == "contract"
+    assert set(written[0]) <= {
+        "event",
+        "failure_code",
+        "job_id",
+        "run_id",
+        "service",
+        "revision",
+    }
+    assert "SECRET" not in caplog.text
+    assert "password" not in caplog.text
+
+
+def test_worker_problems_reach_the_heartbeat_not_a_run(monkeypatch):
+    import capstone.worker.runner as worker
+
+    monkeypatch.setattr(worker, "_PULSE_SECONDS", 0.05)
+    # Force no missing contracts, so the problem the worker notes comes from
+    # the failing poll rather than from this checkout's contract inventory.
+    monkeypatch.setattr(
+        "capstone.api.integration_status.inspect_hosted_contracts",
+        lambda: SimpleNamespace(missing=()),
+    )
+    stop = threading.Event()
+    seen: list = []
+
+    class FailingQueue:
+        def ready(self):
+            return True
+
+        def worker_heartbeat(self, owner, *, source_revision, status, problem=None):
+            seen.append(problem)
+            if problem is not None and problem.code == "poll_failed":
+                stop.set()
+
+        def recover_expired(self):
+            raise OSError("could not connect: password=SECRET")
+
+        def claim(self, owner, *, lease_seconds=60, expected_config=None):
+            pytest.fail("A failing poll must not reach claim")
+
+    runner = threading.Thread(
+        target=serve_worker,
+        args=(FailingQueue(),),
+        kwargs={"stop": stop, "poll_seconds": 0.2},
+        daemon=True,
+    )
+    runner.start()
+    runner.join(timeout=15)
+    assert not runner.is_alive()
+    problems = [item for item in seen if item is not None]
+    assert problems and problems[-1].code == "poll_failed"
+    assert problems[-1].count >= 1
+    assert "SECRET" not in repr(problems)
+
+
+def test_worker_problem_and_interrupt_fields_are_validated_before_storage():
+    from datetime import datetime, timezone
+
+    from capstone.api.run_models import SimRun
+    from capstone.api.run_repository import RunRepository, WorkerProblem
+
+    class Session:
+        def scalar(self, *args):
+            pytest.fail("Unsafe event must be refused before querying the database")
+
+    for name, payload in (
+        ("run.failed", {"status": "failed", "failure_code": "provider said no"}),
+        ("run.interrupted", {"status": "interrupted", "heartbeat_age_seconds": -1}),
+        ("run.interrupted", {"status": "interrupted", "heartbeat_age_seconds": "9"}),
+    ):
+        with pytest.raises(ValueError):
+            RunRepository._append(Session(), SimRun(run_id=None), name, payload)
+    repository = RunRepository(
+        "postgresql+psycopg://test:test@localhost/capstone_test?sslmode=require"
+    )
+    try:
+        now = datetime.now(timezone.utc)
+        for problem in (
+            WorkerProblem("database password SECRET", now),
+            WorkerProblem("poll_failed", now, -1),
+            WorkerProblem("poll_failed", now.replace(tzinfo=None)),
+        ):
+            with pytest.raises(ValueError, match="Invalid worker problem"):
+                repository.worker_heartbeat(
+                    "worker:test", source_revision=None, status="idle", problem=problem
+                )
+    finally:
+        repository.close()
+
+
+def test_operational_projection_adds_only_bounded_safe_fields():
+    from capstone.api.readers import project_operational_event
+
+    row = {
+        "event": "triage.decide.read_selected",
+        "phase": "triage",
+        "status": "selected",
+        "reason_code": "requirement_open",
+        "attempt": 2,
+        "duration_ms": 12.34567,
+        "request_hash": "a" * 20,
+        "config_fingerprint": "b" * 20,
+        "prompt": "You are an investigator. SECRET",
+        "tool": "read_sensor",
+    }
+    assert project_operational_event(row) == {
+        "event": "triage.decide.read_selected",
+        "phase": "triage",
+        "status": "selected",
+        "reason_code": "requirement_open",
+        "attempt": 2,
+        "duration_ms": 12.346,
+        "request_hash": "a" * 20,
+        "tool": "read_sensor",
+    }
+    hostile = {
+        "event": "x.y",
+        "phase": "free text with spaces",
+        "status": "a" * 200,
+        "attempt": 0,
+        "duration_ms": float("nan"),
+        "request_hash": "SECRET-not-a-digest",
+    }
+    assert project_operational_event(hostile) == {"event": "x.y"}
+    assert project_operational_event({"event": "bad event"}) is None
+    assert project_operational_event(["not", "a", "row"]) is None
 
 
 def test_malformed_triage_setting_is_the_same_named_server_fault(caplog, monkeypatch):

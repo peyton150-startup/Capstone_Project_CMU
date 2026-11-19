@@ -22,6 +22,7 @@ from fastapi.responses import StreamingResponse
 from capstone.api.config import UiConfig
 from capstone.api.readers import (
     mtconnect_snapshot,
+    project_operational_event,
     recent_lines,
     recorder_snapshot,
     safe_evaluations,
@@ -863,6 +864,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         run_id: str, workspace: Workspace = "simulator"
     ) -> dict:
         """Expose a bounded allowlist of metadata, never raw audit or provider text."""
+        # Variables:
+        #   items: Each stored line re-projected by project_operational_event,
+        #     the one allowlist shared by hosted and local runs.
         if workspace != "simulator":
             raise HTTPException(status_code=403, detail="Pilot diagnostics unavailable")
         ensure_run(run_id)
@@ -885,36 +889,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 raw = json.loads(line)
             except (ValueError, TypeError):
                 continue
-            if not isinstance(raw, dict):
-                continue
-            event = raw.get("event")
-            if not isinstance(event, str) or not re.fullmatch(
-                r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", event
-            ):
-                continue
-            entry = {"event": event}
-            for field in ("run_id", "investigation_id", "tool"):
-                value = raw.get(field)
-                if isinstance(value, str) and re.fullmatch(
-                    r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", value
-                ):
-                    entry[field] = value
-            tick = raw.get("tick")
-            if type(tick) is int and tick >= 0:
-                entry["tick"] = tick
-            if type(raw.get("success")) is bool:
-                entry["success"] = raw["success"]
-            counts = raw.get("counts")
-            if isinstance(counts, dict):
-                entry["counts"] = {
-                    name: count
-                    for name, count in counts.items()
-                    if isinstance(name, str)
-                    and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", name)
-                    and type(count) is int
-                    and 0 <= count <= 1_000_000
-                }
-            items.append(entry)
+            entry = project_operational_event(raw)
+            if entry is not None:
+                items.append(entry)
         return {
             "availability": "available",
             "window_scope": "bounded_recent_tail",
