@@ -65,14 +65,14 @@ type SettingsData = {
 };
 
 export function SystemPage() {
-  const {token,preview}=useUi();
+  const {token,preview,backend}=useUi();
   const data=useResource<SystemStatus>('/api/v1/system',token,preview);
   const recorder=useRecording().snapshot?.recorder;
   return <>
     <PageHeading eyebrow="ENGINEERING / SERVICE STATUS" title="System health"
       description="Operational indicators backed by a source or clearly marked unknown."/>
     <div className="metric-grid">
-      <Metric label="Local API" value={data.data?.api||null} note="Read-only FastAPI service" icon={<Gauge size={17}/>}/>
+      <Metric label={backend === "local" ? "Local API" : "Render API"} value={data.data?.api||null} note="Read-only FastAPI service" icon={<Gauge size={17}/>}/>
       <Metric label="Investigation worker"
         value={data.data?.run_queue?.worker_liveness||data.data?.simulation_worker||null}
         note={workerNote(data.data?.run_queue)} icon={<Activity size={17}/>}/>
@@ -113,12 +113,12 @@ export function SystemPage() {
       </Panel>
     </div>
     <div className="three-column-link">
-      <a className="feature-row-link" href="/system/observability"><Activity size={21}/>
-        <div><strong>Agent observability</strong><small>Traceability and timing sources</small></div><ArrowRight size={17}/></a>
-      <a className="feature-row-link" href="/system/audit"><TerminalSquare size={21}/>
-        <div><strong>Collector audit</strong><small>Connection and error metadata</small></div><ArrowRight size={17}/></a>
-      <a className="feature-row-link" href="/system/settings"><SlidersHorizontal size={21}/>
-        <div><strong>Settings</strong><small>Allowlisted effective values</small></div><ArrowRight size={17}/></a>
+      <Link className="feature-row-link" to="/system/observability"><Activity size={21}/>
+        <div><strong>Agent observability</strong><small>Traceability and timing sources</small></div><ArrowRight size={17}/></Link>
+      <Link className="feature-row-link" to="/system/audit"><TerminalSquare size={21}/>
+        <div><strong>Collector audit</strong><small>Connection and error metadata</small></div><ArrowRight size={17}/></Link>
+      <Link className="feature-row-link" to="/system/settings"><SlidersHorizontal size={21}/>
+        <div><strong>Settings</strong><small>Allowlisted effective values</small></div><ArrowRight size={17}/></Link>
     </div>
   </>;
 }
@@ -177,7 +177,7 @@ export function AuditPage() {
   </>;
 }
 export function SettingsPage() {
-  const {token,preview,theme,setTheme}=useUi();
+  const {token,preview,theme,setTheme,backend}=useUi();
   const data=useResource<SettingsData>('/api/v1/settings/effective',token,preview);
   const [filter,setFilter]=useState('');
   const settings=useMemo(()=>data.data?.items.filter(item=>item.name.toLowerCase().includes(filter.toLowerCase()))||[],
@@ -189,7 +189,7 @@ export function SettingsPage() {
     <div className="two-column uneven">
       <Panel title="Validated server defaults" subtitle="Explicit allowlist; not an editable .env browser">
         <div className="settings-toolbar"><input aria-label="Filter settings" placeholder="Filter by variable name..."
-          value={filter} onChange={e=>setFilter(e.target.value)}/><Pill text="LOCAL API" tone="info"/></div>
+          value={filter} onChange={e=>setFilter(e.target.value)}/><Pill text={backend === "local" ? "LOCAL API" : "RENDER API"} tone="info"/></div>
         {settings.length?settings.map(s=><div className="settings-row" key={s.name}>
           <div><strong>{s.name}</strong><small>{s.configured?'Process override':'Validated default or private .env value'}</small></div>
           <span className="settings-value">{s.value||'Not configured'}</span></div>):
