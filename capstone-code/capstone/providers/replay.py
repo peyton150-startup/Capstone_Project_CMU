@@ -334,6 +334,8 @@ class RecordedObservationTools:
         #     sequence number says it is the same observation, not a new event.
         #   admitted: The event qualification; a refusal fails the whole call,
         #     because partial alarm coverage must not read as "no alarms".
+        #   row: The admitted event as the tool returns it; its severity key is
+        #     kept only for WARNING/FAULT alarms, so other rows look as before.
         events: list[tuple[int, int, dict]] = []
         seen: set[tuple[str, str | None, int]] = set()
         for line in self._visible():
