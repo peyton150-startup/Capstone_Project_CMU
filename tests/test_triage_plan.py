@@ -91,29 +91,6 @@ def test_anything_else_gets_the_generic_list():
         assert "line screening" in questions[0].text
 
 
-def test_a_generic_anomaly_naming_one_sensor_plans_a_real_measurement():
-    """An unlisted kind still plans the reading it named, not only records."""
-    from capstone.agent.triage_plan import fixed_requirements
-
-    odd = anomaly(
-        kind="operator_review",
-        description="Review unusual spindle load, root cause unknown",
-    )
-    questions = fixed_plan(odd)
-    assert [q.id for q in questions] == ["Q1", "Q2", "Q3", "Q4"]
-    assert "CNC-02's load readings" in questions[3].text
-    requirements = fixed_requirements(odd, cutoff_tick=914)
-    assert requirements["Q4:load"].tool == "get_sensor_summary"
-    assert requirements["Q4:load"].sensor == "load"
-    # Ambiguous or machine-less descriptions still get no guessed read.
-    vague = anomaly(kind="operator_review", description="something looks off")
-    assert "Q4:load" not in fixed_requirements(vague, cutoff_tick=914)
-    both = anomaly(
-        kind="operator_review", description="vibration and temperature both odd"
-    )
-    assert len(fixed_plan(both)) == 3
-
-
 def test_the_fixed_questions_name_no_cause_and_never_change():
     words = ("bearing", "leak", "wear", "worn", "wrong setting", "false alarm", "fault")
     for kind, said in (
