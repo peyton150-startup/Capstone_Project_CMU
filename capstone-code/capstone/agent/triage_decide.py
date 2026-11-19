@@ -36,6 +36,11 @@ from capstone.providers.factory import TOOL_ARGUMENTS
 if TYPE_CHECKING:
     from capstone.agent.loop import InvestigationDeps
 
+# The deterministic read-ordering policy's version. It is written into a
+# selected read's reason and into saved traces, so a change to the weights is
+# a new version, never a silent reordering of an old run.
+READ_RANKING_POLICY = "read-ranking-v1"
+
 READ_ONLY = frozenset(
     {
         "get_sensor_summary",
@@ -46,6 +51,8 @@ READ_ONLY = frozenset(
         "get_job_history",
     }
 )
+# Reads that measure a machine's signal, rather than query its records.
+SENSOR_READS = frozenset({"get_sensor_summary", "get_readings", "get_sensor_trend"})
 STOP_MAP = {
     "requirements_complete": TerminationReason.EVIDENCE_SUFFICIENT,
     "no_eligible_read": TerminationReason.NO_USEFUL_ACTION,
@@ -85,39 +92,49 @@ def fingerprint(request: ToolRequest, cutoff_tick: int) -> str:
     return json.dumps([request.name, request.arguments, cutoff_tick], sort_keys=True)
 
 
-def permitted_triage_read(
+def unpermitted_reason(
     requirement: ReadRequirement, deps: "InvestigationDeps", state: InvestigationState
-) -> bool:
-    """Check catalog, channel, argument and cutoff before a provider call."""
+) -> str | None:
+    """Why this read is not authorized now, as a safe code, or None when it is."""
     # Variables:
     #   cutoff: The source horizon captured before any controller reads.
     #   names: Authorized read-only operations for this particular provider.
     cutoff = state.triage_observation_cutoff_tick
     names = {spec.name for spec in deps.triage_tool_specs}
     if requirement.tool not in READ_ONLY or requirement.tool not in names:
-        return False
-    if cutoff is None or (
-        requirement.to_tick is not None and requirement.to_tick > cutoff
-    ):
-        return False
+        return "unsupported_tool"
+    if cutoff is None:
+        return "observation_cutoff_unknown"
+    if requirement.to_tick is not None and requirement.to_tick > cutoff:
+        return "window_past_cutoff"
     if (
         requirement.machine_id is not None
         and requirement.machine_id not in known_machines(state)
     ):
-        return False
+        return "unknown_machine"
     if (
         requirement.sensor is not None
         and requirement.sensor
         not in deps.triage_channels.get(requirement.machine_id or "factory", ())
     ):
-        return False
+        return "channel_unavailable"
     try:
         TOOL_ARGUMENTS[requirement.tool].model_validate(
             request_for(requirement).arguments
         )
     except (KeyError, ValueError):
-        return False
-    return True
+        return "invalid_arguments"
+    return None
+
+
+def permitted_triage_read(
+    requirement: ReadRequirement, deps: "InvestigationDeps", state: InvestigationState
+) -> bool:
+    """Check catalog, channel, argument and cutoff before a provider call."""
+    # Variables:
+    #   requirement: The planned read; its tool, machine, sensor and window are
+    #     each checked against this provider's catalog, channels and cutoff.
+    return unpermitted_reason(requirement, deps, state) is None
 
 
 def initialize_requirements(state: InvestigationState) -> None:
@@ -574,18 +591,106 @@ def reconcile_question_comparison(
         )
 
 
-def evaluate_triage_requirements(state: InvestigationState) -> None:
-    """Reconcile all requirements, attach shared evidence, and close only complete questions."""
+def reconciled_result(
+    previous: RequirementResult | None,
+    fresh: RequirementResult,
+    *,
+    capability: str | None = None,
+    checked: bool = False,
+) -> RequirementResult:
+    """One authoritative status: qualified evidence first, then capability.
+
+    A requirement the provider cannot serve must not read as "pending", but a
+    remembered verdict can go stale: the catalog, channels or cutoff may
+    change between cycles. So when authorization can be checked (`checked`),
+    the capability verdict is recomputed from it, not carried over. Evidence
+    that already qualified is never invalidated by a later capability change.
+    """
+    # Variables:
+    #   previous: The result recorded before this evaluation, if any.
+    #   fresh: What the current evidence qualifies to, recomputed from scratch.
+    #   capability: The current blocking reason code, or None if the read is
+    #     authorized now; ignored unless `checked`.
+    #   checked: Whether this cycle could evaluate authorization at all. When
+    #     it could not (no deps), a recorded capability verdict is kept.
+    if fresh.status == "satisfied":
+        # Qualified evidence wins: a capability change is not retroactive.
+        return fresh
+    if not checked:
+        if (
+            previous is not None
+            and previous.status in ("unavailable", "unsupported")
+            and not fresh.evidence_ids
+        ):
+            return previous
+        return fresh
+    if capability is None:
+        return fresh
+    status = (
+        "unsupported"
+        if capability in ("unsupported_tool", "invalid_arguments")
+        else "unavailable"
+    )
+    detail = f"read not authorized: {capability}"
+    if fresh.evidence_ids:
+        # Keep both facts: what was collected, and why more cannot be.
+        detail += f"; collected evidence is {fresh.status}: {fresh.reason}"
+    return RequirementResult(
+        status=status,
+        evidence_ids=fresh.evidence_ids,
+        valid_samples=fresh.valid_samples,
+        reason=detail,
+    )
+
+
+def unresolved_required(state: InvestigationState) -> tuple[str, ...]:
+    """Required requirements whose result is not satisfied, in plan order."""
+    # Variables:
+    #   result: The last recorded verdict, or the pending default if never read.
+    return tuple(
+        rid
+        for rid, requirement in state.triage_requirements.items()
+        if requirement.required
+        and state.triage_requirement_results.get(rid, RequirementResult()).status
+        != "satisfied"
+    )
+
+
+def evaluate_triage_requirements(
+    state: InvestigationState, deps: "InvestigationDeps | None" = None
+) -> None:
+    """Reconcile all requirements, attach shared evidence, and close only complete questions.
+
+    When `deps` is given (the deterministic controller), each requirement's
+    capability status is recomputed from the current catalog, channels and
+    cutoff, so it can never go stale.
+    """
     # Variables:
     #   by_question: Required parts of each question, evaluated independently.
     #   movement: Q5's three source requirements, not proof of correlation.
     #   all_qualified: Whether each source passes independently.
+    #   previous: The recorded results, for the no-deps case only.
+    #   capability: Why this read is not authorized now, or None if it is;
+    #     only the deterministic controller can check it, hence `deps`.
     expand_job_requirements(state)
+    previous = dict(state.triage_requirement_results)
     by_question: dict[str, list[str]] = {}
     for rid, requirement in state.triage_requirements.items():
-        result = qualify(state, requirement)
+        capability = (
+            unpermitted_reason(requirement, deps, state) if deps is not None else None
+        )
+        result = reconciled_result(
+            previous.get(rid),
+            qualify(state, requirement),
+            capability=capability,
+            checked=deps is not None,
+        )
         state.triage_requirement_results[rid] = result
         by_question.setdefault(requirement.question_id, []).append(rid)
+    # Anomalies are a diagnostic of the CURRENT state, recomputed each cycle:
+    # a resolved inconsistency must disappear, and identical state must give
+    # identical entries, so this can never accumulate or block forever.
+    found: list[str] = []
     for question_id, ids in by_question.items():
         reconcile_question_comparison(state, question_id, ids)
         evidence_ids = list(
@@ -616,6 +721,71 @@ def evaluate_triage_requirements(state: InvestigationState) -> None:
             state.unanswered_questions = [
                 q for q in state.unanswered_questions if q.id != question_id
             ]
+        elif question_id in state.answers:
+            # `answers` is an evidence map, not a closure record: gather()
+            # appends evidence for a question it then holds open (an unsettled
+            # predicate). So this is only an inconsistency when the question is
+            # no longer open -- answered, yet its requirements unsatisfied.
+            # Not reachable otherwise through the current lifecycle: job paths
+            # expand inside the same reconciliation, before closure, and
+            # identical reads are deduplicated.
+            still_open = any(q.id == question_id for q in state.unanswered_questions)
+            if not still_open:
+                unmet = sorted(
+                    rid
+                    for rid in ids
+                    if state.triage_requirement_results[rid].status != "satisfied"
+                )
+                found.append(
+                    f"{question_id}: answered but {', '.join(unmet)} unsatisfied"
+                )
+    state.triage_bookkeeping_anomalies = sorted(found)
+
+
+def read_priority(
+    requirement_ids: tuple[str, ...],
+    *,
+    state: InvestigationState,
+    direct: bool,
+    order_position: int | None = None,
+) -> tuple[int, int, int, int, int, int]:
+    """A reproducible sort key for one grouped read; smaller is read first.
+
+    It is an ordinal preference over evidence, never a probability or a
+    claim that the read explains anything.
+    """
+    # Variables:
+    #   requirement_ids: Every requirement this one request answers, so a
+    #     grouped read is judged by all of them, not just the first.
+    #   order_position: The read's place in the candidate-derived Test order,
+    #     when there is one; it always wins, since Hypothesize already ranked
+    #     those reads against the explanations.
+    #   shared: How many requirements the read settles at once.
+    #   discriminating: Whether any compiled candidate names any of these
+    #     requirements as separating its possibilities. It is 0 during
+    #     Investigate, where candidates do not exist yet, so a test there
+    #     only measures shared coverage.
+    #   direct: Whether the read measures a machine rather than its records.
+    #   question_number: The first question's number, so Q1 leads on a tie.
+    #   ordered: 0 when an explicit Test order exists, else 1; it is the
+    #     first key, so ranking never overrides that order.
+    shared = len(requirement_ids)
+    named = {
+        rid
+        for candidate in state.triage_candidates
+        for rid in candidate.discriminating_requirement_ids
+    }
+    discriminating = any(rid in named for rid in requirement_ids)
+    suffix = state.triage_requirements[requirement_ids[0]].question_id.removeprefix("Q")
+    question_number = int(suffix) if suffix.isdigit() else 99
+    return (
+        0 if order_position is not None else 1,
+        order_position if order_position is not None else 0,
+        -shared,
+        -int(discriminating),
+        -int(direct),
+        question_number,
+    )
 
 
 def choose_next_triage_read(
@@ -628,6 +798,8 @@ def choose_next_triage_read(
     #   attempts: Count for the exact request at this stable cutoff.
     #   order: Typed candidate-driven Test priority, rebuilt as observed
     #     inspections reveal job-path requirements.
+    #   ranked: Grouped requests best first, by `read_priority` and then by
+    #     their key, so identical inputs always pick the same read.
     cutoff = state.triage_observation_cutoff_tick
     assert cutoff is not None
     pending = [
@@ -678,14 +850,39 @@ def choose_next_triage_read(
                         unresolved_requirement_ids=unsupported,
                     )
     if not pending and not state.unanswered_questions:
+        # `pending` is phase-filtered: an empty list here proves nothing about
+        # the whole ledger. Completion is judged globally.
+        outstanding = unresolved_required(state)
+        if outstanding:
+            return TriageStopDecision(
+                reason="data_insufficient", unresolved_requirement_ids=outstanding
+            )
         return TriageStopDecision(reason="requirements_complete")
     grouped: dict[str, tuple[ToolRequest, list[str]]] = {}
     unavailable = False
     exhausted = False
     insufficient = False
     for requirement in pending:
-        if not permitted_triage_read(requirement, deps, state):
+        reason = unpermitted_reason(requirement, deps, state)
+        if reason is not None:
             unavailable = True
+            # Keep the requirement in the plan and in the record: what the
+            # investigation needed but could not obtain must stay visible.
+            # A requirement that already has evidence keeps its own verdict.
+            current = state.triage_requirement_results.get(requirement.requirement_id)
+            if current is None or (
+                current.status == "pending" and not current.evidence_ids
+            ):
+                state.triage_requirement_results[requirement.requirement_id] = (
+                    RequirementResult(
+                        status=(
+                            "unsupported"
+                            if reason in {"unsupported_tool", "invalid_arguments"}
+                            else "unavailable"
+                        ),
+                        reason=f"read not authorized: {reason}",
+                    )
+                )
             continue
         request = request_for(requirement)
         key = fingerprint(request, cutoff)
@@ -714,7 +911,26 @@ def choose_next_triage_read(
             grouped[key] = (request, [])
         grouped[key][1].append(requirement.requirement_id)
     if grouped:
-        request, ids = next(iter(grouped.values()))
+        test_order = {
+            rid: position
+            for position, rid in enumerate(state.triage_test_requirement_ids)
+        }
+        ranked = sorted(
+            grouped.items(),
+            key=lambda entry: (
+                read_priority(
+                    tuple(entry[1][1]),
+                    state=state,
+                    direct=entry[1][0].name in SENSOR_READS,
+                    order_position=min(
+                        (test_order[rid] for rid in entry[1][1] if rid in test_order),
+                        default=None,
+                    ),
+                ),
+                entry[0],
+            ),
+        )
+        _, (request, ids) = ranked[0]
         first = state.triage_requirements[ids[0]]
         return TriageReadDecision(
             step=CallTool(
@@ -723,7 +939,7 @@ def choose_next_triage_read(
                 question_id=first.question_id,
             ),
             requirement_ids=tuple(ids),
-            reason="unmet qualified requirement",
+            reason=f"unmet qualified requirement ({READ_RANKING_POLICY})",
             candidate_count=len(grouped),
         )
     reason: TriageStopReason = (
@@ -747,23 +963,69 @@ def stop(
     decision: TriageStopDecision,
     deps: "InvestigationDeps",
 ) -> TerminationReason:
-    """Record the triage-specific reason and its legacy loop equivalent."""
+    """Record the triage-specific reason and its legacy loop equivalent.
+
+    One authoritative completion rule at the boundary every stop crosses: a
+    `requirements_complete` decision is converted to `data_insufficient`,
+    keeping its unresolved ids, when a required requirement is unresolved.
+    This is an explicit recorded transition, not an assertion, so it holds
+    under optimized execution and never interrupts the Graph.
+    """
+    # Variables:
+    #   effective: The stop actually recorded; the converted one on violation.
+    #   outstanding: Required requirements still not satisfied, sorted.
     from capstone.agent.loop import record
 
+    effective = decision
+    converted = False
+    if decision.reason == "requirements_complete":
+        # A phase-filtered empty list, or an empty question list, never
+        # proves sufficiency on its own. Neither does a satisfied
+        # requirement ledger: a mandatory question may still be open, or
+        # a composite one may have a gap its parts cannot settle.
+        outstanding = unresolved_required(state)
+        open_questions = tuple(q.id for q in state.unanswered_questions)
+        gapped = tuple(sorted(state.triage_question_gaps))
+        if (
+            outstanding
+            or open_questions
+            or gapped
+            or state.triage_bookkeeping_anomalies
+        ):
+            converted = True
+            effective = TriageStopDecision(
+                reason="data_insufficient",
+                unresolved_requirement_ids=tuple(
+                    sorted(set(outstanding) | set(decision.unresolved_requirement_ids))
+                ),
+            )
+    if converted:
+        # Observable on purpose: an invalid completion attempt is a controller
+        # bug worth finding in a saved run, not something to swallow.
+        emit_triage_event(
+            state,
+            deps,
+            event="triage.completion_converted",
+            phase=phase,
+            reason_code="data_insufficient",
+            status="stopped",
+            requirement_ids=effective.unresolved_requirement_ids,
+            question_ids=tuple(q.id for q in state.unanswered_questions),
+        )
     state.triage_deterministic_stops += 1
     state.triage_decide_trace.append(
         TriageDecisionRecord(
             phase=phase,
             iteration=state.iteration_count,
             kind="stop",
-            reason=decision.reason,
-            requirement_ids=decision.unresolved_requirement_ids,
+            reason=effective.reason,
+            requirement_ids=effective.unresolved_requirement_ids,
         )
     )
     # Keep the reason and all outstanding dependencies even for budget stops.
     unresolved = tuple(
         sorted(
-            set(decision.unresolved_requirement_ids)
+            set(effective.unresolved_requirement_ids)
             | {
                 rid
                 for rid in state.triage_requirements
@@ -777,19 +1039,19 @@ def stop(
         deps,
         event="triage.stopped",
         phase=phase,
-        reason_code=decision.reason,
+        reason_code=effective.reason,
         status="stopped",
         requirement_ids=unresolved,
         question_ids=tuple(q.id for q in state.unanswered_questions),
         iteration=state.iteration_count,
         remaining_tool_calls=state.remaining_tool_calls,
     )
-    mapped = STOP_MAP[decision.reason]
+    mapped = STOP_MAP[effective.reason]
     record(
         state,
         phase,
         "stopped",
-        information_needed=decision.reason,
+        information_needed=effective.reason,
         termination_reason=mapped,
     )
     return mapped
@@ -893,7 +1155,7 @@ def run_deterministic_triage_loop(
         before_evidence = {
             qid: tuple(ids) for qid, ids in state.triage_question_evidence.items()
         }
-        evaluate_triage_requirements(state)
+        evaluate_triage_requirements(state, deps)
         for rid, result in sorted(state.triage_requirement_results.items()):
             before = previous.get(rid)
             after = (result.status, result.evidence_ids, result.reason)
@@ -942,7 +1204,7 @@ def run_deterministic_triage_loop(
             if deps.triage_hypothesize != "deterministic":
                 add_test_requirements(state)
             reconcile()
-        if not state.unanswered_questions:
+        if not state.unanswered_questions and not unresolved_required(state):
             return finish(TriageStopDecision(reason="requirements_complete"))
         if state.remaining_iterations <= 0:
             return finish(TriageStopDecision(reason="max_iterations"))
@@ -950,6 +1212,22 @@ def run_deterministic_triage_loop(
             return finish(TriageStopDecision(reason="max_tool_calls"))
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
+            # An empty question list is never completion on its own: if a
+            # required requirement is still unresolved, the stop keeps it on
+            # the record, whatever reason the selector gave.
+            outstanding = unresolved_required(state)
+            if outstanding and not state.unanswered_questions:
+                return finish(
+                    TriageStopDecision(
+                        reason=decision.reason,
+                        unresolved_requirement_ids=tuple(
+                            sorted(
+                                set(outstanding)
+                                | set(decision.unresolved_requirement_ids)
+                            )
+                        ),
+                    )
+                )
             return finish(decision)
         if deps.triage_hypothesize == "deterministic":
             from capstone.agent.triage_hypothesize import log_hypothesis_event

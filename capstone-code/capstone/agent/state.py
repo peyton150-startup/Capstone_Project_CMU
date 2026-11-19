@@ -546,6 +546,10 @@ class InvestigationState(BaseModel):
     unanswered_questions: list[Question] = Field(default_factory=list)
     # Question id to the evidence that answered it, newest last.
     answers: dict[str, list[str]] = Field(default_factory=dict)
+    # Inconsistencies the deterministic controller noticed in its own
+    # bookkeeping, as short descriptions: a question recorded as answered
+    # while its requirements are not all satisfied. Empty in a healthy run.
+    triage_bookkeeping_anomalies: list[str] = Field(default_factory=list)
     decisions: list[DecisionRecord] = Field(default_factory=list)
 
     iteration_count: int = Field(default=0, ge=0)
