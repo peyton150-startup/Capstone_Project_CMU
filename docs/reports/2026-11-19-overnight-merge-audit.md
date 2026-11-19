@@ -101,6 +101,18 @@ changed that lacked one: `validate_haas_get`, `haas_get`, `verify_haas_probe`,
 
 ## 4. Open issues for tomorrow (most important first)
 
+**Fix status (2026-11-19, afternoon).** This report records issues; it fixes
+none of them. Code fixes so far, both open for review and not merged:
+
+- PR #316 fixes three: the replay cutoff hiding earlier evidence, `ready()`
+  checking one of 0006's three columns, and the triage record's
+  `evidence_tests` coming from the server instead of the run.
+- PR #317 connects the #310 Haas detector to recorded captures (the High item
+  below), for recorded captures only, not the live collector.
+- Done outside code: migration 0006 on Supabase (see "Database state").
+
+Every other item below is still open and has no fix yet.
+
 ### High
 
 - **Deploy order for #313.** Migration `0006_worker_problems` must run
