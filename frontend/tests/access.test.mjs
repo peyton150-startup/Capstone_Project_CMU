@@ -42,3 +42,11 @@ test('browser role messages match the API exactly, and actions use role tokens',
   const research = readFileSync(new URL('../src/pages/research.tsx', import.meta.url), 'utf8');
   assert.equal((research.match(/tokenFor\('evaluator'\)/g) || []).length, 2);
 });
+
+test('the Access dialog closes on Escape and its remember box is labelled', () => {
+  const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  const dialog = app.slice(app.indexOf('function AccessDialog'), app.indexOf('function', app.indexOf('function AccessDialog') + 10));
+  assert.match(dialog, /event\.key === 'Escape'\) close\(\)/);
+  assert.match(app, /className="access-remember"/);
+  assert.match(app, /aria-label="Remember in this tab until it closes"/);
+});

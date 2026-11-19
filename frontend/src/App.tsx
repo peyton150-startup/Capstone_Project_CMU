@@ -123,6 +123,14 @@ function AccessDialog({ close }: { close: () => void }) {
   const [copied, setCopied] = useState(false);
   const label = backend === 'local' ? 'Local' : 'Render';
 
+  // Escape closes the dialog, as expected of an aria-modal dialog; before, it
+  // stayed open over the page and swallowed clicks meant for the page.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [close]);
+
   async function save() {
     const next = Object.fromEntries(ROLES.map(item => [item.role, values[item.role].trim()])) as RoleTokens;
     setRoleTokens(next);
