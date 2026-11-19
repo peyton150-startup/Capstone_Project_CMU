@@ -22,6 +22,7 @@ import argparse
 import os
 import re
 import sys
+from collections import Counter
 from collections.abc import Callable, Sequence
 
 from capstone.agent.evidence_packet import EvidencePacket
@@ -34,6 +35,7 @@ from capstone.agent.state import (
     TriageTestRecord,
 )
 from capstone.agent.triage_report import TriageReport
+from capstone.agent.triage_trace import TriageTraceEvent, requirement_reason_code
 from capstone.console import safe_console
 from capstone.episode import (
     SCENARIO_KINDS,
@@ -150,6 +152,93 @@ def evidence_test_line(record: TriageTestRecord) -> str:
     return "; ".join(parts)
 
 
+def trace_event_line(event: TriageTraceEvent) -> str:
+    """One deterministic triage trace event as a line, for --trace.
+
+    The event holds fixed codes, identifiers and counts only (never tool
+    payloads or model text), so printing it shows nothing hidden.
+    """
+    # Variables:
+    #   parts: The event's sequence, phase and name, then whichever of its
+    #     diagnostic fields are set, in a fixed order.
+    parts = [f"TRACE #{event.sequence} {event.phase} {event.event}"]
+    parts.append(f"reason {event.reason_code}")
+    if event.status:
+        parts.append(f"status {event.status}")
+    if event.tool:
+        parts.append(f"tool {event.tool}")
+    if event.requirement_ids:
+        parts.append(f"requirements {', '.join(event.requirement_ids)}")
+    if event.question_ids:
+        parts.append(f"questions {', '.join(event.question_ids)}")
+    if event.evidence_ids:
+        parts.append(f"evidence {', '.join(event.evidence_ids)}")
+    if event.request_hash:
+        parts.append(f"request {event.request_hash}")
+    if event.remaining_tool_calls is not None:
+        parts.append(f"calls left {event.remaining_tool_calls}")
+    if event.duration_ms is not None:
+        parts.append(f"{event.duration_ms:.0f} ms")
+    return "; ".join(parts)
+
+
+def requirement_ledger_lines(state: InvestigationState) -> list[str]:
+    """The end-of-triage requirement ledger: every requirement and its status.
+
+    One count line, then one line per requirement in id order with its stable
+    reason code (`requirement_reason_code`) and how many evidence items back
+    it, so a run that stops short shows which requirement held it back.
+    """
+    # Variables:
+    #   results: The triage's requirement results, by requirement id.
+    #   counts: How many requirements ended in each status.
+    results = state.triage_requirement_results
+    if not results:
+        return []
+    counts = Counter(result.status for result in results.values())
+    lines = [
+        "REQUIREMENTS: "
+        + ", ".join(f"{status} {n}" for status, n in sorted(counts.items()))
+    ]
+    for rid, result in sorted(results.items()):
+        code = requirement_reason_code(result.status, result.reason)
+        lines.append(
+            f"  {rid}: {result.status} ({code}; {len(result.evidence_ids)} evidence)"
+        )
+    return lines
+
+
+def triage_profile_line(settings) -> str | None:
+    """The effective triage profile in one line, or None if it is unknown.
+
+    Reads `Settings.effective_triage`, so it shows what the run will really
+    do after TRIAGE_RUN_MODE overrides the per-stage settings.
+    """
+    # Variables:
+    #   profile: The resolved TriageExecutionProfile.
+    #   models: The triage stages that call a model under this profile.
+    try:
+        profile = settings.effective_triage
+    except AttributeError:
+        return None
+    models = ["conclude"]
+    if profile.plan == "model":
+        models.append("plan")
+    if profile.investigate != "deterministic":
+        models.append("investigate")
+    if profile.hypothesize == "model":
+        models.append("hypothesize")
+    if profile.critic:
+        models.append("critic")
+    return (
+        f"RUN: triage profile {profile.run_mode}: plan {profile.plan}, "
+        f"investigate {profile.investigate}, hypothesize {profile.hypothesize}, "
+        f"evidence tests {'on' if profile.evidence_tests else 'off'}, "
+        f"critic {'on' if profile.critic else 'off'}; "
+        f"model-backed stages: {', '.join(models)}"
+    )
+
+
 def print_progress(line: str) -> None:
     """Print a progress line with color on interactive terminals."""
     # Variables:
@@ -167,13 +256,15 @@ def print_progress(line: str) -> None:
     ):
         color = "93"
     elif re.match(
-        r"^(RUN|CONCLUSION|PROPOSAL|CHECK|CRITIC|FOLLOW-UP|  why:|  confidence "
+        r"^(RUN|CONCLUSION|PROPOSAL|CHECK|CRITIC|FOLLOW-UP|REQUIREMENTS|  why:|  confidence "
         r"|  tried for |  assessment:|  calls:)",
         line,
     ):
         color = "95"
     elif re.match(r"^\s*->", line):
         color = "36"
+    elif line.startswith("TRACE #"):
+        color = "90"
     if color and sys.stdout.isatty() and "NO_COLOR" not in os.environ:
         print(f"\033[{color}m{line}\033[0m", flush=True)
     else:
@@ -279,9 +370,14 @@ class ProgressView:
     check it showed), so being shown the same state twice prints nothing.
     """
 
-    def __init__(self, write: Write = print_progress):
+    def __init__(self, write: Write = print_progress, *, trace: bool = False):
         # Variables:
         #   write: Where lines go; colored terminal output by default, replaced in tests.
+        #   trace: With --trace, also print every deterministic triage trace
+        #     event (`trace_event_line`) as it is recorded.
+        #   trace_shown: How many trace events were printed, so each is shown once.
+        #   ledger_shown: Whether the requirement ledger has been printed; it is
+        #     printed once, with the triage report.
         #   started: Whether the opening line has been printed.
         #   decisions_shown: How many steps have been printed, so only new ones are.
         #   beliefs: The leading beliefs last printed.
@@ -314,6 +410,9 @@ class ProgressView:
         self.tests_shown = 0
         self.plan_shown = False
         self.report = None
+        self.trace = trace
+        self.trace_shown = 0
+        self.ledger_shown = False
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -346,6 +445,10 @@ class ProgressView:
         for record in state.triage_test_records[self.tests_shown :]:
             self.write(evidence_test_line(record))
         self.tests_shown = len(state.triage_test_records)
+        if self.trace:
+            for event in state.triage_trace_events[self.trace_shown :]:
+                self.write(trace_event_line(event))
+            self.trace_shown = len(state.triage_trace_events)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)
@@ -364,6 +467,10 @@ class ProgressView:
             self.report = state.triage_report
             for line in report_lines(state.triage_report):
                 self.write(line)
+            if not self.ledger_shown:
+                self.ledger_shown = True
+                for line in requirement_ledger_lines(state):
+                    self.write(line)
         proposal = state.proposed_action
         if proposal is not None and proposal != self.proposal:
             self.proposal = proposal
@@ -628,6 +735,7 @@ def run_header(
     tree_of_thought: bool = False,
     hazards=False,
     stage_context: bool | None = None,
+    triage: bool = False,
 ) -> list[str]:
     """What this run is set to, printed once before the first case.
 
@@ -644,6 +752,10 @@ def run_header(
     #   hazards: False, True / "standard", or "blackout".
     #   stage_context: Whether the run uses the stage views; None leaves the line
     #     out, so a caller that does not know prints the usual header.
+    #   triage: Whether this run triages; if so, a line names the effective
+    #     triage profile (`triage_profile_line`).
+    #   deterministic: Whether TRIAGE_RUN_MODE=deterministic, so the triage
+    #     model line says it answers the conclusion only.
     #   critic: The critic treatment in words.
     #   book: The manual setting in words.
     #   calls: DECIDE_CALLS; a third line names it only above 1, so the usual
@@ -685,10 +797,16 @@ def run_header(
     effort = getattr(settings, "decide_reasoning_effort", None)
     if effort is not None:
         lines.append(f"RUN: decide reasoning effort {effort} (NVIDIA models only)")
-    triage = getattr(settings, "triage_model", None)
-    if triage is not None:
+    if triage:
+        profile = triage_profile_line(settings)
+        if profile is not None:
+            lines.append(profile)
+    deterministic = getattr(settings, "triage_run_mode", "custom") == "deterministic"
+    model = getattr(settings, "triage_model", None)
+    if model is not None:
+        role = "triage conclusion only" if deterministic else "every triage question"
         lines.append(
-            f"RUN: triage model {triage} (every triage question; thinking "
+            f"RUN: triage model {model} ({role}; thinking "
             f"{'on' if settings.triage_model_thinking else 'off'})"
         )
     late = getattr(settings, "late_model", None)

@@ -781,6 +781,7 @@ def run_experiment(
     manual: ManualSearch | None = None,
     start: int = 1,
     watch: Callable[[str], None] | None = None,
+    trace: bool = False,
     make_critic: Callable[[], Critic] | None = None,
     triage: bool | None = None,
     stage_context: bool | None = None,
@@ -809,6 +810,8 @@ def run_experiment(
     #     come.
     #   start: The number of the first case in the run keys.
     #   watch: Prints a live view of each case; the hidden truth is never printed.
+    #   trace: With watch, also prints each deterministic triage trace event
+    #     (--trace); the events hold codes and identifiers, never evidence text.
     #   make_critic: Builds a fresh critic for each case; None leaves it to settings.
     #   triage: Run a rapid triage before each deep run; None leaves it to settings.
     #   stage_context: Force the stage views on or off for every case; None leaves
@@ -844,7 +847,7 @@ def run_experiment(
             run_key=run_key,
             hazards=case.hazards or hazards,
             manual=manual,
-            watch=None if watch is None else ProgressView(watch),
+            watch=None if watch is None else ProgressView(watch, trace=trace),
             critic=None if make_critic is None else make_critic(),
             triage=triage,
             stage_context=stage_context,
@@ -1688,6 +1691,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   packet_log, packet_logger: With --packet-log, the open trace file and the
     #     JSON-line logger writing to it; each triage's evidence packet logs its
     #     calls, missing items and counts there. None without the flag.
+    #   args.trace: --trace, passed to the live view so it prints every triage
+    #     trace event; ignored with --quiet.
     #   triage_on: Whether this run triages; if so, every model is checked
     #     first (`preflight_models`) and the run does not start when none
     #     answers.
@@ -1774,6 +1779,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             "on: judge_verification and write_lesson get their own views; "
             "off: every question sees the shared view. Overrides STAGE_CONTEXT in "
             ".env for this run. Left out, the .env value is used (off if unset)."
+        ),
+    )
+    run.add_argument(
+        "--trace",
+        action="store_true",
+        help=(
+            "also print every deterministic triage trace event (phase, reason "
+            "code, tool, requirement and evidence ids) in the live view"
         ),
     )
     run.add_argument(
@@ -1887,6 +1900,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 stage_context=(
                     get_settings().stage_context if wanted is None else wanted
                 ),
+                triage=bool(triage_on),
             ):
                 live_line(line)
 
@@ -1906,6 +1920,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             manual=manual,
             on_record=save_record,
             watch=None if args.quiet else live_line,
+            trace=args.trace,
             triage=args.triage,
             stage_context=wanted,
             event_logger=packet_logger,
