@@ -187,6 +187,7 @@ GROUPS: dict[str, list[str]] = {
         "run_repository",
         "cloud_ingest_api",
         "hosted_worker",
+        "hosted_hardening",
         "web_run_controls",
     ],
     "Live telemetry": [

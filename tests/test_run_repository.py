@@ -8,7 +8,12 @@ from pathlib import Path
 
 import pytest
 
-from capstone.api.run_repository import LostLease, RunExecutionConfig, RunRepository
+from capstone.api.run_repository import (
+    SOURCE_REVISION_VARIABLES,
+    LostLease,
+    RunExecutionConfig,
+    RunRepository,
+)
 from capstone.api.runs import RunRequest
 
 
@@ -66,6 +71,34 @@ def test_empty_hosted_migration_round_trip(repository):
             is not None
         )
     command.upgrade(configuration, "head")
+    assert repository.ready()
+
+
+@pytest.mark.parametrize(
+    "column", ["last_problem_code", "last_problem_at", "last_problem_count"]
+)
+def test_ready_refuses_a_schema_missing_any_worker_problem_column(repository, column):
+    """Each of 0006's three columns is checked, not only the first."""
+    from sqlalchemy import text
+
+    assert repository.ready()
+    with repository.engine.begin() as connection:
+        connection.execute(
+            text(
+                "ALTER TABLE capstone_private.sim_worker_heartbeats "
+                f"RENAME COLUMN {column} TO {column}_hidden"
+            )
+        )
+    try:
+        assert not repository.ready()
+    finally:
+        with repository.engine.begin() as connection:
+            connection.execute(
+                text(
+                    "ALTER TABLE capstone_private.sim_worker_heartbeats "
+                    f"RENAME COLUMN {column}_hidden TO {column}"
+                )
+            )
     assert repository.ready()
 
 
@@ -507,10 +540,17 @@ def test_queued_run_stays_queued_until_matching_build_can_claim(repository):
     assert claimed.effective_config == configured
 
 
-def test_worker_idle_pulse_is_durable_and_never_exposes_revision(repository):
+def test_worker_idle_pulse_is_durable_and_never_exposes_revision(
+    repository, monkeypatch
+):
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
     repository.worker_heartbeat(
         "worker:healthy", source_revision="a" * 40, status="idle"
     )
+    # With no commit on the web side, no worker can be shown to match.
+    assert repository.queue_metrics()["worker_liveness"] == "revision_mismatch"
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "a" * 40)
     metrics = repository.queue_metrics()
     assert metrics["worker_liveness"] == "healthy"
     assert metrics["healthy_workers"] >= 1
@@ -826,3 +866,85 @@ def test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes(repository):
             ).scalar_one()
             == 0
         )
+
+
+def test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page(
+    repository,
+):
+    from datetime import datetime, timezone
+
+    from capstone.api.run_repository import WorkerProblem
+
+    now = datetime.now(timezone.utc)
+    repository.worker_heartbeat(
+        "worker:recovering",
+        source_revision="b" * 40,
+        status="idle",
+        problem=WorkerProblem("poll_failed", now, 2),
+    )
+    assert repository.queue_metrics()["last_worker_problem"]["code"] == "poll_failed"
+    repository.worker_heartbeat(
+        "worker:recovering", source_revision="b" * 40, status="idle", clear_problem=True
+    )
+    assert repository.queue_metrics()["last_worker_problem"] is None
+    with pytest.raises(ValueError, match="both store and clear"):
+        repository.worker_heartbeat(
+            "worker:recovering",
+            source_revision="b" * 40,
+            status="idle",
+            problem=WorkerProblem("poll_failed", now, 1),
+            clear_problem=True,
+        )
+    # A worker that stopped pulsing keeps its row, but its problem is no
+    # longer shown once the row is older than the freshness window.
+    repository.worker_heartbeat(
+        "worker:dead",
+        source_revision="b" * 40,
+        status="idle",
+        problem=WorkerProblem("contracts_missing", now, 1),
+    )
+    with repository.engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE capstone_private.sim_worker_heartbeats SET last_seen_at = "
+            "CURRENT_TIMESTAMP - interval '10 minutes' "
+            "WHERE worker_id = 'worker:dead'"
+        )
+    assert repository.queue_metrics()["last_worker_problem"] is None
+
+
+def test_run_list_shows_how_long_a_claimed_run_has_been_silent(repository):
+    first = repository.submit(
+        RunRequest(seed=11),
+        "list-heartbeat-key-001",
+        actor_id="test-operator",
+        effective_config=RunExecutionConfig(),
+    )
+    second = repository.submit(
+        RunRequest(seed=12),
+        "list-heartbeat-key-002",
+        actor_id="test-operator",
+        effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-one")
+    assert claim is not None
+    with repository.engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE capstone_private.sim_jobs SET heartbeat_at = "
+            "CURRENT_TIMESTAMP - interval '120 seconds' WHERE run_id = %s",
+            (claim.run_id,),
+        )
+    rows = {
+        row["run_id"]: row for row in repository.list_runs(actor_id="test-operator")
+    }
+    claimed_id = str(claim.run_id)
+    queued_id = ({first["run_id"], second["run_id"]} - {claimed_id}).pop()
+    assert 119 <= rows[claimed_id]["heartbeat_age_seconds"] <= 180
+    assert rows[queued_id]["heartbeat_age_seconds"] is None
+    assert (
+        rows[claimed_id]["heartbeat_age_seconds"]
+        == (
+            repository.get(claimed_id, actor_id="test-operator")[
+                "heartbeat_age_seconds"
+            ]
+        )
+    )
