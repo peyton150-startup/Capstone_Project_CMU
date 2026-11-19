@@ -62044,6 +62044,449 @@
    ]
   },
   {
+   "id": "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+   "file": "tests/test_haas_qualified.py",
+   "name": "test_good_numeric_sample_keeps_source_and_unit_lineage",
+   "line": 17,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "good numeric sample keeps source and unit lineage",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.accepted",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+   "file": "tests/test_haas_qualified.py",
+   "name": "test_unavailable_is_not_zero",
+   "line": 25,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unavailable is not zero",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.accepted",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+   "file": "tests/test_haas_qualified.py",
+   "name": "test_nonfinite_never_reaches_detector",
+   "line": 31,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "nonfinite never reaches detector",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+   "file": "tests/test_haas_qualified.py",
+   "name": "test_missing_unit_is_not_guessed",
+   "line": 36,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "missing unit is not guessed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
+   "file": "tests/test_haas_qualified.py",
+   "name": "test_unmapped_and_wrong_signal_type_are_refused",
+   "line": 40,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unmapped and wrong signal type are refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+   "file": "tests/test_haas_qualified.py",
+   "name": "test_source_authorization_gate_is_explicit",
+   "line": 53,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "source authorization gate is explicit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_real_detector.py::test_calibrated_running_deviation_is_a_score_not_a_diagnosis",
+   "file": "tests/test_haas_real_detector.py",
+   "name": "test_calibrated_running_deviation_is_a_score_not_a_diagnosis",
+   "line": 47,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "negation": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "calibrated running deviation is a score not a diagnosis",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger",
+   "file": "tests/test_haas_real_detector.py",
+   "name": "test_normal_running_readings_do_not_trigger",
+   "line": 57,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "normal running readings do not trigger",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
+   "file": "tests/test_haas_real_detector.py",
+   "name": "test_idle_and_unknown_states_are_unscorable",
+   "line": 63,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "idle and unknown states are unscorable",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable",
+   "file": "tests/test_haas_real_detector.py",
+   "name": "test_mixed_provenance_is_unscorable",
+   "line": 72,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "mixed provenance is unscorable",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation",
+   "file": "tests/test_haas_real_detector.py",
+   "name": "test_lost_order_and_missing_coverage_never_claim_deviation",
+   "line": 79,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "lost order and missing coverage never claim deviation",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_hazards.py::test_a_timeout_fails_only_the_scheduled_call_and_asking_again_works",
    "file": "tests/test_hazards.py",
    "name": "test_a_timeout_fails_only_the_scheduled_call_and_asking_again_works",

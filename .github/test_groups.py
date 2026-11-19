@@ -211,6 +211,8 @@ GROUPS: dict[str, list[str]] = {
         "haas_poll_budget",
         "haas_profile",
         "haas_protocol",
+        "haas_qualified",
+        "haas_real_detector",
     ],
 }
 

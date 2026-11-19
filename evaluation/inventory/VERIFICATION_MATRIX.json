@@ -88,7 +88,9 @@
   "capstone-code/capstone/ingestion/pilot_acceptance.py": "0d00d997b051b40aae4b8f695bbaa20ce6f08e4b78304f94aee3422c34e7aecd",
   "capstone-code/capstone/ingestion/pilot_preflight.py": "970cfe3c16e0a75ffa045188a93d2b909097c0a3394ef99cb77e48cf452352ae",
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
+  "capstone-code/capstone/ingestion/qualified.py": "b717c8cd674649dcb2fb6bbec13ae936b7925e3800903fbe15860531c3b31d9d",
   "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
+  "capstone-code/capstone/ingestion/real_detector.py": "85cae9332147743174dfe995c94d343173b3857bcaf658fc8d2d94dc57355c30",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
   "capstone-code/capstone/ingestion/siemens_opcua_adapter.py": "c7427b78e1021beb99b41e17469baeafa363dcd11a45e96983c48869346aeaaa",
   "capstone-code/capstone/ingestion/siemens_opcua_record.py": "351e1639b4037f828731e44d5a7bdec989797bdb0f8be409847006eca67158f0",
@@ -235,6 +237,8 @@
   "tests/test_haas_poll_budget.py": "e5280d923c4f79027968fbf47a0ea55e122ffdceedef058180e22ba3d3477530",
   "tests/test_haas_profile.py": "d490cdaf7b7595cbb4561fc4b20022f4ce6f539dbc6bd93aa4d2c9fdfbc3d1d0",
   "tests/test_haas_protocol.py": "6bb6e1be519c6e17cad96717dcc02639b4372b9012f3eb31085ddcfa4298b4b2",
+  "tests/test_haas_qualified.py": "1f1e010bf774acc7eefc4ae647ac26bbe33c4b4ac6adde76e4806b94b66a989e",
+  "tests/test_haas_real_detector.py": "7bf83b01f4c9f013f7d52b8fcff461455ff3ff43dfcec7d2fc8561d79b3f4fe1",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
   "tests/test_hosted_worker.py": "ad5d6cb458bbe5c39c052107560394ae2d729a89fa32b9048cfae556e9e70a48",
   "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
@@ -339,29 +343,29 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "4e93dde83a05d86b7ee2147ea953a80b330e0fa2651874dd811c4b6a2423ca32",
- "junit_sha256": "2a67418654fcd1e52f5d23e5e958a751f130f530e37c44e5e1acd94a4e688ece",
+ "coverage_sha256": "2f62ad4ce692c87475ec09472862ec01b844530c53eff74f29d28a1033f05aab",
+ "junit_sha256": "e22abc775dbf0039ac1950a002c547f0f15d07dad0dbe2ebab251f2b87474e73",
  "counts": {
-  "functions": 1447,
+  "functions": 1453,
   "classes_note": "classes are listed through their methods",
-  "tests": 2580,
+  "tests": 2591,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 641,
+   "INSUFFICIENT EVIDENCE": 647,
    "NOT APPLICABLE": 29,
-   "NOT TESTED": 112,
-   "PARTIALLY VERIFIED": 620,
+   "NOT TESTED": 111,
+   "PARTIALLY VERIFIED": 621,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 649,
+   "direct": 650,
    "import-only": 6,
-   "indirect": 651,
+   "indirect": 657,
    "no-statements": 29,
-   "none": 112
+   "none": 111
   },
-  "functions_executed_in_tests": 1300,
-  "functions_with_direct_tests": 649,
+  "functions_executed_in_tests": 1307,
+  "functions_with_direct_tests": 650,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -443,7 +447,6 @@
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
    "capstone.experiment:preflight_models",
-   "capstone.ingestion.channel_map:ChannelMap.entry_for",
    "capstone.ingestion.cloud_contract:CloudScope.fingerprint",
    "capstone.ingestion.cloud_store:SiemensCloudRepository.__init__",
    "capstone.ingestion.cloud_store:SiemensCloudRepository.close",
@@ -549,6 +552,9 @@
    "capstone.ingestion.mtconnect:parse_streams (19/24)",
    "capstone.ingestion.pilot_preflight:check_pilot (61/78)",
    "capstone.ingestion.pilot_preflight:main (16/31)",
+   "capstone.ingestion.qualified:Qualification.exclusive_verdict (2/3)",
+   "capstone.ingestion.qualified:qualify_numeric (18/24)",
+   "capstone.ingestion.real_detector:DetectorWindow.consistent_score (3/5)",
    "capstone.ingestion.siemens_opcua_adapter:is_loopback (4/6)",
    "capstone.ingestion.siemens_opcua_adapter:SiemensOpcUaCollector.watch (8/13)",
    "capstone.ingestion.siemens_opcua_adapter:session_node_id (3/5)",
@@ -593,7 +599,7 @@
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2558,
+   "passed": 2569,
    "skipped": 21
   },
   "tests_with_no_assertion": [
@@ -1119,7 +1125,7 @@
   },
   "capstone.ingestion.channel_map": {
    "functions": 15,
-   "executed": 14,
+   "executed": 15,
    "direct": 14
   },
   "capstone.ingestion.cloud_contract": {
@@ -1172,10 +1178,20 @@
    "executed": 2,
    "direct": 0
   },
+  "capstone.ingestion.qualified": {
+   "functions": 3,
+   "executed": 3,
+   "direct": 0
+  },
   "capstone.ingestion.quality": {
    "functions": 10,
    "executed": 10,
    "direct": 3
+  },
+  "capstone.ingestion.real_detector": {
+   "functions": 3,
+   "executed": 3,
+   "direct": 1
   },
   "capstone.ingestion.record": {
    "functions": 4,
@@ -12536,10 +12552,16 @@
    ]
   },
   "capstone.ingestion.channel_map:ChannelMap.entry_for": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused"
+   ]
   },
   "capstone.ingestion.channel_map:ChannelMap.with_reported": {
    "count": 2,
@@ -12570,7 +12592,7 @@
    ]
   },
   "capstone.ingestion.channel_map:probe_hash": {
-   "count": 41,
+   "count": 47,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12585,20 +12607,20 @@
    "indirect": [
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
-    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
-    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
-    "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
-    "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted"
    ]
   },
   "capstone.ingestion.channel_map:parse_probe": {
-   "count": 45,
+   "count": 51,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12614,20 +12636,20 @@
    "indirect": [
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
-    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
-    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
-    "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
-    "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted"
    ]
   },
   "capstone.ingestion.channel_map:build_channel_map": {
-   "count": 38,
+   "count": 44,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12639,18 +12661,18 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
     "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
     "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
-    "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
-    "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested",
-    "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-    "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools"
+    "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match"
    ]
   },
   "capstone.ingestion.channel_map:check_capture": {
@@ -12675,7 +12697,7 @@
    ]
   },
   "capstone.ingestion.channel_map:_devices": {
-   "count": 46,
+   "count": 52,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12692,20 +12714,20 @@
    "indirect": [
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
-    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
-    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
-    "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
-    "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted"
    ]
   },
   "capstone.ingestion.channel_map:_walk": {
-   "count": 44,
+   "count": 50,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -12720,20 +12742,20 @@
    "indirect": [
     "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe",
     "tests/test_haas_profile.py::test_probe_device_must_match_approved_identity",
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
-    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
-    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
-    "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
-    "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted"
    ]
   },
   "capstone.ingestion.channel_map:_probe_type": {
-   "count": 13,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -12742,19 +12764,22 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
     "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
     "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
     "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
+    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map"
    ]
   },
   "capstone.ingestion.channel_map:_disagreement": {
-   "count": 13,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -12763,15 +12788,18 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused",
     "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
     "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
     "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
     "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_pilot_preflight.py::test_authorized_capture_is_only_ready_when_probe_map_and_events_match",
     "tests/test_pilot_preflight.py::test_manager_or_it_approval_missing_blocks_even_a_good_capture",
-    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map",
-    "tests/test_pilot_preflight.py::test_seven_day_work_needs_distinct_permission_and_operational_plan",
-    "tests/test_pilot_preflight.py::test_unapproved_channel_is_rejected_instead_of_silently_ingested"
+    "tests/test_pilot_preflight.py::test_probe_change_cannot_reuse_a_saved_map"
    ]
   },
   "capstone.ingestion.channel_map:load_assignments": {
@@ -13426,7 +13454,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_local": {
-   "count": 73,
+   "count": 79,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13445,7 +13473,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_child": {
-   "count": 72,
+   "count": 78,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -13622,6 +13650,41 @@
     "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ]
   },
+  "capstone.ingestion.qualified:Qualification.exclusive_verdict": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused"
+   ]
+  },
+  "capstone.ingestion.qualified:Qualification.accepted": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero"
+   ]
+  },
+  "capstone.ingestion.qualified:qualify_numeric": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage",
+    "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed",
+    "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector",
+    "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit",
+    "tests/test_haas_qualified.py::test_unavailable_is_not_zero",
+    "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused"
+   ]
+  },
   "capstone.ingestion.quality:UnavailableSpan.seconds": {
    "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
@@ -13735,6 +13798,41 @@
    "direct": [],
    "indirect": [
     "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ]
+  },
+  "capstone.ingestion.real_detector:DetectorWindow.consistent_score": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_haas_real_detector.py::test_calibrated_running_deviation_is_a_score_not_a_diagnosis",
+    "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
+    "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation",
+    "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable",
+    "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger"
+   ]
+  },
+  "capstone.ingestion.real_detector:assess_calibrated_window": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_haas_real_detector.py::test_calibrated_running_deviation_is_a_score_not_a_diagnosis",
+    "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
+    "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation",
+    "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable",
+    "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger"
+   ]
+  },
+  "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable",
+    "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable"
+   ],
+   "indirect": [
+    "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation"
    ]
   },
   "capstone.ingestion.record:TelemetryRecord.number": {
@@ -44281,6 +44379,156 @@
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error",
     "capstone.ingestion.mtconnect:validate_streams_metadata"
+   ]
+  },
+  "tests/test_haas_qualified.py::test_good_numeric_sample_keeps_source_and_unit_lineage": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.accepted",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_qualified.py::test_unavailable_is_not_zero": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.accepted",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_qualified.py::test_nonfinite_never_reaches_detector": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_qualified.py::test_missing_unit_is_not_guessed": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_qualified.py::test_unmapped_and_wrong_signal_type_are_refused": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_qualified.py::test_source_authorization_gate_is_explicit": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric"
+   ]
+  },
+  "tests/test_haas_real_detector.py::test_calibrated_running_deviation_is_a_score_not_a_diagnosis": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_real_detector.py::test_normal_running_readings_do_not_trigger": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ]
+  },
+  "tests/test_haas_real_detector.py::test_idle_and_unknown_states_are_unscorable": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_real_detector.py::test_mixed_provenance_is_unscorable": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_real_detector.py::test_lost_order_and_missing_coverage_never_claim_deviation": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
    ]
   },
   "tests/test_hazards.py::test_a_timeout_fails_only_the_scheduled_call_and_asking_again_works": {
