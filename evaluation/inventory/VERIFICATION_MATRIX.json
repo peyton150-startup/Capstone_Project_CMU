@@ -354,8 +354,8 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "cc871966380008489bbb02621296200ed45f8061fda0f5b2e9e644e5c4d524bf",
- "junit_sha256": "5c2385db9a1e224cc82743d49730a937aa16aef48f2b9fbef503d0f954160f4a",
+ "coverage_sha256": "805f5578c2c76043879216b7e75a2565fd26d840ca28306adbc9a415683f75c1",
+ "junit_sha256": "10d92656e0017f4b9cfe0e004b8c508686af2dfa6552e82b13eef49da008379a",
  "counts": {
   "functions": 1472,
   "classes_note": "classes are listed through their methods",

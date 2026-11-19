@@ -12,7 +12,7 @@ import type { ListResponse, Sample } from '../types';
 import {
   DataRow, Eyebrow, formatNumber, formatStamp, InfoState, MachineLine,
   Metric, PageHeading, Panel, Pill, QualityExplanation,
-  SummaryLink, TileLink, TimelineEvent, toneFor, TrendChart, Unavailable,
+  SummaryLink, TileLink, TimelineEvent, toneFor, TrendChart, SourceState,
 } from '../ui';
 
 export function HomePage() {
@@ -76,7 +76,12 @@ export function HomePage() {
 
 export function OverviewPage() {
   const { preview, workspace } = useUi();
-  const machines = useMachines(), investigations = useInvestigations(), recording = useRecording();
+  // Variables:
+  //   recording: The Siemens capture, requested only in the pilot workspace;
+  //     the simulator overview never shows physical-machine evidence.
+  //   machines / investigations: List sources with their own state facts, so
+  //     a failed request is not counted as zero records.
+  const machines = useMachines(), investigations = useInvestigations(), recording = useRecording(true);
   const pilot = workspace === 'pilot';
   const rec = recording.snapshot?.recorder;
   return <>
@@ -92,14 +97,14 @@ export function OverviewPage() {
         note={preview ? 'Illustrative incidents' : 'No supported live incident source'} icon={<Activity size={18}/>} tone="warning" />
       <Metric label="Telemetry received" value={rec ? formatNumber(rec.received) : null}
         note={rec ? 'Bounded recorder window, not full session' : 'No configured recording'} icon={<Signal size={18}/>} />
-      <Metric label="Investigations" value={investigations.availability === 'not_configured' ? null : investigations.items.length}
+      <Metric label="Investigations" value={investigations.availability === 'available' || investigations.availability === 'synthetic' ? investigations.items.length : null}
         note={pilot ? 'Real-machine diagnosis not enabled' : 'Available recorded investigations'} icon={<BrainCircuit size={18}/>} />
     </div>
     <div className="overview-grid">
       <Panel title={pilot ? 'Authorized equipment' : 'Manufacturing line'}
         subtitle="Observed machines; unknown state remains unknown"
         action={<SummaryLink to="/machines" label="Machine details"/>}>
-        <MachineLine machines={machines.items} pilot={pilot}/>
+        <MachineLine machines={machines.items} pilot={pilot} source={machines.source}/>
       </Panel>
       <Panel title="Needs attention" subtitle="Recent reported investigations and exceptions"
         action={<SummaryLink to="/investigations" label="View investigations"/>}>
@@ -119,7 +124,12 @@ export function OverviewPage() {
           <TimelineEvent key={index} label={'Collector ' + event.event}
             at={formatStamp(event.at)} status={event.event === 'gap' ? 'warning' :
               event.event === 'connected' ? 'good' : 'neutral'} />)
-          : <Unavailable item="Recent activity" />}
+          : pilot || preview ? <SourceState item="Recent activity" loading={recording.loading}
+            error={recording.error} status={recording.status}
+            availability={recording.snapshot?.availability ?? null} count={0}
+            emptyDetail="The recording is connected but holds no collector session markers."/> :
+            <InfoState title="No simulator activity feed"
+              detail="Collector events come from the physical pilot recording; the simulator workspace has no live event source."/>}
       </Panel>
       <Panel title="Data confidence" subtitle="The evidence gate protects downstream diagnosis">
         <QualityExplanation/>
@@ -146,7 +156,7 @@ export function MachinesPage() {
           <div><h3>{machine.name}</h3><p>{machine.signal_count ?? '—'} available signal identifiers</p></div>
           <Pill text={machine.operating_state || 'Unknown'} tone={toneFor(machine.condition || machine.operating_state)}/>
           <Link to={'/signals?machine=' + encodeURIComponent(machine.id)} className="text-link">Inspect <ArrowRight size={16}/></Link>
-        </div>) : <Unavailable item="Machine inventory" />}
+        </div>) : <SourceState item="Machine inventory" {...machines.source}/>}
       </Panel>
       <Panel title="Source boundaries" subtitle="A physical machine is not a simulator record">
         <div className="principle-list">
@@ -160,14 +170,20 @@ export function MachinesPage() {
       </Panel>
     </div>
     <Panel title="Equipment relationships" subtitle="Only resolved equipment is shown">
-      <MachineLine machines={machines.items} pilot={workspace === 'pilot'}/>
+      <MachineLine machines={machines.items} pilot={workspace === 'pilot'} source={machines.source}/>
     </Panel>
   </>;
 }
 
 export function SignalsPage() {
   const { preview, token } = useUi();
-  const { snapshot } = useRecording();
+  // Variables:
+  //   snapshot: The pilot recording; null in the simulator workspace so no
+  //     physical signal is ever offered as a simulator channel.
+  //   current: The selected signal, re-resolved against the current source's
+  //     list so a stale selection from another source can never be charted.
+  const recording = useRecording(true);
+  const { snapshot } = recording;
   const signals = snapshot?.signals || [];
   const [selected, setSelected] = useState<string | null>(null);
   const current = useMemo(() => signals.find(s => s.id === selected) || signals[0], [signals, selected]);
@@ -175,6 +191,7 @@ export function SignalsPage() {
     current && !preview ? '/api/v1/signals/' + current.id + '/samples' : null,
     token, preview || !current);
   const samples = preview ? demoChart : resource.data?.items || [];
+  const sampleError = resource.error;
   return <>
     <PageHeading eyebrow="EQUIPMENT / ANALYTICS" title="Signal explorer"
       description="Time-aligned measurements with explicit quality and source integrity."
@@ -188,7 +205,11 @@ export function SignalsPage() {
             <span className="signal-option-icon"><Signal size={17}/></span>
             <span><strong>{signal.label}</strong><small>{signal.unit || 'Unit not verified'}</small></span>
             <span className={'quality-dot ' + signal.quality}/>
-          </button>) : <Unavailable item="Signal browser" detail="No authorized Siemens capture or preview signal is available."/>}
+          </button>) : recording.blocked ? <InfoState title="No simulator signal source"
+            detail="Signal explorer reads the physical pilot recording. Select the pilot workspace; simulator readings are only available inside managed runs."/> :
+            <SourceState item="Signal browser" loading={recording.loading} error={recording.error}
+              status={recording.status} availability={snapshot?.availability ?? null} count={0}
+              detail={snapshot?.message ?? null}/>}
         </div>
       </Panel>
       <div className="signal-main">
@@ -197,8 +218,10 @@ export function SignalsPage() {
           {current ? <><div className="signal-hero-value">
             <strong>{current.value ?? '—'}</strong><span>{current.unit || 'Unverified unit'}</span>
             <small>{current.value === null ? 'Value not authorized or unavailable' : 'Latest recorded value'}</small>
-          </div><TrendChart items={samples} label={current.label + ' history'}/></>
-            : <Unavailable item="Signal history"/>}
+          </div>{sampleError ? <SourceState item="Signal history" error={sampleError} status={resource.status}/> :
+              resource.loading && !preview ? <SourceState item="Signal history" loading/> :
+              <TrendChart items={samples} label={current.label + ' history'}/>}</>
+            : <InfoState title="No signal selected" detail="Choose an approved channel in the signal browser."/>}
         </Panel>
         <div className="two-column">
           <Panel title="Source integrity" subtitle="No inferred engineering units">

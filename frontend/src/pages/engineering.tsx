@@ -5,8 +5,8 @@ import { Activity, ArrowRight, Database, Gauge, LockKeyhole,
 import { useResource } from '../api';
 import { useUi } from '../context';
 import { useRecording } from '../pageData';
-import { DataRow, formatStamp, Metric, PageHeading,
-  Panel, Pill, TimelineEvent, toneFor, Unavailable } from '../ui';
+import { DataRow, formatStamp, InfoState, Metric, PageHeading,
+  Panel, Pill, TimelineEvent, toneFor, SourceState } from '../ui';
 
 type WorkerLiveness = 'healthy' | 'revision_mismatch' | 'unverified';
 // Hosted mode only: bounded counts from the shared PostgreSQL queue.
@@ -86,7 +86,8 @@ export function SystemPage() {
         {data.data?Object.entries(data.data).filter(([name])=>name!=='run_queue').map(([name,value])=>
           <DataRow key={name} label={name.replaceAll('_',' ')}
             value={<Pill text={String(value).replaceAll('_',' ')} tone={toneFor(String(value))}/>}/>):
-          <Unavailable item="System status" detail={data.error||'Connect the local API to inspect service status.'}/>}
+          <SourceState item="System status" loading={data.loading} error={data.error} status={data.status}
+            availability={data.loading || data.error ? null : 'unrecognized'}/>}
       </Panel>
       {data.data?.run_queue?<Panel title="Run queue" subtitle="Hosted worker queue and heartbeat, counts only">
         <DataRow label="worker liveness"
@@ -123,7 +124,8 @@ export function SystemPage() {
   </>;
 }
 export function ObservabilityPage() {
-  const {snapshot}=useRecording();
+  const recording=useRecording();
+  const {snapshot}=recording;
   const rec=snapshot?.recorder;
   return <>
     <PageHeading eyebrow="ENGINEERING / OBSERVABILITY" title="Observability"
@@ -139,7 +141,9 @@ export function ObservabilityPage() {
         {snapshot?.events.length?snapshot.events.slice(0,9).map((e,i)=>
           <TimelineEvent key={i} label={e.event} at={formatStamp(e.at)}
             status={e.event==='gap'?'warning':'neutral'}/>):
-          <Unavailable item="Live collector event stream"/>}
+          <SourceState item="Collector events" loading={recording.loading} error={recording.error}
+            status={recording.status} availability={snapshot?.availability ?? null} count={0}
+            emptyDetail="The capture holds no session markers in its bounded window."/>}
       </Panel>
       <Panel title="Agent diagnostics" subtitle="Work to wire to original Python event and audit sources">
         {[
@@ -167,7 +171,9 @@ export function AuditPage() {
         <TimelineEvent key={i} label={(item.outcome||'Unknown')+' · '+(item.stage||'stage unknown')}
           at={formatStamp(item.at)} status={item.outcome==='refused'||item.outcome==='failed'?'warning':'neutral'}
           note={'Connection epoch '+(item.session_epoch??'unknown')}/>):
-        <Unavailable item="Collector audit" detail={resource.error||'No authorized audit file is configured. Enable the synthetic preview for a labeled layout example.'}/>}
+        <SourceState item="Collector audit" loading={resource.loading} error={resource.error}
+          status={resource.status} availability={resource.data?.availability ?? null} count={0}
+          detail="No authorized audit file is configured. Enable the synthetic preview for a labeled layout example."/>}
     </Panel>
     <Panel title="Audit policy" subtitle="Not a raw diagnostic dump">
       <DataRow label="Visible" value="Timestamp, stage, outcome, session epoch"/>
@@ -178,6 +184,10 @@ export function AuditPage() {
 }
 export function SettingsPage() {
   const {token,preview,theme,setTheme}=useUi();
+  // Variables:
+  //   data: The allowlisted settings read model with its request state.
+  //   settings: The rows left after the name filter; empty with loaded data
+  //     means the filter matched nothing, not that settings are missing.
   const data=useResource<SettingsData>('/api/v1/settings/effective',token,preview);
   const [filter,setFilter]=useState('');
   const settings=useMemo(()=>data.data?.items.filter(item=>item.name.toLowerCase().includes(filter.toLowerCase()))||[],
@@ -193,7 +203,11 @@ export function SettingsPage() {
         {settings.length?settings.map(s=><div className="settings-row" key={s.name}>
           <div><strong>{s.name}</strong><small>{s.configured?'Process override':'Validated default or private .env value'}</small></div>
           <span className="settings-value">{s.value||'Not configured'}</span></div>):
-          <Unavailable item="Settings read model" detail={data.error||'Connect an authorized API to inspect allowlisted effective values.'}/>}
+          data.data?.items.length ? <InfoState title="No setting matches the filter"
+            detail={'No allowlisted setting name contains "' + filter + '".'}/> :
+          <SourceState item="Settings read model" loading={data.loading} error={data.error} status={data.status}
+            availability={data.data ? 'available' : null} count={0}
+            emptyDetail="The API returned no allowlisted settings."/>}
         <div className="soft-note"><LockKeyhole size={17}/> These are actual validated
           global scalar settings, not just variables set in process memory.
           API keys, database credentials, certificates and paths are excluded.</div>

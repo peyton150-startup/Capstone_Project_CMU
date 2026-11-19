@@ -1,6 +1,9 @@
 export type Workspace = 'simulator' | 'pilot';
+// Every value the Python API emits, the frontend's own pilot gate, the
+// preview marker, and 'unrecognized' for anything the decoder does not know.
 export type Availability = 'available' | 'not_configured' | 'file_missing' |
-  'not_integrated' | 'unsupported_for_pilot' | 'unavailable' | 'error';
+  'not_integrated' | 'unsupported_for_pilot' | 'not_available_in_pilot' |
+  'not_recorded' | 'unavailable' | 'error' | 'synthetic' | 'unrecognized';
 
 export type Signal = {
   id: string; label: string; value: number | boolean | string | null;
@@ -77,7 +80,8 @@ export type Capabilities = {
   limits: string[];
 };
 export type ListResponse<T> = { availability: Availability; items: T[]; message?: string };
-export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
+export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null;
+  status?: number | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
 
 /** Read-only Pydantic Graph deep lifecycle flags. Missing is unknown, not negative. */

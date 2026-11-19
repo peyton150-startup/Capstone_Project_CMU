@@ -8,7 +8,7 @@ import { ManagedRunLauncher, ManagedRunList } from './managed';
 export { RunDetailPage } from './managed';
 import type { Evaluation, ListResponse, Scorecard } from '../types';
 import { DataRow, formatNumber, InfoState, Metric, PageHeading, Panel, Pill,
-  SummaryLink, TileLink, toneFor, Unavailable } from '../ui';
+  SourceState, SummaryLink, TileLink, toneFor } from '../ui';
 
 function RunTable({ items }: { items: Evaluation[] }) {
   return <div className="data-table">
@@ -48,7 +48,7 @@ export function LabPage() {
   </>;
 }
 export function RunsPage() {
-  const {items,error}=useEvaluations();
+  const {items,source}=useEvaluations();
   return <><PageHeading eyebrow="RESEARCH / HISTORY" title="Run history"
     description="Persisted experiments are read-only and evaluator-gated." right={<SummaryLink to="/lab/compare" label="Compare runs"/>}/>
     <div className="metric-grid">
@@ -57,12 +57,12 @@ export function RunsPage() {
       <Metric label="Model counts recorded" value={items.length?items.filter(i=>i.model_questions!=null).length:null} note="May be unavailable"/>
       <Metric label="Live worker" value={null} note="Not integrated"/>
     </div><ManagedRunList/><Panel title="Offline experiment records" subtitle="Available evaluation artifacts only">
-      {error&&<InfoState kind="warning" title="Evaluator access unavailable" detail={error}/>}
-      {items.length?<RunTable items={items}/>:<Unavailable item="Run history" detail="Configure the approved experiment file, evaluator access and token; or enter clearly marked synthetic preview."/>}
+      {items.length?<RunTable items={items}/>:<SourceState item="Offline run history" {...source}
+        detail="Configure the approved experiment file, evaluator access and token; or enter clearly marked synthetic preview."/>}
     </Panel></>;
 }
 export function EvaluationPage() {
-  const {items}=useEvaluations();
+  const {items,source}=useEvaluations();
   const {tokenFor, preview, workspace}=useUi();
   const score = useResource<ListResponse<Scorecard>>(
     workspace === 'simulator' && !preview ? '/api/v1/evaluations/scorecards?workspace=simulator' : null,
@@ -82,7 +82,7 @@ export function EvaluationPage() {
     </div>
     <div className="two-column uneven">
       <Panel title="Evaluation results" subtitle="Safe experiment run summaries">
-        {items.length ? <RunTable items={items}/> : <Unavailable item="Evaluation results"/>}
+        {items.length ? <RunTable items={items}/> : <SourceState item="Evaluation results" {...source}/>}
       </Panel>
       <Panel title="Scorecard acceptance criteria" subtitle="Python scoring owns correctness and hidden truth">
         {[
@@ -99,22 +99,29 @@ export function EvaluationPage() {
       </Panel>
     </div>
     <Panel title="Evaluator-only scorecards" subtitle="Correctness flags are protected separately from ordinary investigation evidence">
-      {score.error && <InfoState kind="warning" title="Evaluator authorization required" detail={score.error}/>}
       {score.data?.items.length ? score.data.items.map(item=><div className="settings-row" key={item.id}>
         <div><strong>{item.id}</strong><small>{item.judged ? 'Judged' : 'Unjudged'}</small></div>
         <div><Pill text={item.fault_correct == null ? 'Unjudged' : item.fault_correct ? 'Correct' : 'Incorrect'}
           tone={item.fault_correct == null ? 'neutral' : item.fault_correct ? 'good' : 'warning'}/></div>
         <div>Action: {item.action_correct == null ? 'unknown' : item.action_correct ? 'correct' : 'incorrect'}</div>
         <div>Resolved: {item.resolved == null ? 'unknown' : item.resolved ? 'yes' : 'no'}</div>
-      </div>) : <Unavailable item="Evaluator scorecards" detail="Enable the evaluator role and configure an approved experiment record file."/>}
+      </div>) : workspace !== 'simulator' || preview ? <InfoState title="Scorecards are simulator-only"
+          detail="Evaluator labels use hidden simulator truth and are never shown for the pilot or the synthetic preview."/> :
+        <SourceState item="Evaluator scorecards" loading={score.loading} error={score.error} status={score.status}
+          availability={score.data?.availability ?? null} count={0}
+          detail="Enable the evaluator role and configure an approved experiment record file."/>}
     </Panel>
   </>;
 }
 export function ComparePage() {
-  const {items}=useEvaluations();
+  // Variables:
+  //   matched: True only when scenario, seed and investigation path all agree;
+  //     anything less is shown but never ranked.
+  const {items,source}=useEvaluations();
   const [left,setLeft]=useState(''),[right,setRight]=useState('');
   const a=items.find(i=>i.id===(left||items[0]?.id)), b=items.find(i=>i.id===(right||items[1]?.id));
-  const matched = Boolean(a && b && a.scenario === b.scenario && a.seed === b.seed);
+  const matched = Boolean(a && b && a.scenario === b.scenario && a.seed === b.seed &&
+    (a.mode ?? null) === (b.mode ?? null));
   return <><PageHeading eyebrow="RESEARCH / COMPARISON" title="Compare runs"
     description="Compare matched scenarios and seeds; timing alone is never proof of diagnostic quality."/>
     {items.length>1?<div className="two-column">
@@ -136,12 +143,15 @@ export function ComparePage() {
             <DataRow label="Model questions" value={x.run.model_questions??'N/A'}/>
             <DataRow label="Model outage attempts" value={x.run.model_failures??'N/A'}/></>}
         </Panel>)}</div>:
-      <Unavailable item="Comparison" detail="At least two evaluator-authorized records are required."/>}
+      items.length === 1 ? <InfoState title="Comparison needs two records"
+        detail="Only one evaluator-authorized record is available; at least two are required."/> :
+      <SourceState item="Comparison records" {...source}
+        emptyDetail="At least two evaluator-authorized records are required."/>}
     {a&&b&&<Panel title="Comparison validity" subtitle="Only valid matched comparisons support a performance claim">
-      <Pill text={matched ? 'Scenario and seed match' : 'Not matched'} tone={matched ? 'info' : 'warning'}/>
+      <Pill text={matched ? 'Scenario, seed and path match' : 'Not matched'} tone={matched ? 'info' : 'warning'}/>
       <p className="body-copy">{matched ?
-        'Scenario and seed match, but model routes, settings and evaluator version still require confirmation.' :
-        'These records differ in scenario or seed; their latency and accuracy should not be ranked against each other.'}</p>
+        'Scenario, seed and path match, but model routes, per-run triage settings and evaluator version are not in these records and still require confirmation.' :
+        'These records differ in scenario, seed or investigation path; their latency and accuracy should not be ranked against each other.'}</p>
       <DataRow label="Wall-time delta (A − B)" value={matched && a.wall_seconds!=null && b.wall_seconds!=null ?
         (a.wall_seconds-b.wall_seconds).toFixed(2)+' s' : 'Not comparable'}/>
     </Panel>}</>;
@@ -179,12 +189,14 @@ export function ManualsPage() {
         placeholder="Search by sensor, alarm, or maintenance topic" aria-label="Manual search term"/>
         <button className="button-secondary" type="button" disabled={!active}
           onClick={()=>setSubmitted(query.trim())}>{resource.data?.backend==='neon' ? 'Search Neon manual' : 'Search local manual'}</button></div>}
-      {resource.error && <InfoState kind="warning" title="Manual API unavailable" detail={resource.error}/>}
       {active && resource.data?.items.length ? resource.data.items.map(item=>
         <div className="hypothesis-card" key={item.citation}>
           <span className="eyebrow">{item.citation} · Rev {item.revision}</span>
           <h3>{item.title}</h3><p>{item.text}</p>
-        </div>): <Unavailable item="Manual sections" detail="No approved matching sections or the API has not loaded an authorized manual."/>}
+        </div>): active ? <SourceState item="Manual sections" loading={resource.loading} error={resource.error}
+          status={resource.status} availability={resource.data?.availability ?? null} count={0}
+          emptyDetail={submitted ? 'No approved section matches "' + submitted + '".' : 'Enter a search term to list matching sections.'}
+          detail="The selected API has not loaded an authorized manual."/> : null}
     </Panel>
     <Panel title="Reference gate" subtitle="Never transfer a simulator manual to the Prestige machine without field verification">
       <DataRow label="Document identity" value="SIM-CNC-001, simulator only"/>
@@ -221,7 +233,6 @@ export function MemoryPage() {
           maxLength={120} placeholder="Search symptoms or lessons" aria-label="Search memories"
           onKeyDown={e=>{if(e.key==='Enter')setQuery(search.trim());}}/>
         <button className="button-secondary" onClick={()=>setQuery(search.trim())}>Search memories</button></div>}
-      {memory.error && <InfoState kind="warning" title="Memory read unavailable" detail={memory.error}/>}
       {memory.data?.items.length ? memory.data.items.map(item=>
         <div className="hypothesis-card" key={item.memory_id}>
           <span className="eyebrow">MEMORY {item.memory_id.slice(0,12)} / {item.category}</span>
@@ -234,10 +245,12 @@ export function MemoryPage() {
           <p>{item.lesson}</p>
           <p className="body-copy">Symptoms: {item.symptoms.join(', ') || 'Not recorded'}</p>
         </div>) :
-        <Unavailable item="Authorized episodic memories" detail="No matching records or the memory read adapter has not been configured. Empty history is not proof of no past incidents."/>}
+        active ? <SourceState item="Episodic memories" loading={memory.loading} error={memory.error}
+          status={memory.status} availability={memory.data?.availability ?? null} count={0}
+          emptyDetail="No stored memory matches. Empty history is not proof of no past incidents."
+          detail="The memory read adapter has not been configured on the selected API."/> : null}
     </Panel>
     <Panel title="Memory review decisions" subtitle="Evaluator-only history, never an approval to change real equipment">
-      {promotions.error && <InfoState kind="warning" title="Promotion history restricted" detail={promotions.error}/>}
       {promotions.data?.items.length ? promotions.data.items.map(item=>
         <div className="settings-row" key={item.run_key}>
           <div><strong>{item.run_key}</strong><small>Policy: {item.policy_version}</small></div>
@@ -245,7 +258,11 @@ export function MemoryPage() {
             tone={item.accepted ? 'good' : item.accepted === false ? 'warning' : 'neutral'}/>
           <span>Stored: {item.stored == null ? 'unknown' : item.stored ? 'yes' : 'no'}</span>
         </div>) :
-        <Unavailable item="Promotion review history" detail="An evaluator token and an approved experiment file are required."/>}
+        active ? <SourceState item="Promotion review history" loading={promotions.loading} error={promotions.error}
+          status={promotions.status} availability={promotions.data?.availability ?? null} count={0}
+          emptyDetail="No memory promotion decision has been recorded."
+          detail="An evaluator token and an approved experiment file are required."/> :
+        <InfoState title="Promotion history is simulator-only" detail="Select Simulator Lab and exit the synthetic preview."/>}
     </Panel>
     <Panel title="Promotion criteria" subtitle="Learning is not confidence accumulation">
       {['Source investigation','Evidence and rejected hypotheses','Outcome of intervention',
