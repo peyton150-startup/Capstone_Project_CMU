@@ -315,8 +315,9 @@ def run_collector(
     #   enforce_poll_interval: True on the approved Haas path: always wait
     #     interval between requests, even while a backlog is waiting, so the
     #     shop-approved request rate is never exceeded.
-    #   safe_errors: True on the Haas path: a failed poll is reported by its
-    #     exception type only, because the message may hold a shop address.
+    #   safe_errors: True from the command line (both the Haas and --url
+    #     paths): a failed poll is reported by its exception type only,
+    #     because the message may hold a shop address.
     #   event_logger: Optional structured trace; each poll logs success,
     #     record/gap counts or the exception type, and its duration.
     #   polled_at: When the current poll started, for that duration.

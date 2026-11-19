@@ -104,8 +104,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         print(f"saved the machine's capability list to {args.save_probe}")
         return 0
-    if args.out is None:
-        parser.error("--out is required unless --save-probe is given")
+    # args.out is set here: the check above refuses a run with neither.
     try:
         written = run_collector(
             collector,
@@ -113,7 +112,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             interval=interval,
             max_polls=args.polls,
             enforce_poll_interval=bool(args.haas_profile),
-            safe_errors=bool(args.haas_profile),
+            # Both paths: an exception message can hold a shop address.
+            safe_errors=True,
             event_logger=EventLogger(sys.stderr) if args.haas_profile else None,
         )
     except KeyboardInterrupt:
