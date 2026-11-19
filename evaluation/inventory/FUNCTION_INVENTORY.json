@@ -119930,9 +119930,9 @@
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ],
    "indirect_test_count": 4,
-   "statements_executed": 7,
+   "statements_executed": 6,
    "statements_in_body": 7,
-   "statement_coverage": 1.0,
+   "statement_coverage": 0.857,
    "coverage_class": "indirect",
    "verification_status": "INSUFFICIENT EVIDENCE",
    "status_source": "derived",
