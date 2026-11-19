@@ -227,9 +227,29 @@ tables (#290, `docs/NEON_KNOWLEDGE_ROLLOUT.md`).
   first (the local `.env` has no `CAPSTONE_UI_RUN_DATABASE_URL`, so Alembic
   used the Neon `DATABASE_URL`); the empty `capstone_private` schema was
   dropped and the revision reset to 0001. No other Neon data was touched.
-- **Not done, by the developer's choice:** the Neon manual-knowledge tables
-  (`migrations/neon/0001_manual_knowledge.sql`, `0002_oem_approvals.sql`) and
-  `NEON_KNOWLEDGE_DATABASE_URL`.
+- **Neon manual knowledge, v1 (added later the same day at the developer's
+  request):** `migrations/neon/0001_manual_knowledge.sql` and
+  `0002_oem_approvals.sql` applied to the same Neon database (pgvector 0.8.7;
+  `capstone_knowledge.manual_documents`, `manual_sections`, `manual_approvals`,
+  row-level security on all three). Seeded with
+  `python -m capstone.manual.neon --apply`: the synthetic `SIM-CNC-001`
+  revision 1.3, published, 17 sections, each with a 2048-dimension NVIDIA
+  embedding (17 embedding calls, no chat-model calls). Keyword and semantic
+  search both return the expected sections (for example "vibration rising on
+  the spindle" finds 2.1 Abnormal Vibration first). No Neon branch backup was
+  taken first; the change only adds a schema, and `episodic_memories` (0 rows)
+  was not touched. No OEM or pilot manual was imported.
+- **Still to set for the manual to be used:** `NEON_KNOWLEDGE_DATABASE_URL`
+  (server-only, `sslmode=require`) in the local `.env` and on the hosts, then
+  `--manual neon` for agent runs, and `CAPSTONE_UI_NEON_MANUAL=1` for the
+  dashboard (steps 3, 6 and 7 of `docs/NEON_KNOWLEDGE_ROLLOUT.md`). The seed
+  used the Neon `DATABASE_URL` in-process, since the two point at the same
+  database.
+- The stored embedding model name is `nvidia/nvidia/nemotron-3-embed-1b`
+  (provider prefix doubled). Seeding and search use the same setting, so
+  retrieval works, but changing `EMBEDDING_MODEL` to fix the prefix would make
+  every stored section ineligible until the manual is re-seeded under a new
+  revision.
 - The local `.env` line `REQUESTY-BASE-URL` has a hyphenated name, which stops
   `uv --env-file` at that line; it should be `REQUESTY_BASE_URL`.
 
