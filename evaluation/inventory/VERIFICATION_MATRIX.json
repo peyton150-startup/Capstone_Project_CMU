@@ -82,6 +82,7 @@
   "capstone-code/capstone/ingestion/cloud_store.py": "727a627a722fcf4f6d37bc5631687105a56a4fb90f4649fa9f65033967db07d1",
   "capstone-code/capstone/ingestion/cloud_uplink.py": "0a67ed9b67b8431e3e06ed147c749b0ac6c22bc8494600b6f69cab14644957f4",
   "capstone-code/capstone/ingestion/collector.py": "2b1d9cf6aa0dd9e440baf85e166855b62cb261c46e50626502236587168fac58",
+  "capstone-code/capstone/ingestion/haas_acceptance.py": "f247c63a83c828508a319fefb9b5f4a705c46db65a17803247630fd0981fea3a",
   "capstone-code/capstone/ingestion/haas_http.py": "fd03507150bd18b5f910aac8924220128eaf51f72fee6462b4e197213bcafa2d",
   "capstone-code/capstone/ingestion/haas_profile.py": "1014378dfdec6569d79aa938cdf8ba52213a4702da11b7e8841988e7e52f6e07",
   "capstone-code/capstone/ingestion/mtconnect.py": "aa4c59826318b7d162e0a46bab72a832e4b6eae6c8b420f6548a462f29697034",
@@ -119,7 +120,7 @@
   "capstone-code/capstone/monitoring/__main__.py": "0a8c40fd6a181087a1faf872468033c658c62e2fe5dbd5a02d64f3494922bb3a",
   "capstone-code/capstone/monitoring/monitor.py": "ec3960f528b6653bfe90ef7adb7c05b31e7a7bfd68a2d956c3ba80ebf3eb1ddb",
   "capstone-code/capstone/monitoring/runner.py": "245aa7c1658c87ed7cfdf090192470b93e74d77307a4d0707f1e9ec9efc35e2f",
-  "capstone-code/capstone/observability.py": "46ab19393f09fae660b18478a4783822cb5938812598c279c1f2088104849926",
+  "capstone-code/capstone/observability.py": "f741c26d16d89f29381560731fbfea9a839cb57ea973324f7c30db596618180f",
   "capstone-code/capstone/progress.py": "6e7751ea488779427b5b3210cedb693d2375755308e38d94a7e39e1c6e0cd8b6",
   "capstone-code/capstone/providers/__init__.py": "718f331830c4a46d2addd3f99b7ce7444d07d88db058a4972f56df4cc3e0f168",
   "capstone-code/capstone/providers/chat.py": "9b5786e499f64e51b25849c922ef11a7517057d8334a7ba594eaff472e65d8a3",
@@ -233,6 +234,7 @@
   "tests/test_gap_trace.py": "8077948644fa37da301d36576da313f083ce4f35310db304d485a8e451fdcabd",
   "tests/test_generator.py": "bed58811be34af0866d8d3ab6e511823f5d000bea2e42f3076adcb9d22eec885",
   "tests/test_ground_truth.py": "00defedf7c2df521d51af43e528e52e848cae4388114795751fc6f50fcc813fc",
+  "tests/test_haas_acceptance.py": "4bb5224cad3a0fb8c702b8ee0676e35d03bdb06c26040fc80234c01cae41eb6d",
   "tests/test_haas_cli.py": "a2780fffdc501df03df5484418e2ef72e98e638636a5a7f8cde9c23f69c5b4b5",
   "tests/test_haas_event_replay.py": "50d1fa12e69a15ba9823abb8d5a9bf7d3be556b004997386097a4d3a4d1b660b",
   "tests/test_haas_http.py": "5ff93d92948ebf9e9adbadaedb8361128cf4a7f665b283747385b229bef1fbe4",
@@ -242,6 +244,7 @@
   "tests/test_haas_protocol.py": "6bb6e1be519c6e17cad96717dcc02639b4372b9012f3eb31085ddcfa4298b4b2",
   "tests/test_haas_qualified.py": "1f1e010bf774acc7eefc4ae647ac26bbe33c4b4ac6adde76e4806b94b66a989e",
   "tests/test_haas_real_detector.py": "7bf83b01f4c9f013f7d52b8fcff461455ff3ff43dfcec7d2fc8561d79b3f4fe1",
+  "tests/test_haas_trace_context.py": "25831671fecaaaf55d9c2aedfdfdb1e7874b99c5464467926d4eb4aaede2438b",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
   "tests/test_hosted_worker.py": "ad5d6cb458bbe5c39c052107560394ae2d729a89fa32b9048cfae556e9e70a48",
   "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
@@ -346,29 +349,29 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "1114e8629c87111479ff76e534322d67c39ff5ef6b4cba236795ad0ba81735ff",
- "junit_sha256": "647317c05fa3015509c9c642086cf987c83443a949b071f0ffce0cd4875e5a92",
+ "coverage_sha256": "fa444428dfe9af151a6852fa9f30c7eec9b90160157f8e145b5137974497a888",
+ "junit_sha256": "fdc70bfdb628ac425d0ed1d485e5e4e179cfe400e1cbb141b8a41e99b6132abd",
  "counts": {
-  "functions": 1455,
+  "functions": 1457,
   "classes_note": "classes are listed through their methods",
-  "tests": 2603,
+  "tests": 2609,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 649,
    "NOT APPLICABLE": 29,
    "NOT TESTED": 111,
-   "PARTIALLY VERIFIED": 621,
+   "PARTIALLY VERIFIED": 623,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 650,
+   "direct": 652,
    "import-only": 6,
    "indirect": 659,
    "no-statements": 29,
    "none": 111
   },
-  "functions_executed_in_tests": 1309,
-  "functions_with_direct_tests": 650,
+  "functions_executed_in_tests": 1311,
+  "functions_with_direct_tests": 652,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -549,6 +552,7 @@
    "capstone.ingestion.cloud_contract:CloudScope.unique_nodes (3/4)",
    "capstone.ingestion.cloud_contract:IngestBatch.digest_format (2/3)",
    "capstone.ingestion.collector:http_get (7/9)",
+   "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references (2/3)",
    "capstone.ingestion.haas_http:haas_get (8/14)",
    "capstone.ingestion.haas_profile:HaasConnectionProfile.require_full_reply_permission (2/3)",
    "capstone.ingestion.mtconnect:validate_streams_metadata (5/7)",
@@ -604,7 +608,7 @@
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2581,
+   "passed": 2587,
    "skipped": 21
   },
   "tests_with_no_assertion": [
@@ -1152,6 +1156,11 @@
    "functions": 10,
    "executed": 9,
    "direct": 5
+  },
+  "capstone.ingestion.haas_acceptance": {
+   "functions": 2,
+   "executed": 2,
+   "direct": 2
   },
   "capstone.ingestion.haas_http": {
    "functions": 3,
@@ -13315,6 +13324,27 @@
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
    ]
   },
+  "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_acceptance.py::test_empty_checklist_is_blocked",
+    "tests/test_haas_acceptance.py::test_field_acceptance_requires_every_gate",
+    "tests/test_haas_acceptance.py::test_missing_or_unknown_private_reference_rejected",
+    "tests/test_haas_acceptance.py::test_offline_success_is_never_field_success"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.haas_acceptance:assess_haas_field_readiness": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_haas_acceptance.py::test_empty_checklist_is_blocked",
+    "tests/test_haas_acceptance.py::test_field_acceptance_requires_every_gate",
+    "tests/test_haas_acceptance.py::test_offline_success_is_never_field_success"
+   ],
+   "indirect": []
+  },
   "capstone.ingestion.haas_http:_DenyRedirects.redirect_request": {
    "count": 0,
    "status": "NOT TESTED",
@@ -17045,7 +17075,7 @@
    ]
   },
   "capstone.observability:_safe_identifier": {
-   "count": 15,
+   "count": 17,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
@@ -17058,6 +17088,8 @@
    ],
    "indirect": [
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+    "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
     "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
     "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
     "tests/test_triage_evidence_boundary.py::test_qualified_read_is_committed_with_ordered_source_linked_trace",
@@ -17068,7 +17100,7 @@
    ]
   },
   "capstone.observability:EventLogger.__init__": {
-   "count": 17,
+   "count": 19,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
@@ -17083,6 +17115,8 @@
    ],
    "indirect": [
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+    "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
     "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
     "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
     "tests/test_triage_evidence_boundary.py::test_qualified_read_is_committed_with_ordered_source_linked_trace",
@@ -17093,7 +17127,7 @@
    ]
   },
   "capstone.observability:EventLogger.log_event": {
-   "count": 15,
+   "count": 17,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
@@ -17106,6 +17140,8 @@
    ],
    "indirect": [
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+    "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
     "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
     "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
     "tests/test_triage_evidence_boundary.py::test_qualified_read_is_committed_with_ordered_source_linked_trace",
@@ -44241,6 +44277,37 @@
     "capstone.simulator.simulator:Simulator._apply_consequences"
    ]
   },
+  "tests/test_haas_acceptance.py::test_empty_checklist_is_blocked": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+    "capstone.ingestion.haas_acceptance:assess_haas_field_readiness"
+   ]
+  },
+  "tests/test_haas_acceptance.py::test_offline_success_is_never_field_success": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+    "capstone.ingestion.haas_acceptance:assess_haas_field_readiness"
+   ]
+  },
+  "tests/test_haas_acceptance.py::test_field_acceptance_requires_every_gate": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+    "capstone.ingestion.haas_acceptance:assess_haas_field_readiness"
+   ]
+  },
+  "tests/test_haas_acceptance.py::test_missing_or_unknown_private_reference_rejected": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references"
+   ]
+  },
   "tests/test_haas_cli.py::test_guarded_cli_qualifies_one_device_and_saves_probe": {
    "count": 16,
    "judgment": "NOT ASSESSED",
@@ -44793,6 +44860,24 @@
     "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
     "capstone.ingestion.real_detector:assess_calibrated_window",
     "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ]
+  },
+  "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.observability:EventLogger.__init__",
+    "capstone.observability:EventLogger.log_event",
+    "capstone.observability:_safe_identifier"
+   ]
+  },
+  "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.observability:EventLogger.__init__",
+    "capstone.observability:EventLogger.log_event",
+    "capstone.observability:_safe_identifier"
    ]
   },
   "tests/test_hazards.py::test_a_timeout_fails_only_the_scheduled_call_and_asking_again_works": {

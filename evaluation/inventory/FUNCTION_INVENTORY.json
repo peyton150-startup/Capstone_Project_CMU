@@ -61348,6 +61348,112 @@
    ]
   },
   {
+   "id": "capstone.ingestion.haas_acceptance:HaasAcceptanceEvidence.no_blank_private_references",
+   "module": "capstone.ingestion.haas_acceptance",
+   "file": "capstone-code/capstone/ingestion/haas_acceptance.py",
+   "line": 35,
+   "end_line": 41,
+   "name": "no_blank_private_references",
+   "qualname": "HaasAcceptanceEvidence.no_blank_private_references",
+   "kind": "method",
+   "signature": "self -> 'HaasAcceptanceEvidence'",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": false,
+   "decorators": [
+    "model_validator(mode='after')"
+   ],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [],
+   "calls": [
+    "ValueError",
+    "model_validator",
+    "strip"
+   ],
+   "side_effect_hints": [],
+   "statements": 3,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": false,
+   "executed_in_tests": true,
+   "test_count": 4,
+   "direct_tests": [
+    "tests/test_haas_acceptance.py::test_empty_checklist_is_blocked",
+    "tests/test_haas_acceptance.py::test_field_acceptance_requires_every_gate",
+    "tests/test_haas_acceptance.py::test_missing_or_unknown_private_reference_rejected",
+    "tests/test_haas_acceptance.py::test_offline_success_is_never_field_success"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 2,
+   "statements_in_body": 3,
+   "statement_coverage": 0.667,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.haas_acceptance:assess_haas_field_readiness",
+   "module": "capstone.ingestion.haas_acceptance",
+   "file": "capstone-code/capstone/ingestion/haas_acceptance.py",
+   "line": 71,
+   "end_line": 94,
+   "name": "assess_haas_field_readiness",
+   "qualname": "assess_haas_field_readiness",
+   "kind": "function",
+   "signature": "evidence: HaasAcceptanceEvidence -> HaasAcceptanceReport",
+   "purpose": "Do not report field readiness until every required gate is supported.",
+   "docstring": "Do not report field readiness until every required gate is supported.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "HaasAcceptanceReport",
+    "all",
+    "getattr",
+    "tuple"
+   ],
+   "side_effect_hints": [],
+   "statements": 4,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [
+    "tests/test_haas_acceptance.py::test_empty_checklist_is_blocked",
+    "tests/test_haas_acceptance.py::test_field_acceptance_requires_every_gate",
+    "tests/test_haas_acceptance.py::test_offline_success_is_never_field_success"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 3,
+   "statements_in_body": 3,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
    "id": "capstone.ingestion.haas_http:_DenyRedirects.redirect_request",
    "module": "capstone.ingestion.haas_http",
    "file": "capstone-code/capstone/ingestion/haas_http.py",
@@ -77709,7 +77815,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 15,
+   "test_count": 17,
    "direct_tests": [
     "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
     "tests/test_observability.py::test_invalid_ticks_are_rejected_without_emission",
@@ -77721,6 +77827,8 @@
    ],
    "indirect_tests": [
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+    "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
     "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
     "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
     "tests/test_triage_evidence_boundary.py::test_qualified_read_is_committed_with_ordered_source_linked_trace",
@@ -77729,7 +77837,7 @@
     "tests/test_triage_evidence_packet.py::test_counts_must_be_identifiers_and_nonnegative_integers",
     "tests/test_triage_evidence_packet.py::test_logging_traces_calls_missing_items_and_counts_never_evidence"
    ],
-   "indirect_test_count": 8,
+   "indirect_test_count": 10,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -77779,7 +77887,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 17,
+   "test_count": 19,
    "direct_tests": [
     "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
     "tests/test_observability.py::test_import_and_creation_do_not_change_global_logging",
@@ -77793,6 +77901,8 @@
    ],
    "indirect_tests": [
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+    "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
     "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
     "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
     "tests/test_triage_evidence_boundary.py::test_qualified_read_is_committed_with_ordered_source_linked_trace",
@@ -77801,7 +77911,7 @@
     "tests/test_triage_evidence_packet.py::test_counts_must_be_identifiers_and_nonnegative_integers",
     "tests/test_triage_evidence_packet.py::test_logging_traces_calls_missing_items_and_counts_never_evidence"
    ],
-   "indirect_test_count": 8,
+   "indirect_test_count": 10,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -77820,11 +77930,11 @@
    "module": "capstone.observability",
    "file": "capstone-code/capstone/observability.py",
    "line": 44,
-   "end_line": 140,
+   "end_line": 147,
    "name": "log_event",
    "qualname": "EventLogger.log_event",
    "kind": "method",
-   "signature": "self, event: str, *, run_id: str | None=None, investigation_id: str | None=None, tick: int | None=None, tool: str | None=None, success: bool | None=None, counts: Mapping[str, int] | None=None, sequence: int | None=None, phase: str | None=None, status: str | None=None, reason_code: str | None=None, evidence_id: str | None=None, cutoff_tick: int | None=None, duration_ms: float | None=None, request_hash: str | None=None, config_fingerprint: str | None=None, attempt: int | None=None, iteration: int | None=None, candidate_count: int | None=None, remaining_tool_calls: int | None=None -> None",
+   "signature": "self, event: str, *, run_id: str | None=None, investigation_id: str | None=None, capture_session_id: str | None=None, incident_id: str | None=None, tick: int | None=None, tool: str | None=None, success: bool | None=None, counts: Mapping[str, int] | None=None, sequence: int | None=None, phase: str | None=None, status: str | None=None, reason_code: str | None=None, evidence_id: str | None=None, cutoff_tick: int | None=None, duration_ms: float | None=None, request_hash: str | None=None, config_fingerprint: str | None=None, attempt: int | None=None, iteration: int | None=None, candidate_count: int | None=None, remaining_tool_calls: int | None=None -> None",
    "purpose": "Emit one event; omitted context stays absent and no clock is inferred.",
    "docstring": "Emit one event; omitted context stays absent and no clock is inferred.\n\nOnly the listed metadata fields can be logged. Store rich investigation\nrecords elsewhere, behind their own evidence and secret boundaries.",
    "has_variable_block": true,
@@ -77859,7 +77969,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 15,
+   "test_count": 17,
    "direct_tests": [
     "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
     "tests/test_observability.py::test_invalid_ticks_are_rejected_without_emission",
@@ -77871,6 +77981,8 @@
    ],
    "indirect_tests": [
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_haas_trace_context.py::test_collector_incident_correlation_keeps_structured_metadata_only",
+    "tests/test_haas_trace_context.py::test_invalid_correlation_identifier_is_never_logged",
     "tests/test_triage_deterministic_hypothesize.py::test_failed_read_has_diagnostic_result_event_without_exception_text",
     "tests/test_triage_deterministic_hypothesize.py::test_observability_logs_safe_metadata_and_persists_reason_trace",
     "tests/test_triage_evidence_boundary.py::test_qualified_read_is_committed_with_ordered_source_linked_trace",
@@ -77879,7 +77991,7 @@
     "tests/test_triage_evidence_packet.py::test_counts_must_be_identifiers_and_nonnegative_integers",
     "tests/test_triage_evidence_packet.py::test_logging_traces_calls_missing_items_and_counts_never_evidence"
    ],
-   "indirect_test_count": 8,
+   "indirect_test_count": 10,
    "statements_executed": 31,
    "statements_in_body": 35,
    "statement_coverage": 0.886,
@@ -77897,8 +78009,8 @@
    "id": "capstone.observability:create_event_logger",
    "module": "capstone.observability",
    "file": "capstone-code/capstone/observability.py",
-   "line": 143,
-   "end_line": 145,
+   "line": 150,
+   "end_line": 152,
    "name": "create_event_logger",
    "qualname": "create_event_logger",
    "kind": "function",
