@@ -484,8 +484,9 @@ class RunRepository:
         """Check that the durable hosted schema is reachable and migrated."""
         # Variables:
         #   tables: All six hosted tables must exist before accepting work.
-        #   found: How many of the two later-added columns exist (0004's
-        #     artifact content, 0006's worker problem code); both are needed.
+        #   found: How many of the four later-added columns exist (0004's
+        #     artifact content, and all three of 0006's worker problem
+        #     columns); every one is needed, since a worker pulse writes them.
         from sqlalchemy import text
 
         with self.engine.connect() as connection:
@@ -511,11 +512,12 @@ class RunRepository:
                     "SELECT count(*) FROM information_schema.columns "
                     "WHERE table_schema='capstone_private' AND ("
                     "(table_name='sim_run_artifacts' AND column_name='content') "
-                    "OR (table_name='sim_worker_heartbeats' "
-                    "AND column_name='last_problem_code'))"
+                    "OR (table_name='sim_worker_heartbeats' AND column_name IN "
+                    "('last_problem_code', 'last_problem_at', "
+                    "'last_problem_count')))"
                 )
             ).scalar_one()
-            return int(found) == 2
+            return int(found) == 4
 
     @staticmethod
     def _view(run: SimRun) -> dict[str, Any]:

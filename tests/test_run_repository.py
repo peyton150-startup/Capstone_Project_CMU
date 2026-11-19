@@ -74,6 +74,34 @@ def test_empty_hosted_migration_round_trip(repository):
     assert repository.ready()
 
 
+@pytest.mark.parametrize(
+    "column", ["last_problem_code", "last_problem_at", "last_problem_count"]
+)
+def test_ready_refuses_a_schema_missing_any_worker_problem_column(repository, column):
+    """Each of 0006's three columns is checked, not only the first."""
+    from sqlalchemy import text
+
+    assert repository.ready()
+    with repository.engine.begin() as connection:
+        connection.execute(
+            text(
+                "ALTER TABLE capstone_private.sim_worker_heartbeats "
+                f"RENAME COLUMN {column} TO {column}_hidden"
+            )
+        )
+    try:
+        assert not repository.ready()
+    finally:
+        with repository.engine.begin() as connection:
+            connection.execute(
+                text(
+                    "ALTER TABLE capstone_private.sim_worker_heartbeats "
+                    f"RENAME COLUMN {column}_hidden TO {column}"
+                )
+            )
+    assert repository.ready()
+
+
 @pytest.fixture
 def repository(monkeypatch):
     """Use only the disposable CI/local test database, never a hosted project."""
