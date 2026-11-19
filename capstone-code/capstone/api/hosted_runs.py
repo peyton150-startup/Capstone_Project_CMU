@@ -108,7 +108,9 @@ class HostedSimulatorRuns:
         invalid_rows = 0
         for row in reversed(calls[:MAX_CALLS]):
             try:
-                clean = SafeModelCall.model_validate(row["data"]).model_dump(mode="json")
+                clean = SafeModelCall.model_validate(row["data"]).model_dump(
+                    mode="json"
+                )
             except (ValueError, TypeError):
                 invalid_rows += 1
                 continue
@@ -127,9 +129,7 @@ class HostedSimulatorRuns:
         self, run_id: str, investigation_id: str
     ) -> dict[str, Any] | None:
         """Project a private audit into its pre-existing strictly safe reader."""
-        content = self.repository.read_artifact(
-            run_id, "audit", actor_id=_HOSTED_ACTOR
-        )
+        content = self.repository.read_artifact(run_id, "audit", actor_id=_HOSTED_ACTOR)
         if content is None:
             return None
         with tempfile.TemporaryDirectory(prefix="capstone-projection-") as root:

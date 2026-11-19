@@ -241,9 +241,9 @@ def test_hosted_review_is_durable_actor_scoped_and_lease_fenced(repository):
     repository.request_review(claim, "worker-one", safe)
     assert repository.get(queued["run_id"])["state"] == "awaiting_review"
     assert repository.pending_reviews(actor_id="not-the-actor") == []
-    assert repository.pending_reviews(actor_id="hosted-simulator")[0][
-        "proposal_id"
-    ] == 1
+    assert (
+        repository.pending_reviews(actor_id="hosted-simulator")[0]["proposal_id"] == 1
+    )
     with pytest.raises(LookupError):
         repository.decide_review(
             queued["run_id"],
@@ -271,15 +271,19 @@ def test_hosted_review_is_durable_actor_scoped_and_lease_fenced(repository):
     assert [
         event["event"] for event in repository.events_since(queued["run_id"], 0)
     ] == [
-        "run.queued", "run.started", "review.requested",
-        "review.decided", "run.started",
+        "run.queued",
+        "run.started",
+        "review.requested",
+        "review.decided",
+        "run.started",
     ]
 
 
 def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     """Persisted audit is private; late stage writes cannot regress completion."""
-    from capstone.api.run_repository import StagePayload
     from uuid import uuid4
+
+    from capstone.api.run_repository import StagePayload
 
     queued = repository.submit(
         RunRequest(seed=32, mode="triage"),
@@ -305,7 +309,8 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     assert observed["snapshot"]["progress"]["triage"]["stage"] == "conclude"
     assert repository.get(queued["run_id"], actor_id="someone-else") is None
     repository.store_artifacts(
-        claim, "worker-one",
+        claim,
+        "worker-one",
         {
             "audit": b'{"private":"audit"}\n',
             "observability": b'{"event":"worker.started"}\n',
@@ -314,11 +319,15 @@ def test_hosted_progress_artifact_and_terminal_are_fenced(repository):
     assert repository.read_artifact(
         queued["run_id"], "audit", actor_id="hosted-simulator"
     ).startswith(b'{"private":')
-    assert repository.read_artifact(
-        queued["run_id"], "audit", actor_id="someone-else"
-    ) is None
+    assert (
+        repository.read_artifact(queued["run_id"], "audit", actor_id="someone-else")
+        is None
+    )
     repository.transition(
-        claim, "worker-one", "completed", "run.completed",
+        claim,
+        "worker-one",
+        "completed",
+        "run.completed",
         {"status": "completed"},
     )
     with pytest.raises(LostLease):
@@ -404,25 +413,37 @@ def test_model_journal_is_fenced_private_and_source_validated(repository):
         claim, "model-telemetry-worker", "model.monitor", {"schema_version": 1}
     )
     repository.publish_model_event(
-        claim, "model-telemetry-worker", "model.config",
+        claim,
+        "model-telemetry-worker",
+        "model.config",
         {"schema_version": 1, "outcome": "configured"},
     )
     safe_call = contracts.SafeModelCall(
-        question_index=1, job="conclude", outcome="no_answer", attempts=(),
+        question_index=1,
+        job="conclude",
+        outcome="no_answer",
+        attempts=(),
     ).model_dump(mode="json")
     repository.publish_model_event(
         claim, "model-telemetry-worker", "model.call", safe_call
     )
     with pytest.raises(ValueError):
         repository.publish_model_event(
-            claim, "model-telemetry-worker", "model.call",
+            claim,
+            "model-telemetry-worker",
+            "model.call",
             {**safe_call, "provider_response": "DO_NOT_PERSIST"},
         )
     repository.publish_model_event(
-        claim, "model-telemetry-worker", "model.monitor.finished",
+        claim,
+        "model-telemetry-worker",
+        "model.monitor.finished",
         {
-            "schema_version": 1, "questions_seen": 1,
-            "questions_persisted": 1, "write_failures": 0, "complete": True,
+            "schema_version": 1,
+            "questions_seen": 1,
+            "questions_persisted": 1,
+            "write_failures": 0,
+            "complete": True,
         },
     )
 
@@ -434,12 +455,16 @@ def test_model_journal_is_fenced_private_and_source_validated(repository):
     assert view["summary"]["complete"] is True
     assert [entry["question_index"] for entry in view["items"]] == [1]
     assert "DO_NOT_PERSIST" not in str(view)
-    assert repository.model_events(
-        queued["run_id"], "model.call", actor_id="other-actor"
-    ) == []
+    assert (
+        repository.model_events(queued["run_id"], "model.call", actor_id="other-actor")
+        == []
+    )
 
     repository.transition(
-        claim, "model-telemetry-worker", "completed", "run.completed",
+        claim,
+        "model-telemetry-worker",
+        "completed",
+        "run.completed",
         {"status": "completed", "mode": "triage"},
     )
     with pytest.raises(LostLease):
@@ -463,13 +488,18 @@ def test_queued_run_stays_queued_until_matching_build_can_claim(repository):
     """Never execute on a worker with different immutable strategy/build."""
     configured = RunExecutionConfig(source_revision="a" * 40)
     submitted = repository.submit(
-        RunRequest(seed=101), "compatible-queue-revision-101",
-        actor_id="hosted-simulator", effective_config=configured,
+        RunRequest(seed=101),
+        "compatible-queue-revision-101",
+        actor_id="hosted-simulator",
+        effective_config=configured,
     )
-    assert repository.claim(
-        "worker-wrong-build",
-        expected_config=RunExecutionConfig(source_revision="b" * 40),
-    ) is None
+    assert (
+        repository.claim(
+            "worker-wrong-build",
+            expected_config=RunExecutionConfig(source_revision="b" * 40),
+        )
+        is None
+    )
     assert repository.get(submitted["run_id"])["state"] == "queued"
     claimed = repository.claim("worker-right-build", expected_config=configured)
     assert claimed is not None
@@ -495,18 +525,26 @@ def test_worker_idle_pulse_is_durable_and_never_exposes_revision(repository):
 
 def test_expiry_preserves_last_good_triage_and_never_replays(repository):
     from uuid import uuid4
+
     from capstone.api.run_repository import StagePayload
 
     submitted = repository.submit(
-        RunRequest(seed=102), "progress-expiry-102-unique",
-        actor_id="hosted-simulator", effective_config=RunExecutionConfig(),
+        RunRequest(seed=102),
+        "progress-expiry-102-unique",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
     )
     claim = repository.claim("worker-one")
     assert claim is not None
     safe = StagePayload(
-        investigation_id=str(uuid4()), mode="triage", stage="investigate",
-        iteration_count=1, tool_calls=1, evidence_count=1,
-        hypothesis_count=0, unresolved_question_ids=[],
+        investigation_id=str(uuid4()),
+        mode="triage",
+        stage="investigate",
+        iteration_count=1,
+        tool_calls=1,
+        evidence_count=1,
+        hypothesis_count=0,
+        unresolved_question_ids=[],
         conclusion_available=False,
     ).model_dump(mode="json")
     repository.publish_progress(claim, "worker-one", safe)
@@ -525,28 +563,42 @@ def test_expiry_preserves_last_good_triage_and_never_replays(repository):
 
 def test_terminal_progress_is_authoritative_over_late_queue_writer(repository):
     from uuid import uuid4
+
     from capstone.api.run_repository import StagePayload
 
     submitted = repository.submit(
-        RunRequest(seed=103), "terminal-authoritative-103",
-        actor_id="hosted-simulator", effective_config=RunExecutionConfig(),
+        RunRequest(seed=103),
+        "terminal-authoritative-103",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
     )
     claim = repository.claim("worker-one")
     assert claim is not None
     base = {
-        "investigation_id": str(uuid4()), "mode": "triage",
-        "iteration_count": 1, "tool_calls": 1, "evidence_count": 1,
-        "hypothesis_count": 0, "unresolved_question_ids": [],
+        "investigation_id": str(uuid4()),
+        "mode": "triage",
+        "iteration_count": 1,
+        "tool_calls": 1,
+        "evidence_count": 1,
+        "hypothesis_count": 0,
+        "unresolved_question_ids": [],
         "conclusion_available": False,
     }
     early = StagePayload(**base, stage="investigate").model_dump(mode="json")
-    final = StagePayload(**{
-        **base, "stage": "conclude", "iteration_count": 2,
-        "conclusion_available": True,
-    }).model_dump(mode="json")
+    final = StagePayload(
+        **{
+            **base,
+            "stage": "conclude",
+            "iteration_count": 2,
+            "conclusion_available": True,
+        }
+    ).model_dump(mode="json")
     repository.publish_progress(claim, "worker-one", early)
     repository.transition(
-        claim, "worker-one", "completed", "run.completed",
+        claim,
+        "worker-one",
+        "completed",
+        "run.completed",
         {"status": "completed", "mode": "triage"},
         final_progress=final,
     )
@@ -554,9 +606,9 @@ def test_terminal_progress_is_authoritative_over_late_queue_writer(repository):
         repository.publish_progress(claim, "worker-one", early)
     row = repository.get(submitted["run_id"])
     assert row["snapshot"]["progress"]["triage"]["stage"] == "conclude"
-    assert [event["event"] for event in repository.events_since(
-        submitted["run_id"], 0
-    )][-2:] == ["stage.updated", "run.completed"]
+    assert [
+        event["event"] for event in repository.events_since(submitted["run_id"], 0)
+    ][-2:] == ["stage.updated", "run.completed"]
 
 
 def test_worker_liveness_refuses_stale_render_revision(repository, monkeypatch):
@@ -567,6 +619,51 @@ def test_worker_liveness_refuses_stale_render_revision(repository, monkeypatch):
     assert repository.queue_metrics()["worker_liveness"] == "revision_mismatch"
     monkeypatch.setenv("RENDER_GIT_COMMIT", "a" * 40)
     assert repository.queue_metrics()["worker_liveness"] == "healthy"
+
+
+def _clear_revision_variables(monkeypatch):
+    from capstone.api.run_repository import SOURCE_REVISION_VARIABLES
+
+    for name in SOURCE_REVISION_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+
+
+def test_source_revision_reads_render_and_northflank_in_order(monkeypatch):
+    """Override beats Render, Render beats Northflank, blank counts as unset."""
+    from capstone.api.run_repository import source_revision
+
+    _clear_revision_variables(monkeypatch)
+    assert source_revision() is None
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "c" * 40)
+    assert source_revision() == "c" * 40
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "b" * 40)
+    assert source_revision() == "b" * 40
+    monkeypatch.setenv("CAPSTONE_SOURCE_REVISION", "a" * 40)
+    assert source_revision() == "a" * 40
+    monkeypatch.setenv("CAPSTONE_SOURCE_REVISION", "  ")
+    assert source_revision() == "b" * 40
+
+
+def test_northflank_worker_is_ready_for_render_web_on_same_commit(
+    repository, monkeypatch
+):
+    """Render web (RENDER_GIT_COMMIT) accepts a Northflank worker's heartbeat."""
+    from capstone.api.run_repository import RunExecutionConfig
+
+    # Worker process on Northflank: only NF_DEPLOYMENT_SHA is set.
+    _clear_revision_variables(monkeypatch)
+    monkeypatch.setenv("NF_DEPLOYMENT_SHA", "d" * 40)
+    worker_revision = RunExecutionConfig.current().source_revision
+    assert worker_revision == "d" * 40
+    repository.worker_heartbeat(
+        "worker:northflank", source_revision=worker_revision, status="idle"
+    )
+    # Web process on Render: only RENDER_GIT_COMMIT is set.
+    _clear_revision_variables(monkeypatch)
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "d" * 40)
+    assert repository.queue_metrics()["worker_liveness"] == "healthy"
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "e" * 40)
+    assert repository.queue_metrics()["worker_liveness"] == "revision_mismatch"
 
 
 def test_model_metadata_is_never_emitted_in_general_sse_journal(repository):
@@ -590,38 +687,41 @@ def test_model_metadata_is_never_emitted_in_general_sse_journal(repository):
         outcome="no_answer",
         attempts=(),
     ).model_dump(mode="json")
-    repository.publish_model_event(
-        claim, "worker-pr304", "model.call", safe
-    )
+    repository.publish_model_event(claim, "worker-pr304", "model.call", safe)
     # Never allow raw provider bodies or secret-bearing arbitrary attributes.
     with pytest.raises(ValueError):
         repository.publish_model_event(
-            claim, "worker-pr304", "model.call",
+            claim,
+            "worker-pr304",
+            "model.call",
             {**safe, "provider_response": "NEVER_LEAK"},
         )
     visible = repository.events_since(
         submitted["run_id"], 0, actor_id="hosted-simulator"
     )
     assert [(item["seq"], item["event"]) for item in visible] == [
-        (1, "run.queued"), (2, "run.started"),
+        (1, "run.queued"),
+        (2, "run.started"),
     ]
     private = repository.model_events(
         submitted["run_id"], "model.call", actor_id="hosted-simulator"
     )
     assert len(private) == 1
     assert private[0]["data"]["job"] == "conclude"
-    assert repository.model_events(
-        submitted["run_id"], "model.call", actor_id="other-actor"
-    ) == []
-    assert repository.events_since(
-        submitted["run_id"], 0, actor_id="other-actor"
-    ) == []
+    assert (
+        repository.model_events(
+            submitted["run_id"], "model.call", actor_id="other-actor"
+        )
+        == []
+    )
+    assert repository.events_since(submitted["run_id"], 0, actor_id="other-actor") == []
     repository.transition(
-        claim, "worker-pr304", "completed", "run.completed",
+        claim,
+        "worker-pr304",
+        "completed",
+        "run.completed",
         {"status": "completed", "mode": "triage"},
     )
-    tail = repository.events_since(
-        submitted["run_id"], 2, actor_id="hosted-simulator"
-    )
+    tail = repository.events_since(submitted["run_id"], 2, actor_id="hosted-simulator")
     assert [item["event"] for item in tail] == ["run.completed"]
     assert all(not item["event"].startswith("model.") for item in tail)

@@ -29,7 +29,8 @@ def _worker(self, run_id, request):
                 == effective["effective_triage"]
             )
         self._emit(
-            run_id, "run.completed",
+            run_id,
+            "run.completed",
             {
                 "status": "completed",
                 "mode": request.mode,
@@ -62,9 +63,7 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
 ):
     monkeypatch.setattr(SimulatorRuns, "_execute", _worker)
     client = TestClient(create_app(config(tmp_path)))
-    defaults = client.get(
-        "/api/v1/lab/runs/configuration", headers=auth(TOKEN)
-    )
+    defaults = client.get("/api/v1/lab/runs/configuration", headers=auth(TOKEN))
     assert defaults.status_code == 200
     assert defaults.json()["editable_per_run"]
     assert not defaults.json()["global_environment_editable"]
@@ -83,9 +82,7 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
         "conclude_cap": False,
     }
     payload = {"seed": 19, "mode": "triage", "triage_settings": overrides}
-    preview = client.post(
-        "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload
-    )
+    preview = client.post("/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload)
     assert preview.status_code == 200
     preview_config = preview.json()
     effective = preview_config["effective_triage"]
@@ -97,12 +94,20 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
     assert effective["then_deep"] is False
     assert effective["conclude_brief"] is False
     assert preview_config["stages"]["conclude"] == "model"
-    assert {"plan", "investigate", "hypothesize", "packet"} <= set(preview_config["overridden"])
-    assert client.post(
-        "/api/v1/lab/runs",
-        headers={**auth(TOKEN), "Idempotency-Key": KEY},
-        json={**payload, "configuration_fingerprint": preview_config["fingerprint"]},
-    ).status_code == 403
+    assert {"plan", "investigate", "hypothesize", "packet"} <= set(
+        preview_config["overridden"]
+    )
+    assert (
+        client.post(
+            "/api/v1/lab/runs",
+            headers={**auth(TOKEN), "Idempotency-Key": KEY},
+            json={
+                **payload,
+                "configuration_fingerprint": preview_config["fingerprint"],
+            },
+        ).status_code
+        == 403
+    )
     response = client.post(
         "/api/v1/lab/runs",
         headers={**auth(OPERATOR), "Idempotency-Key": KEY},
@@ -113,7 +118,7 @@ def test_viewer_preview_operator_submit_and_persisted_configuration(
         f"/api/v1/lab/runs/{response.json()['run_id']}",
         headers=auth(TOKEN),
     ).json()
-    assert run["requested"]["effective_configuration"] == config
+    assert run["requested"]["effective_configuration"] == preview_config
     recorded_request = run["requested"]["triage_settings"]
     for name, value in overrides.items():
         assert recorded_request[name] == value
@@ -130,34 +135,54 @@ def test_invalid_custom_settings_stale_previews_and_pilot_denials(
     monkeypatch.setattr(SimulatorRuns, "_execute", _worker)
     client = TestClient(create_app(config(tmp_path)))
     bad = {
-        "seed": 1, "mode": "triage",
+        "seed": 1,
+        "mode": "triage",
         "triage_settings": {
-            "run_mode": "custom", "plan": "model",
-            "investigate": "deterministic", "hypothesize": "model",
+            "run_mode": "custom",
+            "plan": "model",
+            "investigate": "deterministic",
+            "hypothesize": "model",
         },
     }
-    assert client.post(
-        "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=bad
-    ).status_code == 422
-    assert client.post(
-        "/api/v1/lab/runs",
-        headers={**auth(OPERATOR), "Idempotency-Key": KEY}, json=bad,
-    ).status_code == 422
+    assert (
+        client.post(
+            "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=bad
+        ).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/v1/lab/runs",
+            headers={**auth(OPERATOR), "Idempotency-Key": KEY},
+            json=bad,
+        ).status_code
+        == 422
+    )
     injection = {
         "seed": 1,
         "triage_settings": {"run_mode": "deterministic", "api_key": "SECRET"},
     }
-    assert client.post(
-        "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=injection
-    ).status_code == 422
-    assert client.post(
-        "/api/v1/lab/runs/preview?workspace=pilot",
-        headers=auth(TOKEN), json={"seed": 1},
-    ).status_code == 403
-    assert client.get(
-        "/api/v1/lab/runs/configuration?workspace=pilot",
-        headers=auth(TOKEN),
-    ).status_code == 403
+    assert (
+        client.post(
+            "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=injection
+        ).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/v1/lab/runs/preview?workspace=pilot",
+            headers=auth(TOKEN),
+            json={"seed": 1},
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            "/api/v1/lab/runs/configuration?workspace=pilot",
+            headers=auth(TOKEN),
+        ).status_code
+        == 403
+    )
     payload = {"seed": 1, "triage_settings": {"run_mode": "deterministic"}}
     preview = client.post(
         "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload
@@ -186,12 +211,11 @@ def test_deep_only_does_not_apply_triage_controls(tmp_path, monkeypatch):
     monkeypatch.setattr(SimulatorRuns, "_execute", _worker)
     client = TestClient(create_app(config(tmp_path)))
     payload = {
-        "seed": 14, "mode": "deep",
+        "seed": 14,
+        "mode": "deep",
         "triage_settings": {"run_mode": "deterministic", "then_deep": False},
     }
-    preview = client.post(
-        "/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload
-    )
+    preview = client.post("/api/v1/lab/runs/preview", headers=auth(TOKEN), json=payload)
     assert preview.status_code == 200
     preview_config = preview.json()
     assert not preview_config["applied"]
@@ -207,12 +231,8 @@ def test_submission_rejects_settings_drift_between_route_and_journal(
     from capstone.settings import Settings
 
     monkeypatch.setattr(SimulatorRuns, "_execute", _worker)
-    old = Settings(
-        _env_file=None, triage_tool_calls=6, triage_run_mode="custom"
-    )
-    changed = Settings(
-        _env_file=None, triage_tool_calls=3, triage_run_mode="custom"
-    )
+    old = Settings(_env_file=None, triage_tool_calls=6, triage_run_mode="custom")
+    changed = Settings(_env_file=None, triage_tool_calls=3, triage_run_mode="custom")
     monkeypatch.setattr("capstone.api.app.get_settings", lambda: old)
     monkeypatch.setattr("capstone.api.runs.get_settings", lambda: changed)
     client = TestClient(create_app(config(tmp_path)))
@@ -231,6 +251,4 @@ def test_submission_rejects_settings_drift_between_route_and_journal(
     )
     assert rejected.status_code == 409
     assert "Settings changed" in rejected.json()["detail"]
-    assert client.get(
-        "/api/v1/lab/runs", headers=auth(TOKEN)
-    ).json()["items"] == []
+    assert client.get("/api/v1/lab/runs", headers=auth(TOKEN)).json()["items"] == []

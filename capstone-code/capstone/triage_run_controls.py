@@ -120,8 +120,7 @@ class EffectiveTriageRun(BaseModel):
         }[self.investigate]
         test = (
             "deterministic tests, potential model revaluation"
-            if self.investigate == "deterministic"
-            and self.hypothesize == "model"
+            if self.investigate == "deterministic" and self.hypothesize == "model"
             else decide
         )
         return {
@@ -199,6 +198,5 @@ def overridden_fields(
         return ()
     fields = requested.model_dump(exclude_none=True)
     return tuple(
-        name for name, value in fields.items()
-        if getattr(effective, name) != value
+        name for name, value in fields.items() if getattr(effective, name) != value
     )

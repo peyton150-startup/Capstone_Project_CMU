@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy import create_engine, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import Engine, make_url
@@ -31,7 +31,31 @@ from capstone.api.run_models import (
     SimRunReview,
     SimWorkerHeartbeat,
 )
-from capstone.api.runs import ReviewDecision, RunRequest
+from capstone.api.runs import InvalidRunEnvironment, ReviewDecision, RunRequest
+
+# Where each host publishes the git commit of the running build, in the order
+# they are tried. The API runs on Render and the worker on Northflank, so both
+# sides must find the same commit from their own host's variable.
+SOURCE_REVISION_VARIABLES = (
+    "CAPSTONE_SOURCE_REVISION",  # Explicit operator override on any host.
+    "RENDER_GIT_COMMIT",  # Render web service (and any Render worker).
+    "NF_DEPLOYMENT_SHA",  # Northflank service runtime variable.
+)
+
+
+def source_revision() -> str | None:
+    """Git commit of this build from the first host variable that is set."""
+    # Variables:
+    #   name: One of SOURCE_REVISION_VARIABLES, tried in order so an explicit
+    #     CAPSTONE_SOURCE_REVISION always beats a host's own variable.
+    #   value: That variable's text, stripped; an empty value counts as unset so
+    #     a blank override cannot hide the host's real commit.
+    for name in SOURCE_REVISION_VARIABLES:
+        value = (os.getenv(name) or "").strip()
+        if value:
+            return value
+    return None
+
 
 _IDEMPOTENCY = re.compile(r"[A-Za-z0-9_-]{16,96}\Z")
 _ACTOR = re.compile(r"[A-Za-z0-9_.:-]{1,128}\Z")
@@ -133,39 +157,49 @@ class RunExecutionConfig(BaseModel):
 
     @classmethod
     def current(cls) -> "RunExecutionConfig":
-        """Resolve once identically in web and worker, including Render build SHA."""
+        """Resolve once identically in web and worker, including the build SHA."""
+        # Variables:
+        #   settings: This process's triage settings; the web service and the
+        #     worker must resolve identical values or the worker refuses the run.
+        #   effective: The one-switch triage profile from #301, preferred over
+        #     the raw settings when present.
+        #   revision: The build's git commit from source_revision(), Render's on
+        #     the web side and Northflank's on the worker side.
         from capstone.settings import get_settings
 
-        settings = get_settings()
-        revision = (
-            os.getenv("CAPSTONE_SOURCE_REVISION")
-            or os.getenv("RENDER_GIT_COMMIT")
-            or None
-        )
-        effective = getattr(settings, "effective_triage", None)
-        if effective is not None:
+        try:
+            # Settings() itself validates TRIAGE_* values, so it belongs inside
+            # the try as well: a bad value there is the same server fault.
+            settings = get_settings()
+            revision = source_revision()
+            effective = getattr(settings, "effective_triage", None)
+            if effective is not None:
+                return cls(
+                    triage_run_mode=effective.run_mode,
+                    triage_plan=effective.plan,
+                    triage_investigate=effective.investigate,
+                    triage_hypothesize=effective.hypothesize,
+                    triage_evidence_tests=effective.evidence_tests,
+                    triage_packet=effective.packet,
+                    triage_packet_prompt=effective.packet_prompt,
+                    triage_observe_calls=effective.observe_calls,
+                    triage_hypothesis_seconds=effective.hypothesis_seconds,
+                    triage_critic=effective.critic,
+                    triage_critic_followup=effective.critic_followup,
+                    triage_critic_reinstate=effective.critic_reinstate,
+                    source_revision=revision,
+                )
             return cls(
-                triage_run_mode=effective.run_mode,
-                triage_plan=effective.plan,
-                triage_investigate=effective.investigate,
-                triage_hypothesize=effective.hypothesize,
-                triage_evidence_tests=effective.evidence_tests,
-                triage_packet=effective.packet,
-                triage_packet_prompt=effective.packet_prompt,
-                triage_observe_calls=effective.observe_calls,
-                triage_hypothesis_seconds=effective.hypothesis_seconds,
-                triage_critic=effective.critic,
-                triage_critic_followup=effective.critic_followup,
-                triage_critic_reinstate=effective.critic_reinstate,
+                triage_plan=settings.triage_plan,
+                triage_investigate=settings.triage_investigate,
+                triage_hypothesize=settings.triage_hypothesize,
+                triage_evidence_tests=settings.triage_evidence_tests,
                 source_revision=revision,
             )
-        return cls(
-            triage_plan=settings.triage_plan,
-            triage_investigate=settings.triage_investigate,
-            triage_hypothesize=settings.triage_hypothesize,
-            triage_evidence_tests=settings.triage_evidence_tests,
-            source_revision=revision,
-        )
+        except ValidationError:
+            # The pydantic message would echo the bad value; keep it out of
+            # logs and HTTP responses and name the variables to check instead.
+            raise InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE) from None
 
     @model_validator(mode="after")
     def validate_strategy(self) -> "RunExecutionConfig":
@@ -183,7 +217,6 @@ class RunExecutionConfig(BaseModel):
         return self
 
 
-
 class SafeRequirementProgress(BaseModel):
     """Exact safe requirement identity and disposition; no evidence payload."""
 
@@ -192,8 +225,14 @@ class SafeRequirementProgress(BaseModel):
         pattern=r"^Q[0-9]{1,3}:(?:[a-z_]{1,24}|job:[0-9]{1,8})$"
     )
     status: Literal[
-        "pending", "satisfied", "partial", "insufficient", "stale",
-        "unavailable", "unsupported", "failed",
+        "pending",
+        "satisfied",
+        "partial",
+        "insufficient",
+        "stale",
+        "unavailable",
+        "unsupported",
+        "failed",
     ]
     evidence_count: int = Field(ge=0, le=100_000)
 
@@ -206,20 +245,31 @@ class StagePayload(BaseModel):
         pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     )
     mode: Literal["triage", "deep"]
-    stage: Literal[
-        "observe", "manual", "plan", "investigate", "hypothesize",
-        "test", "critique", "recheck", "conclude", "decide",
-        "propose", "execute", "verify",
-    ] | None = None
+    stage: (
+        Literal[
+            "observe",
+            "manual",
+            "plan",
+            "investigate",
+            "hypothesize",
+            "test",
+            "critique",
+            "recheck",
+            "conclude",
+            "decide",
+            "propose",
+            "execute",
+            "verify",
+        ]
+        | None
+    ) = None
     iteration_count: int = Field(ge=0, le=100_000)
     tool_calls: int = Field(ge=0, le=100_000)
     evidence_count: int = Field(ge=0, le=100_000)
     hypothesis_count: int = Field(ge=0, le=100_000)
     unresolved_question_ids: list[str] = Field(max_length=25)
     unresolved_question_count: int = Field(default=0, ge=0)
-    termination_reason: str | None = Field(
-        default=None, pattern=r"^[a-z][a-z_]{0,63}$"
-    )
+    termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
     conclusion_available: bool
 
     # The following are only Graph-derived counts and booleans. Raw tool
@@ -309,9 +359,14 @@ def _safe_model_event(event_name: str, payload: dict[str, Any]) -> dict[str, Any
     return contract.model_validate(payload).model_dump(mode="json")
 
 
-_MODEL_EVENTS = frozenset({
-    "model.monitor", "model.call", "model.config", "model.monitor.finished",
-})
+_MODEL_EVENTS = frozenset(
+    {
+        "model.monitor",
+        "model.call",
+        "model.config",
+        "model.monitor.finished",
+    }
+)
 
 
 # Durable event allowlist evolves with the exact typed safe contract.
@@ -329,6 +384,7 @@ class ReviewProposal(BaseModel):
     reason: str = Field(max_length=600)
     predicted_effect: str = Field(max_length=600)
     note: str = Field(default="", max_length=200)
+
 
 class RunRepository:
     """A short-transaction Postgres queue with idempotency and lease fencing."""
@@ -584,7 +640,10 @@ class RunRepository:
             ]
 
     def claim(
-        self, owner: str, *, lease_seconds: int = 60,
+        self,
+        owner: str,
+        *,
+        lease_seconds: int = 60,
         expected_config: RunExecutionConfig | None = None,
     ) -> JobClaim | None:
         """Claim only an execution-compatible job, without consuming mismatches."""
@@ -740,7 +799,6 @@ class RunRepository:
             self._append(session, run, event_name, snapshot)
             return self._view(run)
 
-
     @staticmethod
     def _fenced_job(session: Session, claim: JobClaim, owner: str) -> SimJob:
         """Validate the committed lease before every worker-owned mutation."""
@@ -793,56 +851,76 @@ class RunRepository:
         #   now: Database snapshots use wall time; no simulated timestamps.
         #   oldest: Oldest queued job, which is not proof of worker liveness.
         #   recent: Latest previously recorded worker heartbeat, possibly stale.
+        #   required_revision: This web service's build commit; a live worker
+        #     counts as ready only if its heartbeat reports the same commit.
+        #   compatible: Count of fresh heartbeats on that commit, which decides
+        #     "healthy" versus "revision_mismatch".
         now = datetime.now(timezone.utc)
         with Session(self.engine) as session:
-            queued = session.scalar(
-                select(func.count()).select_from(SimJob)
-                .where(SimJob.status == "queued")
-            ) or 0
-            active = session.scalar(
-                select(func.count()).select_from(SimJob)
-                .where(
-                    SimJob.status == "claimed",
-                    SimJob.lease_until > now,
+            queued = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimJob)
+                    .where(SimJob.status == "queued")
                 )
-            ) or 0
-            stale = session.scalar(
-                select(func.count()).select_from(SimJob)
-                .where(
-                    SimJob.status == "claimed",
-                    SimJob.lease_until <= now,
+                or 0
+            )
+            active = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimJob)
+                    .where(
+                        SimJob.status == "claimed",
+                        SimJob.lease_until > now,
+                    )
                 )
-            ) or 0
+                or 0
+            )
+            stale = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimJob)
+                    .where(
+                        SimJob.status == "claimed",
+                        SimJob.lease_until <= now,
+                    )
+                )
+                or 0
+            )
             oldest = session.scalar(
-                select(func.min(SimJob.enqueued_at)).where(
-                    SimJob.status == "queued"
-                )
+                select(func.min(SimJob.enqueued_at)).where(SimJob.status == "queued")
             )
             recent = session.scalar(select(func.max(SimJob.heartbeat_at)))
             fresh_after = now - timedelta(seconds=45)
-            alive = session.scalar(
-                select(func.count()).select_from(SimWorkerHeartbeat)
-                .where(SimWorkerHeartbeat.last_seen_at >= fresh_after)
-            ) or 0
-            # A live worker on the wrong Render commit cannot execute this
-            # web service's jobs. Do not report it as ready.
-            required_revision = (
-                os.getenv("CAPSTONE_SOURCE_REVISION")
-                or os.getenv("RENDER_GIT_COMMIT")
-                or None
+            alive = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(SimWorkerHeartbeat)
+                    .where(SimWorkerHeartbeat.last_seen_at >= fresh_after)
+                )
+                or 0
             )
+            # A live worker on a different commit (the Northflank worker
+            # behind the Render web service) cannot execute this web
+            # service's jobs. Do not report it as ready.
+            required_revision = source_revision()
             compatible = alive
             if required_revision is not None:
-                compatible = session.scalar(
-                    select(func.count()).select_from(SimWorkerHeartbeat)
-                    .where(
-                        SimWorkerHeartbeat.last_seen_at >= fresh_after,
-                        SimWorkerHeartbeat.source_revision == required_revision,
+                compatible = (
+                    session.scalar(
+                        select(func.count())
+                        .select_from(SimWorkerHeartbeat)
+                        .where(
+                            SimWorkerHeartbeat.last_seen_at >= fresh_after,
+                            SimWorkerHeartbeat.source_revision == required_revision,
+                        )
                     )
-                ) or 0
+                    or 0
+                )
             last_pulse = session.scalar(
                 select(func.max(SimWorkerHeartbeat.last_seen_at))
             )
+
         def elapsed(when: datetime | None) -> int | None:
             if when is None:
                 return None
@@ -857,15 +935,19 @@ class RunRepository:
             # No durable idle-worker heartbeat table: never imply presence
             # when the queue is empty and there is no active claim.
             "worker_liveness": (
-                "healthy" if compatible else
-                ("revision_mismatch" if alive else "unverified")
+                "healthy"
+                if compatible
+                else ("revision_mismatch" if alive else "unverified")
             ),
             "healthy_workers": min(int(compatible), 100),
             "last_worker_pulse_age_seconds": elapsed(last_pulse),
         }
 
     def publish_model_event(
-        self, claim: JobClaim, owner: str, event_name: str,
+        self,
+        claim: JobClaim,
+        owner: str,
+        event_name: str,
         payload: dict[str, Any],
     ) -> None:
         """Fenced, content-free model-call telemetry. Never mutate run snapshot."""
@@ -882,7 +964,12 @@ class RunRepository:
             self._append(session, run, event_name, safe)
 
     def model_events(
-        self, run_id: str, event_name: str, *, actor_id: str, limit: int = 201,
+        self,
+        run_id: str,
+        event_name: str,
+        *,
+        actor_id: str,
+        limit: int = 201,
     ) -> list[dict[str, Any]]:
         """Actor-scoped, bounded newest-first events; projection revalidates reads."""
         if event_name not in _MODEL_EVENTS:
@@ -906,7 +993,11 @@ class RunRepository:
         return [{"seq": row.seq, "data": row.payload} for row in rows]
 
     def worker_heartbeat(
-        self, worker_id: str, *, source_revision: str | None, status: str,
+        self,
+        worker_id: str,
+        *,
+        source_revision: str | None,
+        status: str,
     ) -> None:
         """Durable idle/active worker pulse, independent of a claimed job."""
         if not _OWNER.fullmatch(worker_id) or status not in {"idle", "running"}:
@@ -917,22 +1008,23 @@ class RunRepository:
             raise ValueError("Invalid worker revision")
         now = datetime.now(timezone.utc)
         stmt = pg_insert(SimWorkerHeartbeat).values(
-            worker_id=worker_id, source_revision=source_revision,
-            status=status, last_seen_at=now,
+            worker_id=worker_id,
+            source_revision=source_revision,
+            status=status,
+            last_seen_at=now,
         )
         stmt = stmt.on_conflict_do_update(
             index_elements=[SimWorkerHeartbeat.worker_id],
             set_={
-                "source_revision": source_revision, "status": status,
+                "source_revision": source_revision,
+                "status": status,
                 "last_seen_at": now,
             },
         )
         with Session(self.engine) as session, session.begin():
             session.execute(stmt)
 
-    def publish_resync(
-        self, claim: JobClaim, owner: str, dropped_count: int
-    ) -> None:
+    def publish_resync(self, claim: JobClaim, owner: str, dropped_count: int) -> None:
         """Record lost UI messages without exception or provider text."""
         # Variables:
         #   dropped_count: Bounded number of failed live progress updates.
@@ -946,7 +1038,9 @@ class RunRepository:
             if run is None or run.state != "running":
                 raise LostLease("Cannot mark resync on inactive run")
             self._append(
-                session, run, "resync.required",
+                session,
+                run,
+                "resync.required",
                 {"dropped_ui_updates": dropped_count, "mode": claim.request.mode},
             )
 
@@ -993,18 +1087,15 @@ class RunRepository:
             run.updated_at = now
             self._append(session, run, "review.requested", safe)
 
-    def review_status(
-        self, claim: JobClaim, owner: str, proposal_id: int
-    ) -> str:
+    def review_status(self, claim: JobClaim, owner: str, proposal_id: int) -> str:
         """Read a durable verdict only while the original worker still owns work."""
         with Session(self.engine) as session, session.begin():
             self._fenced_job(session, claim, owner)
             row = session.get(SimRunReview, (claim.run_id, proposal_id))
             if row is None:
                 raise LookupError("Proposal review missing")
-            if (
-                row.status == "pending"
-                and row.deadline_at <= datetime.now(timezone.utc)
+            if row.status == "pending" and row.deadline_at <= datetime.now(
+                timezone.utc
             ):
                 # Polling never treats a late approval as permission to execute.
                 row.status = "expired"
@@ -1026,7 +1117,9 @@ class RunRepository:
             run.version += 1
             run.updated_at = now
             self._append(
-                session, run, "run.started",
+                session,
+                run,
+                "run.started",
                 {"status": "running", "mode": claim.request.mode},
             )
 
@@ -1091,9 +1184,7 @@ class RunRepository:
                 )
                 .with_for_update()
             )
-            active_job = session.scalar(
-                select(SimJob).where(SimJob.run_id == ident)
-            )
+            active_job = session.scalar(select(SimJob).where(SimJob.run_id == ident))
             if (
                 review is None
                 or run.state != "awaiting_review"
@@ -1115,7 +1206,9 @@ class RunRepository:
                 "note": decision.note,
             }
             self._append(
-                session, run, "review.decided",
+                session,
+                run,
+                "review.decided",
                 {
                     "proposal_id": decision.proposal_id,
                     "decision": decision.decision,
@@ -1151,8 +1244,7 @@ class RunRepository:
             if run is None or run.state != "running":
                 raise LostLease("Run cannot persist artifacts")
             existing = session.scalars(
-                select(SimRunArtifact)
-                .where(SimRunArtifact.run_id == claim.run_id)
+                select(SimRunArtifact).where(SimRunArtifact.run_id == claim.run_id)
             ).all()
             if existing:
                 raise ValueError("Run artifacts already persisted")
@@ -1172,7 +1264,10 @@ class RunRepository:
                 )
 
     def read_artifact(
-        self, run_id: str, kind: Literal["audit", "observability"], *,
+        self,
+        run_id: str,
+        kind: Literal["audit", "observability"],
+        *,
         actor_id: str,
     ) -> bytes | None:
         """Read a private blob for server-side safe projection only."""
@@ -1240,7 +1335,9 @@ class RunRepository:
                 # The terminal run snapshot retains prior safe progress, but
                 # the replay event keeps its original small allowlisted payload.
                 self._append(
-                    session, run, "run.interrupted",
+                    session,
+                    run,
+                    "run.interrupted",
                     {"status": "interrupted", "reason": "worker_lease_expired"},
                 )
                 interrupted.append(str(run.run_id))

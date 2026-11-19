@@ -31,30 +31,47 @@ from capstone.api.readers import (
     safe_scorecards,
     signal_samples,
 )
-from capstone.api.runs import (ReviewDecision, RunRequest, SimulatorRuns, StaleRunConfiguration, public_run_configuration)
+from capstone.api.runs import (
+    InvalidRunEnvironment,
+    ReviewDecision,
+    RunRequest,
+    SimulatorRuns,
+    StaleRunConfiguration,
+    public_run_configuration,
+)
 from capstone.settings import get_settings
+from capstone.triage_run_controls import resolve_triage_run
 
 Workspace = Literal["simulator", "pilot"]
 
 # Deliberate allowlist: nothing from the process environment is serialized by default.
-PUBLIC_SETTING_NAMES = (
-    "TRIAGE",
-    "TRIAGE_SECONDS",
-    "TRIAGE_PLAN",
-    "TRIAGE_PACKET",
-    "TRIAGE_INVESTIGATE",
-    "TRIAGE_EVIDENCE_TESTS",
-    "TRIAGE_THEN_DEEP",
-    "STEP_QUESTIONS",
-    "DECIDE_CALLS",
-    "CRITIC",
-    "CRITIC_BLIND",
-    "CRITIC_FOLLOWUP",
-    "MANUAL_STEP",
-    "MEMORY_RETRIEVAL_MODE",
-    "MIN_ACTION_CONFIDENCE",
-    "MODEL_REQUEST_SECONDS",
-)
+PUBLIC_SETTING_FIELDS = {
+    # Only explicitly reviewed, nonsecret scalar Settings fields are exposed.
+    "TRIAGE": "triage",
+    "TRIAGE_SECONDS": "triage_seconds",
+    "TRIAGE_TOOL_CALLS": "triage_tool_calls",
+    "TRIAGE_PLAN": "triage_plan",
+    "TRIAGE_RUN_MODE": "triage_run_mode",
+    "TRIAGE_HYPOTHESIZE": "triage_hypothesize",
+    "TRIAGE_PACKET": "triage_packet",
+    "TRIAGE_PACKET_PROMPT": "triage_packet_prompt",
+    "TRIAGE_OBSERVE_CALLS": "triage_observe_calls",
+    "TRIAGE_INVESTIGATE": "triage_investigate",
+    "TRIAGE_EVIDENCE_TESTS": "triage_evidence_tests",
+    "TRIAGE_CONCLUDE_BRIEF": "triage_conclude_brief",
+    "TRIAGE_CONCLUDE_CAP": "triage_conclude_cap",
+    "TRIAGE_HYPOTHESIS_SECONDS": "triage_hypothesis_seconds",
+    "TRIAGE_THEN_DEEP": "triage_then_deep",
+    "STEP_QUESTIONS": "step_questions",
+    "DECIDE_CALLS": "decide_calls",
+    "CRITIC": "critic",
+    "CRITIC_BLIND": "critic_blind",
+    "CRITIC_FOLLOWUP": "critic_followup",
+    "MANUAL_STEP": "manual_step",
+    "MEMORY_RETRIEVAL_MODE": "memory_retrieval_mode",
+    "MIN_ACTION_CONFIDENCE": "min_action_confidence",
+    "MODEL_REQUEST_SECONDS": "model_request_seconds",
+}
 
 
 def create_app(config: UiConfig | None = None) -> FastAPI:
@@ -100,7 +117,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "http://localhost:5173",
             "http://127.0.0.1:4173",
             "http://localhost:4173",
-        ] + ([cfg.browser_origin] if cfg.browser_origin else []),
+        ]
+        + ([cfg.browser_origin] if cfg.browser_origin else []),
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=[
             "Authorization",
@@ -437,17 +455,35 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/settings/effective", dependencies=[Access])
     def settings_effective() -> dict:
-        """A read-only whitelist without keys, certificates, paths or free text."""
+        """Validated global scalars, including .env defaults; never credentials."""
+        # Variables:
+        #   settings: The validated Settings, so values shown match what a run
+        #     would use, including .env defaults the process environment lacks.
+        #   effective: The server's default triage profile after the
+        #     deterministic switch is applied, shown as profile and stage modes.
+        settings = get_settings()
+        effective = resolve_triage_run(settings)
         return {
             "editable": False,
             "items": [
                 {
                     "name": name,
-                    "value": os.environ.get(name),
+                    "value": (
+                        "on"
+                        if value is True
+                        else "off"
+                        if value is False
+                        else str(value)
+                    ),
+                    # Only process-level override marker; .env stays private.
                     "configured": name in os.environ,
                 }
-                for name in PUBLIC_SETTING_NAMES
+                for name, attr in PUBLIC_SETTING_FIELDS.items()
+                for value in (getattr(settings, attr),)
             ],
+            "triage_profile": effective.model_dump(mode="json"),
+            "triage_stage_modes": effective.stage_modes(),
+            "conclude": "model-backed",
         }
 
     @app.get("/api/v1/knowledge/manuals", dependencies=[Access])
@@ -602,17 +638,50 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         }
 
     @app.get("/api/v1/lab/runs/configuration", dependencies=[Access])
-    def run_configuration(workspace: Workspace = "simulator") -> dict:
+    def managed_run_configuration(workspace: Workspace = "simulator") -> dict:
+        """Validated defaults for the per-run editor; not global env editing."""
+        # Variables:
+        #   effective: The same resolver a submitted run uses, applied to the
+        #     server defaults, so the editor starts from what would really run.
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot run configuration prohibited")
-        return {"editable_per_run": True, "global_environment_editable": False,
-                "defaults": public_run_configuration(RunRequest(seed=0), get_settings())["effective_triage"]}
+            raise HTTPException(
+                status_code=403, detail="Pilot configuration is read-only"
+            )
+        if runner is None:
+            raise HTTPException(
+                status_code=503, detail="Simulator runner is not configured"
+            )
+        # Use the exact resolver as a submitted run. Values are all allowlisted.
+        effective = resolve_triage_run(get_settings())
+        return {
+            "schema_version": 1,
+            "defaults": effective.model_dump(mode="json"),
+            "editable_per_run": True,
+            "global_environment_editable": False,
+        }
 
     @app.post("/api/v1/lab/runs/preview", dependencies=[Access])
-    def preview_run_configuration(request: RunRequest, workspace: Workspace = "simulator") -> dict:
+    def preview_simulator_run(
+        request: RunRequest, workspace: Workspace = "simulator"
+    ) -> dict:
+        """Side-effect-free preflight: same typed resolver as submission."""
+        # Variables:
+        #   request: The proposed run; an incompatible stage combination is a
+        #     422, so the operator fixes it before any run is admitted.
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot run configuration prohibited")
-        return public_run_configuration(request, get_settings())
+            raise HTTPException(
+                status_code=403, detail="Pilot simulator runs prohibited"
+            )
+        if runner is None:
+            raise HTTPException(
+                status_code=503, detail="Simulator runner is not configured"
+            )
+        try:
+            return public_run_configuration(request, get_settings())
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="Incompatible triage settings"
+            ) from None
 
     @app.post("/api/v1/lab/runs", status_code=202)
     def start_simulator_run(
@@ -627,7 +696,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         require_role(authorization, "operator")
         if request.manual == "neon" and not cfg.neon_manual_enabled:
-            raise HTTPException(status_code=403, detail="Neon manual retrieval not configured")
+            raise HTTPException(
+                status_code=403, detail="Neon manual retrieval not configured"
+            )
         if idempotency_key is None or not re.fullmatch(
             r"[A-Za-z0-9_-]{16,96}", idempotency_key
         ):
@@ -635,32 +706,72 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 status_code=422,
                 detail="A unique 16-96 character Idempotency-Key is required",
             )
+        # Refuse a 202 if the explicitly selected manual is not published.
+        # The worker must never begin relying on an empty or broken knowledge store.
         if request.manual == "neon":
             from capstone.manual.neon import open_neon_manual
+
             knowledge = None
             try:
                 knowledge = open_neon_manual()
                 if not knowledge.list_sections(limit=1):
                     raise LookupError("No published simulator manual")
             except Exception:
-                raise HTTPException(status_code=503, detail="Approved manual store unavailable") from None
+                raise HTTPException(
+                    status_code=503, detail="Approved manual store unavailable"
+                ) from None
             finally:
                 if knowledge is not None:
                     knowledge.close()
         assert runner is not None
+        # Variables:
+        #   preview: The effective configuration resolved now, before the
+        #     durable submission lock, so bad settings are a 422 and a changed
+        #     server default (fingerprint mismatch) is a 409, not a stale run.
+        #   created: The admitted run; on the hosted backend its ID is logged
+        #     as a structured event for the separate worker's operators.
+        # Wrong stage combinations are invalid input, not an idempotency
+        # conflict. Validate before touching the durable submission lock.
+        try:
+            preview = public_run_configuration(request, get_settings())
+        except ValueError:
+            raise HTTPException(
+                status_code=422, detail="Incompatible triage settings"
+            ) from None
+        if (
+            request.configuration_fingerprint is not None
+            and request.configuration_fingerprint != preview["fingerprint"]
+        ):
+            raise HTTPException(
+                status_code=409,
+                detail="Settings changed after preview; review before starting",
+            )
         try:
             created = runner.submit(request, idempotency_key)
             if cfg.run_backend == "hosted":
                 logging.getLogger("capstone.api").info(
-                    "%s", json.dumps(
-                        {"service": "fastapi", "event": "run_submitted",
-                         "run_id": created["run_id"]},
+                    "%s",
+                    json.dumps(
+                        {
+                            "service": "fastapi",
+                            "event": "run_submitted",
+                            "run_id": created["run_id"],
+                        },
                         separators=(",", ":"),
-                    )
+                    ),
                 )
             return created
+        except InvalidRunEnvironment:
+            # A server fault (bad build commit or triage env var on this host),
+            # not the caller's idempotency key or an active run.
+            raise HTTPException(
+                status_code=503, detail="Server run configuration is invalid"
+            ) from None
         except StaleRunConfiguration:
-            raise HTTPException(status_code=409, detail="Settings changed since preview") from None
+            raise HTTPException(
+                status_code=409,
+                detail="Settings changed after preview; validate again",
+            ) from None
         except ValueError:
             raise HTTPException(
                 status_code=409, detail="Idempotency key belongs to another request"
@@ -703,7 +814,11 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         workspace: Workspace = "simulator",
         phase: Literal["final", "triage", "deep"] = "final",
     ) -> dict:
-        """Read one completed phase, chosen by server-owned progress only."""
+        """Retrieve one completed phase by server-owned investigation id only.
+
+        The legacy no-phase route remains the final investigation. Never accept
+        client-supplied audit paths, run internals, or arbitrary investigation IDs.
+        """
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot investigation access prohibited"
@@ -721,7 +836,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             stage = stages.get(phase)
             if isinstance(stage, dict) and stage.get("mode") == phase:
                 target = stage.get("investigation_id")
-            # Never fabricate a missing earlier phase for older runs.
+            # Legacy or triage-only records can have a final stage but no
+            # phase-specific progress map. Never infer an absent earlier phase.
             if not isinstance(target, str) and final.get("mode") == phase:
                 target = final.get("investigation_id")
         if not isinstance(target, str) or not re.fullmatch(
@@ -856,13 +972,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 current = await asyncio.to_thread(runner.get, run_id)
                 if (
                     current
-                    and current["state"] in {
-                        "completed", "failed", "interrupted", "expired",
+                    and current["state"]
+                    in {
+                        "completed",
+                        "failed",
+                        "interrupted",
+                        "expired",
                     }
                     and not events
                 ):
+                    # A recovered terminal run need not have a terminal event.
+                    # Explicitly end replay so browser reconnects can stop.
                     yield (
-                        'event: stream.closed\n'
+                        "event: stream.closed\n"
                         'data: {"reason":"terminal_replay_complete"}\n\n'
                     )
                     break

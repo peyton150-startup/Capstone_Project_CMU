@@ -26,14 +26,16 @@ def downgrade() -> None:
     """Never silently drop privately persisted run evidence."""
     if op.get_bind().dialect.name != "postgresql":
         return
-    existing = op.get_bind().execute(
-        text(
-            "SELECT EXISTS(SELECT 1 FROM capstone_private.sim_run_artifacts "
-            "WHERE content IS NOT NULL)"
+    existing = (
+        op.get_bind()
+        .execute(
+            text(
+                "SELECT EXISTS(SELECT 1 FROM capstone_private.sim_run_artifacts "
+                "WHERE content IS NOT NULL)"
+            )
         )
-    ).scalar_one()
+        .scalar_one()
+    )
     if existing:
         raise RuntimeError("Export private hosted audit artifacts before downgrade")
-    op.execute(
-        "ALTER TABLE capstone_private.sim_run_artifacts DROP COLUMN content"
-    )
+    op.execute("ALTER TABLE capstone_private.sim_run_artifacts DROP COLUMN content")
