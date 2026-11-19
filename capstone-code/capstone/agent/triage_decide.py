@@ -643,6 +643,17 @@ def reconciled_result(
     )
 
 
+def missing_cutoff_stop(state: InvestigationState) -> TriageStopDecision:
+    """The typed fail-closed stop when the source horizon is unexpectedly unset."""
+    # Variables:
+    #   state.triage_requirements: Every requirement is left unresolved, since
+    #     no read can be authorized without a cutoff.
+    return TriageStopDecision(
+        reason="data_insufficient",
+        unresolved_requirement_ids=tuple(sorted(state.triage_requirements)),
+    )
+
+
 def unresolved_required(state: InvestigationState) -> tuple[str, ...]:
     """Required requirements whose result is not satisfied, in plan order."""
     # Variables:
@@ -801,7 +812,11 @@ def choose_next_triage_read(
     #   ranked: Grouped requests best first, by `read_priority` and then by
     #     their key, so identical inputs always pick the same read.
     cutoff = state.triage_observation_cutoff_tick
-    assert cutoff is not None
+    if cutoff is None:
+        # Normally unreachable (the trusted-clock check runs first), but a
+        # replay or corrupted state must fail closed with a typed stop, not an
+        # assert that `python -O` would strip.
+        return missing_cutoff_stop(state)
     pending = [
         r
         for r in state.triage_requirements.values()
@@ -1244,7 +1259,8 @@ def run_deterministic_triage_loop(
             )
         state.iteration_count += 1
         cutoff = state.triage_observation_cutoff_tick
-        assert cutoff is not None
+        if cutoff is None:
+            return finish(missing_cutoff_stop(state))
         request = decision.step.request
         key = fingerprint(request, cutoff)
         attempts = state.triage_read_attempts.get(key, 0)
