@@ -56,9 +56,9 @@ export function useRecording(pilotOnly = false) {
     status: resource.status ?? null, loading: resource.loading && !preview, blocked };
 }
 export function useEvaluations() {
-  const { workspace, preview, token } = useUi();
+  const { workspace, preview, tokenFor } = useUi();
   const pilot = workspace === 'pilot';
-  const resource = useResource<unknown>('/api/v1/evaluations?workspace=' + workspace, token, preview || pilot);
+  const resource = useResource<unknown>('/api/v1/evaluations?workspace=' + workspace, tokenFor('evaluator'), preview || pilot);
   const list = useListSource<Evaluation>(resource, preview, demoEvaluations);
   if (pilot && !preview) return { ...list, items: [], availability: 'not_available_in_pilot',
     source: { availability: 'not_available_in_pilot', count: 0 } as SourceFacts };

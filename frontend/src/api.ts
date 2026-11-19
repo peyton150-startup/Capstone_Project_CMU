@@ -4,6 +4,20 @@ import { resolveApiUrl } from './backend.mjs';
 import type { ApiBackend } from './backend.mjs';
 import { useUi } from './context';
 import { ApiProblem, problemForStatus } from './sourceState.mjs';
+import { ROLE_DENIED_MESSAGES } from './access.mjs';
+
+// A 403 that names a missing role token; null for any other detail, which is
+// never shown because it could carry server data.
+async function roleDenied(response: Response): Promise<string | null> {
+  // Variables:
+  //   detail: The server's 403 reason; shown only if it is one of the fixed
+  //     ROLE_DENIED_MESSAGES.
+  const payload: unknown = await response.json().catch(() => null);
+  const detail = payload && typeof payload === 'object' && 'detail' in payload ?
+    (payload as {detail?: unknown}).detail : null;
+  return typeof detail === 'string' && ROLE_DENIED_MESSAGES.includes(detail) ?
+    detail + '. Add it in Access (top right).' : null;
+}
 
 export async function getJson<T>(path: string, token: string, backend: ApiBackend, signal?: AbortSignal): Promise<T> {
   // Variables:
@@ -13,7 +27,15 @@ export async function getJson<T>(path: string, token: string, backend: ApiBacken
     signal, cache: 'no-store',
     headers: token ? { Authorization: 'Bearer ' + token } : {},
   });
-  if (!response.ok) throw new ApiProblem(response.status, problemForStatus(response.status));
+  if (!response.ok) {
+    // A 403 that names the missing role token is a fixed server message and
+    // safe to show; every other detail keeps the sanitized status message.
+    if (response.status === 403) {
+      const named = await roleDenied(response);
+      if (named) throw new ApiProblem(403, named);
+    }
+    throw new ApiProblem(response.status, problemForStatus(response.status));
+  }
   if (!response.headers.get('content-type')?.includes('application/json'))
     throw new ApiProblem(null, 'API returned non-JSON content. Check the selected backend and proxy.');
   try {
@@ -35,7 +57,9 @@ export async function postJson<T>(path: string, token: string, body: unknown, ba
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    if (response.status === 403) throw new Error('This role or workspace is not authorized.');
+    if (response.status === 401) throw new Error('Session token required for the selected API. Open Access in the toolbar.');
+    if (response.status === 403)
+      throw new Error(await roleDenied(response) || 'This role or workspace is not authorized.');
     if (response.status === 409) {
       // Only fixed, reviewed server conflict messages are displayed. Never
       // forward arbitrary exception detail, which may contain provider data.

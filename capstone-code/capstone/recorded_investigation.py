@@ -13,6 +13,13 @@ CLI usage from capstone-code/ (only with the shop's documented permission):
         --machine VF2 --description "Review spindle load trend" \
         --out /private/review.json --approved-remote-model
 
+With --baseline (technician-approved calibrated baselines, see
+`capstone.ingestion.haas_screen`), the capture is screened first and the
+investigation starts only if the calibrated detector flags a signal; the
+trigger then names the machine and writes the observation, so --machine and
+--description are not needed:
+    uv run python -m capstone.recorded_investigation --capture ...         --channel-map ... --probe ... --baseline /private/baselines.json         --authorized-item-id S1load --screen-out /private/screen.json         --out /private/review.json --approved-remote-model
+
 The --approved-remote-model flag explicitly acknowledges that extracted shop
 telemetry will be sent to the configured model provider. It does not grant
 permission: obtain owner and IT/OT approval before using this command.
@@ -36,6 +43,7 @@ from capstone.agent.state import Budgets, InvestigationState
 from capstone.contracts.investigations import run_id_for
 from capstone.contracts.tools import ToolSpec
 from capstone.ingestion.channel_map import ChannelMap, check_capture, read_capture
+from capstone.ingestion.haas_screen import load_baselines, screen_capture
 from capstone.ingestion.privacy import refusal
 from capstone.ingestion.record import Line, TelemetryRecord
 from capstone.providers.chat import clients_for_jobs, late_clients, triage_clients
@@ -294,18 +302,47 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   tool_specs: Only the recorded capabilities the remote model can request.
     #   state: The graph's typed conclusion and evidence, written to a private path.
     #   approved_events: The --approved-event-id values; empty keeps get_events off.
+    #   report: With --baseline, the calibrated detector's verdict at the cutoff;
+    #     its trigger, if any, decides whether the investigation runs and on
+    #     which machine, and writes the observation it starts from.
+    #   machine, description: The investigation's machine and observation: from
+    #     --machine/--description, or from the detector's trigger.
+    #   outputs: Every file this run writes (--out, and --screen-out with a
+    #     baseline); each is privacy-checked, must be new and is never a source.
     parser = argparse.ArgumentParser(prog="python -m capstone.recorded_investigation")
     parser.add_argument("--capture", required=True, type=Path)
     parser.add_argument("--channel-map", required=True, type=Path)
     parser.add_argument("--probe", required=True, type=Path)
-    parser.add_argument("--machine", required=True)
+    parser.add_argument("--machine", help="required unless --baseline is given")
     parser.add_argument(
         "--approved-event-id",
         action="append",
         default=[],
         help="explicitly authorized MTConnect EVENT/CONDITION data-item ID (repeatable)",
     )
-    parser.add_argument("--description", required=True)
+    parser.add_argument("--description", help="required unless --baseline is given")
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        help="JSON list of technician-approved calibrated signal baselines; "
+        "screen first and investigate only a flagged signal",
+    )
+    parser.add_argument(
+        "--authorized-item-id",
+        action="append",
+        default=[],
+        help="MTConnect SAMPLE data-item ID approved for detector analysis (repeatable)",
+    )
+    parser.add_argument(
+        "--window-seconds",
+        type=float,
+        help="score only samples this many seconds before the cutoff",
+    )
+    parser.add_argument(
+        "--screen-out",
+        type=Path,
+        help="private path for the detector report; required with --baseline",
+    )
     parser.add_argument(
         "--at", help="ISO source timestamp with UTC offset; default last"
     )
@@ -321,13 +358,35 @@ def main(argv: Sequence[str] | None = None) -> int:
             "remote model use requires documented shop authorization and "
             "--approved-remote-model"
         )
-    problem = refusal(args.out, "--out")
-    if problem:
-        parser.error(problem)
-    if args.out.exists():
-        parser.error("review output already exists; choose a fresh private path")
-    if args.out in (args.capture, args.channel_map, args.probe):
-        parser.error("review output cannot overwrite a source file")
+    if args.baseline is None:
+        if not args.machine or not args.description:
+            parser.error("--machine and --description are required without --baseline")
+        if args.authorized_item_id or args.screen_out or args.window_seconds:
+            parser.error(
+                "--authorized-item-id, --screen-out and --window-seconds "
+                "need --baseline"
+            )
+    else:
+        if args.machine or args.description:
+            parser.error("with --baseline the detector's trigger names the machine")
+        if args.screen_out is None:
+            parser.error("--baseline requires --screen-out")
+        if not args.authorized_item_id:
+            parser.error("--baseline requires at least one --authorized-item-id")
+    outputs = [("--out", args.out)]
+    if args.screen_out is not None:
+        outputs.append(("--screen-out", args.screen_out))
+        if args.screen_out == args.out:
+            parser.error("--screen-out and --out must be different files")
+    sources = (args.capture, args.channel_map, args.probe, args.baseline)
+    for flag, path in outputs:
+        problem = refusal(path, flag)
+        if problem:
+            parser.error(problem)
+        if path.exists():
+            parser.error(f"{flag} already exists; choose a fresh private path")
+        if path in sources:
+            parser.error(f"{flag} cannot overwrite a source file")
     try:
         channel_map = ChannelMap.model_validate_json(
             args.channel_map.read_text(encoding="utf-8")
@@ -346,6 +405,26 @@ def main(argv: Sequence[str] | None = None) -> int:
             row.source_timestamp for row in captured if isinstance(row, TelemetryRecord)
         )
         approved_events = frozenset(args.approved_event_id)
+        machine, description = args.machine, args.description
+        if args.baseline is not None:
+            report = screen_capture(
+                captured,
+                channel_map,
+                load_baselines(args.baseline, channel_map),
+                authorized_item_ids=frozenset(args.authorized_item_id),
+                cutoff=cutoff,
+                window_seconds=args.window_seconds,
+            )
+            with args.screen_out.open("x", encoding="utf-8") as output:
+                output.write(report.model_dump_json(indent=2) + "\n")
+            if report.trigger is None:
+                print(
+                    "calibrated detector flagged no signal; no investigation "
+                    f"started, no model called. Report: {args.screen_out}"
+                )
+                return 0
+            machine = report.trigger.machine_id
+            description = report.trigger.description()
         tool_specs = replay_tool_specs(
             captured,
             channel_map,
@@ -366,8 +445,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             captured,
             channel_map,
             policy,
-            machine_id=args.machine,
-            description=args.description,
+            machine_id=machine,
+            description=description,
             now=cutoff,
             approved_event_item_ids=approved_events,
         )

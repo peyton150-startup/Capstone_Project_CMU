@@ -98,7 +98,9 @@ def test_collector_cli_reports_success_or_graceful_interrupt(
 
     def fake_run(obj, path, *, interval, max_polls, **haas_options):
         assert obj is collector
-        # The generic --url path must not turn on any Haas-only behaviour.
+        # The generic --url path turns on no Haas-only behaviour, but it
+        # also reports failed polls by exception type only (audit, #314).
+        assert haas_options.pop("safe_errors") is True
         assert not any(haas_options.values())
         seen.append((path, interval, max_polls))
         if interrupt:

@@ -306,7 +306,7 @@ def check_capture(channel_map: ChannelMap, lines: Iterable[Line]) -> CaptureChec
             continue
         observations[entry.data_item_id] += 1
         available[entry.data_item_id] += line.available
-        problem = _disagreement(entry, line)
+        problem = disagreement(entry, line)
         if problem:
             mismatched[problem] = None
     return CaptureCheck(
@@ -411,7 +411,7 @@ def _probe_type(stream_type: str) -> str:
     return "".join(letters)
 
 
-def _disagreement(entry: ChannelEntry, record: TelemetryRecord) -> str | None:
+def disagreement(entry: ChannelEntry, record: TelemetryRecord) -> str | None:
     """Why a record does not fit its entry, or None if it does."""
     # Variables:
     #   recorded_type: The record's type in the probe's spelling. Samples and

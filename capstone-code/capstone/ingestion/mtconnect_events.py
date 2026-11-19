@@ -11,7 +11,7 @@ from typing import Literal
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from capstone.contracts.observations import EventObservation
-from capstone.ingestion.channel_map import ChannelMap, _disagreement
+from capstone.ingestion.channel_map import ChannelMap, disagreement
 from capstone.ingestion.record import TelemetryRecord
 
 EventRefusal = Literal[
@@ -75,12 +75,14 @@ def qualify_event(
     #     with the record's category and type.
     #   kind, message: The triage event built only from a fixed list of
     #     controller states and condition levels, never from machine text.
+    #   severity: "warning" or "fault" for a condition alarm, so the two
+    #     levels stay apart although both are kind "alarm"; None otherwise.
     if record.data_item_id not in approved_item_ids:
         return EventAdmission(reason="not_authorized")
     entry = channel_map.entry_for(record)
     if entry is None:
         return EventAdmission(reason="unmapped")
-    if _disagreement(entry, record):
+    if disagreement(entry, record):
         return EventAdmission(reason="wrong_type")
     if record.sequence < 1 or tick < 0:
         return EventAdmission(reason="invalid_sequence")
@@ -94,6 +96,7 @@ def qualify_event(
 
     kind: str
     message: str
+    severity: Literal["warning", "fault"] | None = None
     if record.category == "EVENT" and entry.type == "EXECUTION":
         allowed_states = {
             "ACTIVE",
@@ -102,8 +105,9 @@ def qualify_event(
             "STOPPED",
             "OPTIONAL_STOP",
             "PROGRAM_STOPPED",
-            "UNAVAILABLE",
         }
+        # UNAVAILABLE is not listed: an unavailable record is refused by the
+        # `record.available` check below before its value is read.
         if not record.available or record.value not in allowed_states:
             return EventAdmission(reason="unknown_state")
         kind = "status"
@@ -118,6 +122,8 @@ def qualify_event(
             return EventAdmission(reason="unknown_state")
         kind = levels[record.value]
         message = f"MTConnect condition {record.value}"
+        if record.value in ("WARNING", "FAULT"):
+            severity = "warning" if record.value == "WARNING" else "fault"
     else:
         return EventAdmission(reason="wrong_type")
 
@@ -129,6 +135,7 @@ def qualify_event(
                 kind=kind,
                 message=message,
                 job_id=None,
+                severity=severity,
             ),
             source=record.source,
             source_epoch=record.instance_id,

@@ -57,6 +57,20 @@ def source_revision() -> str | None:
     return None
 
 
+def hosted_revision() -> str:
+    """The build commit a hosted web service or worker must have, or refuse."""
+    # Variables:
+    #   revision: This host's commit from source_revision(). Hosted mode needs
+    #     the full 40-character SHA on both sides: with none set, a web service
+    #     and a worker on different code would both report None and accept
+    #     each other's runs, and a short SHA never equals the other host's
+    #     full one, so runs would stay queued forever.
+    revision = source_revision()
+    if revision is None or not re.fullmatch(r"[a-f0-9]{40}", revision):
+        raise InvalidRunEnvironment(InvalidRunEnvironment.MESSAGE)
+    return revision
+
+
 _IDEMPOTENCY = re.compile(r"[A-Za-z0-9_-]{16,96}\Z")
 _ACTOR = re.compile(r"[A-Za-z0-9_.:-]{1,128}\Z")
 _OWNER = re.compile(r"[A-Za-z0-9_.:-]{1,128}\Z")
@@ -470,8 +484,9 @@ class RunRepository:
         """Check that the durable hosted schema is reachable and migrated."""
         # Variables:
         #   tables: All six hosted tables must exist before accepting work.
-        #   found: How many of the two later-added columns exist (0004's
-        #     artifact content, 0006's worker problem code); both are needed.
+        #   found: How many of the four later-added columns exist (0004's
+        #     artifact content, and all three of 0006's worker problem
+        #     columns); every one is needed, since a worker pulse writes them.
         from sqlalchemy import text
 
         with self.engine.connect() as connection:
@@ -497,11 +512,12 @@ class RunRepository:
                     "SELECT count(*) FROM information_schema.columns "
                     "WHERE table_schema='capstone_private' AND ("
                     "(table_name='sim_run_artifacts' AND column_name='content') "
-                    "OR (table_name='sim_worker_heartbeats' "
-                    "AND column_name='last_problem_code'))"
+                    "OR (table_name='sim_worker_heartbeats' AND column_name IN "
+                    "('last_problem_code', 'last_problem_at', "
+                    "'last_problem_count')))"
                 )
             ).scalar_one()
-            return int(found) == 2
+            return int(found) == 4
 
     @staticmethod
     def _view(run: SimRun) -> dict[str, Any]:
@@ -671,6 +687,10 @@ class RunRepository:
         """List bounded, newest-first safe snapshots for an authorized actor."""
         # Variables:
         #   actor_id: Optional owner filter; hosted API callers must supply it.
+        #   runs: The listed runs, newest first.
+        #   beats: Lease renewal time of each listed run whose job is claimed,
+        #     so the list shows a frozen run without opening its detail page;
+        #     a run with no entry is queued or finished and gets None.
         with Session(self.engine) as session:
             query = (
                 select(SimRun)
@@ -679,7 +699,25 @@ class RunRepository:
             )
             if actor_id is not None:
                 query = query.where(SimRun.actor_id == actor_id)
-            return [self._view(run) for run in session.scalars(query)]
+            runs = list(session.scalars(query))
+            beats = (
+                dict(
+                    session.execute(
+                        select(SimJob.run_id, SimJob.heartbeat_at).where(
+                            SimJob.run_id.in_([run.run_id for run in runs]),
+                            SimJob.status == "claimed",
+                        )
+                    ).all()
+                )
+                if runs
+                else {}
+            )
+            views = []
+            for run in runs:
+                view = self._view(run)
+                view["heartbeat_age_seconds"] = _age_seconds(beats.get(run.run_id))
+                views.append(view)
+            return views
 
     def events_since(
         self, run_id: str, seq: int, *, actor_id: str | None = None, limit: int = 100
@@ -922,10 +960,13 @@ class RunRepository:
         #   required_revision: This web service's build commit; a live worker
         #     counts as ready only if its heartbeat reports the same commit.
         #   compatible: Count of fresh heartbeats on that commit, which decides
-        #     "healthy" versus "revision_mismatch".
-        #   problem: The most recent process-level worker failure on any
+        #     "healthy" versus "revision_mismatch". With no commit on this web
+        #     service no worker can be shown to match, so it stays 0.
+        #   problem: The most recent process-level failure on a fresh
         #     heartbeat row (code, time, count), shown on the System page so a
-        #     worker that cannot poll is visible without platform logs.
+        #     worker that cannot poll is visible without platform logs. Rows of
+        #     workers silent for longer than fresh_after are left out, so a
+        #     dead worker's old problem does not stay on the page forever.
         now = datetime.now(timezone.utc)
         with Session(self.engine) as session:
             queued = (
@@ -975,7 +1016,7 @@ class RunRepository:
             # behind the Render web service) cannot execute this web
             # service's jobs. Do not report it as ready.
             required_revision = source_revision()
-            compatible = alive
+            compatible = 0
             if required_revision is not None:
                 compatible = (
                     session.scalar(
@@ -997,7 +1038,10 @@ class RunRepository:
                     SimWorkerHeartbeat.last_problem_at,
                     SimWorkerHeartbeat.last_problem_count,
                 )
-                .where(SimWorkerHeartbeat.last_problem_at.is_not(None))
+                .where(
+                    SimWorkerHeartbeat.last_problem_at.is_not(None),
+                    SimWorkerHeartbeat.last_seen_at >= fresh_after,
+                )
                 .order_by(SimWorkerHeartbeat.last_problem_at.desc())
                 .limit(1)
             ).first()
@@ -1089,16 +1133,21 @@ class RunRepository:
         source_revision: str | None,
         status: str,
         problem: WorkerProblem | None = None,
+        clear_problem: bool = False,
     ) -> None:
         """Durable idle/active worker pulse, independent of a claimed job."""
         # Variables:
         #   problem: The worker's latest process-level failure (a fixed code,
         #     when it happened and how many times), stored on this worker's
         #     row because it belongs to no run; None leaves the row's earlier
-        #     problem in place.
+        #     problem in place unless clear_problem is set.
+        #   clear_problem: True once the worker has recovered, so the row's
+        #     stored problem is erased and the System page stops showing it.
         #   values: The columns written on insert and on update.
         if not _OWNER.fullmatch(worker_id) or status not in {"idle", "running"}:
             raise ValueError("Invalid worker heartbeat")
+        if clear_problem and problem is not None:
+            raise ValueError("A heartbeat cannot both store and clear a problem")
         if source_revision is not None and not re.fullmatch(
             r"[a-f0-9]{7,40}", source_revision
         ):
@@ -1121,6 +1170,10 @@ class RunRepository:
                 last_problem_code=problem.code,
                 last_problem_at=min(problem.at, now),
                 last_problem_count=problem.count,
+            )
+        elif clear_problem:
+            values.update(
+                last_problem_code=None, last_problem_at=None, last_problem_count=None
             )
         stmt = pg_insert(SimWorkerHeartbeat).values(worker_id=worker_id, **values)
         stmt = stmt.on_conflict_do_update(

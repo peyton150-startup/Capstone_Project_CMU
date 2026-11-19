@@ -15556,6 +15556,257 @@
    ]
   },
   {
+   "id": "tests/test_api_access.py::test_generated_tokens_are_distinct_long_and_pass_the_api_rules",
+   "file": "tests/test_api_access.py",
+   "name": "test_generated_tokens_are_distinct_long_and_pass_the_api_rules",
+   "line": 39,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "generated tokens are distinct long and pass the api rules",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:check_environment",
+    "capstone.api.access:env_block",
+    "capstone.api.access:generate_tokens",
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.access",
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_check_names_problems_without_printing_values",
+   "file": "tests/test_api_access.py",
+   "name": "test_check_names_problems_without_printing_values",
+   "line": 59,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "capsys",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 1,
+    "membership": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "check names problems without printing values",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:check_environment",
+    "capstone.api.access:main"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.access"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_check_warns_when_role_tokens_are_set_but_runs_are_off",
+   "file": "tests/test_api_access.py",
+   "name": "test_check_warns_when_role_tokens_are_set_but_runs_are_off",
+   "line": 81,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "check warns when role tokens are set but runs are off",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:check_environment"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.access"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_roles_for_matches_only_the_exact_token",
+   "file": "tests/test_api_access.py",
+   "name": "test_roles_for_matches_only_the_exact_token",
+   "line": 88,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "roles for matches only the exact token",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:roles_for",
+    "capstone.api.config:UiConfig.__post_init__"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.access",
+    "capstone.api.config"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_whoami_and_named_role_errors",
+   "file": "tests/test_api_access.py",
+   "name": "test_whoami_and_named_role_errors",
+   "line": 97,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 5,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "whoami and named role errors",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.access:roles_for",
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.decide_simulator_review",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.app:create_app.<locals>.whoami",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.api.access",
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_api_access.py::test_evaluator_endpoints_name_the_evaluator_token",
+   "file": "tests/test_api_access.py",
+   "name": "test_evaluator_endpoints_name_the_evaluator_token",
+   "line": 128,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "evaluator endpoints name the evaluator token",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.evaluations",
+    "capstone.api.app:create_app.<locals>.require_evaluator",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:recent_lines",
+    "capstone.api.readers:safe_evaluations",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.readers",
+    "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_approval.py::test_the_agent_can_wait_propose_check_and_execute_but_not_decide",
    "file": "tests/test_approval.py",
    "name": "test_the_agent_can_wait_propose_check_and_execute_but_not_decide",
@@ -22192,11 +22443,11 @@
    "exercises": [
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -22236,11 +22487,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -22280,11 +22531,11 @@
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.with_reported",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -22330,11 +22581,11 @@
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:ChannelMap.with_reported",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:load_assignments",
     "capstone.ingestion.channel_map:main",
     "capstone.ingestion.channel_map:parse_probe",
@@ -32146,10 +32397,11 @@
     "capsys",
     "interrupt"
    ],
-   "assertions": 6,
+   "assertions": 7,
    "assert_forms": {
     "equality": 2,
     "identity": 1,
+    "identity_constant": 1,
     "membership": 2,
     "negation": 1
    },
@@ -32181,7 +32433,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_cli_rejects_unsafe_alerts_before_reading",
-   "line": 134,
+   "line": 136,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -32220,7 +32472,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_cli_replay_is_read_only_and_passes_thresholds",
-   "line": 154,
+   "line": 156,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -32261,7 +32513,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
-   "line": 198,
+   "line": 200,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -32302,7 +32554,7 @@
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_follow_processes_another_batch_before_interrupt",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_follow_processes_another_batch_before_interrupt",
-   "line": 236,
+   "line": 238,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -58831,7 +59083,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -61621,7 +61873,7 @@
    "id": "tests/test_haas_event_replay.py::test_legacy_replay_still_refuses_unapproved_events",
    "file": "tests/test_haas_event_replay.py",
    "name": "test_legacy_replay_still_refuses_unapproved_events",
-   "line": 9,
+   "line": 11,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -61684,7 +61936,7 @@
    "id": "tests/test_haas_event_replay.py::test_approved_execution_events_reach_typed_provider_and_tool_catalog",
    "file": "tests/test_haas_event_replay.py",
    "name": "test_approved_execution_events_reach_typed_provider_and_tool_catalog",
-   "line": 25,
+   "line": 27,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -61705,10 +61957,10 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -61755,7 +62007,7 @@
    "id": "tests/test_haas_event_replay.py::test_unknown_approved_event_identifier_is_refused_before_any_read",
    "file": "tests/test_haas_event_replay.py",
    "name": "test_unknown_approved_event_identifier_is_refused_before_any_read",
-   "line": 48,
+   "line": 50,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -61794,21 +62046,24 @@
    ]
   },
   {
-   "id": "tests/test_haas_event_replay.py::test_stopped_program_is_not_falsely_reported_as_idle",
+   "id": "tests/test_haas_event_replay.py::test_stopped_program_is_unknown_not_idle_or_down",
    "file": "tests/test_haas_event_replay.py",
-   "name": "test_stopped_program_is_not_falsely_reported_as_idle",
-   "line": 59,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 1,
+   "name": "test_stopped_program_is_unknown_not_idle_or_down",
+   "line": 62,
+   "docstring": "The developer's choice (2026-11-19): keep the tool usable, claim nothing.",
+   "parametrized": true,
+   "fixtures": [
+    "state"
+   ],
+   "assertions": 2,
    "assert_forms": {
-    "negation": 1
+    "equality": 1,
+    "truthiness": 1
    },
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [],
-   "claims": "stopped program is not falsely reported as idle",
+   "claims": "The developer's choice (2026-11-19): keep the tool usable, claim nothing.",
    "execution_outcome": "passed",
    "exercises": [
     "capstone.contracts.tools:ToolResult.consistent_outcome",
@@ -61850,10 +62105,75 @@
    ]
   },
   {
+   "id": "tests/test_haas_event_replay.py::test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
+   "file": "tests/test_haas_event_replay.py",
+   "name": "test_alarm_events_say_whether_they_are_a_warning_or_a_fault",
+   "line": 80,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "alarm events say whether they are a warning or a fault",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_events",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 26,
+   "modules_exercised": [
+    "capstone.contracts.tools",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.mtconnect_events",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_haas_event_replay.py::test_replay_fails_closed_on_out_of_order_source_clocks",
    "file": "tests/test_haas_event_replay.py",
    "name": "test_replay_fails_closed_on_out_of_order_source_clocks",
-   "line": 75,
+   "line": 115,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -61895,7 +62215,7 @@
    "id": "tests/test_haas_event_replay.py::test_a_capture_with_a_collector_restart_is_still_replayable",
    "file": "tests/test_haas_event_replay.py",
    "name": "test_a_capture_with_a_collector_restart_is_still_replayable",
-   "line": 101,
+   "line": 141,
    "docstring": "Ordering is checked per channel: a /current repeat is not time travel.",
    "parametrized": false,
    "fixtures": [],
@@ -61914,10 +62234,10 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -61959,7 +62279,7 @@
    "id": "tests/test_haas_event_replay.py::test_a_channel_going_back_in_time_is_still_refused",
    "file": "tests/test_haas_event_replay.py",
    "name": "test_a_channel_going_back_in_time_is_still_refused",
-   "line": 117,
+   "line": 157,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -62138,8 +62458,8 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ],
@@ -62175,8 +62495,8 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ],
@@ -62212,8 +62532,8 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ],
@@ -62249,8 +62569,8 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
     "capstone.ingestion.mtconnect_events:qualify_event"
    ],
@@ -62290,6 +62610,82 @@
    ],
    "exercise_count": 2,
    "modules_exercised": [
+    "capstone.ingestion.mtconnect_events"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_warning_and_fault_are_both_alarms_with_their_own_severity",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_warning_and_fault_are_both_alarms_with_their_own_severity",
+   "line": 56,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "warning and fault are both alarms with their own severity",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect_events"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_mtconnect_events.py::test_an_unavailable_execution_is_refused_before_its_value_is_read",
+   "file": "tests/test_haas_mtconnect_events.py",
+   "name": "test_an_unavailable_execution_is_refused_before_its_value_is_read",
+   "line": 66,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an unavailable execution is refused before its value is read",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.mtconnect_events:EventAdmission.exclusive",
+    "capstone.ingestion.mtconnect_events:qualify_event"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
     "capstone.ingestion.mtconnect_events"
    ],
    "judgment": "NOT ASSESSED",
@@ -62754,10 +63150,10 @@
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -62801,10 +63197,10 @@
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -62847,10 +63243,10 @@
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -62892,10 +63288,10 @@
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -62937,10 +63333,10 @@
    "exercises": [
     "capstone.ingestion.channel_map:ChannelMap.entry_for",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -63167,6 +63563,995 @@
    "exercise_count": 3,
    "modules_exercised": [
     "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_a_running_signal_far_from_its_baseline_triggers_an_investigation",
+   "line": 58,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1,
+    "truthiness": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a running signal far from its baseline triggers an investigation",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:IncidentTrigger.description",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 18,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_normal_running_readings_are_scored_and_trigger_nothing",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_normal_running_readings_are_scored_and_trigger_nothing",
+   "line": 73,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "normal running readings are scored and trigger nothing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_a_stopped_or_ready_machine_is_not_scored",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_a_stopped_or_ready_machine_is_not_scored",
+   "line": 79,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a stopped or ready machine is not scored",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 18,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_a_machine_that_stops_inside_the_window_is_not_scored",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_a_machine_that_stops_inside_the_window_is_not_scored",
+   "line": 86,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a machine that stops inside the window is not scored",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 18,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_without_an_execution_value_the_state_is_unknown_and_nothing_triggers",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_without_an_execution_value_the_state_is_unknown_and_nothing_triggers",
+   "line": 92,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "without an execution value the state is unknown and nothing triggers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 18,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_refused_samples_are_counted_by_reason_and_never_scored",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_refused_samples_are_counted_by_reason_and_never_scored",
+   "line": 102,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "refused samples are counted by reason and never scored",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_a_restart_repeat_of_the_same_observation_is_counted_once",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_a_restart_repeat_of_the_same_observation_is_counted_once",
+   "line": 109,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a restart repeat of the same observation is counted once",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_only_the_newest_source_epoch_is_scored",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_only_the_newest_source_epoch_is_scored",
+   "line": 117,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "only the newest source epoch is scored",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_nothing_after_the_cutoff_is_read",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_nothing_after_the_cutoff_is_read",
+   "line": 128,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "nothing after the cutoff is read",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_the_window_keeps_only_samples_shortly_before_the_cutoff",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_the_window_keeps_only_samples_shortly_before_the_cutoff",
+   "line": 133,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the window keeps only samples shortly before the cutoff",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_too_few_samples_in_the_window_cannot_trigger",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_too_few_samples_in_the_window_cannot_trigger",
+   "line": 139,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "too few samples in the window cannot trigger",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.real_detector:assess_calibrated_window.<locals>.unscorable"
+   ],
+   "exercise_count": 18,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_the_strongest_of_several_flagged_signals_is_the_trigger",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_the_strongest_of_several_flagged_signals_is_the_trigger",
+   "line": 145,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the strongest of several flagged signals is the trigger",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_a_baseline_for_an_unauthorized_item_is_refused",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_a_baseline_for_an_unauthorized_item_is_refused",
+   "line": 169,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a baseline for an unauthorized item is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_a_naive_cutoff_or_bad_window_is_refused",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_a_naive_cutoff_or_bad_window_is_refused",
+   "line": 174,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a naive cutoff or bad window is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_baselines_for_another_probe_or_twice_for_one_signal_are_refused",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_baselines_for_another_probe_or_twice_for_one_signal_are_refused",
+   "line": 181,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 3,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "baselines for another probe or twice for one signal are refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.haas_screen:load_baselines",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_cli_with_no_flagged_signal_writes_the_report_and_calls_no_model",
+   "line": 252,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1,
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "cli with no flagged signal writes the report and calls no model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:load_baselines",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.record:parse_line",
+    "capstone.recorded_investigation:main"
+   ],
+   "exercise_count": 23,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector",
+    "capstone.ingestion.record",
+    "capstone.recorded_investigation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_cli_with_a_flagged_signal_investigates_that_machine",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_cli_with_a_flagged_signal_investigates_that_machine",
+   "line": 269,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "cli with a flagged signal investigates that machine",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:ChannelMap.entry_for",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.haas_screen:IncidentTrigger.description",
+    "capstone.ingestion.haas_screen:_operating_state",
+    "capstone.ingestion.haas_screen:load_baselines",
+    "capstone.ingestion.haas_screen:screen_capture",
+    "capstone.ingestion.haas_screen:screen_signal",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.qualified:Qualification.exclusive_verdict",
+    "capstone.ingestion.qualified:qualify_numeric",
+    "capstone.ingestion.real_detector:DetectorWindow.consistent_score",
+    "capstone.ingestion.real_detector:assess_calibrated_window",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:parse_line",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec",
+    "capstone.recorded_investigation:main",
+    "capstone.recorded_investigation:replay_tool_specs",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 32,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.haas_screen",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.qualified",
+    "capstone.ingestion.real_detector",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.recorded_investigation",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_cli_refuses_a_machine_or_description_with_a_baseline",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_cli_refuses_a_machine_or_description_with_a_baseline",
+   "line": 307,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "capsys",
+    "extra",
+    "message"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "cli refuses a machine or description with a baseline",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.recorded_investigation:main"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.recorded_investigation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_haas_screen.py::test_cli_without_a_baseline_still_needs_machine_and_description",
+   "file": "tests/test_haas_screen.py",
+   "name": "test_cli_without_a_baseline_still_needs_machine_and_description",
+   "line": 316,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "capsys"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "cli without a baseline still needs machine and description",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.recorded_investigation:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.recorded_investigation"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -64479,6 +65864,257 @@
    ]
   },
   {
+   "id": "tests/test_hosted_hardening.py::test_hosted_mode_needs_the_full_build_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_hosted_mode_needs_the_full_build_commit",
+   "line": 26,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "hosted mode needs the full build commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_hosted_runner_refuses_readiness_and_submission_without_a_commit",
+   "line": 36,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "hosted runner refuses readiness and submission without a commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
+    "capstone.api.hosted_runs:HostedSimulatorRuns.submit",
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.hosted_runs",
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_ready_endpoint_names_a_missing_commit",
+   "line": 59,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "importorskip"
+   ],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "ready endpoint names a missing commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.readiness",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.hosted_runs",
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_worker_refuses_to_start_without_a_commit",
+   "line": 94,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "no_revision",
+    "caplog"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "worker refuses to start without a commit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:main",
+    "capstone.worker.runner:record"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_a_bad_triage_setting_is_one_named_server_fault",
+   "line": 123,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "method",
+    "path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "importorskip",
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "may_skip"
+   ],
+   "claims": "a bad triage setting is one named server fault",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.managed_run_configuration",
+    "capstone.api.app:create_app.<locals>.preview_simulator_run",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
+    "capstone.api.app:create_app.<locals>.settings_effective",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_hardening.py::test_a_validation_error_during_model_setup_is_model_setup",
+   "file": "tests/test_hosted_hardening.py",
+   "name": "test_a_validation_error_during_model_setup_is_model_setup",
+   "line": 144,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a validation error during model setup is model setup",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.worker.runner:classify_failure"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_hosted_worker.py::test_hosted_config_requires_distinct_roles_and_no_local_disk",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_config_requires_distinct_roles_and_no_local_disk",
@@ -64688,9 +66324,10 @@
     "capstone.settings:get_settings",
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker",
-    "capstone.worker.runner:serve_worker.<locals>.pulse"
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.integration_status",
     "capstone.api.run_repository",
@@ -64709,7 +66346,7 @@
    "id": "tests/test_hosted_worker.py::test_hosted_api_adapter_is_actored_and_never_runs_episode",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_api_adapter_is_actored_and_never_runs_episode",
-   "line": 136,
+   "line": 138,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -64743,7 +66380,7 @@
    "id": "tests/test_hosted_worker.py::test_extended_progress_matches_pr294_without_raw_readings",
    "file": "tests/test_hosted_worker.py",
    "name": "test_extended_progress_matches_pr294_without_raw_readings",
-   "line": 154,
+   "line": 156,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -64777,7 +66414,7 @@
    "id": "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
-   "line": 202,
+   "line": 204,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -64813,6 +66450,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.app:create_app.<locals>.system",
     "capstone.api.config:UiConfig.__post_init__",
@@ -64829,7 +66467,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -64851,7 +66489,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
-   "line": 411,
+   "line": 413,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -64893,7 +66531,7 @@
    "id": "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
    "file": "tests/test_hosted_worker.py",
    "name": "test_northflank_worker_logs_and_matches_render_web_commit",
-   "line": 425,
+   "line": 427,
    "docstring": "A Northflank worker runs a job a Render web service stamped, same commit.",
    "parametrized": false,
    "fixtures": [
@@ -64944,7 +66582,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_resolves_pr301_profile_without_reimplementing_it",
-   "line": 445,
+   "line": 447,
    "docstring": "Two Render services must persist the true effective Graph control plane.",
    "parametrized": false,
    "fixtures": [
@@ -64987,7 +66625,7 @@
    "id": "tests/test_hosted_worker.py::test_cross_pr_contract_inventory_uses_real_pydantic_models",
    "file": "tests/test_hosted_worker.py",
    "name": "test_cross_pr_contract_inventory_uses_real_pydantic_models",
-   "line": 487,
+   "line": 489,
    "docstring": "No absent Decide/deep data may be reported as an implemented contract.",
    "parametrized": false,
    "fixtures": [
@@ -65028,7 +66666,7 @@
    "id": "tests/test_hosted_worker.py::test_pr297_projection_redacts_provider_content_without_graph_rewrite",
    "file": "tests/test_hosted_worker.py",
    "name": "test_pr297_projection_redacts_provider_content_without_graph_rewrite",
-   "line": 523,
+   "line": 525,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -65066,7 +66704,7 @@
    "id": "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
    "file": "tests/test_hosted_worker.py",
    "name": "test_malformed_revision_is_a_named_server_fault",
-   "line": 554,
+   "line": 556,
    "docstring": "A bad host commit raises one typed error that never echoes the value.",
    "parametrized": true,
    "fixtures": [
@@ -65114,7 +66752,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_with_malformed_revision_logs_why_and_stops",
-   "line": 570,
+   "line": 572,
    "docstring": "The worker exits with a logged invalid_configuration code, before any DB use.",
    "parametrized": false,
    "fixtures": [
@@ -65165,7 +66803,7 @@
    "id": "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
    "file": "tests/test_hosted_worker.py",
    "name": "test_hosted_run_submit_with_bad_host_config_is_503_not_409",
-   "line": 592,
+   "line": 594,
    "docstring": "A server-side settings fault must not look like an idempotency conflict.",
    "parametrized": false,
    "fixtures": [
@@ -65189,6 +66827,7 @@
    "exercises": [
     "capstone.api.app:create_app",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:public_run_configuration",
@@ -65202,7 +66841,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -65222,7 +66861,7 @@
    "id": "tests/test_hosted_worker.py::test_failure_classification_reads_type_and_step_never_message",
    "file": "tests/test_hosted_worker.py",
    "name": "test_failure_classification_reads_type_and_step_never_message",
-   "line": 689,
+   "line": 691,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -65259,7 +66898,7 @@
    "id": "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
    "file": "tests/test_hosted_worker.py",
    "name": "test_failed_run_stores_its_failure_code_without_the_message",
-   "line": 705,
+   "line": 707,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65307,7 +66946,7 @@
    "id": "tests/test_hosted_worker.py::test_model_setup_failure_is_named_model_setup",
    "file": "tests/test_hosted_worker.py",
    "name": "test_model_setup_failure_is_named_model_setup",
-   "line": 721,
+   "line": 723,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65356,7 +66995,7 @@
    "id": "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
    "file": "tests/test_hosted_worker.py",
    "name": "test_failed_terminal_write_leaves_a_fixed_log_event",
-   "line": 737,
+   "line": 739,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65406,7 +67045,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_problems_reach_the_heartbeat_not_a_run",
-   "line": 763,
+   "line": 765,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -65441,9 +67080,10 @@
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker",
     "capstone.worker.runner:serve_worker.<locals>.note",
-    "capstone.worker.runner:serve_worker.<locals>.pulse"
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.run_repository",
     "capstone.settings",
@@ -65461,7 +67101,7 @@
    "id": "tests/test_hosted_worker.py::test_worker_problem_and_interrupt_fields_are_validated_before_storage",
    "file": "tests/test_hosted_worker.py",
    "name": "test_worker_problem_and_interrupt_fields_are_validated_before_storage",
-   "line": 806,
+   "line": 810,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -65494,7 +67134,7 @@
    "id": "tests/test_hosted_worker.py::test_operational_projection_adds_only_bounded_safe_fields",
    "file": "tests/test_hosted_worker.py",
    "name": "test_operational_projection_adds_only_bounded_safe_fields",
-   "line": 841,
+   "line": 845,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -65527,7 +67167,7 @@
    "id": "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
    "file": "tests/test_hosted_worker.py",
    "name": "test_malformed_triage_setting_is_the_same_named_server_fault",
-   "line": 879,
+   "line": 883,
    "docstring": "Settings() validation (a bad TRIAGE_* value) also stops the worker readably.",
    "parametrized": false,
    "fixtures": [
@@ -65557,6 +67197,61 @@
     "capstone.worker.runner:serve_worker"
    ],
    "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_a_recovered_worker_clears_its_poll_problem",
+   "line": 905,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "negation": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a recovered worker clears its poll problem",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker",
+    "capstone.worker.runner:serve_worker.<locals>.note",
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
+   ],
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.run_repository",
     "capstone.settings",
@@ -90552,11 +92247,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -90609,11 +92304,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -90666,11 +92361,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -90883,11 +92578,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -90975,11 +92670,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -91031,11 +92726,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -91088,11 +92783,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -91145,11 +92840,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -91203,11 +92898,11 @@
     "capstone.ingestion.channel_map:CaptureCheck.clean",
     "capstone.ingestion.channel_map:ChannelMap.verify_probe",
     "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_disagreement",
     "capstone.ingestion.channel_map:_probe_type",
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.channel_map:build_channel_map",
     "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:disagreement",
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
@@ -100196,10 +101891,115 @@
    ]
   },
   {
+   "id": "tests/test_replay_provider.py::test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
+   "file": "tests/test_replay_provider.py",
+   "name": "test_a_later_line_inside_the_cutoff_is_shown_when_channels_interleave",
+   "line": 154,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a later line inside the cutoff is shown when channels interleave",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._entry",
+    "capstone.providers.replay:RecordedObservationTools._rows",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_readings",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:_is",
+    "capstone.providers.replay:replay_provider"
+   ],
+   "exercise_count": 24,
+   "modules_exercised": [
+    "capstone.contracts.tools",
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.providers.factory",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_replay_provider.py::test_a_marker_after_every_shown_observation_stays_hidden",
+   "file": "tests/test_replay_provider.py",
+   "name": "test_a_marker_after_every_shown_observation_stays_hidden",
+   "line": 171,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a marker after every shown observation stays hidden",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.providers.replay"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
    "file": "tests/test_replay_provider.py",
    "name": "test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
-   "line": 154,
+   "line": 194,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -100256,7 +102056,7 @@
    "id": "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
    "file": "tests/test_replay_provider.py",
    "name": "test_records_named_by_device_uuid_are_read_too",
-   "line": 163,
+   "line": 203,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -100316,7 +102116,7 @@
    "id": "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
    "file": "tests/test_replay_provider.py",
    "name": "test_the_trend_is_time_weighted_and_never_spans_the_gap",
-   "line": 180,
+   "line": 220,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -100385,7 +102185,7 @@
    "id": "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
    "file": "tests/test_replay_provider.py",
    "name": "test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
-   "line": 204,
+   "line": 244,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -100456,7 +102256,7 @@
    "id": "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
    "file": "tests/test_replay_provider.py",
    "name": "test_machine_status_follows_the_last_execution_value",
-   "line": 221,
+   "line": 261,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -100512,7 +102312,7 @@
    "id": "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
    "file": "tests/test_replay_provider.py",
    "name": "test_a_machine_without_an_execution_value_is_not_guessed",
-   "line": 230,
+   "line": 270,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -100566,7 +102366,7 @@
    "id": "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
    "file": "tests/test_replay_provider.py",
    "name": "test_a_bad_setup_is_refused",
-   "line": 239,
+   "line": 279,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101544,7 +103344,7 @@
    "id": "tests/test_run_repository.py::test_repository_rejects_non_postgres_url_without_connecting",
    "file": "tests/test_run_repository.py",
    "name": "test_repository_rejects_non_postgres_url_without_connecting",
-   "line": 15,
+   "line": 20,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101574,7 +103374,7 @@
    "id": "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy",
    "file": "tests/test_run_repository.py",
    "name": "test_execution_config_excludes_secrets_and_invalid_strategy",
-   "line": 24,
+   "line": 29,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101604,7 +103404,7 @@
    "id": "tests/test_run_repository.py::test_event_contract_refuses_unapproved_fields",
    "file": "tests/test_run_repository.py",
    "name": "test_event_contract_refuses_unapproved_fields",
-   "line": 31,
+   "line": 36,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101634,7 +103434,7 @@
    "id": "tests/test_run_repository.py::test_empty_hosted_migration_round_trip",
    "file": "tests/test_run_repository.py",
    "name": "test_empty_hosted_migration_round_trip",
-   "line": 47,
+   "line": 52,
    "docstring": "A new empty hosted schema can roll back without touching legacy rows.",
    "parametrized": false,
    "fixtures": [
@@ -101665,10 +103465,44 @@
    ]
   },
   {
+   "id": "tests/test_run_repository.py::test_ready_refuses_a_schema_missing_any_worker_problem_column",
+   "file": "tests/test_run_repository.py",
+   "name": "test_ready_refuses_a_schema_missing_any_worker_problem_column",
+   "line": 80,
+   "docstring": "Each of 0006's three columns is checked, not only the first.",
+   "parametrized": true,
+   "fixtures": [
+    "repository",
+    "column"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "Each of 0006's three columns is checked, not only the first.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_run_repository.py::test_concurrent_idempotency_creates_one_run_and_one_job",
    "file": "tests/test_run_repository.py",
    "name": "test_concurrent_idempotency_creates_one_run_and_one_job",
-   "line": 111,
+   "line": 144,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -101701,7 +103535,7 @@
    "id": "tests/test_run_repository.py::test_parallel_claims_fence_state_and_preserve_event_order",
    "file": "tests/test_run_repository.py",
    "name": "test_parallel_claims_fence_state_and_preserve_event_order",
-   "line": 152,
+   "line": 185,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -101736,7 +103570,7 @@
    "id": "tests/test_run_repository.py::test_expired_started_claim_interrupts_without_retry",
    "file": "tests/test_run_repository.py",
    "name": "test_expired_started_claim_interrupts_without_retry",
-   "line": 200,
+   "line": 233,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -101771,7 +103605,7 @@
    "id": "tests/test_run_repository.py::test_hosted_review_is_durable_actor_scoped_and_lease_fenced",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_review_is_durable_actor_scoped_and_lease_fenced",
-   "line": 221,
+   "line": 254,
    "docstring": "Two independent processes can agree on an exact approved proposal.",
    "parametrized": false,
    "fixtures": [
@@ -101804,7 +103638,7 @@
    "id": "tests/test_run_repository.py::test_hosted_progress_artifact_and_terminal_are_fenced",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_progress_artifact_and_terminal_are_fenced",
-   "line": 282,
+   "line": 315,
    "docstring": "Persisted audit is private; late stage writes cannot regress completion.",
    "parametrized": false,
    "fixtures": [
@@ -101839,7 +103673,7 @@
    "id": "tests/test_run_repository.py::test_worker_uses_pydantic_graph_episode_without_a_web_thread",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_uses_pydantic_graph_episode_without_a_web_thread",
-   "line": 338,
+   "line": 371,
    "docstring": "Fixture policy exercises a real job claim, audit persistence and completion.",
    "parametrized": false,
    "fixtures": [
@@ -101878,7 +103712,7 @@
    "id": "tests/test_run_repository.py::test_model_journal_is_fenced_private_and_source_validated",
    "file": "tests/test_run_repository.py",
    "name": "test_model_journal_is_fenced_private_and_source_validated",
-   "line": 399,
+   "line": 432,
    "docstring": "#297 owns sanitization: hosted stores only its exact Pydantic projection.",
    "parametrized": false,
    "fixtures": [
@@ -101916,7 +103750,7 @@
    "id": "tests/test_run_repository.py::test_hosted_uses_prior_safe_stage_contract_after_pr294_merge",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_uses_prior_safe_stage_contract_after_pr294_merge",
-   "line": 476,
+   "line": 509,
    "docstring": "Never reimplement #296 nested Decide event sanitizer in hosted.",
    "parametrized": false,
    "fixtures": [],
@@ -101947,7 +103781,7 @@
    "id": "tests/test_run_repository.py::test_queued_run_stays_queued_until_matching_build_can_claim",
    "file": "tests/test_run_repository.py",
    "name": "test_queued_run_stays_queued_until_matching_build_can_claim",
-   "line": 487,
+   "line": 520,
    "docstring": "Never execute on a worker with different immutable strategy/build.",
    "parametrized": false,
    "fixtures": [
@@ -101981,22 +103815,26 @@
    "id": "tests/test_run_repository.py::test_worker_idle_pulse_is_durable_and_never_exposes_revision",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_idle_pulse_is_durable_and_never_exposes_revision",
-   "line": 510,
+   "line": 543,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
-    "repository"
+    "repository",
+    "monkeypatch"
    ],
-   "assertions": 5,
+   "assertions": 6,
    "assert_forms": {
-    "equality": 1,
+    "equality": 2,
     "is_not_none": 1,
     "membership": 2,
     "ordering": 1
    },
    "raises_checks": 1,
-   "uses": [],
+   "uses": [
+    "monkeypatch"
+   ],
    "quality_flags": [
+    "patches_dependencies",
     "exercises_no_project_function"
    ],
    "claims": "worker idle pulse is durable and never exposes revision",
@@ -102016,7 +103854,7 @@
    "id": "tests/test_run_repository.py::test_expiry_preserves_last_good_triage_and_never_replays",
    "file": "tests/test_run_repository.py",
    "name": "test_expiry_preserves_last_good_triage_and_never_replays",
-   "line": 526,
+   "line": 566,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102050,7 +103888,7 @@
    "id": "tests/test_run_repository.py::test_terminal_progress_is_authoritative_over_late_queue_writer",
    "file": "tests/test_run_repository.py",
    "name": "test_terminal_progress_is_authoritative_over_late_queue_writer",
-   "line": 564,
+   "line": 604,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102083,7 +103921,7 @@
    "id": "tests/test_run_repository.py::test_worker_liveness_refuses_stale_render_revision",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_liveness_refuses_stale_render_revision",
-   "line": 614,
+   "line": 654,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102119,7 +103957,7 @@
    "id": "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order",
    "file": "tests/test_run_repository.py",
    "name": "test_source_revision_reads_render_and_northflank_in_order",
-   "line": 631,
+   "line": 671,
    "docstring": "Override beats Render, Render beats Northflank, blank counts as unset.",
    "parametrized": false,
    "fixtures": [
@@ -102158,7 +103996,7 @@
    "id": "tests/test_run_repository.py::test_northflank_worker_is_ready_for_render_web_on_same_commit",
    "file": "tests/test_run_repository.py",
    "name": "test_northflank_worker_is_ready_for_render_web_on_same_commit",
-   "line": 647,
+   "line": 687,
    "docstring": "Render web (RENDER_GIT_COMMIT) accepts a Northflank worker's heartbeat.",
    "parametrized": false,
    "fixtures": [
@@ -102194,7 +104032,7 @@
    "id": "tests/test_run_repository.py::test_model_metadata_is_never_emitted_in_general_sse_journal",
    "file": "tests/test_run_repository.py",
    "name": "test_model_metadata_is_never_emitted_in_general_sse_journal",
-   "line": 669,
+   "line": 709,
    "docstring": "#304: model attempts remain in the authorized, revalidated endpoint.",
    "parametrized": false,
    "fixtures": [
@@ -102228,7 +104066,7 @@
    "id": "tests/test_run_repository.py::test_expiry_records_reason_and_how_long_the_worker_was_silent",
    "file": "tests/test_run_repository.py",
    "name": "test_expiry_records_reason_and_how_long_the_worker_was_silent",
-   "line": 730,
+   "line": 770,
    "docstring": "A fenced-out worker cannot write, so recovery stores why the run stopped.",
    "parametrized": false,
    "fixtures": [
@@ -102263,7 +104101,7 @@
    "id": "tests/test_run_repository.py::test_hosted_failure_journal_keeps_the_failure_code",
    "file": "tests/test_run_repository.py",
    "name": "test_hosted_failure_journal_keeps_the_failure_code",
-   "line": 767,
+   "line": 807,
    "docstring": "The stored run.failed event names the failure without its message.",
    "parametrized": false,
    "fixtures": [
@@ -102301,7 +104139,7 @@
    "id": "tests/test_run_repository.py::test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
    "file": "tests/test_run_repository.py",
    "name": "test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
-   "line": 796,
+   "line": 836,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102320,6 +104158,74 @@
     "exercises_no_project_function"
    ],
    "claims": "worker problem is kept on its heartbeat and shown as codes",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page",
+   "file": "tests/test_run_repository.py",
+   "name": "test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page",
+   "line": 871,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 2
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "a cleared problem and a dead workers problem leave the system page",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_run_list_shows_how_long_a_claimed_run_has_been_silent",
+   "file": "tests/test_run_repository.py",
+   "name": "test_run_list_shows_how_long_a_claimed_run_has_been_silent",
+   "line": 915,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1,
+    "is_not_none": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "run list shows how long a claimed run has been silent",
    "execution_outcome": "skipped",
    "exercises": [],
    "exercise_count": 0,
@@ -136692,6 +138598,235 @@
    ]
   },
   {
+   "id": "tests/test_triage_evidence_tests.py::test_the_record_keeps_the_runs_own_evidence_test_setting",
+   "file": "tests/test_triage_evidence_tests.py",
+   "name": "test_the_record_keeps_the_runs_own_evidence_test_setting",
+   "line": 473,
+   "docstring": "A run's own triage settings, not the server's, reach the saved record.",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "server",
+    "requested"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "identity": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A run's own triage settings, not the server's, reach the saved record.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed",
+    "capstone.agent.investigation:followup_call",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:revalue"
+   ],
+   "exercise_count": 277,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.evaluation.triage_metrics",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening",
+    "capstone.triage_run_controls"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_evidence_tests.py::test_without_run_settings_the_record_keeps_the_servers",
+   "file": "tests/test_triage_evidence_tests.py",
+   "name": "test_without_run_settings_the_record_keeps_the_servers",
+   "line": 504,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "identity_constant": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "without run settings the record keeps the servers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed",
+    "capstone.agent.investigation:followup_call",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:revalue"
+   ],
+   "exercise_count": 274,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.evaluation.triage_metrics",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_hypothesis_reserve.py::test_the_reserve_is_on_by_default",
    "file": "tests/test_triage_hypothesis_reserve.py",
    "name": "test_the_reserve_is_on_by_default",
@@ -149508,6 +151643,8 @@
     "capstone.api.app:create_app.<locals>.managed_run_configuration",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_default_triage",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149529,7 +151666,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 27,
+   "exercise_count": 29,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149575,6 +151712,7 @@
     "capstone.api.app:create_app.<locals>.managed_run_configuration",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149596,7 +151734,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149642,6 +151780,7 @@
     "capstone.api.app:create_app",
     "capstone.api.app:create_app.<locals>.authorize",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
@@ -149653,7 +151792,7 @@
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149699,6 +151838,7 @@
     "capstone.api.app:create_app.<locals>.list_managed_runs",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149717,7 +151857,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 22,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149767,6 +151907,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149784,7 +151925,7 @@
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149834,6 +151975,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149858,7 +152000,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -149951,6 +152093,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -149975,7 +152118,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150022,6 +152165,7 @@
     "capstone.api.app:create_app.<locals>.ensure_run",
     "capstone.api.app:create_app.<locals>.managed_run_observability",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.readers:project_operational_event",
@@ -150047,7 +152191,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -150098,6 +152242,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SafeStageSnapshot.validate_public_question_ids",
@@ -150121,7 +152266,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
