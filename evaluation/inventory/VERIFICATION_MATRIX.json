@@ -35,10 +35,10 @@
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
   "capstone-code/capstone/api/__init__.py": "80048330132f513c0d31f990cf23d55d0d66b0363708fda5274cecd6b41e3e8a",
   "capstone-code/capstone/api/__main__.py": "d239de65298216c0e8a9545d5ce24ff080703639c1bb9cb10c6b9c38933ac372",
-  "capstone-code/capstone/api/app.py": "ba44323e898d4f0040f9f52dbad0029ce17f3d46e7d18bdf9dbf9323ba0ca9b2",
+  "capstone-code/capstone/api/app.py": "f3d1bcaa2642dd628309836a0c88755270e914cfccdda87205bd8eb0283bd2e4",
   "capstone-code/capstone/api/config.py": "f5820c27929e0400c899182d675464495565d825fdf803f00293cd5012caf6b4",
   "capstone-code/capstone/api/deep_progress.py": "665fd9ff80b561d1800143f4a56207fa3598407a51aba52ff11f3ed3342ce4b0",
-  "capstone-code/capstone/api/hosted_runs.py": "da022ac38d518183c201b8f91386fbbcab711540ad123ad702a6ec88e4a390e4",
+  "capstone-code/capstone/api/hosted_runs.py": "f316edf2d776c87b4686a664fc153993c5982b1d3895e49fd20958bb23588838",
   "capstone-code/capstone/api/import_sqlite.py": "62cf3619ca00747d13e22534fba0d65711f5e4cb5cec3094c21c6907cfceb138",
   "capstone-code/capstone/api/integration_status.py": "83d4932cb6aa030600d5e3094e11cac9d17ae3d5891d1c27839023117c10cea0",
   "capstone-code/capstone/api/live_ingest.py": "48f593dd684ab8e70df0b5e7e515a88aea0e353a74e58cba505a9792ab8a0221",
@@ -46,7 +46,7 @@
   "capstone-code/capstone/api/postgres_runs.py": "dfc5c6b98ccb0d6c01ec30135f0ff2dd32577e7675428d6c8778c4d914acc9c1",
   "capstone-code/capstone/api/readers.py": "8dc97f3d02c7e212129d1335cc2a78b6cd27ef9a323344cbc8014b4da2b464d1",
   "capstone-code/capstone/api/run_models.py": "98f06e6cbc4988ad581077c95cd290b5efdec9641447055be3da4d1366a36959",
-  "capstone-code/capstone/api/run_repository.py": "8f0ae7bdf7914f40b40abaf6911cc2275e0a405835585e9d1dbad3639f4442ff",
+  "capstone-code/capstone/api/run_repository.py": "867cefac82259c05b4934788006e206ba4655aa9edd5217af33f2ae7163bb570",
   "capstone-code/capstone/api/runs.py": "2895133e34cbf059cac0e419d6fba258f96b54f51bf538f751f44d9cf6033805",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
@@ -163,7 +163,7 @@
   "capstone-code/capstone/watchdog/watchdog.py": "c32c0f4b1caa40c190d9091997316df80b7aa579f29cbaff87e5bfa1806ee088",
   "capstone-code/capstone/worker/__init__.py": "24e0b4ab961b7d37a0746b3bda1e0ddcc5d5bbed2022ed47f5901b2489fefce9",
   "capstone-code/capstone/worker/__main__.py": "6caa9ce4f84540541f8f9bcfe8ec1d7a6c87da0e9e74c4818fbd738ac04dfd07",
-  "capstone-code/capstone/worker/runner.py": "5a3c5cfc70a3c0968a6adc41f76e3ef54282b7d99b271b7718ba97013a10a9fd",
+  "capstone-code/capstone/worker/runner.py": "c384b4d2e680a21cd7fb7d7dded686de54d5e02580516738f124c453edb8d00f",
   "evaluation/evaltools/__init__.py": "5314d29d9291f89ed31ac9a6bcb41be257de9072f6da8f5ae9a40797d721660a",
   "evaluation/evaltools/audit_preflight.py": "3141acb75de422953e52f0cd350f4d53240e2003fc6a82c692513af76a3aadb1",
   "evaluation/evaltools/build_inventory.py": "ac8e0c6f3f92b79215d864344e0e5f40141b2c13e188cc2a5c3e0e79d869749f",
@@ -246,7 +246,8 @@
   "tests/test_haas_real_detector.py": "7bf83b01f4c9f013f7d52b8fcff461455ff3ff43dfcec7d2fc8561d79b3f4fe1",
   "tests/test_haas_trace_context.py": "25831671fecaaaf55d9c2aedfdfdb1e7874b99c5464467926d4eb4aaede2438b",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
-  "tests/test_hosted_worker.py": "ad5d6cb458bbe5c39c052107560394ae2d729a89fa32b9048cfae556e9e70a48",
+  "tests/test_hosted_hardening.py": "347578e10c29bf671550ea3442ba2cc506b33fc243c76f81d6226560fd984ed6",
+  "tests/test_hosted_worker.py": "4f1d02dc9b04a18093e9841685b846c7a1c118801821ad34cffb8c02e4810629",
   "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
   "tests/test_job_history.py": "739a96c546efc383de834ba834f9844bbf31fae34bc49e3b0204739ea06d3d97",
   "tests/test_known_answers.py": "20f350db974db8521eacf6c26d50d0089bc021567cc79616e5d98bafc71d7b50",
@@ -292,7 +293,7 @@
   "tests/test_request_deadline.py": "373b1d759e84c4e544ab92f00179243f9fc7805a96d96dacd8d35b06a23610c5",
   "tests/test_review_packet.py": "6193ac676b438445756f5ae4466ccea0fa571b0adc2b08d0fbb355315f984193",
   "tests/test_rng.py": "e0515a3b1b93128ac6ee3538a07963f6e9f386c331c0053206f838cb3d23944f",
-  "tests/test_run_repository.py": "a5db3be4ed00a944c4b4cd5cfff067b5b245ab41cb61b3fa1c4495a0b3cbb128",
+  "tests/test_run_repository.py": "b256c9c7495a6a118d31219d3fb2519255f56d14cbeecc984daa7a5207333bf6",
   "tests/test_scenarios.py": "aecd0d96aa858481068df3ed803fbee1dd3e0bf3023673b5c3c558c8e73dbc7e",
   "tests/test_scoring_integrity.py": "9bd546f2dc3d2bc03c9da3b3c78c1aa09c502e8054bd9bd7065f805ec9c82671",
   "tests/test_sensor_summary.py": "e6268233f469428646200a5b5f05a44bd9a381f64d2fa47422f5ddf12d7d4e25",
@@ -349,29 +350,29 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "1279fa570ef74acd007cbb320b1d7338df030a20ce3faa1dcea3c759e8e84295",
- "junit_sha256": "b176f3dccd476ee1e7be8833d08dfbe1f5071e90af05bc9cb7cdb0ad83f8acf9",
+ "coverage_sha256": "ec0f0f00e8479a6bd4843d33b127c5fa2a650ba61b445effb2bd7936f56aa0be",
+ "junit_sha256": "1ffc922c6dddfb632ebcbdc86b9d1904b87f418fd74923fa322184a7a9ea91d0",
  "counts": {
-  "functions": 1457,
+  "functions": 1461,
   "classes_note": "classes are listed through their methods",
-  "tests": 2614,
+  "tests": 2623,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 649,
+   "INSUFFICIENT EVIDENCE": 656,
    "NOT APPLICABLE": 29,
-   "NOT TESTED": 111,
-   "PARTIALLY VERIFIED": 623,
+   "NOT TESTED": 107,
+   "PARTIALLY VERIFIED": 624,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 652,
+   "direct": 653,
    "import-only": 6,
-   "indirect": 659,
+   "indirect": 666,
    "no-statements": 29,
-   "none": 111
+   "none": 107
   },
-  "functions_executed_in_tests": 1311,
-  "functions_with_direct_tests": 652,
+  "functions_executed_in_tests": 1319,
+  "functions_with_direct_tests": 653,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -384,16 +385,13 @@
    "capstone.api.app:create_app.<locals>.samples",
    "capstone.api.app:create_app.<locals>.investigation",
    "capstone.api.app:create_app.<locals>.system_audit",
-   "capstone.api.app:create_app.<locals>.settings_effective",
    "capstone.api.app:create_app.<locals>.simulator_memories",
    "capstone.api.app:create_app.<locals>.simulator_memory_promotions",
    "capstone.api.app:create_app.<locals>.knowledge",
    "capstone.api.app:create_app.<locals>.triage_result",
    "capstone.api.hosted_runs:HostedSimulatorRuns.__init__",
-   "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
    "capstone.api.hosted_runs:HostedSimulatorRuns.queue_metrics",
    "capstone.api.hosted_runs:HostedSimulatorRuns.close",
-   "capstone.api.hosted_runs:HostedSimulatorRuns.submit",
    "capstone.api.hosted_runs:HostedSimulatorRuns.events_since",
    "capstone.api.hosted_runs:HostedSimulatorRuns.pending_reviews",
    "capstone.api.hosted_runs:HostedSimulatorRuns.decide",
@@ -480,7 +478,6 @@
    "capstone.worker.runner:execute_claim.<locals>.alive",
    "capstone.worker.runner:execute_claim.<locals>.watch",
    "capstone.worker.runner:execute_claim.<locals>.approver",
-   "capstone.worker.runner:main",
    "capstone.worker.runner:main.<locals>.signal_stop",
    "evaluation.evaltools.decision_models:DecisionProvider.state_chars",
    "evaluation.evaltools.decision_models:provider_table"
@@ -517,17 +514,20 @@
    "capstone.agent.triage_requirements:ReadRequirement.valid_window (5/9)",
    "capstone.agent.triage_trace:TriageTraceEvent.validated_hash (2/3)",
    "capstone.agent.triage_trace:TriageTraceEvent.finite_duration (2/3)",
-   "capstone.api.app:create_app (280/386)",
+   "capstone.api.app:create_app (293/400)",
+   "capstone.api.app:create_app.<locals>.server_default_triage (2/4)",
    "capstone.api.app:create_app.<locals>.ensure_run (4/6)",
-   "capstone.api.app:create_app.<locals>.readiness (4/7)",
+   "capstone.api.app:create_app.<locals>.readiness (6/9)",
    "capstone.api.app:create_app.<locals>.investigations (2/3)",
    "capstone.api.app:create_app.<locals>.evaluation_scorecards (3/4)",
+   "capstone.api.app:create_app.<locals>.settings_effective (1/3)",
    "capstone.api.app:create_app.<locals>.search_simulator_manual (13/17)",
    "capstone.api.app:create_app.<locals>.list_managed_runs (2/3)",
    "capstone.api.app:create_app.<locals>.managed_run_model_calls (6/8)",
    "capstone.api.app:create_app.<locals>.pending_simulator_reviews (2/3)",
    "capstone.api.config:UiConfig.__post_init__ (19/26)",
    "capstone.api.deep_progress:checkpoint_from_stage (2/3)",
+   "capstone.api.hosted_runs:HostedSimulatorRuns.submit (1/3)",
    "capstone.api.import_sqlite:artifacts (19/25)",
    "capstone.api.model_calls:classify_outcome (22/28)",
    "capstone.api.readers:capture_records (6/8)",
@@ -538,7 +538,7 @@
    "capstone.api.readers:safe_evaluations (7/10)",
    "capstone.api.run_repository:RunRepository.__init__ (12/16)",
    "capstone.api.run_repository:RunRepository._append (9/17)",
-   "capstone.api.run_repository:RunRepository.worker_heartbeat (4/14)",
+   "capstone.api.run_repository:RunRepository.worker_heartbeat (5/18)",
    "capstone.api.runs:safe_executed_triage (2/3)",
    "capstone.api.runs:safe_hypothesis_progress (16/21)",
    "capstone.api.runs:SimulatorRuns.investigation_audit_path (2/3)",
@@ -593,8 +593,9 @@
    "capstone.worker.runner:execute_claim.<locals>.flush_model_calls (2/16)",
    "capstone.worker.runner:execute_claim.<locals>.heartbeat (1/10)",
    "capstone.worker.runner:execute_claim.<locals>.write_updates (7/18)",
-   "capstone.worker.runner:serve_worker (47/63)",
-   "capstone.worker.runner:serve_worker.<locals>.pulse (5/9)",
+   "capstone.worker.runner:serve_worker (62/78)",
+   "capstone.worker.runner:serve_worker.<locals>.pulse (8/12)",
+   "capstone.worker.runner:main (9/20)",
    "evaluation.evaltools.build_inventory:read_junit (2/19)",
    "evaluation.evaltools.full_evaluation:git (2/4)",
    "evaluation.evaltools.full_evaluation:run_settings (7/9)",
@@ -608,8 +609,9 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2592,
-   "skipped": 22
+   "failed": 1,
+   "passed": 2598,
+   "skipped": 24
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -811,6 +813,8 @@
    "tests/test_run_repository.py::test_expiry_records_reason_and_how_long_the_worker_was_silent",
    "tests/test_run_repository.py::test_hosted_failure_journal_keeps_the_failure_code",
    "tests/test_run_repository.py::test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
+   "tests/test_run_repository.py::test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page",
+   "tests/test_run_repository.py::test_run_list_shows_how_long_a_claimed_run_has_been_silent",
    "tests/test_servo_drive.py::test_a_new_drive_is_healthy",
    "tests/test_servo_drive.py::test_the_pack_asks_for_the_drive_replacement_and_counts_as_a_cause",
    "tests/test_settings.py::test_env_and_index_live_at_the_repository_root",
@@ -969,8 +973,8 @@
    "direct": 0
   },
   "capstone.api.app": {
-   "functions": 42,
-   "executed": 28,
+   "functions": 44,
+   "executed": 31,
    "direct": 2
   },
   "capstone.api.config": {
@@ -985,8 +989,8 @@
   },
   "capstone.api.hosted_runs": {
    "functions": 13,
-   "executed": 2,
-   "direct": 0
+   "executed": 4,
+   "direct": 1
   },
   "capstone.api.import_sqlite": {
    "functions": 5,
@@ -1019,8 +1023,8 @@
    "direct": 0
   },
   "capstone.api.run_repository": {
-   "functions": 34,
-   "executed": 7,
+   "functions": 35,
+   "executed": 8,
    "direct": 4
   },
   "capstone.api.runs": {
@@ -1499,8 +1503,8 @@
    "direct": 2
   },
   "capstone.worker.runner": {
-   "functions": 17,
-   "executed": 12,
+   "functions": 18,
+   "executed": 14,
    "direct": 0
   },
   "evaluation.evaltools.audit_preflight": {
@@ -7946,12 +7950,39 @@
    "indirect": []
   },
   "capstone.api.app:create_app": {
-   "count": 25,
+   "count": 27,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
+    "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
     "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
+    "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
+    "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
+    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
+    "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
+    "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
+    "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth"
+   ]
+  },
+  "capstone.api.app:create_app.<locals>.shutdown_runner": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_web_runs.py::test_completed_stream_has_explicit_replay_boundary"
+   ]
+  },
+  "capstone.api.app:create_app.<locals>.authorize": {
+   "count": 24,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
+    "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
@@ -7964,38 +7995,39 @@
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials"
    ]
   },
-  "capstone.api.app:create_app.<locals>.shutdown_runner": {
-   "count": 1,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_web_runs.py::test_completed_stream_has_explicit_replay_boundary"
-   ]
-  },
-  "capstone.api.app:create_app.<locals>.authorize": {
-   "count": 23,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
-    "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
-    "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
-    "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
-    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
-    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
-    "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
-    "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
-    "tests/test_web_run_controls.py::test_deep_only_does_not_apply_triage_controls",
-    "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
-    "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal"
-   ]
-  },
-  "capstone.api.app:create_app.<locals>.require_role": {
+  "capstone.api.app:create_app.<locals>.server_settings": {
    "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
+    "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
+    "tests/test_web_run_controls.py::test_deep_only_does_not_apply_triage_controls",
+    "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
+    "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
+    "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
+    "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+    "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+    "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
+    "tests/test_web_runs.py::test_run_roles_and_idempotency",
+    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+   ]
+  },
+  "capstone.api.app:create_app.<locals>.server_default_triage": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration"
+   ]
+  },
+  "capstone.api.app:create_app.<locals>.require_role": {
+   "count": 13,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
     "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
@@ -8006,8 +8038,7 @@
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.app:create_app.<locals>.ensure_run": {
@@ -8036,10 +8067,11 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.readiness": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit"
    ]
   },
@@ -8167,10 +8199,12 @@
    "indirect": []
   },
   "capstone.api.app:create_app.<locals>.settings_effective": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault"
+   ]
   },
   "capstone.api.app:create_app.<locals>.search_simulator_manual": {
    "count": 2,
@@ -8209,19 +8243,21 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.managed_run_configuration": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration"
    ]
   },
   "capstone.api.app:create_app.<locals>.preview_simulator_run": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_web_run_controls.py::test_deep_only_does_not_apply_triage_controls",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
@@ -8229,10 +8265,11 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.start_simulator_run": {
-   "count": 12,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
     "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
@@ -8243,8 +8280,7 @@
     "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
     "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
     "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
-    "tests/test_web_runs.py::test_run_roles_and_idempotency",
-    "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
+    "tests/test_web_runs.py::test_run_roles_and_idempotency"
    ]
   },
   "capstone.api.app:create_app.<locals>.managed_run": {
@@ -8342,10 +8378,12 @@
    ]
   },
   "capstone.api.config:UiConfig.__post_init__": {
-   "count": 31,
+   "count": 33,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
+    "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
     "tests/test_hosted_worker.py::test_hosted_config_requires_distinct_roles_and_no_local_disk",
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
     "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
@@ -8355,9 +8393,7 @@
     "tests/test_postgres_journal.py::test_remote_configuration_requires_url_and_staging_directory",
     "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
-    "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
-    "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
-    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed"
+    "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good"
    ]
   },
   "capstone.api.config:UiConfig.from_env": {
@@ -8405,10 +8441,14 @@
    "indirect": []
   },
   "capstone.api.hosted_runs:HostedSimulatorRuns.ready": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
-   "indirect": []
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit"
+   ],
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit"
+   ]
   },
   "capstone.api.hosted_runs:HostedSimulatorRuns.queue_metrics": {
    "count": 0,
@@ -8423,10 +8463,12 @@
    "indirect": []
   },
   "capstone.api.hosted_runs:HostedSimulatorRuns.submit": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit"
+   ]
   },
   "capstone.api.hosted_runs:HostedSimulatorRuns.get": {
    "count": 1,
@@ -8886,24 +8928,35 @@
    ]
   },
   "capstone.api.run_repository:source_revision": {
-   "count": 14,
+   "count": 19,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order"
    ],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_hosted_mode_needs_the_full_build_commit",
+    "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit",
+    "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
+    "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit",
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
     "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
     "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
     "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
     "tests/test_hosted_worker.py::test_model_setup_failure_is_named_model_setup",
-    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
-    "tests/test_hosted_worker.py::test_strategy_drift_fails_closed",
-    "tests/test_hosted_worker.py::test_structured_logs_drop_unapproved_fields_and_values",
-    "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
-    "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run",
-    "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it"
+    "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit"
+   ]
+  },
+  "capstone.api.run_repository:hosted_revision": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_hosted_mode_needs_the_full_build_commit",
+    "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit",
+    "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit",
+    "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit"
    ]
   },
   "capstone.api.run_repository:_age_seconds": {
@@ -8913,10 +8966,11 @@
    "indirect": []
   },
   "capstone.api.run_repository:RunExecutionConfig.current": {
-   "count": 8,
+   "count": 9,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
     "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
     "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
@@ -8928,12 +8982,13 @@
    ]
   },
   "capstone.api.run_repository:RunExecutionConfig.validate_strategy": {
-   "count": 9,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy"
    ],
    "indirect": [
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
     "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
@@ -9137,10 +9192,11 @@
    "indirect": []
   },
   "capstone.api.runs:utc_now": {
-   "count": 24,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_model_call_telemetry.py::test_sqlite_model_journal_preserves_snapshot_across_restart",
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
@@ -9151,8 +9207,7 @@
     "tests/test_web_run_controls.py::test_local_browser_preflight_allows_authenticated_post",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
-    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
-    "tests/test_web_runs.py::test_completed_stream_has_explicit_replay_boundary"
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
    ]
   },
   "capstone.api.runs:public_run_configuration": {
@@ -9228,10 +9283,11 @@
    ]
   },
   "capstone.api.runs:SimulatorRuns.__init__": {
-   "count": 24,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_model_call_telemetry.py::test_sqlite_model_journal_preserves_snapshot_across_restart",
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
@@ -9242,15 +9298,15 @@
     "tests/test_web_run_controls.py::test_local_browser_preflight_allows_authenticated_post",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
-    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
-    "tests/test_web_runs.py::test_completed_stream_has_explicit_replay_boundary"
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
    ]
   },
   "capstone.api.runs:SimulatorRuns._initialize_store": {
-   "count": 24,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_model_call_telemetry.py::test_sqlite_model_journal_preserves_snapshot_across_restart",
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
@@ -9261,15 +9317,15 @@
     "tests/test_web_run_controls.py::test_local_browser_preflight_allows_authenticated_post",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
-    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
-    "tests/test_web_runs.py::test_completed_stream_has_explicit_replay_boundary"
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
    ]
   },
   "capstone.api.runs:SimulatorRuns._db": {
-   "count": 24,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_model_call_telemetry.py::test_sqlite_model_journal_preserves_snapshot_across_restart",
     "tests/test_postgres_journal.py::test_sqlite_import_preview_is_read_only_and_includes_private_artifacts",
@@ -9280,8 +9336,7 @@
     "tests/test_web_run_controls.py::test_local_browser_preflight_allows_authenticated_post",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
-    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields",
-    "tests/test_web_runs.py::test_completed_stream_has_explicit_replay_boundary"
+    "tests/test_web_runs.py::test_completed_phase_audits_expose_only_reviewed_result_fields"
    ]
   },
   "capstone.api.runs:SimulatorRuns.investigation_audit_path": {
@@ -19283,11 +19338,12 @@
    "indirect": []
   },
   "capstone.settings:TriageExecutionProfile.consistent_effective_route": {
-   "count": 84,
+   "count": 85,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
     "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
@@ -19297,12 +19353,11 @@
     "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
     "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
     "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
-    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
-    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing"
+    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable"
    ]
   },
   "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage": {
-   "count": 354,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19334,7 +19389,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_triage_needs_fixed_plan": {
-   "count": 354,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19366,11 +19421,12 @@
    ]
   },
   "capstone.settings:Settings.effective_triage": {
-   "count": 80,
+   "count": 81,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
     "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
@@ -19380,12 +19436,11 @@
     "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
     "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
     "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
-    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
-    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing"
+    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable"
    ]
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 364,
+   "count": 366,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19454,7 +19509,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 247,
+   "count": 249,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -23380,10 +23435,12 @@
    ]
   },
   "capstone.worker.runner:record": {
-   "count": 10,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit",
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
     "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
@@ -23397,10 +23454,11 @@
    ]
   },
   "capstone.worker.runner:classify_failure": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_hardening.py::test_a_validation_error_during_model_setup_is_model_setup",
     "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
     "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
     "tests/test_hosted_worker.py::test_failure_classification_reads_type_and_step_never_message",
@@ -23493,10 +23551,11 @@
    "indirect": []
   },
   "capstone.worker.runner:serve_worker": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
     "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
     "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run",
@@ -23504,27 +23563,41 @@
    ]
   },
   "capstone.worker.runner:serve_worker.<locals>.note": {
-   "count": 1,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run"
-   ]
-  },
-  "capstone.worker.runner:serve_worker.<locals>.pulse": {
    "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
+    "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run"
+   ]
+  },
+  "capstone.worker.runner:serve_worker.<locals>.succeeded": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
+    "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run"
+   ]
+  },
+  "capstone.worker.runner:serve_worker.<locals>.pulse": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
     "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run"
    ]
   },
   "capstone.worker.runner:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit"
+   ]
   },
   "capstone.worker.runner:main.<locals>.signal_stop": {
    "count": 0,
@@ -45238,6 +45311,74 @@
     "capstone.agent.investigation:critic_view"
    ]
   },
+  "tests/test_hosted_hardening.py::test_hosted_mode_needs_the_full_build_commit": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ]
+  },
+  "tests/test_hosted_hardening.py::test_hosted_runner_refuses_readiness_and_submission_without_a_commit": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
+    "capstone.api.hosted_runs:HostedSimulatorRuns.submit",
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ]
+  },
+  "tests/test_hosted_hardening.py::test_ready_endpoint_names_a_missing_commit": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.readiness",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.hosted_runs:HostedSimulatorRuns.ready",
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision"
+   ]
+  },
+  "tests/test_hosted_hardening.py::test_worker_refuses_to_start_without_a_commit": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:hosted_revision",
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:main",
+    "capstone.worker.runner:record"
+   ]
+  },
+  "tests/test_hosted_hardening.py::test_a_bad_triage_setting_is_one_named_server_fault": {
+   "count": 15,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.managed_run_configuration",
+    "capstone.api.app:create_app.<locals>.preview_simulator_run",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
+    "capstone.api.app:create_app.<locals>.settings_effective",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:utc_now",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ]
+  },
+  "tests/test_hosted_hardening.py::test_a_validation_error_during_model_setup_is_model_setup": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.worker.runner:classify_failure"
+   ]
+  },
   "tests/test_hosted_worker.py::test_hosted_config_requires_distinct_roles_and_no_local_disk": {
    "count": 1,
    "judgment": "NOT ASSESSED",
@@ -45276,7 +45417,7 @@
    ]
   },
   "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent": {
-   "count": 13,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.integration_status:inspect_hosted_contracts",
@@ -45291,7 +45432,8 @@
     "capstone.settings:get_settings",
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker",
-    "capstone.worker.runner:serve_worker.<locals>.pulse"
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ]
   },
   "tests/test_hosted_worker.py::test_hosted_api_adapter_is_actored_and_never_runs_episode": {
@@ -45310,7 +45452,7 @@
    ]
   },
   "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit": {
-   "count": 27,
+   "count": 28,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -45325,14 +45467,14 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.app:create_app.<locals>.system",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.integration_status:inspect_hosted_contracts",
     "capstone.api.readers:recorder_snapshot",
     "capstone.api.runs:public_run_configuration",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage"
+    "capstone.settings:Settings.blank_is_missing"
    ]
   },
   "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha": {
@@ -45419,11 +45561,12 @@
    ]
   },
   "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409": {
-   "count": 14,
+   "count": 15,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:public_run_configuration",
@@ -45492,7 +45635,7 @@
    ]
   },
   "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run": {
-   "count": 13,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.run_repository:RunExecutionConfig.current",
@@ -45507,7 +45650,8 @@
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker",
     "capstone.worker.runner:serve_worker.<locals>.note",
-    "capstone.worker.runner:serve_worker.<locals>.pulse"
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ]
   },
   "tests/test_hosted_worker.py::test_worker_problem_and_interrupt_fields_are_validated_before_storage": {
@@ -45537,6 +45681,26 @@
     "capstone.settings:get_settings",
     "capstone.worker.runner:record",
     "capstone.worker.runner:serve_worker"
+   ]
+  },
+  "tests/test_hosted_worker.py::test_a_recovered_worker_clears_its_poll_problem": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker",
+    "capstone.worker.runner:serve_worker.<locals>.note",
+    "capstone.worker.runner:serve_worker.<locals>.pulse",
+    "capstone.worker.runner:serve_worker.<locals>.succeeded"
    ]
   },
   "tests/test_hydraulics.py::test_only_some_positions_have_hydraulics_and_every_line_has_one": {
@@ -57009,6 +57173,16 @@
    "functions": []
   },
   "tests/test_run_repository.py::test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_run_repository.py::test_a_cleared_problem_and_a_dead_workers_problem_leave_the_system_page": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_run_repository.py::test_run_list_shows_how_long_a_claimed_run_has_been_silent": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
@@ -71796,7 +71970,7 @@
    ]
   },
   "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration": {
-   "count": 27,
+   "count": 29,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71806,6 +71980,8 @@
     "capstone.api.app:create_app.<locals>.managed_run_configuration",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_default_triage",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -71816,13 +71992,11 @@
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:public_run_configuration",
-    "capstone.api.runs:utc_now",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage"
+    "capstone.api.runs:utc_now"
    ]
   },
   "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials": {
-   "count": 25,
+   "count": 26,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71830,6 +72004,7 @@
     "capstone.api.app:create_app.<locals>.managed_run_configuration",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -71843,17 +72018,17 @@
     "capstone.api.runs:utc_now",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
-    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
-    "capstone.settings:get_settings"
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan"
    ]
   },
   "tests/test_web_run_controls.py::test_deep_only_does_not_apply_triage_controls": {
-   "count": 13,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
     "capstone.api.app:create_app.<locals>.authorize",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
@@ -71867,7 +72042,7 @@
    ]
   },
   "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal": {
-   "count": 22,
+   "count": 23,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71875,6 +72050,7 @@
     "capstone.api.app:create_app.<locals>.list_managed_runs",
     "capstone.api.app:create_app.<locals>.preview_simulator_run",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -71888,12 +72064,11 @@
     "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.triage_run_controls:EffectiveTriageRun.guarded_profile",
-    "capstone.triage_run_controls:EffectiveTriageRun.stage_modes",
-    "capstone.triage_run_controls:overridden_fields"
+    "capstone.triage_run_controls:EffectiveTriageRun.stage_modes"
    ]
   },
   "tests/test_web_runs.py::test_run_roles_and_idempotency": {
-   "count": 23,
+   "count": 24,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71903,6 +72078,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -71914,12 +72090,11 @@
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.submit",
     "capstone.api.runs:public_run_configuration",
-    "capstone.api.runs:utc_now",
-    "capstone.settings:Settings.blank_is_missing"
+    "capstone.api.runs:utc_now"
    ]
   },
   "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision": {
-   "count": 30,
+   "count": 31,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71929,6 +72104,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -71940,8 +72116,7 @@
     "capstone.api.runs:SimulatorRuns.decide",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.pending_reviews",
-    "capstone.api.runs:SimulatorRuns.submit",
-    "capstone.api.runs:public_run_configuration"
+    "capstone.api.runs:SimulatorRuns.submit"
    ]
   },
   "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation": {
@@ -71958,7 +72133,7 @@
    ]
   },
   "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes": {
-   "count": 30,
+   "count": 31,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71968,6 +72143,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -71979,12 +72155,11 @@
     "capstone.api.runs:SimulatorRuns.decide",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.pending_reviews",
-    "capstone.api.runs:SimulatorRuns.submit",
-    "capstone.api.runs:public_run_configuration"
+    "capstone.api.runs:SimulatorRuns.submit"
    ]
   },
   "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked": {
-   "count": 29,
+   "count": 30,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -71992,6 +72167,7 @@
     "capstone.api.app:create_app.<locals>.ensure_run",
     "capstone.api.app:create_app.<locals>.managed_run_observability",
     "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.readers:project_operational_event",
@@ -72005,12 +72181,11 @@
     "capstone.api.runs:SimulatorRuns.investigation_audit_path",
     "capstone.api.runs:SimulatorRuns.investigation_event_path",
     "capstone.api.runs:SimulatorRuns.submit",
-    "capstone.api.runs:public_run_configuration",
-    "capstone.api.runs:utc_now"
+    "capstone.api.runs:public_run_configuration"
    ]
   },
   "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id": {
-   "count": 29,
+   "count": 30,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.api.app:create_app",
@@ -72020,6 +72195,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SafeStageSnapshot.validate_public_question_ids",
@@ -72031,8 +72207,7 @@
     "capstone.api.runs:SimulatorRuns.events_since",
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:SimulatorRuns.submit",
-    "capstone.api.runs:public_run_configuration",
-    "capstone.api.runs:utc_now"
+    "capstone.api.runs:public_run_configuration"
    ]
   },
   "tests/test_web_runs.py::test_review_requires_delivery_signal_even_when_database_says_approved": {
