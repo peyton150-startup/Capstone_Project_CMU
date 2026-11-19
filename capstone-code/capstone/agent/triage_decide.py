@@ -592,25 +592,55 @@ def reconcile_question_comparison(
 
 
 def reconciled_result(
-    previous: RequirementResult | None, fresh: RequirementResult
+    previous: RequirementResult | None,
+    fresh: RequirementResult,
+    *,
+    capability: str | None = None,
+    checked: bool = False,
 ) -> RequirementResult:
-    """Combine a fresh qualification with a prior capability verdict.
+    """One authoritative status: qualified evidence first, then capability.
 
-    A requirement the provider cannot serve is marked unavailable or
-    unsupported by the selector. Reconciliation runs every cycle and would
-    otherwise overwrite that with a bare "pending", losing why the evidence
-    could not be collected. New evidence, or a changed verdict, still wins.
+    A requirement the provider cannot serve must not read as "pending", but a
+    remembered verdict can go stale: the catalog, channels or cutoff may
+    change between cycles. So when authorization can be checked (`checked`),
+    the capability verdict is recomputed from it, not carried over. Evidence
+    that already qualified is never invalidated by a later capability change.
     """
     # Variables:
     #   previous: The result recorded before this evaluation, if any.
     #   fresh: What the current evidence qualifies to, recomputed from scratch.
-    #   marked: Whether previous is the selector's authorization verdict.
-    if previous is None:
+    #   capability: The current blocking reason code, or None if the read is
+    #     authorized now; ignored unless `checked`.
+    #   checked: Whether this cycle could evaluate authorization at all. When
+    #     it could not (no deps), a recorded capability verdict is kept.
+    if fresh.status == "satisfied":
+        # Qualified evidence wins: a capability change is not retroactive.
         return fresh
-    marked = previous.status in ("unavailable", "unsupported")
-    if marked and not fresh.evidence_ids and fresh.status != "satisfied":
-        return previous
-    return fresh
+    if not checked:
+        if (
+            previous is not None
+            and previous.status in ("unavailable", "unsupported")
+            and not fresh.evidence_ids
+        ):
+            return previous
+        return fresh
+    if capability is None:
+        return fresh
+    status = (
+        "unsupported"
+        if capability in ("unsupported_tool", "invalid_arguments")
+        else "unavailable"
+    )
+    detail = f"read not authorized: {capability}"
+    if fresh.evidence_ids:
+        # Keep both facts: what was collected, and why more cannot be.
+        detail += f"; collected evidence is {fresh.status}: {fresh.reason}"
+    return RequirementResult(
+        status=status,
+        evidence_ids=fresh.evidence_ids,
+        valid_samples=fresh.valid_samples,
+        reason=detail,
+    )
 
 
 def unresolved_required(state: InvestigationState) -> tuple[str, ...]:
@@ -626,18 +656,35 @@ def unresolved_required(state: InvestigationState) -> tuple[str, ...]:
     )
 
 
-def evaluate_triage_requirements(state: InvestigationState) -> None:
-    """Reconcile all requirements, attach shared evidence, and close only complete questions."""
+def evaluate_triage_requirements(
+    state: InvestigationState, deps: "InvestigationDeps | None" = None
+) -> None:
+    """Reconcile all requirements, attach shared evidence, and close only complete questions.
+
+    When `deps` is given (the deterministic controller), each requirement's
+    capability status is recomputed from the current catalog, channels and
+    cutoff, so it can never go stale.
+    """
     # Variables:
     #   by_question: Required parts of each question, evaluated independently.
     #   movement: Q5's three source requirements, not proof of correlation.
     #   all_qualified: Whether each source passes independently.
-    #   previous: The recorded results, so a capability verdict is not lost.
+    #   previous: The recorded results, for the no-deps case only.
+    #   capability: Why this read is not authorized now, or None if it is;
+    #     only the deterministic controller can check it, hence `deps`.
     expand_job_requirements(state)
     previous = dict(state.triage_requirement_results)
     by_question: dict[str, list[str]] = {}
     for rid, requirement in state.triage_requirements.items():
-        result = reconciled_result(previous.get(rid), qualify(state, requirement))
+        capability = (
+            unpermitted_reason(requirement, deps, state) if deps is not None else None
+        )
+        result = reconciled_result(
+            previous.get(rid),
+            qualify(state, requirement),
+            capability=capability,
+            checked=deps is not None,
+        )
         state.triage_requirement_results[rid] = result
         by_question.setdefault(requirement.question_id, []).append(rid)
     for question_id, ids in by_question.items():
@@ -1032,7 +1079,7 @@ def run_deterministic_triage_loop(
         before_evidence = {
             qid: tuple(ids) for qid, ids in state.triage_question_evidence.items()
         }
-        evaluate_triage_requirements(state)
+        evaluate_triage_requirements(state, deps)
         for rid, result in sorted(state.triage_requirement_results.items()):
             before = previous.get(rid)
             after = (result.status, result.evidence_ids, result.reason)
@@ -1081,18 +1128,7 @@ def run_deterministic_triage_loop(
             if deps.triage_hypothesize != "deterministic":
                 add_test_requirements(state)
             reconcile()
-        if not state.unanswered_questions:
-            # An empty question list is not proof of sufficient evidence: a
-            # required requirement may still be unresolved (unavailable,
-            # insufficient, or marked by the selector).
-            outstanding = unresolved_required(state)
-            if outstanding:
-                return finish(
-                    TriageStopDecision(
-                        reason="data_insufficient",
-                        unresolved_requirement_ids=outstanding,
-                    )
-                )
+        if not state.unanswered_questions and not unresolved_required(state):
             return finish(TriageStopDecision(reason="requirements_complete"))
         if state.remaining_iterations <= 0:
             return finish(TriageStopDecision(reason="max_iterations"))
@@ -1100,6 +1136,22 @@ def run_deterministic_triage_loop(
             return finish(TriageStopDecision(reason="max_tool_calls"))
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
+            # An empty question list is never completion on its own: if a
+            # required requirement is still unresolved, the stop keeps it on
+            # the record, whatever reason the selector gave.
+            outstanding = unresolved_required(state)
+            if outstanding and not state.unanswered_questions:
+                return finish(
+                    TriageStopDecision(
+                        reason=decision.reason,
+                        unresolved_requirement_ids=tuple(
+                            sorted(
+                                set(outstanding)
+                                | set(decision.unresolved_requirement_ids)
+                            )
+                        ),
+                    )
+                )
             return finish(decision)
         if deps.triage_hypothesize == "deterministic":
             from capstone.agent.triage_hypothesize import log_hypothesis_event
