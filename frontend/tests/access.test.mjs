@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import {
-  ROLES, ROLE_DENIED_MESSAGES, describeCheck, emptyTokens, envBlock, generateTokens,
+  ROLES, ROLE_DENIED_MESSAGES, checkProblem, describeCheck, emptyTokens, envBlock, generateTokens,
   readToken, tokenFor,
 } from '../src/access.mjs';
 
@@ -49,4 +49,9 @@ test('the Access dialog closes on Escape and its remember box is labelled', () =
   assert.match(dialog, /event\.key === 'Escape'\) close\(\)/);
   assert.match(app, /className="access-remember"/);
   assert.match(app, /aria-label="Remember in this tab until it closes"/);
+});
+
+test('a backend without whoami gets a plain explanation, not a bare 404', () => {
+  assert.match(checkProblem('API request failed (404).'), /older API without the token check/);
+  assert.match(checkProblem('Session token required'), /could not be asked about them/);
 });

@@ -10,3 +10,4 @@ export function generateTokens(fillRandom?: (bytes: Uint8Array) => Uint8Array): 
 export function envBlock(tokens: RoleTokens): string;
 export const ROLE_DENIED_MESSAGES: string[];
 export function describeCheck(role: Role, roles: Role[] | null): { ok: boolean; text: string };
+export function checkProblem(message: string): string;

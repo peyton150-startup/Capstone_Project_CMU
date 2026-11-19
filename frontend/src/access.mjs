@@ -70,3 +70,14 @@ export function describeCheck(role, roles) {
   if (roles.length) return { ok: false, text: 'This is the ' + roles.join(', ') + ' token, not ' + role };
   return { ok: false, text: 'Not recognised by this backend' };
 }
+
+// Why "Save and check" could not ask the backend, in words the user can act on.
+export function checkProblem(message) {
+  // Variables:
+  //   message: The error text from the whoami request; a 404 means the API
+  //     predates the token check, not that a token is wrong.
+  if (/\(404\)/.test(message))
+    return 'This backend runs an older API without the token check, so the tokens ' +
+      'could not be checked. They are saved and will still be sent.';
+  return message + ' The tokens are saved; the backend could not be asked about them.';
+}

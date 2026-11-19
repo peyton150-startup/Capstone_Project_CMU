@@ -11,7 +11,7 @@ import type { ComponentType } from 'react';
 import { Check, Copy, KeyRound } from 'lucide-react';
 import { useUi } from './context';
 import { getJson, useResource } from './api';
-import { countTokens, describeCheck, emptyTokens, envBlock, generateTokens, ROLES, RUNS_VARIABLE } from './access.mjs';
+import { checkProblem, countTokens, describeCheck, emptyTokens, envBlock, generateTokens, ROLES, RUNS_VARIABLE } from './access.mjs';
 import type { Role, RoleTokens } from './access.mjs';
 import { isLoopbackFrontend } from './backend.mjs';
 import { Pill } from './ui';
@@ -145,8 +145,7 @@ function AccessDialog({ close }: { close: () => void }) {
       setChecks(Object.fromEntries(ROLES.map((item, index) =>
         [item.role, results[index] ? results[index]!.roles : null])) as Record<Role, Role[] | null>);
     } catch (error) {
-      setProblem((error instanceof Error ? error.message : 'Check failed') +
-        ' The tokens are saved; the backend could not be asked about them.');
+      setProblem(checkProblem(error instanceof Error ? error.message : 'Check failed.'));
     } finally {
       setChecking(false);
     }
