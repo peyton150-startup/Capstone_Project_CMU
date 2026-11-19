@@ -822,7 +822,7 @@ def test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes(repository):
         assert (
             connection.exec_driver_sql(
                 "SELECT count(*) FROM capstone_private.sim_run_events "
-                "WHERE payload::text LIKE '%poll_failed%'"
+                "WHERE strpos(payload::text, 'poll_failed') > 0"
             ).scalar_one()
             == 0
         )
