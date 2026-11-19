@@ -687,6 +687,10 @@ def evaluate_triage_requirements(
         )
         state.triage_requirement_results[rid] = result
         by_question.setdefault(requirement.question_id, []).append(rid)
+    # Anomalies are a diagnostic of the CURRENT state, recomputed each cycle:
+    # a resolved inconsistency must disappear, and identical state must give
+    # identical entries, so this can never accumulate or block forever.
+    found: list[str] = []
     for question_id, ids in by_question.items():
         reconcile_question_comparison(state, question_id, ids)
         evidence_ids = list(
@@ -720,13 +724,15 @@ def evaluate_triage_requirements(
         elif question_id in state.answers:
             # Not reachable through the current lifecycle: job paths expand
             # inside the same reconciliation, before closure, and identical
-            # reads are deduplicated. If it ever happens, leave a visible
-            # record instead of a silently stale answer. No state is changed
-            # here yet, since no reproducer exists.
-            state.triage_bookkeeping_anomalies.append(
-                f"{question_id}: answered but its requirements are not all "
-                f"satisfied ({[rid for rid in ids if state.triage_requirement_results[rid].status != 'satisfied']})"
+            # reads are deduplicated. If it ever happens, record it for this
+            # cycle only; no answer state is changed without a reproducer.
+            unmet = sorted(
+                rid
+                for rid in ids
+                if state.triage_requirement_results[rid].status != "satisfied"
             )
+            found.append(f"{question_id}: answered but {', '.join(unmet)} unsatisfied")
+    state.triage_bookkeeping_anomalies = sorted(found)
 
 
 def read_priority(

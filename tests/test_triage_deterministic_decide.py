@@ -9,7 +9,11 @@ from capstone.agent.artifacts import DetectedAnomaly, TerminationReason
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.loop import InvestigationDeps, run_inner_loop
 from capstone.agent.state import Question
-from capstone.agent.triage_decide import stop, unresolved_required
+from capstone.agent.triage_decide import (
+    evaluate_triage_requirements,
+    stop,
+    unresolved_required,
+)
 from capstone.agent.triage_decide_contracts import TriageStopDecision
 from capstone.agent.triage_plan import fixed_plan, fixed_predicates
 from capstone.contracts.tools import ToolError, ToolResult
@@ -636,6 +640,89 @@ def test_stop_converts_an_inconsistent_completion_decision():
     # The event and the loop record agree with the converted stop.
     assert state.triage_trace_events[-1].reason_code == "data_insufficient"
     assert state.decisions[-1].termination_reason is TerminationReason.NO_USEFUL_ACTION
+
+
+def test_bookkeeping_anomalies_are_current_not_historical():
+    """A resolved inconsistency disappears; unchanged state stays idempotent."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    # The default provider answers records with an empty list, so Q3's
+    # requirements stay insufficient: recording Q3 as answered is then a
+    # genuine inconsistency. A defensive corruption test -- the lifecycle
+    # cannot produce this (job paths expand before closure, reads are
+    # deduplicated).
+    run_inner_loop(state, deps, "investigate")
+    state.answers["Q3"] = ["E1"]
+    evaluate_triage_requirements(state, deps)
+    first = list(state.triage_bookkeeping_anomalies)
+    assert first and any(a.startswith("Q3:") for a in first)
+    # Repeated reconciliation of unchanged inputs: no duplicates.
+    evaluate_triage_requirements(state, deps)
+    assert state.triage_bookkeeping_anomalies == first
+    # Resolving the inconsistency clears the diagnostic: it is current state,
+    # not a permanent history that could block completion forever.
+    state.answers.pop("Q3")
+    evaluate_triage_requirements(state, deps)
+    assert not any(a.startswith("Q3:") for a in state.triage_bookkeeping_anomalies)
+
+
+def test_completion_conversion_is_recorded_once_and_consistently():
+    """An invalid completion emits one converted event before the final stop."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    run_inner_loop(state, deps, "investigate")
+    before = len(state.triage_trace_events)
+    reason = stop(
+        state, "investigate", TriageStopDecision(reason="requirements_complete"), deps
+    )
+    new = state.triage_trace_events[before:]
+    names = [e.event for e in new]
+    assert names.count("triage.completion_converted") == 1
+    assert names[-1] == "triage.stopped"
+    assert names.index("triage.completion_converted") < names.index("triage.stopped")
+    # Sequence numbers stay monotonic across the appends.
+    sequences = [e.sequence for e in state.triage_trace_events]
+    assert sequences == sorted(sequences)
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert state.decisions[-1].information_needed == "data_insufficient"
+    assert state.decisions[-1].termination_reason is TerminationReason.NO_USEFUL_ACTION
+
+
+def test_capability_transition_unsupported_to_available():
+    """A tool that was missing can become authorized without losing evidence."""
+    state = state_for()
+    run_inner_loop(
+        state,
+        deps_for(FakeProvider(answer, tick=45), tools=(tool_spec("get_events"),)),
+        "investigate",
+    )
+    assert state.triage_requirement_results["Q5:vibration"].status == "unsupported"
+    run_inner_loop(state, deps_for(FakeProvider(answer, tick=45)), "investigate")
+    assert state.triage_requirement_results["Q5:vibration"].status == "satisfied"
+
+
+def test_partial_evidence_then_capability_loss_keeps_the_evidence():
+    """Losing permission to read more never invalidates what was admitted."""
+    state = state_for()
+
+    def partial(request):
+        data = answer(request)
+        if request.name == "get_sensor_summary":
+            data.update(sample_count=1, first_tick=45, last_tick=45)
+        return data
+
+    run_inner_loop(state, deps_for(FakeProvider(partial, tick=45)), "investigate")
+    collected = state.triage_requirement_results["Q1:trigger"].evidence_ids
+    assert collected
+    run_inner_loop(
+        state,
+        deps_for(FakeProvider(answer, tick=45), tools=(tool_spec("get_events"),)),
+        "investigate",
+    )
+    after = state.triage_requirement_results["Q1:trigger"]
+    assert after.evidence_ids == collected
+    assert after.status == "unsupported"
+    assert "unsupported_tool" in after.reason
 
 
 def test_ranking_is_stable_across_identical_runs():
