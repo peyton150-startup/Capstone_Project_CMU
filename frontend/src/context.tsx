@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import type { Workspace } from './types';
 import { defaultApiBackend } from './backend.mjs';
 import type { ApiBackend } from './backend.mjs';
+import { emptyTokens, readToken, tokenFor as pickToken } from './access.mjs';
+import type { Role, RoleTokens } from './access.mjs';
 
 type UiContextValue = {
   workspace: Workspace;
@@ -13,10 +15,30 @@ type UiContextValue = {
   setTheme: (value: 'dark' | 'light') => void;
   backend: ApiBackend;
   setBackend: (value: ApiBackend) => void;
+  // Read token: any configured role can read, so pages use this one.
   token: string;
-  setToken: (value: string) => void;
+  // Each role's token for the selected backend, and the token one action needs.
+  roleTokens: RoleTokens;
+  setRoleTokens: (value: RoleTokens) => void;
+  tokenFor: (role: Role) => string;
+  // Opt-in: keep this backend's tokens in sessionStorage until the tab closes.
+  remember: boolean;
+  setRemember: (value: boolean) => void;
 };
 const Context = createContext<UiContextValue | null>(null);
+const storageKey = (backend: ApiBackend) => 'capstone-access-' + backend;
+
+function loadTokens(backend: ApiBackend): RoleTokens | null {
+  try {
+    const saved = window.sessionStorage.getItem(storageKey(backend));
+    if (!saved) return null;
+    const value = JSON.parse(saved) as Partial<RoleTokens>;
+    const tokens = emptyTokens();
+    for (const role of Object.keys(tokens) as Role[])
+      if (typeof value[role] === 'string') tokens[role] = value[role] as string;
+    return tokens;
+  } catch { return null; }
+}
 
 export function UiProvider({ children }: { children: ReactNode }) {
   const [workspace, setWorkspace] = useState<Workspace>('simulator');
@@ -29,18 +51,42 @@ export function UiProvider({ children }: { children: ReactNode }) {
       return saved === 'local' || saved === 'render' ? saved : fallback;
     } catch { return fallback; }
   });
-  // Credentials never cross API environments and are never persisted.
-  const [tokens, setTokens] = useState<Record<ApiBackend, string>>({ local: '', render: '' });
-  const token = tokens[backend];
-  const setToken = useCallback((value: string) =>
+  // Credentials never cross API environments. They stay in memory unless the
+  // user ticks "remember in this tab", which uses sessionStorage only.
+  const [tokens, setTokens] = useState<Record<ApiBackend, RoleTokens>>(() => ({
+    local: loadTokens('local') || emptyTokens(),
+    render: loadTokens('render') || emptyTokens(),
+  }));
+  const [remembered, setRemembered] = useState<Record<ApiBackend, boolean>>(() => ({
+    local: loadTokens('local') !== null,
+    render: loadTokens('render') !== null,
+  }));
+  const roleTokens = tokens[backend];
+  const token = readToken(roleTokens);
+  const remember = remembered[backend];
+  const setRoleTokens = useCallback((value: RoleTokens) =>
     setTokens(previous => ({ ...previous, [backend]: value })), [backend]);
+  const setRemember = useCallback((value: boolean) =>
+    setRemembered(previous => ({ ...previous, [backend]: value })), [backend]);
+  const tokenFor = useCallback((role: Role) => pickToken(roleTokens, role), [roleTokens]);
+  useEffect(() => {
+    try {
+      for (const name of ['local', 'render'] as ApiBackend[]) {
+        if (remembered[name]) window.sessionStorage.setItem(storageKey(name), JSON.stringify(tokens[name]));
+        else window.sessionStorage.removeItem(storageKey(name));
+      }
+    } catch { /* optional storage */ }
+  }, [tokens, remembered]);
   useEffect(() => {
     try { window.sessionStorage.setItem('capstone-api-backend', backend); } catch { /* optional storage */ }
   }, [backend]);
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   const value = useMemo(
-    () => ({ workspace, setWorkspace, preview, setPreview, theme, setTheme, backend, setBackend, token, setToken }),
-    [workspace, preview, theme, backend, token, setToken],
+    () => ({
+      workspace, setWorkspace, preview, setPreview, theme, setTheme, backend, setBackend,
+      token, roleTokens, setRoleTokens, tokenFor, remember, setRemember,
+    }),
+    [workspace, preview, theme, backend, token, roleTokens, setRoleTokens, tokenFor, remember, setRemember],
   );
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

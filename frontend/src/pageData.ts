@@ -25,9 +25,9 @@ export function useRecording() {
   return { snapshot: preview ? demoRecorder : resource.data, error: resource.error, loading: resource.loading && !preview };
 }
 export function useEvaluations() {
-  const { workspace, preview, token } = useUi();
+  const { workspace, preview, tokenFor } = useUi();
   const resource = useResource<ListResponse<Evaluation>>(
-    '/api/v1/evaluations?workspace=' + workspace, token, preview || workspace === 'pilot');
+    '/api/v1/evaluations?workspace=' + workspace, tokenFor('evaluator'), preview || workspace === 'pilot');
   return { items: preview ? demoEvaluations : workspace === 'pilot' ? [] : resource.data?.items || [],
     availability: preview ? 'synthetic' : workspace === 'pilot' ? 'not_available_in_pilot' :
       resource.data?.availability || 'not_configured',

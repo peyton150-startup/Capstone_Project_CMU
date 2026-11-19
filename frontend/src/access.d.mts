@@ -1,0 +1,12 @@
+export type Role = 'viewer' | 'operator' | 'reviewer' | 'evaluator';
+export type RoleTokens = Record<Role, string>;
+export const ROLES: { role: Role; variable: string; purpose: string }[];
+export const RUNS_VARIABLE: string;
+export function emptyTokens(): RoleTokens;
+export function readToken(tokens: RoleTokens): string;
+export function tokenFor(tokens: RoleTokens, role: Role): string;
+export function countTokens(tokens: RoleTokens): number;
+export function generateTokens(fillRandom?: (bytes: Uint8Array) => Uint8Array): RoleTokens;
+export function envBlock(tokens: RoleTokens): string;
+export const ROLE_DENIED_MESSAGES: string[];
+export function describeCheck(role: Role, roles: Role[] | null): { ok: boolean; text: string };

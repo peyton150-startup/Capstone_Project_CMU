@@ -19,6 +19,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
+from capstone.api.access import roles_for
 from capstone.api.config import UiConfig
 from capstone.api.readers import (
     mtconnect_snapshot,
@@ -44,6 +45,15 @@ from capstone.settings import get_settings
 from capstone.triage_run_controls import resolve_triage_run
 
 Workspace = Literal["simulator", "pilot"]
+
+# Fixed 403 messages, each naming the token the action needs. The browser shows
+# only these exact strings, so no other server detail reaches the page.
+ROLE_DENIED = {
+    "operator": "Starting a run needs the operator token (CAPSTONE_UI_RUN_TOKEN)",
+    "reviewer": "Review decisions need the reviewer token (CAPSTONE_UI_REVIEW_TOKEN)",
+    "evaluator": "Evaluation records need the evaluator token "
+    "(CAPSTONE_UI_EVALUATOR_TOKEN)",
+}
 
 # Deliberate allowlist: nothing from the process environment is serialized by default.
 PUBLIC_SETTING_FIELDS = {
@@ -80,6 +90,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     # Variables:
     #   cfg: Immutable, validated server-side path and authentication authority.
     #   authorize: Bearer-token boundary for configured private data.
+    #   require_role: Operator/reviewer check whose error names the token needed.
     cfg = config if config is not None else UiConfig.from_env()
     runner = None
     if cfg.runs_enabled:
@@ -140,7 +151,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             for key in (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token)
             if key
         ):
-            raise HTTPException(status_code=401, detail="Local session token required")
+            raise HTTPException(status_code=401, detail="Session token required")
 
     Access = Depends(authorize)
 
@@ -151,10 +162,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=403, detail="Managed simulator execution is not configured"
             )
+        # Variables:
+        #   expected: The one token this action accepts; the viewer token and
+        #     the other role's token are refused.
         provided = (authorization or "").removeprefix("Bearer ")
         expected = cfg.run_token if role == "operator" else cfg.review_token
         if not expected or not hmac.compare_digest(provided, expected):
-            raise HTTPException(status_code=403, detail="Simulator role not authorized")
+            raise HTTPException(status_code=403, detail=ROLE_DENIED[role])
 
     def ensure_run(run_id: str) -> dict:
         if runner is None or not re.fullmatch(r"[a-f0-9-]{36}", run_id):
@@ -170,6 +184,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "status": "api_available",
             "service": "industrial-console",
             "controller_connected": None,
+        }
+
+    @app.get("/api/v1/access/whoami")
+    def whoami(authorization: Annotated[str | None, Header()] = None) -> dict:
+        """Name the roles the supplied token holds, never the tokens themselves."""
+        # Variables:
+        #   open: True when no viewer token is configured, so reads need none.
+        #   roles: Every role whose configured token equals the supplied one.
+        supplied = (authorization or "").removeprefix("Bearer ")
+        return {
+            "open": cfg.token is None,
+            "roles": roles_for(supplied, cfg),
+            "runs_enabled": runner is not None,
         }
 
     @app.get("/api/v1/ready")
@@ -357,7 +384,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             if not cfg.evaluator_token or not hmac.compare_digest(
                 provided, cfg.evaluator_token
             ):
-                raise HTTPException(status_code=403, detail="Evaluator role required")
+                raise HTTPException(status_code=403, detail=ROLE_DENIED["evaluator"])
 
     @app.get("/api/v1/evaluations", dependencies=[Access])
     def evaluations(
