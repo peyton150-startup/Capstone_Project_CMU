@@ -215,6 +215,8 @@ GROUPS: dict[str, list[str]] = {
         "haas_real_detector",
         "haas_event_replay",
         "haas_mtconnect_events",
+        "haas_acceptance",
+        "haas_trace_context",
     ],
 }
 

@@ -79,6 +79,9 @@ class EventLogger:
         #   counts: Optional named tallies (for example how many calls failed); each
         #     key is checked as an identifier and each value as a nonnegative integer,
         #     so no evidence text can be logged through it.
+        #   capture_session_id, incident_id: Optional Haas trace keys tying a line
+        #     to one recording session or one investigated incident; checked as
+        #     identifiers like run_id, so no address or machine text gets in.
         metadata: dict[str, str | int | bool | dict[str, int]] = {
             "event": _safe_identifier(event, "event")
         }

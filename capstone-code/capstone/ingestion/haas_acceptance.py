@@ -72,6 +72,13 @@ def assess_haas_field_readiness(
     evidence: HaasAcceptanceEvidence,
 ) -> HaasAcceptanceReport:
     """Do not report field readiness until every required gate is supported."""
+    # Variables:
+    #   evidence: The self-reported checklist; a gate counts only when it is
+    #     exactly True.
+    #   missing: Every offline and field gate not yet supported, in order, so
+    #     the report says what to do next.
+    #   status: field_qualified only with nothing missing; offline_qualified
+    #     when every offline gate passed but a field gate did not; else blocked.
     missing = tuple(
         name
         for name in (*_OFFLINE_GATES, *_FIELD_GATES)
