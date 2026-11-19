@@ -63359,10 +63359,315 @@
    ]
   },
   {
+   "id": "tests/test_hosted_worker.py::test_failure_classification_reads_type_and_step_never_message",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_failure_classification_reads_type_and_step_never_message",
+   "line": 689,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "error",
+    "step",
+    "code"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "failure classification reads type and step never message",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.worker.runner:classify_failure"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_failed_run_stores_its_failure_code_without_the_message",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_failed_run_stores_its_failure_code_without_the_message",
+   "line": 705,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "failed run stores its failure code without the message",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:classify_failure",
+    "capstone.worker.runner:execute_claim",
+    "capstone.worker.runner:execute_claim.<locals>.finish_model_monitor",
+    "capstone.worker.runner:execute_claim.<locals>.flush_model_calls",
+    "capstone.worker.runner:execute_claim.<locals>.heartbeat",
+    "capstone.worker.runner:execute_claim.<locals>.write_updates",
+    "capstone.worker.runner:record"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_model_setup_failure_is_named_model_setup",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_model_setup_failure_is_named_model_setup",
+   "line": 721,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "model setup failure is named model setup",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:classify_failure",
+    "capstone.worker.runner:execute_claim",
+    "capstone.worker.runner:execute_claim.<locals>.emit_model",
+    "capstone.worker.runner:execute_claim.<locals>.finish_model_monitor",
+    "capstone.worker.runner:execute_claim.<locals>.flush_model_calls",
+    "capstone.worker.runner:execute_claim.<locals>.heartbeat",
+    "capstone.worker.runner:execute_claim.<locals>.write_updates",
+    "capstone.worker.runner:record"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_failed_terminal_write_leaves_a_fixed_log_event",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_failed_terminal_write_leaves_a_fixed_log_event",
+   "line": 737,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "caplog",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 2,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "failed terminal write leaves a fixed log event",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.worker.runner:classify_failure",
+    "capstone.worker.runner:execute_claim",
+    "capstone.worker.runner:execute_claim.<locals>.finish_model_monitor",
+    "capstone.worker.runner:execute_claim.<locals>.flush_model_calls",
+    "capstone.worker.runner:execute_claim.<locals>.heartbeat",
+    "capstone.worker.runner:execute_claim.<locals>.write_updates",
+    "capstone.worker.runner:record"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_worker_problems_reach_the_heartbeat_not_a_run",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_worker_problems_reach_the_heartbeat_not_a_run",
+   "line": 763,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "membership": 1,
+    "negation": 1,
+    "ordering": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "worker problems reach the heartbeat not a run",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker",
+    "capstone.worker.runner:serve_worker.<locals>.note",
+    "capstone.worker.runner:serve_worker.<locals>.pulse"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_worker_problem_and_interrupt_fields_are_validated_before_storage",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_worker_problem_and_interrupt_fields_are_validated_before_storage",
+   "line": 806,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "worker problem and interrupt fields are validated before storage",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunRepository.__init__",
+    "capstone.api.run_repository:RunRepository._append",
+    "capstone.api.run_repository:RunRepository.close",
+    "capstone.api.run_repository:RunRepository.worker_heartbeat"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_operational_projection_adds_only_bounded_safe_fields",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_operational_projection_adds_only_bounded_safe_fields",
+   "line": 841,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "operational projection adds only bounded safe fields",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.readers:project_operational_event"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.readers"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
    "file": "tests/test_hosted_worker.py",
    "name": "test_malformed_triage_setting_is_the_same_named_server_fault",
-   "line": 636,
+   "line": 879,
    "docstring": "Settings() validation (a bad TRIAGE_* value) also stops the worker readably.",
    "parametrized": false,
    "fixtures": [
@@ -100047,6 +100352,114 @@
     "exercises_no_project_function"
    ],
    "claims": "#304: model attempts remain in the authorized, revalidated endpoint.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_expiry_records_reason_and_how_long_the_worker_was_silent",
+   "file": "tests/test_run_repository.py",
+   "name": "test_expiry_records_reason_and_how_long_the_worker_was_silent",
+   "line": 730,
+   "docstring": "A fenced-out worker cannot write, so recovery stores why the run stopped.",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 12,
+   "assert_forms": {
+    "equality": 6,
+    "is_none": 1,
+    "is_not_none": 2,
+    "ordering": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "A fenced-out worker cannot write, so recovery stores why the run stopped.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_hosted_failure_journal_keeps_the_failure_code",
+   "file": "tests/test_run_repository.py",
+   "name": "test_hosted_failure_journal_keeps_the_failure_code",
+   "line": 767,
+   "docstring": "The stored run.failed event names the failure without its message.",
+   "parametrized": false,
+   "fixtures": [
+    "repository",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 4,
+    "is_not_none": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "The stored run.failed event names the failure without its message.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
+   "file": "tests/test_run_repository.py",
+   "name": "test_worker_problem_is_kept_on_its_heartbeat_and_shown_as_codes",
+   "line": 796,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1,
+    "membership": 2,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "worker problem is kept on its heartbeat and shown as codes",
    "execution_outcome": "skipped",
    "exercises": [],
    "exercise_count": 0,
@@ -147751,6 +148164,7 @@
     "capstone.api.app:create_app.<locals>.require_role",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.readers:project_operational_event",
     "capstone.api.readers:recent_lines",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
@@ -147773,7 +148187,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 28,
+   "exercise_count": 29,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
