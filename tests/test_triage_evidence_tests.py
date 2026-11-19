@@ -464,3 +464,60 @@ def test_runs_without_a_kept_setting_have_no_line(monkeypatch):
     )
     assert format_evidence_tests([older]) is None
     assert format_evidence_tests([]) is None
+
+
+# --- the saved record ---------------------------------------------------------
+
+
+@pytest.mark.parametrize("server, requested", [("on", False), ("off", True)])
+def test_the_record_keeps_the_runs_own_evidence_test_setting(
+    monkeypatch, server, requested
+):
+    """A run's own triage settings, not the server's, reach the saved record."""
+    from capstone.episode import run_episode
+    from capstone.experiment import triage_record
+    from capstone.settings import Settings
+    from capstone.triage_run_controls import TriageRunOptions, resolve_triage_run
+    from tests.test_episode import SEED
+    from tests.test_triage import triage_then_deep
+
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("TRIAGE", "on")
+    monkeypatch.setenv("TRIAGE_THEN_DEEP", "on")
+    # Deterministic hypotheses need the evidence tests, so use model ones.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
+    monkeypatch.setenv("TRIAGE_EVIDENCE_TESTS", server)
+    configuration = resolve_triage_run(
+        Settings(_env_file=None), TriageRunOptions(evidence_tests=requested)
+    )
+    result = run_episode(
+        SEED,
+        triage_then_deep("intervene"),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        triage_configuration=configuration,
+    )
+    assert result.triage_evidence_tests is requested
+    assert triage_record(result).evidence_tests is requested
+
+
+def test_without_run_settings_the_record_keeps_the_servers(monkeypatch):
+    from capstone.episode import run_episode
+    from capstone.experiment import triage_record
+    from tests.test_episode import SEED
+    from tests.test_triage import triage_then_deep
+
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("TRIAGE", "on")
+    monkeypatch.setenv("TRIAGE_THEN_DEEP", "on")
+    # Deterministic hypotheses need the evidence tests, so use model ones.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
+    monkeypatch.setenv("TRIAGE_EVIDENCE_TESTS", "off")
+    result = run_episode(
+        SEED,
+        triage_then_deep("intervene"),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+    )
+    assert result.triage_evidence_tests is False
+    assert triage_record(result).evidence_tests is False

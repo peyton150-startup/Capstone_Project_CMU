@@ -482,7 +482,19 @@ input:focus,select:focus{border-color:var(--accent)}
 .dialog h2{font-size:23px;margin:23px 0 10px}
 .dialog p{font-size:12px;color:var(--text-muted);line-height:1.8}
 .dialog .field-label{margin-top:26px}
-.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:25px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:25px;flex-wrap:wrap}
+.dialog-wide{max-width:560px;max-height:calc(100vh - 40px);overflow-y:auto}
+.access-row .field-label{margin-top:18px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.access-row code,.dialog code{font:500 11px 'IBM Plex Mono',monospace;color:var(--text-dim)}
+.access-row .field-label code{margin-left:auto}
+.access-row input{width:100%}
+.access-remember{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:12px;color:var(--text-muted);cursor:pointer}
+.access-remember input{width:16px;height:16px;padding:0;margin:0;flex:none;accent-color:var(--accent)}
+.access-row small{display:block;margin-top:6px;font-size:12px}
+.access-role{color:var(--accent);font:600 11px 'IBM Plex Mono',monospace;text-transform:uppercase}
+.access-heading{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 6px}
+.access-env{width:100%;margin-top:10px;font:12px 'IBM Plex Mono',monospace;resize:vertical;
+  background:var(--surface-soft);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
 .not-found{display:flex;flex-direction:column;align-items:center;gap:20px;padding:100px 10px}
 .not-found>svg{color:var(--accent)}.not-found h1{font-size:26px}
 .not-found p{font-size:13px;color:var(--text-muted)}
