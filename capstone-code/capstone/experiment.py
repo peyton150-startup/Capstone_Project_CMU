@@ -44,6 +44,7 @@ is for the experimenter: never give it to an agent, a prompt or memory.
 """
 
 import argparse
+import json
 import sys
 from collections import Counter
 from collections.abc import Callable, Iterable, Sequence
@@ -111,6 +112,7 @@ from capstone.providers.manual import MANUAL_TOOL, ManualSearch
 from capstone.providers.recall import RECALL_TOOL
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
+from capstone.triage_diagnostics import failure_summary, timing_lines
 
 
 @dataclass(frozen=True)
@@ -1691,6 +1693,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   packet_log, packet_logger: With --packet-log, the open trace file and the
     #     JSON-line logger writing to it; each triage's evidence packet logs its
     #     calls, missing items and counts there. None without the flag.
+    #   args.failure_log: --failure-log, where each unfinished triage's
+    #     replayable summary (`failure_summary`) is appended; None without it.
     #   args.trace: --trace, passed to the live view so it prints every triage
     #     trace event; ignored with --quiet.
     #   triage_on: Whether this run triages; if so, every model is checked
@@ -1779,6 +1783,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             "on: judge_verification and write_lesson get their own views; "
             "off: every question sees the shared view. Overrides STAGE_CONTEXT in "
             ".env for this run. Left out, the .env value is used (off if unset)."
+        ),
+    )
+    run.add_argument(
+        "--failure-log",
+        type=Path,
+        default=None,
+        help=(
+            "append one JSON line per triage that did not finish with "
+            "sufficient evidence: seed, scenario, profile, cutoff and the "
+            "stop, requirement and read reason codes, for replaying it"
         ),
     )
     run.add_argument(
@@ -1877,10 +1891,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             print_progress(line)
 
         def save_record(record: ExperimentRecord) -> None:
+            # Variables:
+            #   record: One finished case, saved before anything is printed.
+            #   summary: The replayable failure summary, or None when the
+            #     triage finished with sufficient evidence (or did not run).
             append_records(args.out, [record])
             print(f"{record.scenario_id}: {record.conclusion!r}", flush=True)
             for line in format_call_failures(record):
                 print(line, flush=True)
+            summary = failure_summary(record, args.name)
+            if not args.quiet:
+                for line in timing_lines(record):
+                    live_line(line)
+                if summary is not None:
+                    live_line("REPLAY: " + json.dumps(summary, sort_keys=True))
+            if summary is not None and args.failure_log is not None:
+                with args.failure_log.open("a", encoding="utf-8") as handle:
+                    handle.write(json.dumps(summary, sort_keys=True) + "\n")
 
         wanted = None if args.stage_context is None else args.stage_context == "on"
         from capstone.settings import get_settings

@@ -182,6 +182,126 @@ def trace_event_line(event: TriageTraceEvent) -> str:
     return "; ".join(parts)
 
 
+VALIDATION_EVENTS = ("triage.evidence_accepted", "triage.evidence_rejected")
+
+
+def read_chains(events: Sequence[TriageTraceEvent]) -> list[dict]:
+    """Each deterministic read, joined across its events by request hash.
+
+    One read is selected, validated, completed and then reconciled into the
+    requirement ledger. Those are separate trace events; this joins them by
+    `request_hash` (selection to completion) and by position (the requirement
+    evaluations recorded after the read and before the next selection), so a
+    failed read shows the exact step where it failed.
+    """
+    # Variables:
+    #   chains: One entry per selected read, in the order selected.
+    #   current: The read whose events are being collected; requirement
+    #     evaluations after it belong to it until the next read is selected.
+    #   by_hash_attempt: Finds a read's entry from a later event with the same
+    #     request hash and attempt.
+    chains: list[dict] = []
+    by_hash_attempt: dict[tuple[str, int | None], dict] = {}
+    current: dict | None = None
+    for event in events:
+        if event.event == "decide.selected" and event.request_hash:
+            current = {
+                "sequence": event.sequence,
+                "phase": event.phase,
+                "tool": event.tool,
+                "request_hash": event.request_hash,
+                "attempt": event.attempt,
+                "requirement_ids": event.requirement_ids,
+                "validation": None,
+                "failure": None,
+                "completed": None,
+                "duration_ms": None,
+                "evidence_ids": (),
+                "reconciled": [],
+            }
+            chains.append(current)
+            by_hash_attempt[(event.request_hash, event.attempt)] = current
+            continue
+        chain = (
+            by_hash_attempt.get((event.request_hash, event.attempt))
+            if event.request_hash
+            else None
+        )
+        if chain is not None:
+            if event.event in VALIDATION_EVENTS:
+                chain["validation"] = event.reason_code
+            elif event.event == "triage.read_failed":
+                chain["failure"] = event.reason_code
+            elif event.event == "tool.completed":
+                chain["completed"] = event.status or event.reason_code
+                chain["duration_ms"] = event.duration_ms
+                chain["evidence_ids"] = event.evidence_ids
+            continue
+        if event.event == "triage.requirement_evaluated" and current is not None:
+            touched = set(event.requirement_ids) & set(current["requirement_ids"])
+            shared = set(event.evidence_ids) & set(current["evidence_ids"])
+            if touched or shared:
+                for rid in event.requirement_ids:
+                    current["reconciled"].append(f"{rid} {event.status}")
+    return chains
+
+
+def read_ok(chain: dict) -> bool:
+    """Whether a read was accepted and completed without a failure."""
+    return chain["failure"] is None and chain["validation"] in (None, "accepted")
+
+
+def read_lines(events: Sequence[TriageTraceEvent], *, every: bool) -> list[str]:
+    """One line per read, joined by request hash; only failed ones unless `every`."""
+    # Variables:
+    #   chains: The reads, from `read_chains`.
+    #   steps: What happened to one read, in order: validation or failure,
+    #     completion and time, then the requirement results it changed.
+    lines = []
+    for chain in read_chains(events):
+        if not every and read_ok(chain):
+            continue
+        steps = [f"READ {chain['request_hash']} {chain['phase']} {chain['tool']}"]
+        if chain["attempt"] and chain["attempt"] > 1:
+            steps[0] += f" attempt {chain['attempt']}"
+        steps[0] += f" [{', '.join(chain['requirement_ids'])}]"
+        if chain["failure"]:
+            steps.append(f"failed {chain['failure']}")
+        if chain["validation"]:
+            steps.append(f"validation {chain['validation']}")
+        if chain["completed"]:
+            took = (
+                ""
+                if chain["duration_ms"] is None
+                else f" ({chain['duration_ms']:.0f} ms)"
+            )
+            steps.append(f"completed {chain['completed']}{took}")
+        else:
+            steps.append("no completion recorded")
+        if chain["reconciled"]:
+            steps.append("ledger " + ", ".join(chain["reconciled"]))
+        lines.append("  " + " -> ".join(steps))
+    if lines:
+        lines.insert(0, "READS:" if every else "FAILED READS:")
+    return lines
+
+
+def conversion_line(event: TriageTraceEvent) -> str:
+    """A `triage.completion_converted` event: a completion claim was refused."""
+    # Variables:
+    #   event: The conversion; its requirement and question ids are what was
+    #     still unresolved when the controller tried to claim completion.
+    parts = [
+        f"COMPLETION CONVERTED ({event.phase}): requirements_complete -> "
+        f"{event.reason_code}"
+    ]
+    if event.requirement_ids:
+        parts.append(f"unresolved {', '.join(event.requirement_ids)}")
+    if event.question_ids:
+        parts.append(f"open questions {', '.join(event.question_ids)}")
+    return "; ".join(parts)
+
+
 def requirement_ledger_lines(state: InvestigationState) -> list[str]:
     """The end-of-triage requirement ledger: every requirement and its status.
 
@@ -256,7 +376,8 @@ def print_progress(line: str) -> None:
     ):
         color = "93"
     elif re.match(
-        r"^(RUN|CONCLUSION|PROPOSAL|CHECK|CRITIC|FOLLOW-UP|REQUIREMENTS|  why:|  confidence "
+        r"^(RUN|CONCLUSION|PROPOSAL|CHECK|CRITIC|FOLLOW-UP|REQUIREMENTS|READS|FAILED READS"
+        r"|COMPLETION CONVERTED|TIMING|REPLAY|  why:|  confidence "
         r"|  tried for |  assessment:|  calls:)",
         line,
     ):
@@ -377,7 +498,10 @@ class ProgressView:
         #     event (`trace_event_line`) as it is recorded.
         #   trace_shown: How many trace events were printed, so each is shown once.
         #   ledger_shown: Whether the requirement ledger has been printed; it is
-        #     printed once, with the triage report.
+        #     printed once, with the triage report, followed by the reads (all
+        #     of them with trace, else only the failed ones).
+        #   events_seen: How many trace events were checked for a completion
+        #     conversion, which is printed even without trace.
         #   started: Whether the opening line has been printed.
         #   decisions_shown: How many steps have been printed, so only new ones are.
         #   beliefs: The leading beliefs last printed.
@@ -413,6 +537,7 @@ class ProgressView:
         self.trace = trace
         self.trace_shown = 0
         self.ledger_shown = False
+        self.events_seen = 0
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -449,6 +574,10 @@ class ProgressView:
             for event in state.triage_trace_events[self.trace_shown :]:
                 self.write(trace_event_line(event))
             self.trace_shown = len(state.triage_trace_events)
+        for event in state.triage_trace_events[self.events_seen :]:
+            if event.event == "triage.completion_converted":
+                self.write(conversion_line(event))
+        self.events_seen = len(state.triage_trace_events)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)
@@ -470,6 +599,8 @@ class ProgressView:
             if not self.ledger_shown:
                 self.ledger_shown = True
                 for line in requirement_ledger_lines(state):
+                    self.write(line)
+                for line in read_lines(state.triage_trace_events, every=self.trace):
                     self.write(line)
         proposal = state.proposed_action
         if proposal is not None and proposal != self.proposal:
