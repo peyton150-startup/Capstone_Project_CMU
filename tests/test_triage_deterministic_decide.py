@@ -9,6 +9,12 @@ from capstone.agent.artifacts import DetectedAnomaly, TerminationReason
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.loop import InvestigationDeps, run_inner_loop
 from capstone.agent.state import Question
+from capstone.agent.triage_decide import (
+    evaluate_triage_requirements,
+    stop,
+    unresolved_required,
+)
+from capstone.agent.triage_decide_contracts import TriageStopDecision
 from capstone.agent.triage_plan import fixed_plan, fixed_predicates
 from capstone.contracts.tools import ToolError, ToolResult
 from capstone.providers.factory import tool_spec
@@ -87,8 +93,14 @@ def answer(request):
     return []
 
 
-def deps_for(provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS):
+def deps_for(
+    provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS, hypothesize="model"
+):
     """Give the controller an explicit read-only catalog and a tripwire policy."""
+    # Variables:
+    #   hypothesize: TRIAGE_HYPOTHESIZE. The Investigate/Test phase filtering in
+    #     choose_next_triage_read only runs when it is "deterministic", so a
+    #     test of that path must set it, not rely on the "model" default.
     return InvestigationDeps(
         provider=provider,
         policy=NoDecideModel(),
@@ -97,6 +109,7 @@ def deps_for(provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS):
         triage_allowed_sources=("fake",),
         triage_tool_specs=tools,
         triage_channels=channels,
+        triage_hypothesize=hypothesize,
         step_questions=step_questions,
     )
 
@@ -382,6 +395,364 @@ def test_unavailable_sensor_is_never_sent_to_replay_provider():
     run_inner_loop(state, deps, "investigate")
     assert provider.calls == []
     assert state.triage_decide_trace[-1].reason == "capability_unavailable"
+    # The unsupported requirements stay in the plan and record, marked
+    # unavailable, so the final conclusion can say what could not be checked.
+    assert state.triage_requirements
+    marked = {
+        rid: result
+        for rid, result in state.triage_requirement_results.items()
+        if result.status in ("unavailable", "unsupported")
+    }
+    assert marked
+    assert all("not authorized" in result.reason for result in marked.values())
+    assert state.triage_decide_trace[-1].requirement_ids
+
+
+def test_capability_unavailable_is_not_completion():
+    """No eligible read stops collection, but never counts as evidence sufficient."""
+    state = state_for()
+    # A real catalog that lacks the plan's reads: authorized tools exist, but
+    # none can serve these requirements.
+    deps = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    reason = run_inner_loop(state, deps, "investigate")
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    stop = state.triage_decide_trace[-1]
+    assert stop.kind == "stop"
+    assert stop.reason == "capability_unavailable"
+    # Nothing was removed from the plan to make the investigation look done.
+    assert state.unanswered_questions
+    assert all(
+        state.triage_requirement_results[rid].status != "satisfied"
+        for rid in stop.requirement_ids
+    )
+
+
+def test_investigate_ranking_prefers_shared_coverage_over_a_single_source():
+    """With several unmet reads, the one settling most requirements comes first.
+
+    In Investigate no candidates exist yet, so this proves shared coverage and
+    direct-measurement preference -- not hypothesis discrimination.
+    """
+    state = state_for()
+    provider = FakeProvider(answer, tick=45)
+    run_inner_loop(state, deps_for(provider), "investigate")
+    # The vibration window answers both Q1:trigger and Q5:vibration at once,
+    # so it must be the first read, not whatever the dict happened to hold.
+    first = provider.calls[0]
+    assert first.name == "get_sensor_summary"
+    assert first.arguments["sensor"] == "vibration"
+    assert state.triage_decide_trace[0].reason.endswith("(read-ranking-v1)")
+
+
+def test_unavailable_status_survives_reconciliation_cycles():
+    """A capability verdict is not overwritten by a later reconcile pass."""
+    state = state_for()
+    deps = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    run_inner_loop(state, deps, "investigate")
+    first = {
+        rid: result.status
+        for rid, result in state.triage_requirement_results.items()
+        if result.status in ("unavailable", "unsupported")
+    }
+    assert first
+    # A second pass reconciles every requirement again from scratch; the
+    # capability verdicts must still be there, with their reasons.
+    run_inner_loop(state, deps, "investigate")
+    for rid, status in first.items():
+        result = state.triage_requirement_results[rid]
+        assert result.status == status
+        assert "not authorized" in result.reason
+
+
+def test_requirements_complete_needs_satisfied_requirements_not_just_no_questions():
+    """An empty question list with unresolved required evidence is not completion."""
+    state = state_for()
+    deps = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    # Run once so the controller records its verdicts, then close every
+    # question by hand: only the requirement results remain.
+    run_inner_loop(state, deps, "investigate")
+    state.unanswered_questions = []
+    reason = run_inner_loop(state, deps, "investigate")
+    # It may keep collecting while a read is still eligible, but it must
+    # never report sufficiency.
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    last = state.triage_decide_trace[-1]
+    assert last.kind == "stop"
+    assert last.requirement_ids
+    assert any(
+        result.status in ("unavailable", "unsupported")
+        for result in state.triage_requirement_results.values()
+    )
+
+
+def test_test_phase_collects_q5_evidence_and_completion_requires_more():
+    """Test collects Q5's reads, but completion is not established by them.
+
+    Aggregate summaries satisfy each sensor requirement independently, yet Q5
+    stays unresolved (they cannot prove time-aligned co-movement) and Q4's
+    historical setting change remains unprovable, so a clean EVIDENCE_SUFFICIENT
+    is not reachable here and this test does not claim it.
+    """
+    state = state_for(max_tool_calls=14)
+    deps = deps_for(FakeProvider(answer, tick=45))
+    # Q5's three sensor reads are collected in Test; a setting change can
+    # never be proven from a snapshot, so it cannot be part of a clean run.
+    state.unanswered_questions = [q for q in state.unanswered_questions if q.id == "Q5"]
+    run_inner_loop(state, deps, "test")
+    satisfied = {
+        rid
+        for rid, result in state.triage_requirement_results.items()
+        if result.status == "satisfied"
+    }
+    assert {"Q5:vibration", "Q5:temperature", "Q5:load"} <= satisfied
+    # Every requirement still outstanding is genuinely unsatisfiable here.
+    outstanding = unresolved_required(state)
+    assert "Q1:trigger" not in outstanding
+    state.unanswered_questions = []
+    reason = run_inner_loop(state, deps, "test")
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT or not outstanding
+
+
+def test_capability_becoming_available_unmarks_unavailable():
+    """A stale 'unavailable' is recomputed from the current catalog."""
+    state = state_for()
+    blocked = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    run_inner_loop(state, blocked, "investigate")
+    marked = {
+        rid: result.status
+        for rid, result in state.triage_requirement_results.items()
+        if result.status in ("unavailable", "unsupported")
+    }
+    assert marked
+    # The same requirement, now authorized: the verdict is recalculated.
+    allowed = deps_for(FakeProvider(answer, tick=45))
+    run_inner_loop(state, allowed, "investigate")
+    for rid in marked:
+        assert state.triage_requirement_results[rid].status not in (
+            "unavailable",
+            "unsupported",
+        )
+
+
+def test_changed_blocking_reason_updates_the_reason():
+    """When what blocks a read changes, the saved reason is not stale."""
+    state = state_for()
+    no_channel = deps_for(FakeProvider(answer, tick=45), channels={})
+    run_inner_loop(state, no_channel, "investigate")
+    reasons = {
+        rid: result.reason
+        for rid, result in state.triage_requirement_results.items()
+        if result.status == "unavailable"
+    }
+    assert reasons and all("channel_unavailable" in r for r in reasons.values())
+    no_tool = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels=CHANNELS,
+    )
+    run_inner_loop(state, no_tool, "investigate")
+    for rid in reasons:
+        result = state.triage_requirement_results[rid]
+        # A missing tool is a different problem from a missing channel, and
+        # its status says so: unsupported, not unavailable.
+        assert result.status == "unsupported"
+        assert "unsupported_tool" in result.reason
+        assert "channel_unavailable" not in result.reason
+
+
+def test_qualified_evidence_survives_a_capability_loss():
+    """A later capability change never invalidates already qualified evidence."""
+    state = state_for()
+    run_inner_loop(state, deps_for(FakeProvider(answer, tick=45)), "investigate")
+    before = {
+        rid: result.evidence_ids
+        for rid, result in state.triage_requirement_results.items()
+        if result.status == "satisfied"
+    }
+    assert before
+    run_inner_loop(
+        state,
+        deps_for(FakeProvider(answer, tick=45), tools=(tool_spec("get_events"),)),
+        "investigate",
+    )
+    for rid, ids in before.items():
+        assert state.triage_requirement_results[rid].status == "satisfied"
+        assert state.triage_requirement_results[rid].evidence_ids == ids
+
+
+def test_repeated_reconciliation_is_idempotent():
+    """Identical inputs reconcile to identical results."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45))
+    run_inner_loop(state, deps, "investigate")
+    first = {rid: r.model_dump() for rid, r in state.triage_requirement_results.items()}
+    run_inner_loop(state, deps, "investigate")
+    second = {
+        rid: r.model_dump() for rid, r in state.triage_requirement_results.items()
+    }
+    assert first == second
+
+
+def test_phase_filter_cannot_report_completion_with_unresolved_required_evidence():
+    """An empty phase-eligible list is not completion while required evidence is unresolved."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    # First pass initialises the fixed plan; then drop Investigate's only
+    # anchor (Q1 sources) and the questions, so the phase-filtered list is
+    # empty while Q3/Q4/Q5 remain unsatisfied.
+    run_inner_loop(state, deps, "investigate")
+    state.triage_requirements.pop("Q1:trigger")
+    state.unanswered_questions = []
+    reason = run_inner_loop(state, deps, "investigate")
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    assert state.triage_decide_trace[-1].reason != "requirements_complete"
+    assert unresolved_required(state)
+
+
+def test_stop_converts_an_inconsistent_completion_decision():
+    """The stop boundary never maps invalid completion to EVIDENCE_SUFFICIENT."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    run_inner_loop(state, deps, "investigate")
+    outstanding = unresolved_required(state)
+    assert outstanding
+    # Supply exactly the invalid decision the selector must never produce.
+    reason = stop(
+        state, "investigate", TriageStopDecision(reason="requirements_complete"), deps
+    )
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    last = state.triage_decide_trace[-1]
+    assert last.kind == "stop"
+    assert last.reason == "data_insufficient"
+    assert set(outstanding) <= set(last.requirement_ids)
+    # The event and the loop record agree with the converted stop.
+    assert state.triage_trace_events[-1].reason_code == "data_insufficient"
+    assert state.decisions[-1].termination_reason is TerminationReason.NO_USEFUL_ACTION
+
+
+def test_bookkeeping_anomalies_are_current_not_historical():
+    """A resolved inconsistency disappears; unchanged state stays idempotent."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    # The default provider answers records with an empty list, so Q3's
+    # requirements stay insufficient. Recording Q3 as answered AND closed is
+    # then a genuine inconsistency. A defensive corruption test -- the
+    # lifecycle cannot produce this (job paths expand before closure, reads
+    # are deduplicated).
+    run_inner_loop(state, deps, "investigate")
+    state.answers["Q3"] = ["E1"]
+    state.unanswered_questions = [q for q in state.unanswered_questions if q.id != "Q3"]
+    evaluate_triage_requirements(state, deps)
+    first = list(state.triage_bookkeeping_anomalies)
+    assert first and any(a.startswith("Q3:") for a in first)
+    # Repeated reconciliation of unchanged inputs: no duplicates.
+    evaluate_triage_requirements(state, deps)
+    assert state.triage_bookkeeping_anomalies == first
+    # Resolving the inconsistency clears the diagnostic: it is current state,
+    # not a permanent history that could block completion forever.
+    state.answers.pop("Q3")
+    evaluate_triage_requirements(state, deps)
+    assert not any(a.startswith("Q3:") for a in state.triage_bookkeeping_anomalies)
+
+
+def test_an_open_question_with_evidence_is_not_a_bookkeeping_anomaly():
+    """`answers` is an evidence map: evidence for an open question is normal."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    run_inner_loop(state, deps, "investigate")
+    # Q3 stays open (its record reads are insufficient) while gather()
+    # recorded evidence for it -- exactly what question_held_open() allows.
+    state.answers["Q3"] = ["E1"]
+    assert any(q.id == "Q3" for q in state.unanswered_questions)
+    evaluate_triage_requirements(state, deps)
+    assert not any(a.startswith("Q3:") for a in state.triage_bookkeeping_anomalies)
+
+
+def test_completion_conversion_is_recorded_once_and_consistently():
+    """An invalid completion emits one converted event before the final stop."""
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45), hypothesize="deterministic")
+    run_inner_loop(state, deps, "investigate")
+    before = len(state.triage_trace_events)
+    reason = stop(
+        state, "investigate", TriageStopDecision(reason="requirements_complete"), deps
+    )
+    new = state.triage_trace_events[before:]
+    names = [e.event for e in new]
+    assert names.count("triage.completion_converted") == 1
+    assert names[-1] == "triage.stopped"
+    assert names.index("triage.completion_converted") < names.index("triage.stopped")
+    # Sequence numbers stay monotonic across the appends.
+    sequences = [e.sequence for e in state.triage_trace_events]
+    assert sequences == sorted(sequences)
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert state.decisions[-1].information_needed == "data_insufficient"
+    assert state.decisions[-1].termination_reason is TerminationReason.NO_USEFUL_ACTION
+
+
+def test_capability_transition_unsupported_to_available():
+    """A tool that was missing can become authorized without losing evidence."""
+    state = state_for()
+    run_inner_loop(
+        state,
+        deps_for(FakeProvider(answer, tick=45), tools=(tool_spec("get_events"),)),
+        "investigate",
+    )
+    assert state.triage_requirement_results["Q5:vibration"].status == "unsupported"
+    run_inner_loop(state, deps_for(FakeProvider(answer, tick=45)), "investigate")
+    assert state.triage_requirement_results["Q5:vibration"].status == "satisfied"
+
+
+def test_partial_evidence_then_capability_loss_keeps_the_evidence():
+    """Losing permission to read more never invalidates what was admitted."""
+    state = state_for()
+
+    def partial(request):
+        data = answer(request)
+        if request.name == "get_sensor_summary":
+            data.update(sample_count=1, first_tick=45, last_tick=45)
+        return data
+
+    run_inner_loop(state, deps_for(FakeProvider(partial, tick=45)), "investigate")
+    collected = state.triage_requirement_results["Q1:trigger"].evidence_ids
+    assert collected
+    run_inner_loop(
+        state,
+        deps_for(FakeProvider(answer, tick=45), tools=(tool_spec("get_events"),)),
+        "investigate",
+    )
+    after = state.triage_requirement_results["Q1:trigger"]
+    assert after.evidence_ids == collected
+    assert after.status == "unsupported"
+    assert "unsupported_tool" in after.reason
+
+
+def test_ranking_is_stable_across_identical_runs():
+    def order():
+        state = state_for()
+        provider = FakeProvider(answer, tick=45)
+        run_inner_loop(state, deps_for(provider), "investigate")
+        return [(r.name, sorted(r.arguments.items())) for r in provider.calls]
+
+    assert order() == order()
 
 
 def test_future_response_is_quarantined_without_moving_the_cutoff():
