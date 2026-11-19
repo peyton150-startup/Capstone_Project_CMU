@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
   Activity, Archive, ArrowRight, Bell, BookOpen, Boxes, BrainCircuit, ChartNoAxesCombined,
@@ -58,15 +58,18 @@ function Sidebar({ expanded, setExpanded, mobileOpen, closeMobile }: {
 }) {
   const { workspace, setWorkspace, preview } = useUi();
   const groups = ['Workspace', 'Equipment', 'Research', 'Engineering'];
+  // Variables:
+  //   showLabels: Mobile navigation always exposes labels even when desktop navigation is collapsed.
+  const showLabels = expanded || mobileOpen;
   return <>
     {mobileOpen && <button className="mobile-backdrop" aria-label="Close navigation" onClick={closeMobile} />}
-    <aside className={'sidebar ' + (!expanded ? 'sidebar-compact ' : '') + (mobileOpen ? 'sidebar-open' : '')}>
+    <aside className={'sidebar ' + (!showLabels ? 'sidebar-compact ' : '') + (mobileOpen ? 'sidebar-open' : '')}>
       <Link to="/" className="brand" onClick={closeMobile}>
         <div className="brand-symbol"><Waypoints size={25} strokeWidth={1.8} /></div>
-        {expanded && <div className="brand-words"><strong>FORGE<span className="brand-dot">.</span></strong>
+        {showLabels && <div className="brand-words"><strong>FORGE<span className="brand-dot">.</span></strong>
           <small>Manufacturing Research AI</small></div>}
       </Link>
-      {expanded && <div className="workspace-switch">
+      {showLabels && <div className="workspace-switch">
         <label htmlFor="workspace">ACTIVE ENVIRONMENT</label>
         <div className="workspace-select-wrap">
           <span className="workspace-marker" />
@@ -80,24 +83,24 @@ function Sidebar({ expanded, setExpanded, mobileOpen, closeMobile }: {
       </div>}
       <nav className="primary-nav" aria-label="Main navigation">
         {groups.map(group => <div className="nav-group" key={group}>
-          {expanded && <div className="nav-group-label">{group}</div>}
+          {showLabels && <div className="nav-group-label">{group}</div>}
           {nav.filter(item => item.group === group).map(item => {
             const Icon = item.icon;
             return <NavLink key={item.to} to={item.to} onClick={closeMobile}
-              title={!expanded ? item.title : undefined} end={item.to === '/'}
+              title={!showLabels ? item.title : undefined} end={item.to === '/'}
               className={({ isActive }) => 'nav-item ' + (item.sub ? 'nav-sub ' : '') + (isActive ? 'active' : '')}>
               <Icon size={item.sub ? 17 : 19} strokeWidth={1.9} />
-              {expanded && <span>{item.title}</span>}
+              {showLabels && <span>{item.title}</span>}
             </NavLink>;
           })}
         </div>)}
       </nav>
       <div className="sidebar-bottom">
-        {expanded && <div className="sidebar-safety"><LockKeyhole size={16} /><div><strong>Read-only pilot</strong>
+        {showLabels && <div className="sidebar-safety"><LockKeyhole size={16} /><div><strong>Read-only pilot</strong>
           <small>No machine control or direct CNC access</small></div></div>}
         <button className="collapse-button" onClick={() => setExpanded(!expanded)}>
           {expanded ? <ChevronLeft size={17} /> : <ChevronRight size={17} />}
-          {expanded && <span>Collapse sidebar</span>}
+          {showLabels && <span>Collapse sidebar</span>}
         </button>
       </div>
     </aside>
@@ -122,13 +125,30 @@ function AccessDialog({ close }: { close: () => void }) {
   const [generated, setGenerated] = useState<RoleTokens | null>(null);
   const [copied, setCopied] = useState(false);
   const label = backend === 'local' ? 'Local' : 'Render';
+  const dialogRef = useRef<HTMLDivElement>(null);
 
-  // Escape closes the dialog, as expected of an aria-modal dialog; before, it
-  // stayed open over the page and swallowed clicks meant for the page.
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') close(); };
+    // Variables:
+    //   previousFocus: The control to restore when the modal closes.
+    //   focusable: Controls currently available inside the modal for Tab wrapping.
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialogRef.current?.querySelector<HTMLInputElement>('input')?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { close(); return; }
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href]'
+      )).filter(element => element.getClientRects().length > 0);
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); previousFocus?.focus(); };
   }, [close]);
 
   async function save() {
@@ -158,7 +178,7 @@ function AccessDialog({ close }: { close: () => void }) {
   }
 
   return <div className="dialog-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
-    <div className="dialog dialog-wide" role="dialog" aria-modal="true" aria-labelledby="access-title">
+    <div ref={dialogRef} className="dialog dialog-wide" role="dialog" aria-modal="true" aria-labelledby="access-title">
       <div className="dialog-top"><span className="tile-icon"><LockKeyhole size={21}/></span>
         <button className="icon-button" aria-label="Close" onClick={close}><X size={20}/></button></div>
       <h2 id="access-title">{label} API access</h2>
