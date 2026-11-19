@@ -10,55 +10,68 @@ The browser click-through could not be completed: the computer-use inventory tim
 
 ## Exact “not connected yet” locations
 
-Each row gives the sidebar route, the specific screen/panel label shown in the message, and what the page or panel is for.
+The table lists 43 visible placements from 42 `Unavailable` call sites. The shared `MachineLine` component appears on both Overview and Machines. Entries show when their data or configuration is absent; they are not all simultaneously visible.
 
 | Sidebar group | Route / menu destination | Message label shown | What the page or panel does |
 | --- | --- | --- | --- |
-| Workspace | `/overview` — Overview | Machine lineup | Shows the observed production line; empty when there is no authorized machine inventory. |
-| Workspace | `/overview` — Overview | Recent activity | Shows recent collector events; empty when no recording snapshot is available. |
-| Workspace | `/machines` — Machines | Machine inventory | Lists approved physical machines or simulated machines and links to their signals. |
-| Workspace | `/machines` — Machines | Machine lineup | Shows relationships among the resolved machines. |
-| Equipment | `/signals` — Signal explorer | Signal browser | Lists approved observed channels; without signals, no history can be selected. |
-| Equipment | `/signals` — Signal explorer | Signal history | Chart area when no current signal exists. |
-| Equipment | `/recordings` — Recordings | Siemens recording | Explains that a local API Siemens v2 JSONL capture must be configured. |
-| Equipment | `/recordings` — Recordings | Approved signal inventory | Lists signals found in the authorized capture. |
-| Equipment | `/recordings` — Recordings | Collector event history | Displays events from real v2 session markers. |
-| Equipment | `/recordings` — Recordings | MTConnect signal inventory | Lists signals in the separate legacy MTConnect capture, when that artifact exists. |
-| Equipment | `/recordings` — Recordings | MTConnect v1 capture | Explains that an approved MTConnect JSONL artifact is needed. |
-| Equipment | `/recordings/quality` — Data quality | Signal qualification | Shows per-signal quality and analysis eligibility. |
-| Equipment | `/recordings/sessions` — Session history | Session inventory | Shows current recorder artifact details (epoch, last receive, size, storage, counts). |
-| Equipment | `/recordings/sessions` — Session history | Session markers | Shows stored connection/session events. |
-| Workspace | `/investigations` — Investigations | Investigation history | Lists persisted investigation records and links to source evidence and verification. |
-| Workspace | `/investigations/triage` — Rapid triage | Triage evidence (conditional) | In non-preview mode, the triage panel prompts for recorded investigations if none are available. |
-| Workspace | `/investigations/deep` — Deep investigations | Deep investigation records | Shows investigation records for deep reasoning workflows. |
-| Workspace | `/investigations/review` — Review & verification | Managed review (conditional) | Non-preview simulator view when the review desk has no configured authorized artifact. |
-| Research | `/lab` — Experiment lab | Managed simulator runner | Requires enabled local managed-run capability; starts a seeded Python simulator experiment. |
-| Research | `/lab/runs` — Run history | Run history | Lists authorized offline experiment records and managed local runs. |
-| Research | `/lab/runs` — Run history | Offline experiment records | Shows available evaluator-approved experiment records. |
-| Research | `/lab/evaluations` — Evaluation | Evaluation results | Shows recorded run metrics and evaluation criteria. |
-| Research | `/lab/evaluations` — Evaluation | Evaluator scorecards | Shows evaluator-authorized correctness/outcome labels. |
-| Research | `/lab/compare` — Compare runs | Comparison | Requires two authorized experiment records for side-by-side comparison. |
-| Research | `/knowledge/manuals` — Manual library | Manual sections | Shows approved matching manual sections for a search. |
-| Research | `/knowledge/memory` — Episodic memory | Authorized episodic memories | Shows prior simulator memory entries matching the search. |
-| Research | `/knowledge/memory` — Episodic memory | Promotion review history | Shows evaluator-only memory promotion decisions. |
-| Engineering | `/system` — System health | System status | Displays read-only API/worker/recorder/storage health fields. |
-| Engineering | `/system/audit` — Audit timeline | Collector audit | Shows safe lifecycle metadata from the configured private audit file. |
-| Engineering | `/system/settings` — Settings | Settings read model | Shows allowlisted effective global settings from the authorized API. |
+| Workspace | `/overview` — Overview | Machine lineup | Manufacturing line when no machine inventory is available. |
+| Workspace | `/overview` — Overview | Recent activity | Recent collector events when no recording events exist. |
+| Workspace | `/investigations` — Investigations | Investigation history | Persisted cases and links to their evidence. |
+| Workspace | `/investigations/triage` — Rapid triage | Typed triage report | Typed question and predicate verdicts; shown outside synthetic preview. |
+| Workspace | `/investigations/triage` — Rapid triage | Managed triage reports | Completed managed simulator triage reports; simulator and non-preview only. |
+| Workspace | `/investigations/triage` — Rapid triage | Recorded triage cases | General completed investigation records when no cases exist. |
+| Workspace | `/investigations/deep` — Deep investigations | Deep investigation records | Past investigations and recorded reasoning. |
+| Workspace | `/investigations/review` — Review & verification | Pending simulator reviews | Authoritative pending approval requests; simulator and non-preview only. |
+| Workspace | `/investigations/:id` — Investigation detail → Evidence tab | Evidence payload | Source-linked observations for a selected case. |
+| Workspace | `/investigations/:id` — Investigation detail → Hypotheses tab | Hypothesis history | Competing recorded explanations for a selected case. |
+| Equipment | `/machines` — Machines | Machine inventory | Approved physical or simulated machines. |
+| Equipment | `/machines` — Machines | Machine lineup | Equipment relationship diagram when no machines exist. |
+| Equipment | `/signals` — Signal explorer | Signal browser | Approved observed channels. |
+| Equipment | `/signals` — Signal explorer | Signal history | Trend panel when no signal is selected or available. |
+| Equipment | `/recordings` — Recordings | Siemens recording | Approved Siemens v2 JSONL capture status. |
+| Equipment | `/recordings` — Recordings | Approved signal inventory | Signals found in the capture. |
+| Equipment | `/recordings` — Recordings | Collector event history | Events from Siemens session markers. |
+| Equipment | `/recordings` — Recordings → Legacy MTConnect recorder | MTConnect v1 capture | Separate approved legacy MTConnect artifact. |
+| Equipment | `/recordings` — Recordings → Legacy MTConnect recorder | MTConnect signal inventory | Signals from the legacy artifact when present. |
+| Equipment | `/recordings/quality` — Data quality | Signal qualification | Per-signal quality and analysis eligibility. |
+| Equipment | `/recordings/sessions` — Session history | Session inventory | Current recorder epoch, last receive, file size, storage and counts. |
+| Equipment | `/recordings/sessions` — Session history | Session markers | Stored connection and session events. |
+| Research | `/lab` — Experiment lab → Managed simulator experiment | Validated per-run settings | Authorized default triage settings needed to launch a triage run. |
+| Research | `/lab` — Experiment lab → Managed simulator experiment | Managed simulator runner | Capability to start a seeded Python simulator run. |
+| Research | `/lab/runs` — Run history | Managed run history | Submitted simulator runs on the selected backend. |
+| Research | `/lab/runs` — Run history | Run history | Authorized offline experiment records. |
+| Research | `/lab/runs/:runId` — Managed investigation | Managed simulator run | Entire run view when outside Simulator Lab or in preview. |
+| Research | `/lab/runs/:runId` — Managed investigation → Evidence tab | Source evidence | Evidence from the selected completed phase audit. |
+| Research | `/lab/runs/:runId` — Managed investigation → Hypotheses tab | Recorded hypotheses | Hypotheses from the selected completed phase audit. |
+| Research | `/lab/runs/:runId` — Managed investigation → Trace tab | Decision trace | Recorded decision steps for the selected phase audit. |
+| Research | `/lab/runs/:runId` — Managed investigation → Operational diagnostics | Run diagnostics | Bounded operational events for a run. |
+| Research | `/lab/runs/:runId` — Managed investigation → Stage event journal | Stage updates | Permitted worker progress events. |
+| Research | `/lab/runs/:runId` — Managed investigation → Triage report | Evidence citations | Findings in a completed typed triage report. |
+| Research | `/lab/evaluations` — Evaluation | Evaluation results | Recorded run metrics. |
+| Research | `/lab/evaluations` — Evaluation | Evaluator scorecards | Protected correctness and outcome labels. |
+| Research | `/lab/compare` — Compare runs | Comparison | Side-by-side comparison requiring two authorized records. |
+| Research | `/knowledge/manuals` — Manual library | Manual sections | Approved matching manual sections. |
+| Research | `/knowledge/memory` — Episodic memory | Authorized episodic memories | Prior simulator memories matching a search. |
+| Research | `/knowledge/memory` — Episodic memory | Promotion review history | Evaluator-only memory promotion decisions. |
+| Engineering | `/system` — System health | System status | API, worker, recorder and storage health fields. |
+| Engineering | `/system/observability` — Observability | Live collector event stream | Recent collector events. |
+| Engineering | `/system/audit` — Audit timeline | Collector audit | Safe lifecycle metadata from private audit file. |
+| Engineering | `/system/settings` — Settings | Settings read model | Allowlisted effective global settings. |
 
 ## Routes with no exact message on the route itself
 
 These destinations may show a different empty/error state or a working preview; they do not call `Unavailable` at the top level described here:
 
 - `/` — Home: product overview and links to workspaces.
-- `/investigations/:id` — Investigation detail: shows “No authorized investigation detail” if the selected case is absent.
-- `/investigations/review` — Review & verification in pilot mode or synthetic preview: a safety notice or preview review controls are shown.
+- `/investigations/:id` — shows “No authorized investigation detail” when no case is selected; its Evidence and Hypotheses tabs can show the exact phrase when a case exists.
+- `/investigations/review` — pilot mode and synthetic preview show a safety notice or preview controls; simulator mode can show the Pending simulator reviews entry above.
 - `/recordings/quality` — Data quality continuity panel says “No gaps in the bounded window” when none are found.
 - `/knowledge` — Knowledge landing page: links to manuals, memory and investigation history.
-- `/system/observability` — Observability: shows “Live collector event stream is not connected yet” when there are no events.
+- `/lab/runs/:runId` — managed run detail has its own route and nested tabs; its exact messages are listed above.
 
 ## Navigation map
 
-The sidebar contains 22 destinations across Workspace (6), Equipment (5), Research (7) and Engineering (4). Routes and labels are taken from the `nav` array in `frontend/src/App.tsx`; route components are exported by `frontend/src/pages.tsx`. Subpages are listed in the table above where they have a placeholder message.
+The sidebar contains 22 destinations across Workspace (6), Equipment (5), Research (7) and Engineering (4). Investigation detail and managed run detail are additional routes reached from records, and their tabs expose more messages. Routes and labels are taken from the `nav` array in `frontend/src/App.tsx`; route components are exported by `frontend/src/pages.tsx`. Subpages are listed in the table above where they have a placeholder message.
 
 ## Interpretation
 
