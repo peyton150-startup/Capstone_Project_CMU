@@ -19,11 +19,20 @@ if TYPE_CHECKING:
 # Reproducible rules: advance the version deliberately when family logic changes.
 TRIAGE_HYPOTHESIS_RULE_VERSION = "1.1"
 CandidateFamily = Literal[
-    "machine_condition", "operating_load", "sensor_or_transient",
-    "related_quality", "stoppage_event", "process_condition",
-    "service_context", "common_machine_path", "common_material_batch",
-    "preceding_events", "observed_event", "quality_signal",
-    "cross_machine_review", "telemetry_coverage_gap",
+    "machine_condition",
+    "operating_load",
+    "sensor_or_transient",
+    "related_quality",
+    "stoppage_event",
+    "process_condition",
+    "service_context",
+    "common_machine_path",
+    "common_material_batch",
+    "preceding_events",
+    "observed_event",
+    "quality_signal",
+    "cross_machine_review",
+    "telemetry_coverage_gap",
 ]
 
 
@@ -61,7 +70,8 @@ class TriageHypothesisPacket(Contract):
         if len(set(self.test_requirement_ids)) != len(self.test_requirement_ids):
             raise ValueError("test requirement IDs must not repeat")
         relevant = {
-            rid for candidate in self.candidates
+            rid
+            for candidate in self.candidates
             for rid in candidate.discriminating_requirement_ids
         }
         if not set(self.test_requirement_ids) <= relevant:
@@ -215,20 +225,24 @@ def _supplemental_rules(state: "InvestigationState"):
     specs = []
     if packet.roster_verified and len(packet.screened_machines) >= 2:
         # Multiple observed machines are not evidence of multiple faults.
-        specs.append((
-            "cross_machine_review",
-            "Compare observed machines without inferring a shared cause",
-            ("Q3:events", "Q5:load", "Q1:events", "Q2:load"),
-        ))
+        specs.append(
+            (
+                "cross_machine_review",
+                "Compare observed machines without inferring a shared cause",
+                ("Q3:events", "Q5:load", "Q1:events", "Q2:load"),
+            )
+        )
     if packet.absent_from_screening or any(
         item.status == "missing" and item.source_type == "live_sensor"
         for item in packet.items
     ):
-        specs.append((
-            "telemetry_coverage_gap",
-            "Missing observations leave some explanations untested",
-            ("Q1:trigger", "Q2:load", "Q5:load", "Q1:events"),
-        ))
+        specs.append(
+            (
+                "telemetry_coverage_gap",
+                "Missing observations leave some explanations untested",
+                ("Q1:trigger", "Q2:load", "Q5:load", "Q1:events"),
+            )
+        )
     return tuple(specs)
 
 
@@ -258,9 +272,7 @@ def compile_candidates(
     open_questions.update(state.triage_question_gaps)
     candidates: list[TriageCandidate] = []
     tests: list[str] = []
-    for family, explanation, parts in (
-        *rule_specs(state), *_supplemental_rules(state)
-    ):
+    for family, explanation, parts in (*rule_specs(state), *_supplemental_rules(state)):
         target_ids = [rid for rid in parts if rid in available]
         if family == "common_machine_path":
             target_ids.extend(

@@ -1,3 +1,4 @@
+# PR290 integration sign-off: preserve Supabase's independent Postgres 17 TLS acceptance.
 # Final PR289 acceptance gate: disposable TLS PostgreSQL, no production Supabase mutations.
 name: PostgreSQL simulator journal
 

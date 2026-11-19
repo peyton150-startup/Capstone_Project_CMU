@@ -49,7 +49,9 @@ def test_deterministic_overrides_stage_knobs_but_retains_conclude_and_budget():
     run = resolve_triage_run(settings(), raw)
     assert run.run_mode == "deterministic"
     assert (run.plan, run.investigate, run.hypothesize) == (
-        "fixed", "deterministic", "deterministic"
+        "fixed",
+        "deterministic",
+        "deterministic",
     )
     assert run.packet and run.packet_prompt and run.evidence_tests
     assert run.observe_calls == "separate"
@@ -57,7 +59,8 @@ def test_deterministic_overrides_stage_knobs_but_retains_conclude_and_budget():
     assert run.seconds == 64 and run.tool_calls == 3
     assert not run.then_deep and not run.conclude_brief and not run.conclude_cap
     assert run.stage_modes()["conclude"] == "model"
-    assert run.stage_modes()["critic_recheck"] == "off"
+    # Critique/Recheck are off for the triage only; a deep run keeps them.
+    assert run.stage_modes()["critic_recheck"] == "off in triage"
     assert "plan" in overridden_fields(raw, run)
     assert "then_deep" not in overridden_fields(raw, run)
     assert run == EffectiveTriageRun.model_validate(run.model_dump())
@@ -85,36 +88,48 @@ def test_custom_mode_validates_dependencies_and_applies_selections():
     assert resolved.hypothesis_seconds == 12
     with pytest.raises(ValidationError, match="requires fixed Plan"):
         resolve_triage_run(
-            base, TriageRunOptions(
-                run_mode="custom", plan="model",
-                investigate="deterministic", hypothesize="model",
+            base,
+            TriageRunOptions(
+                run_mode="custom",
+                plan="model",
+                investigate="deterministic",
+                hypothesize="model",
             ),
         )
     with pytest.raises(ValidationError, match="requires fixed Plan"):
         resolve_triage_run(
-            base, TriageRunOptions(
-                run_mode="custom", plan="model", investigate="off",
+            base,
+            TriageRunOptions(
+                run_mode="custom",
+                plan="model",
+                investigate="off",
                 hypothesize="deterministic",
             ),
         )
     with pytest.raises(ValidationError, match="packet prompt requires"):
         resolve_triage_run(
-            base, TriageRunOptions(
-                run_mode="custom", packet=False, packet_prompt=True,
+            base,
+            TriageRunOptions(
+                run_mode="custom",
+                packet=False,
+                packet_prompt=True,
             ),
         )
 
 
-@pytest.mark.parametrize("invalid", [
-    {"run_mode": "unrestricted"},
-    {"packet": "yes"},
-    {"tool_calls": 0},
-    {"tool_calls": 31},
-    {"seconds": 901},
-    {"hypothesis_seconds": -1},
-    {"api_key": "PRIVATE"},
-    {"allowed_sources": ["simulator", "siemens"]},
-])
+@pytest.mark.parametrize(
+    "invalid",
+    [
+        {"run_mode": "unrestricted"},
+        {"packet": "yes"},
+        {"tool_calls": 0},
+        {"tool_calls": 31},
+        {"seconds": 901},
+        {"hypothesis_seconds": -1},
+        {"api_key": "PRIVATE"},
+        {"allowed_sources": ["simulator", "siemens"]},
+    ],
+)
 def test_unrecognized_or_unsafe_request_fields_are_refused(invalid):
     with pytest.raises(ValidationError):
         TriageRunOptions.model_validate(invalid)
@@ -142,10 +157,15 @@ def test_real_graph_episode_uses_only_submitted_triage_settings(monkeypatch):
     cfg = settings()
     monkeypatch.setattr(episode, "get_settings", lambda: cfg)
     run = resolve_triage_run(
-        cfg, TriageRunOptions(
-            run_mode="deterministic", then_deep=False, seconds=70,
-            tool_calls=3, conclude_brief=False, conclude_cap=False,
-        )
+        cfg,
+        TriageRunOptions(
+            run_mode="deterministic",
+            then_deep=False,
+            seconds=70,
+            tool_calls=3,
+            conclude_brief=False,
+            conclude_cap=False,
+        ),
     )
     policy = NoDecideModel(
         conclude=lambda state: (
@@ -170,6 +190,7 @@ def test_real_graph_episode_uses_only_submitted_triage_settings(monkeypatch):
     assert first.triage_conclude_brief is False
     assert first.triage_conclude_cap is False
     from capstone.api.runs import safe_executed_triage
+
     actual = safe_executed_triage(first)
     assert actual["run_mode"] == "deterministic"
     assert actual["fixed_plan_executed"]
@@ -198,16 +219,27 @@ def test_custom_profile_can_override_server_deterministic_default(monkeypatch):
     )
     monkeypatch.setattr(episode, "get_settings", lambda: cfg)
     override = resolve_triage_run(
-        cfg, TriageRunOptions(
+        cfg,
+        TriageRunOptions(
             run_mode="custom",
-            plan="model", investigate="off",
-            hypothesize="model", evidence_tests=False,
-            then_deep=False, seconds=60, tool_calls=4,
-        )
+            plan="model",
+            investigate="off",
+            hypothesize="model",
+            evidence_tests=False,
+            then_deep=False,
+            seconds=60,
+            tool_calls=4,
+        ),
     )
     policy = ByMode(wear_policy("escalate"), wear_policy())
+    # A real fault gives the triage something to explain; without one the
+    # model path correctly skips Hypothesize and goes straight to Conclude.
     result = episode.run_episode(
-        SEED, policy, triage=True, triage_configuration=override,
+        SEED,
+        policy,
+        fault="bearing_degradation",
+        triage=True,
+        triage_configuration=override,
         clock=lambda: 0.0,
     )
     first = result.triage

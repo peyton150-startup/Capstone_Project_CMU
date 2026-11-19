@@ -177,3 +177,8 @@ class SimWorkerHeartbeat(RunBase):
     last_seen_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
+    # Latest worker-process failure (a fixed code from WORKER_PROBLEM_CODES),
+    # added by migration 0006. These belong to the worker, not to any run.
+    last_problem_code: Mapped[str | None] = mapped_column(String(32))
+    last_problem_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_problem_count: Mapped[int | None] = mapped_column(Integer)
