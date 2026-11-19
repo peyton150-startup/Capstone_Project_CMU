@@ -173,8 +173,9 @@ function AccessDialog({ close }: { close: () => void }) {
       {server && <p role="status">{label} backend: {server.open ? 'reads need no token' : 'reads need a token'} ·
         runs {server.runs_enabled ? 'switched on' : <>off (set <code>{RUNS_VARIABLE}=1</code> on the API service)</>}</p>}
       {problem && <p className="accent-warning" role="alert">{problem}</p>}
-      <div className="quality-check"><label><input type="checkbox" checked={remember}
-        onChange={e => setRemember(e.target.checked)}/> Remember in this tab until it closes</label></div>
+      <label className="access-remember"><input type="checkbox" checked={remember}
+        aria-label="Remember in this tab until it closes"
+        onChange={e => setRemember(e.target.checked)}/> Remember in this tab until it closes</label>
       <div className="dialog-actions">
         <button className="button-secondary" onClick={() => {
           setValues(emptyTokens()); setRoleTokens(emptyTokens()); setRemember(false); close(); }}>Clear all</button>
