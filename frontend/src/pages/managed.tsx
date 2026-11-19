@@ -45,7 +45,7 @@ function useManagedRuns(pollMs = 5000) {
 }
 
 export function ManagedRunLauncher() {
-  const { workspace, preview, token, backend } = useUi();
+  const { workspace, preview, token, backend, tokenFor } = useUi();
   const capability = useResource<Capabilities>('/api/v1/capabilities', token, preview);
   const navigate = useNavigate();
   const [seed, setSeed] = useState('3');
@@ -130,7 +130,7 @@ export function ManagedRunLauncher() {
     setError(null);
     if (!key.current) key.current = crypto.randomUUID().replaceAll('-', '');
     try {
-      const run = await postJson<ManagedRun>('/api/v1/lab/runs?workspace=simulator', token,
+      const run = await postJson<ManagedRun>('/api/v1/lab/runs?workspace=simulator', tokenFor('operator'),
         { ...requested, configuration_fingerprint: confirmed.fingerprint },
         backend, key.current);
       navigate('/lab/runs/' + encodeURIComponent(run.run_id));
@@ -191,7 +191,7 @@ export function ManagedRunLauncher() {
       <Unavailable item="Managed simulator runner" detail={preview ?
         'Exit synthetic preview to run a real simulator episode.' :
         capability.error || 'Enable CAPSTONE_UI_SIM_RUNS with approved server storage and operator credentials.'}/>}
-    <p className="body-copy">Requires an operator token for the selected backend in Access. The reviewer uses a distinct token.</p>
+    <p className="body-copy">Starting a run sends the operator token from Access (top right). Approvals send the reviewer token, which must be a different token.</p>
   </Panel>;
 }
 
@@ -842,7 +842,7 @@ export function ManagedTriageOverview() {
 }
 
 export function ManagedReviewDesk() {
-  const {workspace, preview, token, backend} = useUi();
+  const {workspace, preview, token, backend, tokenFor} = useUi();
   const authorized = workspace === 'simulator' && !preview;
   const resource = useResource<ListResponse<ReviewRequest>>(
     authorized ? '/api/v1/simulator/reviews?workspace=simulator' : null, token, !authorized, 2000,
@@ -857,7 +857,7 @@ export function ManagedReviewDesk() {
     setMessage(null);
     try {
       await postJson('/api/v1/simulator/reviews/' + encodeURIComponent(item.run_id) +
-        '?workspace=simulator', token, {
+        '?workspace=simulator', tokenFor('reviewer'), {
         proposal_id: item.proposal_id, decision: action, note: notes[key] || '',
       }, backend);
       setMessage('Decision recorded. Execution and verification remain separate.');

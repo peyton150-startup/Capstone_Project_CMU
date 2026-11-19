@@ -25,7 +25,7 @@ test('backend change isolates responses, credentials, routes and event streaming
   const managed = readFileSync(new URL('../src/pages/managed.tsx', import.meta.url), 'utf8');
   const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
   assert.match(api, /JSON\.stringify\(\[path, token, pause, pollMs, backend\]\)/);
-  assert.match(context, /Record<ApiBackend, string>/);
+  assert.match(context, /Record<ApiBackend, RoleTokens>/);
   assert.match(managed, /resolveApiUrl\('\/api\/v1\/lab\/runs\//);
   assert.match(app, /<Routes key=\{backend\}>/);
 });

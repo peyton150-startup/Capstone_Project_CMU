@@ -63,10 +63,10 @@ export function RunsPage() {
 }
 export function EvaluationPage() {
   const {items}=useEvaluations();
-  const {token, preview, workspace}=useUi();
+  const {tokenFor, preview, workspace}=useUi();
   const score = useResource<ListResponse<Scorecard>>(
     workspace === 'simulator' && !preview ? '/api/v1/evaluations/scorecards?workspace=simulator' : null,
-    token, workspace !== 'simulator' || preview,
+    tokenFor('evaluator'), workspace !== 'simulator' || preview,
   );
   const judged = score.data?.items.filter(x=>x.judged) || [];
   const unjudged = score.data?.items.filter(x=>!x.judged) || [];
@@ -203,14 +203,14 @@ type MemoryPromotion = {
   stored:boolean|null; policy_version:string; reasons_count:number|null;
 };
 export function MemoryPage() {
-  const {token,preview,workspace}=useUi();
+  const {token,tokenFor,preview,workspace}=useUi();
   const active=workspace==='simulator'&&!preview;
   const [search,setSearch]=useState(''),[query,setQuery]=useState('');
   const path='/api/v1/knowledge/memories?workspace=simulator'+
     (query?'&q='+encodeURIComponent(query):'');
   const memory=useResource<ListResponse<MemoryItem>>(active?path:null,token,!active);
   const promotions=useResource<ListResponse<MemoryPromotion>>(
-    active?'/api/v1/knowledge/promotions?workspace=simulator':null,token,!active);
+    active?'/api/v1/knowledge/promotions?workspace=simulator':null,tokenFor('evaluator'),!active);
   return <><PageHeading eyebrow="KNOWLEDGE / LONG TERM" title="Episodic memory"
     description="Past diagnoses remain past claims until verified; promotion decisions do not change the simulator."/>
     <Panel title="Authorized simulator memory" subtitle="Existing Python memory service, never hidden simulator truth">
