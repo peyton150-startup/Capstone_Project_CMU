@@ -63203,6 +63203,209 @@
    ]
   },
   {
+   "id": "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_malformed_revision_is_a_named_server_fault",
+   "line": 554,
+   "docstring": "A bad host commit raises one typed error that never echoes the value.",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "bad"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "membership": 2,
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A bad host commit raises one typed error that never echoes the value.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_worker_with_malformed_revision_logs_why_and_stops",
+   "line": 570,
+   "docstring": "The worker exits with a logged invalid_configuration code, before any DB use.",
+   "parametrized": false,
+   "fixtures": [
+    "caplog",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The worker exits with a logged invalid_configuration code, before any DB use.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_hosted_run_submit_with_bad_host_config_is_503_not_409",
+   "line": 592,
+   "docstring": "A server-side settings fault must not look like an idempotency conflict.",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "may_skip"
+   ],
+   "claims": "A server-side settings fault must not look like an idempotency conflict.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:public_run_configuration",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:get_settings",
+    "capstone.triage_run_controls:EffectiveTriageRun.guarded_profile",
+    "capstone.triage_run_controls:EffectiveTriageRun.stage_modes",
+    "capstone.triage_run_controls:overridden_fields",
+    "capstone.triage_run_controls:resolve_triage_run",
+    "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs",
+    "capstone.settings",
+    "capstone.triage_run_controls"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
+   "file": "tests/test_hosted_worker.py",
+   "name": "test_malformed_triage_setting_is_the_same_named_server_fault",
+   "line": 636,
+   "docstring": "Settings() validation (a bad TRIAGE_* value) also stops the worker readably.",
+   "parametrized": false,
+   "fixtures": [
+    "caplog",
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 2
+   },
+   "raises_checks": 2,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Settings() validation (a bad TRIAGE_* value) also stops the worker readably.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.api.run_repository",
+    "capstone.settings",
+    "capstone.worker.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_hydraulics.py::test_only_some_positions_have_hydraulics_and_every_line_has_one",
    "file": "tests/test_hydraulics.py",
    "name": "test_only_some_positions_have_hydraulics_and_every_line_has_one",

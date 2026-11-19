@@ -35,7 +35,7 @@
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
   "capstone-code/capstone/api/__init__.py": "80048330132f513c0d31f990cf23d55d0d66b0363708fda5274cecd6b41e3e8a",
   "capstone-code/capstone/api/__main__.py": "d239de65298216c0e8a9545d5ce24ff080703639c1bb9cb10c6b9c38933ac372",
-  "capstone-code/capstone/api/app.py": "d1004952ce82dafc805362fa8d2e8c03c06b16f45a0059fb972ae04253e2c502",
+  "capstone-code/capstone/api/app.py": "e0074103e408efd4895110c256c108546f411a01272a61aeaf057defdfa617ba",
   "capstone-code/capstone/api/config.py": "f5820c27929e0400c899182d675464495565d825fdf803f00293cd5012caf6b4",
   "capstone-code/capstone/api/deep_progress.py": "665fd9ff80b561d1800143f4a56207fa3598407a51aba52ff11f3ed3342ce4b0",
   "capstone-code/capstone/api/hosted_runs.py": "dd6d52c125fed61c53a6605e5ca6d3423b23e2c1c0a9cbd48de9ff20e689978b",
@@ -46,8 +46,8 @@
   "capstone-code/capstone/api/postgres_runs.py": "dfc5c6b98ccb0d6c01ec30135f0ff2dd32577e7675428d6c8778c4d914acc9c1",
   "capstone-code/capstone/api/readers.py": "0825005efd3367a42c44c4da371f795cd94ee0b3c1681a93461f31e44182c97b",
   "capstone-code/capstone/api/run_models.py": "d4cd9f22ead88dc0b5b7a8c078c9e7aa717848e870ba83fca1190e49c4e68534",
-  "capstone-code/capstone/api/run_repository.py": "22f1c24fdf2fb3d0e1759f8378dc19d82f39a8b8abbc21a9bc47621cf98ea42d",
-  "capstone-code/capstone/api/runs.py": "1dbd4458373204f3771b7979b90bdecf5fc82f4d773d35375754bfbe88702bc1",
+  "capstone-code/capstone/api/run_repository.py": "7ae8eb1248b431ac70a52aab8de9233b373909f94e67c33e647baaf710d30457",
+  "capstone-code/capstone/api/runs.py": "2895133e34cbf059cac0e419d6fba258f96b54f51bf538f751f44d9cf6033805",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
   "capstone-code/capstone/console.py": "bded87a29a1781414d4486bf414a292dbbadcf1cae07125ea772cd511ccc7561",
@@ -157,7 +157,7 @@
   "capstone-code/capstone/watchdog/watchdog.py": "c32c0f4b1caa40c190d9091997316df80b7aa579f29cbaff87e5bfa1806ee088",
   "capstone-code/capstone/worker/__init__.py": "24e0b4ab961b7d37a0746b3bda1e0ddcc5d5bbed2022ed47f5901b2489fefce9",
   "capstone-code/capstone/worker/__main__.py": "6caa9ce4f84540541f8f9bcfe8ec1d7a6c87da0e9e74c4818fbd738ac04dfd07",
-  "capstone-code/capstone/worker/runner.py": "b7776d45a3e58e583d61a2a0df5825a3419b9ec8324992a5b83a2df188dbc08d",
+  "capstone-code/capstone/worker/runner.py": "05846e0a8a4c137b9bf2c3ef8b0c6328b2634d4f93c92c0ba16743121b67bea8",
   "evaluation/evaltools/__init__.py": "5314d29d9291f89ed31ac9a6bcb41be257de9072f6da8f5ae9a40797d721660a",
   "evaluation/evaltools/audit_preflight.py": "3141acb75de422953e52f0cd350f4d53240e2003fc6a82c692513af76a3aadb1",
   "evaluation/evaltools/build_inventory.py": "ac8e0c6f3f92b79215d864344e0e5f40141b2c13e188cc2a5c3e0e79d869749f",
@@ -229,7 +229,7 @@
   "tests/test_generator.py": "bed58811be34af0866d8d3ab6e511823f5d000bea2e42f3076adcb9d22eec885",
   "tests/test_ground_truth.py": "00defedf7c2df521d51af43e528e52e848cae4388114795751fc6f50fcc813fc",
   "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
-  "tests/test_hosted_worker.py": "d15c4564acaaac05d300d17372869312f73ea8200268b149b065b4eeb4cf45fa",
+  "tests/test_hosted_worker.py": "494d0e41f17271b03357c01e53bb3f790c81ac4b86141569aeb20a4e60b9b590",
   "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
   "tests/test_job_history.py": "739a96c546efc383de834ba834f9844bbf31fae34bc49e3b0204739ea06d3d97",
   "tests/test_known_answers.py": "20f350db974db8521eacf6c26d50d0089bc021567cc79616e5d98bafc71d7b50",
@@ -332,12 +332,12 @@
   "tests/test_web_runs.py": "139a40f11e639285508c3af850b8b8f29b034eb99c17abe6b1e853bca6890440",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "a6ad77bcf2c8eefc91875d06b59e627e71d6ba9fcacff30495383a63d35557d7",
- "junit_sha256": "a1129139d5d30d6ef62678d8489e60974a1d08cd0bf3378763e922296660f64f",
+ "coverage_sha256": "c52c28a07873e385b9dbfbfbde5d7fb89357b997e50f9ebf110cc5f9a10b3200",
+ "junit_sha256": "e657fb2c456940cab318091e808a8753e9a702a56f2f27b2b2b6650fce599809",
  "counts": {
   "functions": 1432,
   "classes_note": "classes are listed through their methods",
-  "tests": 2549,
+  "tests": 2553,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 629,
@@ -508,7 +508,7 @@
    "capstone.agent.triage_requirements:ReadRequirement.valid_window (5/9)",
    "capstone.agent.triage_trace:TriageTraceEvent.validated_hash (2/3)",
    "capstone.agent.triage_trace:TriageTraceEvent.finite_duration (2/3)",
-   "capstone.api.app:create_app (293/400)",
+   "capstone.api.app:create_app (295/402)",
    "capstone.api.app:create_app.<locals>.ensure_run (4/6)",
    "capstone.api.app:create_app.<locals>.readiness (4/7)",
    "capstone.api.app:create_app.<locals>.investigations (2/3)",
@@ -568,7 +568,7 @@
    "capstone.simulator.simulator:Simulator._apply_consequences (3/4)",
    "capstone.simulator.state:FactoryState.next_on_line (3/4)",
    "capstone.triage_compare:root_causes (3/4)",
-   "capstone.worker.runner:serve_worker (31/49)",
+   "capstone.worker.runner:serve_worker (35/53)",
    "capstone.worker.runner:serve_worker.<locals>.pulse (4/6)",
    "evaluation.evaltools.build_inventory:read_junit (2/19)",
    "evaluation.evaltools.full_evaluation:git (2/4)",
@@ -583,7 +583,7 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2531,
+   "passed": 2535,
    "skipped": 18
   },
   "tests_with_no_assertion": [
@@ -7887,11 +7887,12 @@
    "indirect": []
   },
   "capstone.api.app:create_app": {
-   "count": 24,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
@@ -7901,8 +7902,7 @@
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
     "tests/test_web_run_controls.py::test_deep_only_does_not_apply_triage_controls",
-    "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
-    "tests/test_web_run_controls.py::test_local_browser_preflight_allows_authenticated_post"
+    "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials"
    ]
   },
   "capstone.api.app:create_app.<locals>.shutdown_runner": {
@@ -7933,11 +7933,12 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.require_role": {
-   "count": 11,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
@@ -8169,11 +8170,12 @@
    ]
   },
   "capstone.api.app:create_app.<locals>.start_simulator_run": {
-   "count": 11,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
     "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
@@ -8281,12 +8283,13 @@
    ]
   },
   "capstone.api.config:UiConfig.__post_init__": {
-   "count": 30,
+   "count": 31,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_config_requires_distinct_roles_and_no_local_disk",
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_model_call_telemetry.py::test_model_call_http_endpoint_enforces_auth_and_pilot_isolation",
     "tests/test_neon_manual.py::test_ui_neon_optin_requires_private_token",
     "tests/test_postgres_journal.py::test_remote_backend_does_not_open_a_database_by_default",
@@ -8295,8 +8298,7 @@
     "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
     "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
     "tests/test_web_api.py::test_neon_manual_api_failure_is_sanitized_and_never_accepted_as_run",
-    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed",
-    "tests/test_web_api.py::test_private_file_requires_strong_token"
+    "tests/test_web_api.py::test_opt_in_neon_manual_is_private_simulator_only_and_disposed"
    ]
   },
   "capstone.api.config:UiConfig.from_env": {
@@ -8816,29 +8818,35 @@
    "indirect": []
   },
   "capstone.api.run_repository:source_revision": {
-   "count": 7,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_run_repository.py::test_source_revision_reads_render_and_northflank_in_order"
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
+    "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_strategy_drift_fails_closed",
     "tests/test_hosted_worker.py::test_structured_logs_drop_unapproved_fields_and_values",
     "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
-    "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it"
+    "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it",
+    "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops"
    ]
   },
   "capstone.api.run_repository:RunExecutionConfig.current": {
-   "count": 4,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
+    "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_strategy_drift_fails_closed",
-    "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it"
+    "tests/test_hosted_worker.py::test_worker_resolves_pr301_profile_without_reimplementing_it",
+    "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops"
    ]
   },
   "capstone.api.run_repository:RunExecutionConfig.validate_strategy": {
@@ -9058,11 +9066,12 @@
    ]
   },
   "capstone.api.runs:public_run_configuration": {
-   "count": 10,
+   "count": 11,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_run_controls.py::test_deep_only_does_not_apply_triage_controls",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
@@ -18867,26 +18876,26 @@
    "indirect": []
   },
   "capstone.settings:TriageExecutionProfile.consistent_effective_route": {
-   "count": 79,
+   "count": 81,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
+    "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
     "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
     "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
     "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
     "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
-    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
-    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
+    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing"
    ]
   },
   "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage": {
-   "count": 348,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -18918,7 +18927,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_triage_needs_fixed_plan": {
-   "count": 348,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -18950,26 +18959,26 @@
    ]
   },
   "capstone.settings:Settings.effective_triage": {
-   "count": 76,
+   "count": 78,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
+    "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops",
     "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
     "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
     "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
     "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
     "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
     "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
-    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
-    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
+    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing"
    ]
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 357,
+   "count": 361,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -19038,7 +19047,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 240,
+   "count": 244,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -22769,7 +22778,7 @@
    "indirect": []
   },
   "capstone.triage_run_controls:EffectiveTriageRun.guarded_profile": {
-   "count": 13,
+   "count": 14,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_run_controls.py::test_custom_mode_validates_dependencies_and_applies_selections",
@@ -22780,6 +22789,7 @@
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
@@ -22799,13 +22809,14 @@
    "indirect": []
   },
   "capstone.triage_run_controls:EffectiveTriageRun.stage_modes": {
-   "count": 9,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_run_controls.py::test_deterministic_overrides_stage_knobs_but_retains_conclude_and_budget"
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
@@ -22816,7 +22827,7 @@
    ]
   },
   "capstone.triage_run_controls:resolve_triage_run": {
-   "count": 13,
+   "count": 14,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_run_controls.py::test_custom_mode_validates_dependencies_and_applies_selections",
@@ -22827,6 +22838,7 @@
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
@@ -22837,7 +22849,7 @@
    ]
   },
   "capstone.triage_run_controls:resolve_triage_run.<locals>.get": {
-   "count": 13,
+   "count": 14,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_run_controls.py::test_custom_mode_validates_dependencies_and_applies_selections",
@@ -22848,6 +22860,7 @@
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
@@ -22858,13 +22871,14 @@
    ]
   },
   "capstone.triage_run_controls:overridden_fields": {
-   "count": 9,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_run_controls.py::test_deterministic_overrides_stage_knobs_but_retains_conclude_and_budget"
    ],
    "indirect": [
     "tests/test_hosted_worker.py::test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit",
+    "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409",
     "tests/test_web_run_controls.py::test_invalid_custom_settings_stale_previews_and_pilot_denials",
     "tests/test_web_run_controls.py::test_submission_rejects_settings_drift_between_route_and_journal",
     "tests/test_web_run_controls.py::test_viewer_preview_operator_submit_and_persisted_configuration",
@@ -22954,14 +22968,16 @@
    ]
   },
   "capstone.worker.runner:record": {
-   "count": 4,
+   "count": 6,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
     "tests/test_hosted_worker.py::test_northflank_worker_logs_and_matches_render_web_commit",
     "tests/test_hosted_worker.py::test_structured_logs_drop_unapproved_fields_and_values",
-    "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha"
+    "tests/test_hosted_worker.py::test_worker_logs_only_allowlisted_failure_codes_and_build_sha",
+    "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops"
    ]
   },
   "capstone.worker.runner:check_strategy": {
@@ -23028,11 +23044,13 @@
    "indirect": []
   },
   "capstone.worker.runner:serve_worker": {
-   "count": 1,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent"
+    "tests/test_hosted_worker.py::test_idle_worker_does_not_start_an_agent",
+    "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault",
+    "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops"
    ]
   },
   "capstone.worker.runner:serve_worker.<locals>.pulse": {
@@ -44306,6 +44324,68 @@
     "capstone.api.model_calls:safe_identifier",
     "capstone.api.model_calls:safe_model_name",
     "capstone.api.model_calls:safe_seconds"
+   ]
+  },
+  "tests/test_hosted_worker.py::test_malformed_revision_is_a_named_server_fault": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings"
+   ]
+  },
+  "tests/test_hosted_worker.py::test_worker_with_malformed_revision_logs_why_and_stops": {
+   "count": 10,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:Settings.effective_triage",
+    "capstone.settings:TriageExecutionProfile.consistent_effective_route",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker"
+   ]
+  },
+  "tests/test_hosted_worker.py::test_hosted_run_submit_with_bad_host_config_is_503_not_409": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:public_run_configuration",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:get_settings",
+    "capstone.triage_run_controls:EffectiveTriageRun.guarded_profile",
+    "capstone.triage_run_controls:EffectiveTriageRun.stage_modes",
+    "capstone.triage_run_controls:overridden_fields",
+    "capstone.triage_run_controls:resolve_triage_run",
+    "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
+   ]
+  },
+  "tests/test_hosted_worker.py::test_malformed_triage_setting_is_the_same_named_server_fault": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.api.run_repository:RunExecutionConfig.current",
+    "capstone.api.run_repository:source_revision",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings",
+    "capstone.worker.runner:record",
+    "capstone.worker.runner:serve_worker"
    ]
   },
   "tests/test_hydraulics.py::test_only_some_positions_have_hydraulics_and_every_line_has_one": {
