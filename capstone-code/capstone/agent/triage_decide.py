@@ -591,16 +591,53 @@ def reconcile_question_comparison(
         )
 
 
+def reconciled_result(
+    previous: RequirementResult | None, fresh: RequirementResult
+) -> RequirementResult:
+    """Combine a fresh qualification with a prior capability verdict.
+
+    A requirement the provider cannot serve is marked unavailable or
+    unsupported by the selector. Reconciliation runs every cycle and would
+    otherwise overwrite that with a bare "pending", losing why the evidence
+    could not be collected. New evidence, or a changed verdict, still wins.
+    """
+    # Variables:
+    #   previous: The result recorded before this evaluation, if any.
+    #   fresh: What the current evidence qualifies to, recomputed from scratch.
+    #   marked: Whether previous is the selector's authorization verdict.
+    if previous is None:
+        return fresh
+    marked = previous.status in ("unavailable", "unsupported")
+    if marked and not fresh.evidence_ids and fresh.status != "satisfied":
+        return previous
+    return fresh
+
+
+def unresolved_required(state: InvestigationState) -> tuple[str, ...]:
+    """Required requirements whose result is not satisfied, in plan order."""
+    # Variables:
+    #   result: The last recorded verdict, or the pending default if never read.
+    return tuple(
+        rid
+        for rid, requirement in state.triage_requirements.items()
+        if requirement.required
+        and state.triage_requirement_results.get(rid, RequirementResult()).status
+        != "satisfied"
+    )
+
+
 def evaluate_triage_requirements(state: InvestigationState) -> None:
     """Reconcile all requirements, attach shared evidence, and close only complete questions."""
     # Variables:
     #   by_question: Required parts of each question, evaluated independently.
     #   movement: Q5's three source requirements, not proof of correlation.
     #   all_qualified: Whether each source passes independently.
+    #   previous: The recorded results, so a capability verdict is not lost.
     expand_job_requirements(state)
+    previous = dict(state.triage_requirement_results)
     by_question: dict[str, list[str]] = {}
     for rid, requirement in state.triage_requirements.items():
-        result = qualify(state, requirement)
+        result = reconciled_result(previous.get(rid), qualify(state, requirement))
         state.triage_requirement_results[rid] = result
         by_question.setdefault(requirement.question_id, []).append(rid)
     for question_id, ids in by_question.items():
@@ -636,37 +673,48 @@ def evaluate_triage_requirements(state: InvestigationState) -> None:
 
 
 def read_priority(
-    requirement: ReadRequirement,
+    requirement_ids: tuple[str, ...],
     *,
     state: InvestigationState,
-    shared: int,
     direct: bool,
-) -> tuple[int, int, int, int]:
-    """A reproducible priority for one unmet authorized requirement.
+    order_position: int | None = None,
+) -> tuple[int, int, int, int, int, int]:
+    """A reproducible sort key for one grouped read; smaller is read first.
 
-    Higher is read first. It is an ordinal preference, not a probability: the
-    tuple only orders reads, and the last two fields keep the order stable.
+    It is an ordinal preference over evidence, never a probability or a
+    claim that the read explains anything.
     """
     # Variables:
-    #   shared: How many requirements this exact request can answer at once,
-    #     so a grouped read that settles several sources is preferred.
-    #   direct: Whether the read is a measurement of a machine rather than a
-    #     record query, which is more often what distinguishes explanations.
-    #   discriminating: Whether a compiled candidate names this requirement as
-    #     one that could separate its possibilities.
-    #   question_number: The question's number in the plan, so Q1's sources
-    #     come before later questions when everything else ties; 99 if unnamed.
-    discriminating = any(
-        requirement.requirement_id in candidate.discriminating_requirement_ids
+    #   requirement_ids: Every requirement this one request answers, so a
+    #     grouped read is judged by all of them, not just the first.
+    #   order_position: The read's place in the candidate-derived Test order,
+    #     when there is one; it always wins, since Hypothesize already ranked
+    #     those reads against the explanations.
+    #   shared: How many requirements the read settles at once.
+    #   discriminating: Whether any compiled candidate names any of these
+    #     requirements as separating its possibilities. It is 0 during
+    #     Investigate, where candidates do not exist yet, so a test there
+    #     only measures shared coverage.
+    #   direct: Whether the read measures a machine rather than its records.
+    #   question_number: The first question's number, so Q1 leads on a tie.
+    #   ordered: 0 when an explicit Test order exists, else 1; it is the
+    #     first key, so ranking never overrides that order.
+    shared = len(requirement_ids)
+    named = {
+        rid
         for candidate in state.triage_candidates
-    )
-    suffix = requirement.question_id.removeprefix("Q")
+        for rid in candidate.discriminating_requirement_ids
+    }
+    discriminating = any(rid in named for rid in requirement_ids)
+    suffix = state.triage_requirements[requirement_ids[0]].question_id.removeprefix("Q")
     question_number = int(suffix) if suffix.isdigit() else 99
     return (
-        shared,
-        int(discriminating),
-        int(direct),
-        -question_number,
+        0 if order_position is not None else 1,
+        order_position if order_position is not None else 0,
+        -shared,
+        -int(discriminating),
+        -int(direct),
+        question_number,
     )
 
 
@@ -786,17 +834,21 @@ def choose_next_triage_read(
             grouped[key] = (request, [])
         grouped[key][1].append(requirement.requirement_id)
     if grouped:
+        test_order = {
+            rid: position
+            for position, rid in enumerate(state.triage_test_requirement_ids)
+        }
         ranked = sorted(
             grouped.items(),
             key=lambda entry: (
-                tuple(
-                    -field
-                    for field in read_priority(
-                        state.triage_requirements[entry[1][1][0]],
-                        state=state,
-                        shared=len(entry[1][1]),
-                        direct=entry[1][0].name in SENSOR_READS,
-                    )
+                read_priority(
+                    tuple(entry[1][1]),
+                    state=state,
+                    direct=entry[1][0].name in SENSOR_READS,
+                    order_position=min(
+                        (test_order[rid] for rid in entry[1][1] if rid in test_order),
+                        default=None,
+                    ),
                 ),
                 entry[0],
             ),
@@ -1030,6 +1082,17 @@ def run_deterministic_triage_loop(
                 add_test_requirements(state)
             reconcile()
         if not state.unanswered_questions:
+            # An empty question list is not proof of sufficient evidence: a
+            # required requirement may still be unresolved (unavailable,
+            # insufficient, or marked by the selector).
+            outstanding = unresolved_required(state)
+            if outstanding:
+                return finish(
+                    TriageStopDecision(
+                        reason="data_insufficient",
+                        unresolved_requirement_ids=outstanding,
+                    )
+                )
             return finish(TriageStopDecision(reason="requirements_complete"))
         if state.remaining_iterations <= 0:
             return finish(TriageStopDecision(reason="max_iterations"))

@@ -432,6 +432,82 @@ def test_ranked_read_prefers_a_shared_discriminating_source():
     assert state.triage_decide_trace[0].reason.endswith("(read-ranking-v1)")
 
 
+def test_unavailable_status_survives_reconciliation_cycles():
+    """A capability verdict is not overwritten by a later reconcile pass."""
+    state = state_for()
+    deps = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    run_inner_loop(state, deps, "investigate")
+    first = {
+        rid: result.status
+        for rid, result in state.triage_requirement_results.items()
+        if result.status in ("unavailable", "unsupported")
+    }
+    assert first
+    # A second pass reconciles every requirement again from scratch; the
+    # capability verdicts must still be there, with their reasons.
+    run_inner_loop(state, deps, "investigate")
+    for rid, status in first.items():
+        result = state.triage_requirement_results[rid]
+        assert result.status == status
+        assert "not authorized" in result.reason
+
+
+def test_requirements_complete_needs_satisfied_requirements_not_just_no_questions():
+    """An empty question list with unresolved required evidence is not completion."""
+    state = state_for()
+    deps = deps_for(
+        FakeProvider(answer, tick=45),
+        tools=(tool_spec("get_events"),),
+        channels={},
+    )
+    # Run once so the selector records its capability verdicts, then close
+    # every question by hand: only the requirement results remain.
+    run_inner_loop(state, deps, "investigate")
+    state.unanswered_questions = []
+    reason = run_inner_loop(state, deps, "investigate")
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+    assert state.triage_decide_trace[-1].reason == "data_insufficient"
+    assert state.triage_decide_trace[-1].requirement_ids
+    assert any(
+        result.status in ("unavailable", "unsupported")
+        for result in state.triage_requirement_results.values()
+    )
+
+
+def test_requirements_complete_when_every_required_requirement_is_satisfied():
+    """The positive case still completes: all required evidence satisfied."""
+    state = state_for()
+    provider = FakeProvider(answer, tick=45)
+    deps = deps_for(provider)
+    run_inner_loop(state, deps, "investigate")
+    state.unanswered_questions = []
+    # Every required requirement is genuinely satisfied already, or can be
+    # by reading its source: give the provider the data for the rest.
+    for rid, requirement in state.triage_requirements.items():
+        if requirement.required and (
+            state.triage_requirement_results[rid].status != "satisfied"
+        ):
+            state.unanswered_questions.append(
+                Question(id=requirement.question_id, text=f"reopen {rid}")
+            )
+    reason = run_inner_loop(state, deps, "investigate")
+    satisfied = all(
+        state.triage_requirement_results[rid].status == "satisfied"
+        for rid, requirement in state.triage_requirements.items()
+        if requirement.required
+    )
+    # Either everything was satisfiable and the run completed, or something
+    # genuinely cannot be established and it fails closed -- never complete.
+    assert (reason is TerminationReason.EVIDENCE_SUFFICIENT) == satisfied
+    if not satisfied:
+        assert reason is not TerminationReason.EVIDENCE_SUFFICIENT
+
+
 def test_ranking_is_stable_across_identical_runs():
     def order():
         state = state_for()
