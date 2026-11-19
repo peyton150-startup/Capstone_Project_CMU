@@ -1,4 +1,8 @@
-"""Portless, single-claim Render worker; simulator and Graph never run in FastAPI."""
+"""Portless, single-claim background worker; simulator and Graph never run in FastAPI.
+
+Hosted on Northflank while the FastAPI web service runs on Render. The two
+share only PostgreSQL, and each reads its build commit from its own host.
+"""
 
 from __future__ import annotations
 
@@ -12,35 +16,75 @@ import tempfile
 import threading
 import time
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from capstone.api.run_repository import (
-    JobClaim, LostLease, ReviewProposal, RunExecutionConfig, RunRepository,
+    RUN_FAILURE_CODES,
+    InvalidRunEnvironment,
+    JobClaim,
+    LostLease,
+    ReviewProposal,
+    RunExecutionConfig,
+    RunRepository,
     StagePayload,
+    WorkerProblem,
+    source_revision,
 )
 from capstone.api.runs import safe_stage
 
 logger = logging.getLogger("capstone.worker")
 
 
-_FAILURE_CODES = frozenset({
-    "database", "lease_expired", "contract", "configuration_mismatch",
-    "model_setup", "execution", "artifact", "progress_queue_full",
-    "progress_invalid", "progress_storage", "telemetry_storage",
-})
+_FAILURE_CODES = frozenset(
+    {
+        "database",
+        "lease_expired",
+        "contract",
+        "configuration_mismatch",
+        "invalid_configuration",
+        "model_setup",
+        "execution",
+        "artifact",
+        "progress_queue_full",
+        "progress_invalid",
+        "progress_storage",
+        "telemetry_storage",
+    }
+)
 
 
 def record(
-    event: str, *, claim: JobClaim | None = None,
-    failure_code: str | None = None, **counts: int,
+    event: str,
+    *,
+    claim: JobClaim | None = None,
+    failure_code: str | None = None,
+    **counts: int,
 ) -> None:
     """Only approved codes, UUIDs and bounded counts; no provider exceptions."""
+    # Variables:
+    #   body: The one JSON log line, built only from allowlisted fields.
+    #   revision: The build commit from source_revision() (Render or
+    #     Northflank), logged as 12 hex characters so the two hosts' log lines
+    #     can be matched up.
     if event not in {
-        "ready", "claimed", "finished", "failed", "lease_lost", "recovered",
-        "review_requested", "review_decided", "poll_failed", "progress_dropped",
-        "model_telemetry_unavailable", "model_telemetry_dropped",
-        "worker_pulse_failed", "worker_stopped", "contracts_checked",
+        "ready",
+        "claimed",
+        "finished",
+        "failed",
+        "lease_lost",
+        "recovered",
+        "review_requested",
+        "review_decided",
+        "poll_failed",
+        "progress_dropped",
+        "model_telemetry_unavailable",
+        "model_telemetry_dropped",
+        "worker_pulse_failed",
+        "worker_stopped",
+        "contracts_checked",
+        "terminal_write_failed",
     }:
         raise ValueError("Unknown worker event")
     if failure_code is not None and failure_code not in _FAILURE_CODES:
@@ -51,7 +95,7 @@ def record(
         body["job_id"] = str(claim.job_id)
     if failure_code:
         body["failure_code"] = failure_code
-    revision = os.getenv("CAPSTONE_SOURCE_REVISION") or os.getenv("RENDER_GIT_COMMIT")
+    revision = source_revision()
     if revision and re.fullmatch(r"[a-f0-9]{7,40}", revision):
         body["revision"] = revision[:12]
     for key in ("duration_ms", "count", "queue_wait_ms", "attempt"):
@@ -61,23 +105,64 @@ def record(
     logger.info("%s", json.dumps(body, sort_keys=True, separators=(",", ":")))
 
 
+_MISMATCH_MESSAGE = "Worker configuration does not match submitted settings"
+# Seconds between idle/active worker heartbeats (tests shorten it).
+_PULSE_SECONDS = 10.0
+
+
+def classify_failure(error: BaseException, step: str | None = None) -> str:
+    """Pick a fixed failure code from the error's type and the failing step."""
+    # Variables:
+    #   error: The exception that ended the run; only its type is inspected
+    #     (and, for the one internal RuntimeError, an exact message this module
+    #     raises itself), never provider or SQL text.
+    #   step: The part of the run that was executing ("model_setup" or
+    #     "artifact"); it refines an otherwise generic "execution" failure.
+    #   code: The chosen code, always one of RUN_FAILURE_CODES.
+    from sqlalchemy.exc import SQLAlchemyError
+
+    if isinstance(error, InvalidRunEnvironment):
+        code = "invalid_configuration"
+    elif isinstance(error, RuntimeError) and str(error) == _MISMATCH_MESSAGE:
+        code = "configuration_mismatch"
+    elif isinstance(error, ValueError):
+        code = "contract"
+    elif isinstance(error, (OSError, TimeoutError, SQLAlchemyError)):
+        code = "database"
+    elif step in {"model_setup", "artifact"}:
+        code = step
+    else:
+        code = "execution"
+    assert code in RUN_FAILURE_CODES
+    return code
+
+
 def check_strategy(config: RunExecutionConfig) -> None:
     """Refuse environment drift instead of executing different triage settings."""
     actual = RunExecutionConfig.current()
     if actual != config:
-        raise RuntimeError("Worker configuration does not match submitted settings")
+        raise RuntimeError(_MISMATCH_MESSAGE)
 
 
 def execute_claim(
-    repository: RunRepository, claim: JobClaim, owner: str,
-    *, stop: threading.Event | None = None,
-    heartbeat_seconds: int = 10, review_seconds: int = 240,
+    repository: RunRepository,
+    claim: JobClaim,
+    owner: str,
+    *,
+    stop: threading.Event | None = None,
+    heartbeat_seconds: int = 10,
+    review_seconds: int = 240,
 ) -> None:
     """Heartbeat during model I/O, persist approval, audit, events and outcome."""
     # Variables:
     #   lost: Sticky fencing failure that forbids actions and terminal writes.
     #   updates: Bounded nonblocking queue for validated UI stage projections.
     #   finished: Stops observer/heartbeat threads after the episode ends.
+    #   step: The part of the run now executing; when an error is otherwise
+    #     generic, model_setup or artifact names where it happened.
+    #   category: The safe failure code from classify_failure(), logged and
+    #     stored on the run.failed event so the UI can show it; never the
+    #     error's message, which may hold provider or SQL text.
     if not 1 <= heartbeat_seconds <= 20:
         raise ValueError("Invalid heartbeat interval")
     stop = stop or threading.Event()
@@ -93,6 +178,7 @@ def execute_claim(
     monitor_enabled = [False]
     critic_seen = [0]
     critic_persisted = [0]
+    step = ["strategy"]
     started = time.monotonic()
 
     def emit_model(event_name: str, payload: dict[str, Any]) -> None:
@@ -128,21 +214,27 @@ def execute_claim(
     def finish_model_monitor() -> None:
         if monitor_enabled[0]:
             calls = getattr(policy_holder[0], "calls", ()) or ()
-            emit_model("model.monitor.finished", {
-                "schema_version": 1,
-                "questions_seen": min(len(calls) + critic_seen[0], 100_000),
-                "questions_persisted": min(
-                    persisted_calls[0] + critic_persisted[0], 100_000
-                ),
-                "write_failures": min(telemetry_failures[0], 100_000),
-                "complete": (
-                    len(calls) + critic_seen[0]
-                    == persisted_calls[0] + critic_persisted[0]
-                ),
-            })
+            emit_model(
+                "model.monitor.finished",
+                {
+                    "schema_version": 1,
+                    "questions_seen": min(len(calls) + critic_seen[0], 100_000),
+                    "questions_persisted": min(
+                        persisted_calls[0] + critic_persisted[0], 100_000
+                    ),
+                    "write_failures": min(telemetry_failures[0], 100_000),
+                    "complete": (
+                        len(calls) + critic_seen[0]
+                        == persisted_calls[0] + critic_persisted[0]
+                    ),
+                },
+            )
         if telemetry_failures[0]:
-            record("model_telemetry_dropped", claim=claim,
-                   count=min(telemetry_failures[0], 1_000_000))
+            record(
+                "model_telemetry_dropped",
+                claim=claim,
+                count=min(telemetry_failures[0], 1_000_000),
+            )
 
     def alive() -> None:
         if lost.is_set() or stop.is_set():
@@ -166,9 +258,9 @@ def execute_claim(
     def watch(state: Any) -> None:
         try:
             flush_model_calls()
-            safe = StagePayload.model_validate(
-                safe_stage(state)
-            ).model_dump(mode="json")
+            safe = StagePayload.model_validate(safe_stage(state)).model_dump(
+                mode="json"
+            )
             updates.put_nowait(safe)
         except queue.Full:
             missed[0] += 1
@@ -252,11 +344,14 @@ def execute_claim(
             trace = Path(root) / "trace.jsonl"
             manual = (
                 open_manual(claim.request.manual)
-                if claim.request.manual != "none" else None
+                if claim.request.manual != "none"
+                else None
             )
+            step[0] = "model_setup"
             try:
                 policy = model_policy_factory(
-                    with_recall=False, with_manual=manual is not None,
+                    with_recall=False,
+                    with_manual=manual is not None,
                     tree_of_thought=claim.request.tree_of_thought,
                 )()
             except Exception as exc:
@@ -267,14 +362,20 @@ def execute_claim(
                     and str(exc).startswith("set ")
                     and "_API_KEY" in str(exc)
                 )
-                emit_model("model.config", {
-                    "schema_version": 1,
-                    "outcome": (
-                        "missing_credentials" if missing else "invalid_configuration"
-                    ),
-                })
+                emit_model(
+                    "model.config",
+                    {
+                        "schema_version": 1,
+                        "outcome": (
+                            "missing_credentials"
+                            if missing
+                            else "invalid_configuration"
+                        ),
+                    },
+                )
                 raise
             policy_holder[0] = policy
+            step[0] = "episode"
             emit_model("model.config", {"schema_version": 1, "outcome": "configured"})
             with trace.open("w", encoding="utf-8") as stream:
                 stream.write('{"event":"worker.started"}\n')
@@ -286,16 +387,24 @@ def execute_claim(
 
                 effective_triage = (
                     resolve_triage_run(get_settings(), claim.request.triage_settings)
-                    if claim.request.mode == "triage" else None
+                    if claim.request.mode == "triage"
+                    else None
                 )
                 result = run_episode(
-                    claim.request.seed, policy, kind=claim.request.kind,
+                    claim.request.seed,
+                    policy,
+                    kind=claim.request.kind,
                     triage=claim.request.mode == "triage",
                     triage_configuration=effective_triage,
-                    hazards=claim.request.hazards, manual=manual, watch=watch,
-                    log=AuditLog(audit), event_logger=EventLogger(
+                    hazards=claim.request.hazards,
+                    manual=manual,
+                    watch=watch,
+                    log=AuditLog(audit),
+                    event_logger=EventLogger(
                         stream, name="hosted-" + str(claim.run_id)
-                    ), approver=approver, run_key="hosted/" + str(claim.run_id),
+                    ),
+                    approver=approver,
+                    run_key="hosted/" + str(claim.run_id),
                 )
             alive()
             flush_model_calls()
@@ -312,9 +421,7 @@ def execute_claim(
                 ):
                     try:
                         safe = project_model_call(critic_call, index)
-                        repository.publish_model_event(
-                            claim, owner, "model.call", safe
-                        )
+                        repository.publish_model_event(claim, owner, "model.call", safe)
                     except LostLease:
                         lost.set()
                         raise
@@ -324,19 +431,23 @@ def execute_claim(
                         critic_persisted[0] += 1
             finish_model_monitor()
             # Audit and safe trace must be committed before completed status.
+            step[0] = "artifact"
             repository.store_artifacts(
-                claim, owner,
+                claim,
+                owner,
                 {"audit": audit.read_bytes(), "observability": trace.read_bytes()},
             )
-            final = StagePayload.model_validate(
-                safe_stage(result.state)
-            ).model_dump(mode="json")
+            step[0] = "finalize"
+            final = StagePayload.model_validate(safe_stage(result.state)).model_dump(
+                mode="json"
+            )
             triage = result.triage or (
                 result.state if result.state.mode == "triage" else None
             )
             report = (
                 triage.triage_report.model_dump(mode="json")
-                if triage is not None and triage.triage_report is not None else None
+                if triage is not None and triage.triage_report is not None
+                else None
             )
             finished.set()
             writer.join(timeout=5)
@@ -344,9 +455,7 @@ def execute_claim(
             if missed[0]:
                 # Optional observer failures must not fail the investigation.
                 try:
-                    repository.publish_resync(
-                        claim, owner, min(missed[0], 1_000_000)
-                    )
+                    repository.publish_resync(claim, owner, min(missed[0], 1_000_000))
                 except LostLease:
                     raise
                 except Exception:
@@ -354,21 +463,30 @@ def execute_claim(
             # Final progress and terminal state share the same DB transaction.
             # Even a late watcher cannot overwrite the authoritative result.
             repository.transition(
-                claim, owner, "completed", "run.completed", {
-                    "status": "completed", "mode": claim.request.mode,
-                    "investigation": final, "triage_report": report,
+                claim,
+                owner,
+                "completed",
+                "run.completed",
+                {
+                    "status": "completed",
+                    "mode": claim.request.mode,
+                    "investigation": final,
+                    "triage_report": report,
                     "diagnosis": (
                         result.state.conclusion.diagnosis[:1000]
-                        if result.state.conclusion is not None else None
+                        if result.state.conclusion is not None
+                        else None
                     ),
                     "recommendation": (
                         result.state.conclusion.recommendation
-                        if result.state.conclusion is not None else None
+                        if result.state.conclusion is not None
+                        else None
                     ),
                     "action_executed": result.state.action_started_tick is not None,
                     "verification_outcome": (
                         result.state.verification.outcome
-                        if result.state.verification is not None else None
+                        if result.state.verification is not None
+                        else None
                     ),
                     "deep_ran": (
                         result.triage is not None and result.state is not result.triage
@@ -386,13 +504,18 @@ def execute_claim(
                     else None
                 ),
             )
-        record("finished", claim=claim,
-               duration_ms=int((time.monotonic() - started) * 1000))
+        record(
+            "finished",
+            claim=claim,
+            duration_ms=int((time.monotonic() - started) * 1000),
+        )
         if missed[0]:
             for code, count in dropped.items():
                 if count:
                     record(
-                        "progress_dropped", claim=claim, count=count,
+                        "progress_dropped",
+                        claim=claim,
+                        count=count,
                         failure_code=code,
                     )
     except LostLease:
@@ -401,17 +524,7 @@ def execute_claim(
     except Exception as error:
         # Error messages can include provider bodies and credentials.
         # Classify by trusted Python type or an exact internal code only.
-        if isinstance(error, ValueError):
-            category = "contract"
-        elif (
-            isinstance(error, RuntimeError)
-            and str(error) == "Worker configuration does not match submitted settings"
-        ):
-            category = "configuration_mismatch"
-        elif isinstance(error, (OSError, TimeoutError)):
-            category = "database"
-        else:
-            category = "execution"
+        category = classify_failure(error, step[0])
         record("failed", claim=claim, failure_code=category)
         try:
             flush_model_calls()
@@ -422,12 +535,25 @@ def execute_claim(
             pass
         try:
             if not lost.is_set() and not stop.is_set():
-                repository.transition(claim, owner, "failed", "run.failed", {
-                    "status": "failed", "mode": claim.request.mode,
-                    "error_class": type(error).__name__[:80],
-                })
+                repository.transition(
+                    claim,
+                    owner,
+                    "failed",
+                    "run.failed",
+                    {
+                        "status": "failed",
+                        "mode": claim.request.mode,
+                        "failure_code": category,
+                        "error_class": type(error).__name__[:80],
+                    },
+                )
+        except LostLease:
+            # Another owner or recovery now holds the run; it records the end.
+            record("lease_lost", claim=claim)
         except Exception:
-            pass  # Never expose provider/SQL errors or overwrite another lease.
+            # Never expose provider/SQL errors or overwrite another lease, but
+            # leave a fixed trace that the failure itself was not stored.
+            record("terminal_write_failed", claim=claim, failure_code=category)
     finally:
         finished.set()
         try:
@@ -439,16 +565,38 @@ def execute_claim(
 
 
 def serve_worker(
-    repository: RunRepository, *, stop: threading.Event | None = None,
-    poll_seconds: float = 1.5, max_jobs: int | None = None,
+    repository: RunRepository,
+    *,
+    stop: threading.Event | None = None,
+    poll_seconds: float = 1.5,
+    max_jobs: int | None = None,
 ) -> None:
     """One active run per process; DB SKIP LOCKED prevents duplicate claims."""
+    # Variables:
+    #   owner: This process's lease identity, written on every claim and
+    #     heartbeat so fenced writes can tell workers apart.
+    #   current_config: The triage settings and build commit resolved once at
+    #     startup; only queued runs submitted with an identical config are
+    #     claimed. A malformed value stops the worker here with a logged
+    #     invalid_configuration code rather than an unexplained traceback.
+    #   active: One-element flag the heartbeat thread reads to report
+    #     "running" or "idle".
+    #   problem: The latest process-level failure (poll_failed,
+    #     worker_pulse_failed or contracts_missing), sent with the next
+    #     heartbeat so the System page shows it; it belongs to no run.
+    #   pulse_failures: Consecutive heartbeat writes that failed; stored as
+    #     the problem's count once a pulse reaches the database again.
+    #   failures: Consecutive poll failures, driving the capped backoff.
     if not 0.2 <= poll_seconds <= 30:
         raise ValueError("Invalid polling interval")
     stop = stop or threading.Event()
     owner = "worker:" + uuid.uuid4().hex
     completed, failures = 0, 0
-    current_config = RunExecutionConfig.current()
+    try:
+        current_config = RunExecutionConfig.current()
+    except InvalidRunEnvironment:
+        record("worker_stopped", failure_code="invalid_configuration")
+        raise
     if not repository.ready():
         raise RuntimeError("Hosted database not migrated")
 
@@ -456,17 +604,34 @@ def serve_worker(
     # prove the independently deployed background process is running.
     health_stop = threading.Event()
     active = [False]
+    problem: list[WorkerProblem | None] = [None]
+    pulse_failures = [0]
+
+    def note(code: str, count: int = 1) -> None:
+        problem[0] = WorkerProblem(
+            code, datetime.now(timezone.utc), min(max(count, 0), 1_000_000)
+        )
 
     def pulse() -> None:
         while not health_stop.is_set():
             try:
                 repository.worker_heartbeat(
-                    owner, source_revision=current_config.source_revision,
+                    owner,
+                    source_revision=current_config.source_revision,
                     status="running" if active[0] else "idle",
+                    problem=problem[0],
                 )
+                pulse_failures[0] = 0
             except Exception:
-                record("worker_pulse_failed", failure_code="database")
-            health_stop.wait(10)
+                pulse_failures[0] += 1
+                record(
+                    "worker_pulse_failed",
+                    failure_code="database",
+                    attempt=min(pulse_failures[0], 100),
+                )
+                # Stored on the next pulse that reaches the database.
+                note("worker_pulse_failed", pulse_failures[0])
+            health_stop.wait(_PULSE_SECONDS)
 
     health_thread = threading.Thread(
         target=pulse, daemon=True, name="hosted-worker-health"
@@ -479,6 +644,8 @@ def serve_worker(
 
     contracts = inspect_hosted_contracts()
     record("contracts_checked", count=len(contracts.missing))
+    if contracts.missing:
+        note("contracts_missing", len(contracts.missing))
     while not stop.is_set():
         try:
             recovered = repository.recover_expired()
@@ -489,14 +656,17 @@ def serve_worker(
         except Exception:
             failures += 1
             record("poll_failed", failure_code="database", attempt=min(failures, 100))
+            note("poll_failed", failures)
             stop.wait(min(30, 2 ** min(5, failures)))
             continue
         if claim is None:
             stop.wait(poll_seconds)
             continue
         record(
-            "claimed", claim=claim,
-            queue_wait_ms=claim.queue_wait_ms, attempt=claim.attempt,
+            "claimed",
+            claim=claim,
+            queue_wait_ms=claim.queue_wait_ms,
+            attempt=claim.attempt,
         )
         active[0] = True
         try:
@@ -512,7 +682,7 @@ def serve_worker(
 
 
 def main() -> None:
-    """Explicitly opted-in Render background worker; does not expose a port."""
+    """Explicitly opted-in background worker (Northflank); does not expose a port."""
     if os.getenv("CAPSTONE_WORKER_ENABLED") != "1":
         raise RuntimeError("CAPSTONE_WORKER_ENABLED=1 must be set")
     database_url = os.getenv("CAPSTONE_UI_RUN_DATABASE_URL") or ""

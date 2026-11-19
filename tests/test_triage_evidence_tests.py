@@ -383,6 +383,8 @@ def test_the_setting_is_on_by_default(monkeypatch):
 
 def test_the_setting_can_be_turned_off(monkeypatch):
     monkeypatch.setenv("TRIAGE_EVIDENCE_TESTS", "off")
+    # Deterministic Hypothesize (the #299 default) requires evidence tests on.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     assert Settings(_env_file=None).triage_evidence_tests is False
 
 
@@ -419,6 +421,8 @@ def triaged_record(monkeypatch, setting):
     monkeypatch.setenv("CRITIC", "off")
     monkeypatch.setenv("TRIAGE_THEN_DEEP", "on")
     monkeypatch.setenv("TRIAGE_EVIDENCE_TESTS", setting)
+    # Both arms use the legacy model Hypothesize, which allows rules off.
+    monkeypatch.setenv("TRIAGE_HYPOTHESIZE", "model")
     case = Case("bearing-6", SEED, "bearing_degradation")
     (record,) = run_experiment([case], triage_then_deep, name="triaged", triage=True)
     return record

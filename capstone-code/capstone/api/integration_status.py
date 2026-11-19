@@ -13,8 +13,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 MissingContract = Literal[
-    "stage_progress", "decide_trace", "deep_lifecycle",
-    "deterministic_profile", "model_attempts",
+    "stage_progress",
+    "decide_trace",
+    "deep_lifecycle",
+    "deterministic_profile",
+    "model_attempts",
 ]
 
 
@@ -44,10 +47,13 @@ def inspect_hosted_contracts() -> HostedIntegrationStatus:
         fields = {}
     states = {
         "stage_progress": {
-            "investigation_id", "requirement_statuses", "triage_decide_reads",
+            "investigation_id",
+            "requirement_statuses",
+            "triage_decide_reads",
         }.issubset(fields),
         "decide_trace": {
-            "decide_event_total", "decide_events_recent",
+            "decide_event_total",
+            "decide_events_recent",
         }.issubset(fields),
         "deep_lifecycle": (
             "deep_signals" in fields
@@ -58,7 +64,9 @@ def inspect_hosted_contracts() -> HostedIntegrationStatus:
             and "triage_run_mode" in Settings.model_fields
         ),
         "model_attempts": {
-            "job", "attempts", "outcome",
+            "job",
+            "attempts",
+            "outcome",
         }.issubset(SafeModelCall.model_fields),
     }
     missing = [name for name, available in states.items() if not available]

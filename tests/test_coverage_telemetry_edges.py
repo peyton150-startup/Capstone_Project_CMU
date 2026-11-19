@@ -96,8 +96,10 @@ def test_collector_cli_reports_success_or_graceful_interrupt(
     monkeypatch.setattr(ingestion_cli, "refusal", lambda *_: None)
     monkeypatch.setattr(ingestion_cli, "MTConnectCollector", lambda *a, **kw: collector)
 
-    def fake_run(obj, path, *, interval, max_polls):
+    def fake_run(obj, path, *, interval, max_polls, **haas_options):
         assert obj is collector
+        # The generic --url path must not turn on any Haas-only behaviour.
+        assert not any(haas_options.values())
         seen.append((path, interval, max_polls))
         if interrupt:
             raise KeyboardInterrupt

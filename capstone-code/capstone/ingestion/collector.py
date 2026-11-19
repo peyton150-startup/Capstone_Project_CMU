@@ -33,13 +33,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal, TextIO
 
-from capstone.ingestion.mtconnect import MTConnectError, parse_streams
+from capstone.ingestion.mtconnect import (
+    MTConnectError,
+    parse_streams,
+    validate_streams_metadata,
+)
 from capstone.ingestion.record import (
     CollectorMarker,
     GapDetail,
     Line,
     TelemetryRecord,
 )
+from capstone.observability import EventLogger
 
 # The fastest a collector may poll. Real machines are shared production
 # equipment; agree the actual rate with the shop before running.
@@ -116,6 +121,7 @@ class MTConnectCollector:
         count: int = 1000,
         fetch: Fetch = http_get,
         now: Callable[[], datetime] = utc_now,
+        strict_headers: bool = False,
     ) -> None:
         # Variables:
         #   base_url: The agent's address, e.g. http://192.168.1.20:8082.
@@ -137,6 +143,7 @@ class MTConnectCollector:
         self.count = count
         self._fetch = fetch
         self.now = now
+        self.strict_headers = strict_headers
         self._next: int | None = None
         self._instance_id: str | None = None
         self._last_received_at: datetime | None = None
@@ -197,6 +204,8 @@ class MTConnectCollector:
                 )
             raise
 
+        if self.strict_headers:
+            validate_streams_metadata(document)
         previous_instance = self._instance_id
         restarted = (
             previous_instance is not None and document.instance_id != previous_instance
@@ -216,6 +225,22 @@ class MTConnectCollector:
                 self._next = None
                 return PollResult(gap_detail=gap_detail)
 
+        if (
+            self.strict_headers
+            and not starting
+            and requested_from is not None
+            and document.next_sequence < requested_from
+        ):
+            raise ValueError("MTConnect sample pagination moved backward")
+        if (
+            self.strict_headers
+            and not starting
+            and requested_from is not None
+            and document.next_sequence == requested_from
+            and document.last_sequence >= requested_from
+            and not document.records
+        ):
+            raise ValueError("MTConnect sample pagination did not advance")
         self._next = document.next_sequence
         records = document.records
         if not starting:
@@ -259,6 +284,9 @@ def run_collector(
     sleep: Callable[[float], None] = time.sleep,
     log: TextIO | None = None,
     heartbeat_every: float = HEARTBEAT_SECONDS,
+    enforce_poll_interval: bool = False,
+    safe_errors: bool = False,
+    event_logger: EventLogger | None = None,
 ) -> int:
     """Poll until max_polls (or forever), writing records; returns records written.
 
@@ -284,6 +312,14 @@ def run_collector(
     #     successful poll writes a heartbeat. A failed poll never does, so an
     #     unreachable agent shows up as silence.
     #   last_write: When the collector last wrote any line, on its own clock.
+    #   enforce_poll_interval: True on the approved Haas path: always wait
+    #     interval between requests, even while a backlog is waiting, so the
+    #     shop-approved request rate is never exceeded.
+    #   safe_errors: True on the Haas path: a failed poll is reported by its
+    #     exception type only, because the message may hold a shop address.
+    #   event_logger: Optional structured trace; each poll logs success,
+    #     record/gap counts or the exception type, and its duration.
+    #   polled_at: When the current poll started, for that duration.
     if interval < MIN_INTERVAL_SECONDS:
         raise ValueError(f"interval must be at least {MIN_INTERVAL_SECONDS} s")
     written = 0
@@ -293,15 +329,36 @@ def run_collector(
     try:
         while max_polls is None or polls < max_polls:
             polls += 1
+            polled_at = time.perf_counter()
             try:
                 result = collector.poll()
             except (OSError, ET.ParseError, ValueError, MTConnectError) as error:
+                if event_logger is not None:
+                    event_logger.log_event(
+                        "mtconnect.poll",
+                        success=False,
+                        reason_code=type(error).__name__,
+                        duration_ms=max(0.0, (time.perf_counter() - polled_at) * 1000),
+                    )
+                # An OS exception may contain a shop address, hostname or
+                # credential. The production Haas path logs type only.
+                detail = "" if safe_errors else f": {error}"
                 print(
-                    f"poll failed, retrying: {type(error).__name__}: {error}",
+                    f"poll failed, retrying: {type(error).__name__}{detail}",
                     file=log or sys.stderr,
                 )
                 sleep(interval)
                 continue
+            if event_logger is not None:
+                event_logger.log_event(
+                    "mtconnect.poll",
+                    success=True,
+                    counts={
+                        "records": len(result.records),
+                        "gaps": int(result.gap),
+                    },
+                    duration_ms=max(0.0, (time.perf_counter() - polled_at) * 1000),
+                )
             if result.gap_detail is not None:
                 # Before the records: the loss happened before they were sent.
                 append_jsonl(out, [_marker(collector, "gap", gap=result.gap_detail)])
@@ -319,7 +376,9 @@ def run_collector(
             elif (now - last_write).total_seconds() >= heartbeat_every:
                 append_jsonl(out, [_marker(collector, "heartbeat")])
                 last_write = now
-            if not result.more_waiting:
+            # A shop-approved request-rate limit must also apply during
+            # backlog catch-up, not only while the agent is idle.
+            if enforce_poll_interval or not result.more_waiting:
                 sleep(interval)
         reason = "poll limit reached"
     except KeyboardInterrupt:

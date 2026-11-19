@@ -36,6 +36,7 @@ from capstone.agent.state import (
     PrunedCandidate,
     ReasoningMetrics,
 )
+from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.contracts import Contract
 from capstone.contracts.completed_investigations import (
     ActionProposal,
@@ -143,6 +144,9 @@ class AuditRecord(Contract):
     pruned_candidates: tuple[PrunedCandidate, ...] = ()
     # The opt-in observed line packet; absent in older audit lines.
     incident_context: IncidentContext | None = None
+    # Full typed triage diagnostic history survives completed managed runs.
+    # Older JSON audits without this field remain readable.
+    triage_trace_events: tuple[TriageTraceEvent, ...] = ()
     # Effective execution mode, independent of raw environment overrides.
     # A pre-profile audit defaults to its historical custom mode.
     triage_run_mode: Literal["custom", "deterministic"] = "custom"
@@ -153,6 +157,10 @@ def audit_record(state: InvestigationState) -> AuditRecord:
     # Variables:
     #   state.incident_context: Source IDs and missing coverage from the
     #     opt-in packet; retained for audit, not promoted as a belief.
+    #   state.triage_trace_events: The typed Decide trace (#296), kept so a
+    #     completed run's audit still shows every chronological Decide step.
+    #   state.triage_run_mode: The effective triage profile (#301), recorded so
+    #     the audit says whether the run was deterministic or custom.
     return AuditRecord(
         completed=complete(state),
         provenance=tuple(state.provenance),
@@ -166,6 +174,7 @@ def audit_record(state: InvestigationState) -> AuditRecord:
         metrics=state.metrics(),
         pruned_candidates=tuple(state.pruned_candidates),
         incident_context=state.incident_context,
+        triage_trace_events=tuple(state.triage_trace_events),
         triage_run_mode=state.triage_run_mode,
     )
 

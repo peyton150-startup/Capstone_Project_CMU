@@ -104,7 +104,10 @@ def test_secret_like_model_name_is_redacted_and_invalid_timing_is_dropped():
         mode="triage",
         outcome="no_answer",
         attempts=(
-            Attempt(
+            # Attempt itself forbids inf (Contract: allow_inf_nan=False), so
+            # build an unvalidated record, as an old or foreign journal row
+            # could be, to prove the projection still drops the bad timing.
+            Attempt.model_construct(
                 model="nvapi-secret1234",
                 outcome="HTTP 500 secret body: Bearer PRIVATE",
                 seconds=float("inf"),
