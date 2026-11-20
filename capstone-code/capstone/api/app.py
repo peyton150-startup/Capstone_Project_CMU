@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import threading
+import time
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -84,6 +85,25 @@ PUBLIC_SETTING_FIELDS = {
     "MIN_ACTION_CONFIDENCE": "min_action_confidence",
     "MODEL_REQUEST_SECONDS": "model_request_seconds",
 }
+
+
+STREAM_LOG = logging.getLogger("capstone.api.stream")
+
+
+def log_stream_event(event: str, **fields: object) -> None:
+    """Log one run-journal stream event as a single JSON line."""
+    # Variables:
+    #   fields: Run id, cursors, counts and reasons only. Never tokens,
+    #     headers or event payloads, so the log is safe to ship to a host's
+    #     log store.
+    STREAM_LOG.info(
+        "%s",
+        json.dumps(
+            {"service": "fastapi", "event": event, **fields},
+            separators=(",", ":"),
+            sort_keys=True,
+        ),
+    )
 
 
 def create_app(config: UiConfig | None = None) -> FastAPI:
@@ -986,49 +1006,109 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=403, detail="Pilot stream access is prohibited"
             )
+        # Variables:
+        #   cursor: The last sequence the client already has; events after it
+        #     are streamed. A valid Last-Event-ID header can only move it
+        #     forward, never back.
+        #   header_ignored: True when a Last-Event-ID header was sent but was
+        #     not a plain number, so the operator can see a client resuming
+        #     from the query cursor instead.
+        #   stats: What this one stream did (events sent, private events
+        #     withheld, keepalives), logged once when it closes.
         ensure_run(run_id)
         cursor = since
-        if last_event_id and re.fullmatch(r"[0-9]{1,12}", last_event_id):
-            cursor = max(cursor, int(last_event_id))
+        header_ignored = False
+        if last_event_id:
+            if re.fullmatch(r"[0-9]{1,12}", last_event_id):
+                cursor = max(cursor, int(last_event_id))
+            else:
+                header_ignored = True
+        stats = {
+            "since": since,
+            "start_cursor": cursor,
+            "events_sent": 0,
+            "private_withheld": 0,
+            "keepalives": 0,
+        }
+        log_stream_event(
+            "run_events_open",
+            run_id=run_id,
+            since=since,
+            cursor=cursor,
+            last_event_id_ignored=header_ignored,
+        )
 
         async def stream():
+            # Variables:
+            #   reason: How the stream ended. It stays "client_disconnected"
+            #     unless the run finished replaying or the read failed, and is
+            #     logged with the stream's counts in the finally block.
+            #   started: Monotonic start time, for the logged stream duration.
             nonlocal cursor
-            yield "retry: 2000\n\n"
-            while True:
-                assert runner is not None
-                events = await asyncio.to_thread(runner.events_since, run_id, cursor)
-                for event in events:
-                    cursor = event["seq"]
-                    # #297 model-call envelopes are a separate, revalidated
-                    # endpoint. Do not stream private attempt metadata in SSE.
-                    if event["event"].startswith("model."):
-                        continue
-                    import json
-
-                    payload = json.dumps(event["data"], separators=(",", ":"))
-                    yield f"id: {cursor}\nevent: {event['event']}\ndata: {payload}\n\n"
-                if not events:
-                    yield ": keepalive\n\n"
-                current = await asyncio.to_thread(runner.get, run_id)
-                if (
-                    current
-                    and current["state"]
-                    in {
-                        "completed",
-                        "failed",
-                        "interrupted",
-                        "expired",
-                    }
-                    and not events
-                ):
-                    # A recovered terminal run need not have a terminal event.
-                    # Explicitly end replay so browser reconnects can stop.
-                    yield (
-                        "event: stream.closed\n"
-                        'data: {"reason":"terminal_replay_complete"}\n\n'
+            reason = "client_disconnected"
+            started = time.monotonic()
+            try:
+                yield "retry: 2000\n\n"
+                while True:
+                    assert runner is not None
+                    events = await asyncio.to_thread(
+                        runner.events_since, run_id, cursor
                     )
-                    break
-                await asyncio.sleep(1)
+                    for event in events:
+                        cursor = event["seq"]
+                        # #297 model-call envelopes are a separate, revalidated
+                        # endpoint. Do not stream private attempt metadata in SSE.
+                        if event["event"].startswith("model."):
+                            stats["private_withheld"] += 1
+                            continue
+                        payload = json.dumps(event["data"], separators=(",", ":"))
+                        stats["events_sent"] += 1
+                        yield (
+                            f"id: {cursor}\nevent: {event['event']}\n"
+                            f"data: {payload}\n\n"
+                        )
+                    if not events:
+                        stats["keepalives"] += 1
+                        yield ": keepalive\n\n"
+                    current = await asyncio.to_thread(runner.get, run_id)
+                    if (
+                        current
+                        and current["state"]
+                        in {
+                            "completed",
+                            "failed",
+                            "interrupted",
+                            "expired",
+                        }
+                        and not events
+                    ):
+                        # A recovered terminal run need not have a terminal
+                        # event. Explicitly end replay so browser reconnects
+                        # can stop.
+                        reason = "terminal_replay_complete"
+                        yield (
+                            "event: stream.closed\n"
+                            'data: {"reason":"terminal_replay_complete"}\n\n'
+                        )
+                        break
+                    await asyncio.sleep(1)
+            except (asyncio.CancelledError, GeneratorExit):
+                reason = "client_disconnected"
+                raise
+            except Exception as error:
+                # Only the exception type is logged: messages from the store
+                # may carry connection details.
+                reason = "error:" + type(error).__name__
+                raise
+            finally:
+                log_stream_event(
+                    "run_events_close",
+                    run_id=run_id,
+                    reason=reason,
+                    last_seq=cursor,
+                    duration_s=round(time.monotonic() - started, 3),
+                    **stats,
+                )
 
         return StreamingResponse(
             stream(),

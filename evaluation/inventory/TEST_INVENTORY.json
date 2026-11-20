@@ -59085,7 +59085,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -66455,6 +66455,7 @@
     "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
     "capstone.api.app:create_app.<locals>.system",
+    "capstone.api.app:log_stream_event",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.integration_status:inspect_hosted_contracts",
     "capstone.api.readers:recorder_snapshot",
@@ -66469,7 +66470,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 28,
+   "exercise_count": 29,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -102677,14 +102678,13 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 185,
+   "exercise_count": 181,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
     "capstone.agent.loop",
     "capstone.agent.state",
     "capstone.contracts.tools",
-    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.simulator.clock",
     "capstone.simulator.events",
@@ -154645,6 +154645,7 @@
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
     "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.app:log_stream_event",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
@@ -154661,7 +154662,7 @@
     "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -154980,6 +154981,7 @@
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
     "capstone.api.app:create_app.<locals>.server_settings",
     "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.app:log_stream_event",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SafeStageSnapshot.validate_public_question_ids",
     "capstone.api.runs:SimulatorRuns.__init__",
@@ -155002,7 +155004,7 @@
     "capstone.triage_run_controls:resolve_triage_run",
     "capstone.triage_run_controls:resolve_triage_run.<locals>.get"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -155126,6 +155128,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:log_stream_event",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.deep_progress:checkpoint_from_stage",
     "capstone.api.runs:SafeStageSnapshot.validate_public_question_ids",
@@ -155137,7 +155140,7 @@
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 16,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -155364,6 +155367,7 @@
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
     "capstone.api.app:create_app.<locals>.shutdown_runner",
+    "capstone.api.app:log_stream_event",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.runs:SimulatorRuns.__init__",
     "capstone.api.runs:SimulatorRuns._db",
@@ -155372,7 +155376,7 @@
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -155454,6 +155458,7 @@
     "capstone.api.app:create_app.<locals>.managed_run",
     "capstone.api.app:create_app.<locals>.run_events",
     "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:log_stream_event",
     "capstone.api.config:UiConfig.__post_init__",
     "capstone.api.deep_progress:checkpoint_from_stage",
     "capstone.api.runs:SafeStageSnapshot.validate_public_question_ids",
@@ -155465,7 +155470,7 @@
     "capstone.api.runs:SimulatorRuns.get",
     "capstone.api.runs:utc_now"
    ],
-   "exercise_count": 16,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.api.app",
     "capstone.api.config",
@@ -155514,6 +155519,75 @@
    "modules_exercised": [
     "capstone.api.deep_progress",
     "capstone.api.runs"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_event_stream_logs_open_and_close_without_secrets",
+   "file": "tests/test_web_runs.py",
+   "name": "test_event_stream_logs_open_and_close_without_secrets",
+   "line": 1255,
+   "docstring": "Each journal stream logs one open and one close line with counts only.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "caplog"
+   ],
+   "assertions": 9,
+   "assert_forms": {
+    "equality": 3,
+    "identity_constant": 2,
+    "membership": 1,
+    "truthiness": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Each journal stream logs one open and one close line with counts only.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.app:create_app",
+    "capstone.api.app:create_app.<locals>.authorize",
+    "capstone.api.app:create_app.<locals>.ensure_run",
+    "capstone.api.app:create_app.<locals>.require_role",
+    "capstone.api.app:create_app.<locals>.run_events",
+    "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+    "capstone.api.app:create_app.<locals>.server_settings",
+    "capstone.api.app:create_app.<locals>.start_simulator_run",
+    "capstone.api.app:log_stream_event",
+    "capstone.api.config:UiConfig.__post_init__",
+    "capstone.api.runs:SimulatorRuns.__init__",
+    "capstone.api.runs:SimulatorRuns._db",
+    "capstone.api.runs:SimulatorRuns._emit",
+    "capstone.api.runs:SimulatorRuns._initialize_store",
+    "capstone.api.runs:SimulatorRuns._store_has_active_run",
+    "capstone.api.runs:SimulatorRuns.events_since",
+    "capstone.api.runs:SimulatorRuns.get",
+    "capstone.api.runs:SimulatorRuns.submit",
+    "capstone.api.runs:public_run_configuration",
+    "capstone.api.runs:utc_now",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 24,
+   "modules_exercised": [
+    "capstone.api.app",
+    "capstone.api.config",
+    "capstone.api.runs",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},

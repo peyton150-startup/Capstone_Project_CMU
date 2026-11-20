@@ -1250,3 +1250,57 @@ def test_deep_transition_history_is_bounded_and_ignores_invalid_payload(tmp_path
     assert snapshot["deep_timeline"][-1]["stage"] == "test"
     assert snapshot["deep_timeline"][-1]["iteration_count"] == 59
     assert "private_prompt" not in json.dumps(snapshot)
+
+
+def test_event_stream_logs_open_and_close_without_secrets(
+    tmp_path, monkeypatch, caplog
+):
+    """Each journal stream logs one open and one close line with counts only."""
+    import logging
+
+    def fake_run(self, run_id, request):
+        self._emit(
+            run_id,
+            "run.completed",
+            {"status": "completed", "mode": request.mode, "note": "PAYLOAD-MARKER"},
+            state="completed",
+        )
+        with self.lock:
+            self.active.discard(run_id)
+
+    monkeypatch.setattr(SimulatorRuns, "_execute", fake_run)
+    client = TestClient(create_app(config(tmp_path)))
+    created = client.post(
+        "/api/v1/lab/runs",
+        json={"seed": 3, "kind": "standard", "mode": "deep"},
+        headers={**auth(OPERATOR), "Idempotency-Key": KEY},
+    )
+    run_id = created.json()["run_id"]
+    path = f"/api/v1/lab/runs/{run_id}/events"
+    with caplog.at_level(logging.INFO, logger="capstone.api.stream"):
+        full = client.get(path, headers=auth(TOKEN))
+        resumed = client.get(
+            path + "?since=0", headers={**auth(TOKEN), "Last-Event-ID": "abc"}
+        )
+    assert full.status_code == resumed.status_code == 200
+    lines = [
+        json.loads(record.getMessage())
+        for record in caplog.records
+        if record.name == "capstone.api.stream"
+    ]
+    assert [line["event"] for line in lines] == [
+        "run_events_open",
+        "run_events_close",
+        "run_events_open",
+        "run_events_close",
+    ]
+    opened, closed = lines[0], lines[1]
+    assert opened["run_id"] == run_id and opened["cursor"] == 0
+    assert opened["last_event_id_ignored"] is False
+    assert closed["reason"] == "terminal_replay_complete"
+    assert closed["events_sent"] >= 1 and closed["last_seq"] >= 1
+    assert closed["private_withheld"] == 0 and closed["duration_s"] >= 0
+    assert lines[2]["last_event_id_ignored"] is True
+    text = json.dumps(lines)
+    for secret in (TOKEN, OPERATOR, "PAYLOAD-MARKER", "Bearer"):
+        assert secret not in text
