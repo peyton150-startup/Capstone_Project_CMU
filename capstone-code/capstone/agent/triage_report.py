@@ -38,6 +38,74 @@ MAX_UNCONCLUDED_FINDINGS = 12
 ReportOutcome = Literal["model_conclusion", "model_answer_refused", "no_model_answer"]
 
 
+class ReportRankingPick(Contract):
+    """One ranked candidate as a technician reads it: the model's belief only."""
+
+    candidate_id: str
+    family: str
+    machine_id: str | None = None
+    explanation: str
+    # The model's own uncalibrated belief, 0-1; never a measured probability.
+    confidence: float = Field(ge=0, le=1)
+    rationale: str
+    evidence_ids: tuple[str, ...] = ()
+    contradicting_evidence_ids: tuple[str, ...] = ()
+    missing_checks: tuple[str, ...] = ()
+
+
+class ReportRanking(Contract):
+    """The checked two-candidate ranking (TRIAGE_RANKING), beside the report.
+
+    It never changed the assessment, recommendation or any action above it.
+    `picks` is empty unless the status is "accepted".
+    """
+
+    status: Literal["accepted", "abstained", "rejected", "unavailable"]
+    reason: str
+    abstain_reason: str | None = None
+    attempts: tuple[str, ...] = ()
+    requests: int = Field(ge=0)
+    snapshot_fingerprint: str
+    candidate_count: int = Field(ge=0)
+    picks: tuple[ReportRankingPick, ...] = ()
+
+
+def report_ranking(state: InvestigationState) -> ReportRanking | None:
+    """The ranking for the report, with each pick's family as shown; None if none."""
+    # Variables:
+    #   verdict: The checked ranking, or None when TRIAGE_RANKING was off.
+    #   shown: Each snapshot candidate by id, so a pick is reported with what
+    #     its TC id meant when the model saw it, not a later recompile.
+    verdict = state.triage_ranking
+    snapshot = state.triage_ranking_snapshot
+    if verdict is None or snapshot is None:
+        return None
+    shown = {c.id: c for c in snapshot.candidates}
+    return ReportRanking(
+        status=verdict.status,
+        reason=verdict.reason,
+        abstain_reason=verdict.abstain_reason,
+        attempts=state.triage_ranking_attempts,
+        requests=state.triage_ranking_requests,
+        snapshot_fingerprint=verdict.snapshot_fingerprint,
+        candidate_count=len(snapshot.candidates),
+        picks=tuple(
+            ReportRankingPick(
+                candidate_id=p.candidate_id,
+                family=shown[p.candidate_id].family,
+                machine_id=shown[p.candidate_id].machine_id,
+                explanation=shown[p.candidate_id].explanation,
+                confidence=p.confidence,
+                rationale=p.rationale,
+                evidence_ids=p.evidence_ids,
+                contradicting_evidence_ids=p.contradicting_evidence_ids,
+                missing_checks=p.missing_checks,
+            )
+            for p in verdict.picks
+        ),
+    )
+
+
 class ReportFinding(Contract):
     """One reading the report rests on, linked to where it came from."""
 
@@ -80,6 +148,9 @@ class TriageReport(Contract):
     # Why a model answer was refused, when it was.
     refused_because: str | None = None
     summary: str
+    # The checked two-candidate ranking when TRIAGE_RANKING was on; None
+    # otherwise and in reports saved before it.
+    ranking: ReportRanking | None = None
 
 
 def report_outcome(state: InvestigationState) -> ReportOutcome:
@@ -169,6 +240,7 @@ def build_triage_report(state: InvestigationState) -> TriageReport:
             next_check=conclusion.next_check,
             findings=findings,
             summary=summary,
+            ranking=report_ranking(state),
         )
     observed = [p.evidence_id for p in state.provenance if p.origin == "observable"]
     findings = tuple(
@@ -200,4 +272,5 @@ def build_triage_report(state: InvestigationState) -> TriageReport:
         findings=findings,
         refused_because=state.conclusion_rejected,
         summary=summary,
+        ranking=report_ranking(state),
     )

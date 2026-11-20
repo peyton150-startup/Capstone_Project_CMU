@@ -190,6 +190,7 @@ export type TriageRunOptions = {
   then_deep: boolean;
   conclude_brief: boolean;
   conclude_cap: boolean;
+  ranking: boolean;
   seconds: number;
   tool_calls: number;
   hypothesis_seconds: number;
@@ -231,6 +232,10 @@ export type ActualTriageExecution = {
   compiled_candidates: number;
   conclusion_available: boolean;
   deep_recommended: boolean;
+  ranking_enabled?: boolean;
+  ranking_status?: 'accepted' | 'abstained' | 'rejected' | 'unavailable' | null;
+  ranking_reason?: string | null;
+  ranking_requests?: number;
 };
 export type ManagedRun = {
   run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
@@ -268,6 +273,16 @@ export type TriageReport = {
   findings: Array<{evidence_id:string;source_id:string;origin:string|null;
     observed_tick:number|null;excerpt:string}>;
   refused_because: string | null; summary: string;
+  ranking?: TriageRanking | null;
+};
+export type TriageRanking = {
+  status: 'accepted' | 'abstained' | 'rejected' | 'unavailable';
+  reason: string; abstain_reason: string | null; attempts: string[];
+  requests: number; snapshot_fingerprint: string; candidate_count: number;
+  picks: Array<{candidate_id: string; family: string; machine_id: string | null;
+    explanation: string;
+    confidence: number; rationale: string; evidence_ids: string[];
+    contradicting_evidence_ids: string[]; missing_checks: string[]}>;
 };
 export type ReviewRequest = {
   run_id: string; proposal_id: number; machine_id: string; action: string;
