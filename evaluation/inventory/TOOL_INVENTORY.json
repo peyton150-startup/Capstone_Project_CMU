@@ -101,7 +101,7 @@
     "tests/test_detector_side_effects.py::test_no_hidden_truth_in_any_known_case",
     "tests/test_detector_side_effects.py::test_the_screening_pushes_no_other_evidence_out_of_the_prompt"
    ],
-   "test_count": 392,
+   "test_count": 393,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -210,7 +210,7 @@
     "tests/test_hazards.py::test_an_episode_with_hazards_reports_them_and_repeats_exactly",
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported"
    ],
-   "test_count": 258,
+   "test_count": 259,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -394,7 +394,7 @@
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place"
    ],
-   "test_count": 343,
+   "test_count": 344,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -758,7 +758,7 @@
     "tests/test_episode.py::test_passed_critic_is_used",
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key"
    ],
-   "test_count": 286,
+   "test_count": 287,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -871,7 +871,7 @@
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
     "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run"
    ],
-   "test_count": 332,
+   "test_count": 333,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1006,7 +1006,7 @@
     "tests/test_detector_side_effects.py::test_the_standard_hazards_land_on_the_same_calls",
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too"
    ],
-   "test_count": 364,
+   "test_count": 365,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1052,6 +1052,7 @@
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
     "tests/test_quality.py::test_the_inspection_is_the_last_entry_in_a_jobs_history",
+    "tests/test_ranking_accuracy.py::test_known_case_candidates_cover_the_true_cause",
     "tests/test_slow_when_worn.py::test_a_half_worn_machine_takes_78_ticks_instead_of_70",
     "tests/test_slow_when_worn.py::test_a_healthy_line_keeps_its_exact_times",
     "tests/test_slow_when_worn.py::test_as_the_bearing_wears_each_job_takes_at_least_as_long_as_the_last",
@@ -1078,7 +1079,7 @@
     "tests/test_triage_run_controls.py::test_real_graph_episode_uses_only_submitted_triage_settings",
     "tests/test_triage_run_mode.py::test_triage_only_does_not_construct_deep_critic"
    ],
-   "test_count": 36,
+   "test_count": 37,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1127,6 +1128,7 @@
     "tests/test_observation_tools.py::test_answers_are_plain_data",
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
+    "tests/test_ranking_accuracy.py::test_known_case_candidates_cover_the_true_cause",
     "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered",
     "tests/test_triage_conclude_brief.py::test_a_triage_episode_sets_the_brief_but_its_deep_run_does_not",
     "tests/test_triage_conclude_brief.py::test_the_triage_record_keeps_both_times",
@@ -1141,7 +1143,7 @@
     "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed",
     "tests/test_triage_report.py::test_the_experiment_record_keeps_the_report"
    ],
-   "test_count": 23,
+   "test_count": 24,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1264,7 +1266,7 @@
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported",
     "tests/test_known_answers.py::test_each_case_builds_its_pinned_fault_and_symptom"
    ],
-   "test_count": 248,
+   "test_count": 249,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1393,7 +1395,7 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored"
    ],
-   "test_count": 349,
+   "test_count": 350,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",

@@ -120,6 +120,7 @@ GROUPS: dict[str, list[str]] = {
     "Evaluation": [
         "evaluation",
         "triage_metrics",
+        "ranking_accuracy",
         "drift",
         "memory_evaluation",
         "scoring_integrity",
