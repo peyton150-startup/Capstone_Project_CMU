@@ -432,7 +432,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
             update_candidate_packet,
         )
 
-        evaluate_triage_requirements(state)
+        evaluate_triage_requirements(state, deps)
         update_candidate_packet(state, stage="hypothesize", deps=deps)
         last = state.triage_hypothesis_trace[-1]
         log_hypothesis_event(
@@ -619,7 +619,7 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
             update_candidate_packet,
         )
 
-        evaluate_triage_requirements(state)
+        evaluate_triage_requirements(state, deps)
         update_candidate_packet(state, stage="test", deps=deps)
         last = state.triage_hypothesis_trace[-1]
         log_hypothesis_event(

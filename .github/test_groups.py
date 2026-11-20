@@ -151,6 +151,8 @@ GROUPS: dict[str, list[str]] = {
     "Episode": [
         "episode",
         "progress_view",
+        "triage_terminal_diagnostics",
+        "triage_graph_invariants",
         "triage",
         "triage_evidence_packet",
         "triage_investigate",
