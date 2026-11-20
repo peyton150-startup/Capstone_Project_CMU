@@ -27,6 +27,7 @@ from capstone.evaluation.ranking_accuracy import (
     aggregate,
     candidate_names,
     score_case,
+    score_record,
 )
 from capstone.evaluation.scoring import Cause
 from capstone.faults import FAULT_KINDS
@@ -264,6 +265,7 @@ def test_aggregate_rates_and_confidences():
     assert result.top2_accuracy_accepted == pytest.approx(2 / 3)
     assert result.top1_accuracy_all == pytest.approx(1 / 6)
     assert result.top2_accuracy_all == pytest.approx(2 / 6)
+    assert result.coverage_known == 6
     assert result.candidate_coverage_rate == pytest.approx(4 / 6)
     assert result.top2_accuracy_covered == pytest.approx(1.0)
     assert result.mean_confidence_top1_correct == pytest.approx(0.8)
@@ -295,6 +297,137 @@ def test_rejected_verdicts_are_not_counted_valid():
     )
     score = score_case("KA", None, verdict, [BEARING])
     assert not score.valid
+
+
+# --- run records ----------------------------------------------------------------
+
+
+def record(status="accepted", picks=None, reason=None, ranking=True, causes=None,
+           families=None):  # fmt: skip
+    """One records.jsonl line as json.loads gives it, ranking fields as part 2 writes them."""
+    # Variables:
+    #   picks: (candidate id, family, machine id or None, confidence) lists,
+    #     most plausible first, as JSON turns the recorded tuples into lists.
+    #   ranking: The record's `triage.ranking`: True when a ranking was asked,
+    #     None in older records and when none was asked.
+    #   families: The families of `triage.deterministic_candidates` (TC1..),
+    #     all on CNC-02; None leaves the field out, as in an older record.
+    if picks is None:
+        picks = [["TC1", "machine_condition", "CNC-02", 0.7],
+                 ["TC3", "sensor_or_transient", "CNC-02", 0.3]]  # fmt: skip
+    triage = {
+        "seconds": 40.0,
+        "ranking": ranking,
+        "ranking_status": status,
+        "ranking_reason": reason or f"ranking_{status}",
+        "ranking_attempts": [reason or f"ranking_{status}"],
+        "ranking_requests": 1,
+        "ranking_fingerprint": "0" * 20,
+        "ranking_picks": picks if status == "accepted" else [],
+    }
+    if families is not None:
+        triage["deterministic_candidates"] = [
+            snapshot(*families).candidates[n].model_dump(mode="json")
+            | {"status": "unconfirmed", "open_question_ids": []}
+            for n in range(len(families))
+        ]
+    return {
+        "scenario_id": "KA-01-bearing",
+        "score": {"causes": causes or [BEARING.model_dump()]},
+        "triage": triage,
+    }
+
+
+def test_record_accepted_right_first():
+    score = score_record(record())
+    assert (score.status, score.reason, score.valid) == (
+        "accepted",
+        "ranking_accepted",
+        True,
+    )
+    assert score.top1_correct and score.top2_correct
+    assert score.top1_confidence == 0.7
+    assert score.true_cause_in_candidates is None and score.candidate_count is None
+
+
+def test_record_accepted_right_second():
+    picks = [["TC3", "sensor_or_transient", "CNC-02", 0.6],
+             ["TC1", "machine_condition", "CNC-02", 0.5]]  # fmt: skip
+    score = score_record(record(picks=picks))
+    assert not score.top1_correct and score.top2_correct
+
+
+def test_record_pick_on_the_wrong_machine_is_wrong():
+    picks = [["TC1", "machine_condition", "CNC-05", 0.7],
+             ["TC2", "setting_shift", None, 0.2]]  # fmt: skip
+    score = score_record(record(picks=picks))
+    assert not score.top2_correct
+
+
+def test_record_abstained_rejected_and_unavailable():
+    abstained = score_record(record("abstained", reason="ranking_abstained"))
+    assert abstained.valid and abstained.abstained and not abstained.top2_correct
+    rejected = score_record(record("rejected", reason="unknown_candidate_id"))
+    assert (rejected.status, rejected.reason, rejected.valid) == (
+        "rejected",
+        "unknown_candidate_id",
+        False,
+    )
+    unavailable = score_record(record("unavailable", reason="candidate_list_empty"))
+    assert (unavailable.status, unavailable.valid) == ("unavailable", False)
+
+
+def test_record_without_a_ranking_is_missing():
+    for line in (record(ranking=None), {**record(), "triage": None}):
+        score = score_record(line)
+        assert (score.status, score.reason, score.valid) == (MISSING, MISSING, False)
+
+
+def test_record_coverage_can_be_supplied():
+    assert score_record(record(), covered=False).true_cause_in_candidates is False
+
+
+def test_record_coverage_comes_from_the_recorded_candidates():
+    covered = score_record(record(families=ALARM))
+    assert covered.true_cause_in_candidates is True and covered.candidate_count == 4
+    gap = score_record(record(families=("operating_load", "setting_shift")))
+    assert gap.true_cause_in_candidates is False
+
+
+def test_record_candidates_fit_the_real_triage_record():
+    from capstone.experiment import TriageRecord
+
+    triage = record(families=ALARM)["triage"]
+    parsed = TriageRecord.model_validate(
+        {
+            "conclusion": None,
+            "confidence": None,
+            "recommendation": None,
+            "deep_recommended": False,
+            "deep_ran": False,
+            **triage,
+        }
+    )
+    again = parsed.model_dump(mode="json")
+    line = {"scenario_id": "KA-01", "score": {"causes": [BEARING.model_dump()]},
+            "triage": again}  # fmt: skip
+    score = score_record(line)
+    assert score.top1_correct and score.true_cause_in_candidates
+
+
+def test_a_pick_with_no_recorded_family_names_nothing():
+    picks = [["TC9", "", None, 0.9], ["TC1", "machine_condition", "CNC-02", 0.1]]
+    score = score_record(record(picks=picks))
+    assert not score.top1_correct and score.top2_correct
+
+
+def test_aggregate_counts_coverage_only_where_known():
+    scores = [score_record(record()), score_record(record(), covered=True),
+              score_record(record(), covered=False)]  # fmt: skip
+    result = aggregate(scores)
+    assert result.coverage_known == 2
+    assert result.candidate_coverage_rate == pytest.approx(0.5)
+    assert result.top2_accuracy_covered == pytest.approx(1.0)
 
 
 # --- the real simulator ----------------------------------------------------------

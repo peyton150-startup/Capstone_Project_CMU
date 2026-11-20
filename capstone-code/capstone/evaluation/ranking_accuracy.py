@@ -142,20 +142,27 @@ CONFIDENCE_NOTE = (
 MISSING = "missing"
 
 
-def candidate_names(candidate: SnapshotCandidate, cause: Cause) -> bool:
-    """Whether picking this candidate counts as naming this true cause."""
+def family_names(family: str, machine_id: str | None, cause: Cause) -> bool:
+    """Whether a pick of this family on this machine counts as naming this cause."""
     # Variables:
-    #   rule: What the candidate's family counts as naming, and its machine rule.
-    rule = FAMILY_FAULTS[candidate.family]
-    if cause.fault not in rule.faults:
+    #   machine_id: The machine the picked candidate is about; None when it
+    #     names none (an inspection anomaly).
+    #   rule: What the family counts as naming, and its machine rule; None
+    #     for a family no candidate can have (a record writes "" for a pick
+    #     whose TC id was not in the snapshot), which names nothing.
+    rule = FAMILY_FAULTS.get(family)
+    if rule is None or cause.fault not in rule.faults:
         return False
     if rule.machine == "same_machine":
-        return candidate.machine_id is not None and (
-            candidate.machine_id == cause.machine_id
-        )
+        return machine_id is not None and machine_id == cause.machine_id
     if rule.machine == "if_named":
-        return candidate.machine_id is None or candidate.machine_id == cause.machine_id
+        return machine_id is None or machine_id == cause.machine_id
     return True
+
+
+def candidate_names(candidate: SnapshotCandidate, cause: Cause) -> bool:
+    """Whether picking this snapshot candidate counts as naming this true cause."""
+    return family_names(candidate.family, candidate.machine_id, cause)
 
 
 def names_any(candidate: SnapshotCandidate, causes: Iterable[Cause]) -> bool:
@@ -172,8 +179,9 @@ class CaseRankingScore(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     scenario_id: str
-    # accepted / abstained / rejected from the verdict; "missing" without one.
-    status: Literal["accepted", "abstained", "rejected", "missing"]
+    # accepted / abstained / rejected from the verdict; "unavailable" when
+    # the run recorded that no ranking could be had; "missing" without one.
+    status: Literal["accepted", "abstained", "rejected", "unavailable", "missing"]
     # The verdict's fixed reason code, or "missing".
     reason: str
     valid: bool
@@ -181,9 +189,10 @@ class CaseRankingScore(BaseModel):
     # Only an accepted ranking can be right; False otherwise.
     top1_correct: bool
     top2_correct: bool
-    # A true cause was among the candidates the model was shown.
-    true_cause_in_candidates: bool
-    candidate_count: int
+    # A true cause was among the candidates the model was shown. None when
+    # the candidates are not known (an older run record without them).
+    true_cause_in_candidates: bool | None
+    candidate_count: int | None
     # The top pick's confidence; None unless accepted.
     top1_confidence: float | None
 
@@ -242,6 +251,73 @@ def score_case(
     )
 
 
+# The ranking fields a run record's `triage` carries (TriageRecord, part 2).
+RECORD_STATUSES = ("accepted", "abstained", "rejected", "unavailable")
+
+
+def score_record(record: dict, *, covered: bool | None = None) -> CaseRankingScore:
+    """Score one experiment record's triage ranking against its true causes.
+
+    Reads the record as written to `*.records.jsonl`: true causes from
+    `score.causes`, the ranking from `triage.ranking_status`,
+    `triage.ranking_reason` and `triage.ranking_picks` (each pick is
+    candidate id, family, machine id or None, confidence; most plausible
+    first; empty unless accepted). Coverage comes from the record's
+    `triage.deterministic_candidates` (the candidates as triage ended), or
+    from `covered` when given; without either it is unknown (None).
+    """
+    # Variables:
+    #   record: One parsed line of a run's records file.
+    #   covered: Whether a true cause was among this case's candidates, when
+    #     known from elsewhere; it overrides the recorded candidates.
+    #   triage: The record's triage summary; None in a record without triage.
+    #   causes: The case's true causes, rebuilt from the record's score.
+    #   candidates: The recorded (family, machine) of each final candidate;
+    #     None in records without them.
+    #   status: The recorded ranking outcome; None when no ranking was asked
+    #     or the record predates rankings, which scores as missing.
+    #   picks: The accepted (family, machine, confidence) picks, best first.
+    #   right: For each pick, whether it names a true cause.
+    triage = record.get("triage") or {}
+    causes = [Cause.model_validate(c) for c in record["score"]["causes"]]
+    candidates = (
+        [(c["family"], c.get("machine_id")) for c in triage["deterministic_candidates"]]
+        if triage.get("deterministic_candidates") is not None
+        else None
+    )
+    if covered is None and candidates is not None:
+        covered = any(
+            family_names(family, machine_id, cause)
+            for family, machine_id in candidates
+            for cause in causes
+        )
+    status = triage.get("ranking_status") if triage.get("ranking") else None
+    if status not in RECORD_STATUSES:
+        status = None
+    picks = [
+        (family, machine_id, confidence)
+        for _id, family, machine_id, confidence in (
+            triage.get("ranking_picks") or () if status == "accepted" else ()
+        )
+    ]
+    right = [
+        any(family_names(family, machine_id, cause) for cause in causes)
+        for family, machine_id, _ in picks
+    ]
+    return CaseRankingScore(
+        scenario_id=record["scenario_id"],
+        status=status or MISSING,
+        reason=(triage.get("ranking_reason") or status) if status else MISSING,
+        valid=status in ("accepted", "abstained"),
+        abstained=status == "abstained",
+        top1_correct=bool(right) and right[0],
+        top2_correct=any(right),
+        true_cause_in_candidates=covered,
+        candidate_count=None if candidates is None else len(candidates),
+        top1_confidence=picks[0][2] if picks else None,
+    )
+
+
 class RankingAccuracy(BaseModel):
     """Rankings over a set of cases: form, accuracy and (uncalibrated) confidence."""
 
@@ -261,8 +337,10 @@ class RankingAccuracy(BaseModel):
     top2_accuracy_accepted: float | None
     top1_accuracy_all: float | None
     top2_accuracy_all: float | None
-    # Cases where a true cause was among the candidates at all, and top-2
-    # accuracy over accepted rankings of those cases only.
+    # Cases where a true cause was among the candidates at all (over the
+    # cases whose coverage is known), and top-2 accuracy over accepted
+    # rankings of covered cases only.
+    coverage_known: int
     candidate_coverage_rate: float | None
     top2_accuracy_covered: float | None
     # Mean top-pick confidence when the top pick was right, and when wrong.
@@ -288,6 +366,7 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
     # Variables:
     #   accepted: The cases whose ranking passed every check; the only ones
     #     whose picks can be right or wrong.
+    #   known: Cases whose coverage is known; run records alone do not say.
     #   covered_accepted: Accepted cases whose candidates included a true
     #     cause, so a miss there is the model's, not the candidate list's.
     #   invalid: Reason codes of rejected and missing verdicts, counted.
@@ -295,7 +374,8 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
     #   small: Fewer than SMALL_SAMPLE_CASES cases, so the warning is set.
     n = len(scores)
     accepted = [s for s in scores if s.status == "accepted"]
-    covered_accepted = [s for s in accepted if s.true_cause_in_candidates]
+    known = [s for s in scores if s.true_cause_in_candidates is not None]
+    covered_accepted = [s for s in accepted if s.true_cause_in_candidates is True]
     invalid = Counter(s.reason for s in scores if not s.valid)
     small = n < SMALL_SAMPLE_CASES
     return RankingAccuracy(
@@ -314,8 +394,9 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
         ),
         top1_accuracy_all=_rate(sum(s.top1_correct for s in scores), n),
         top2_accuracy_all=_rate(sum(s.top2_correct for s in scores), n),
+        coverage_known=len(known),
         candidate_coverage_rate=_rate(
-            sum(s.true_cause_in_candidates for s in scores), n
+            sum(bool(s.true_cause_in_candidates) for s in known), len(known)
         ),
         top2_accuracy_covered=_rate(
             sum(s.top2_correct for s in covered_accepted), len(covered_accepted)
