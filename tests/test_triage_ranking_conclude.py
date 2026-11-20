@@ -104,6 +104,8 @@ def test_a_valid_first_ranking_is_accepted_and_leaves_the_conclusion_alone(
     record = ranking_record(state)
     assert record["ranking_status"] == "accepted"
     assert record["ranking_picks"][0][1] == snap.candidates[1].family
+    assert record["ranking_picks"][0][2] == snap.candidates[1].machine_id
+    assert record["ranking_picks"][0][3] == 0.6
 
 
 def test_a_rejected_ranking_gets_one_correction_with_its_reason(monkeypatch):

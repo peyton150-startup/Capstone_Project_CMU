@@ -362,7 +362,7 @@ class TriageRecord(BaseModel):
     conclude_cap: bool | None = None
     # TRIAGE_RANKING: whether the conclusion was asked for a two-candidate
     # ranking, and what the checks made of it. None in older records and when
-    # no ranking was asked. Picks are (candidate id, family, confidence), most
+    # no ranking was asked. Picks are (candidate id, family, machine, confidence), most
     # plausible first; confidences are the model's, uncalibrated.
     ranking: bool | None = None
     ranking_status: str | None = None
@@ -370,7 +370,7 @@ class TriageRecord(BaseModel):
     ranking_attempts: tuple[str, ...] | None = None
     ranking_requests: int | None = None
     ranking_fingerprint: str | None = None
-    ranking_picks: tuple[tuple[str, str, float], ...] | None = None
+    ranking_picks: tuple[tuple[str, str, str | None, float], ...] | None = None
     # TRIAGE_HYPOTHESIS_SECONDS: the reserve the triage kept for hypothesize,
     # and whether it was what stopped research (so hypothesize was still
     # asked). None in older records.
@@ -495,13 +495,14 @@ def ranking_record(state) -> dict:
     """The ranking fields of an experiment record; empty when none was asked."""
     # Variables:
     #   verdict: The checked ranking on the triage state, or None.
-    #   families: Each snapshot candidate's family by id, so a pick is
-    #     recorded with what its TC id meant when the model saw it.
+    #   shown: Each snapshot candidate by id, so a pick is recorded with the
+    #     family and machine its TC id had when the model saw it (what an
+    #     offline scorer needs to judge it against the known fault).
     verdict = state.triage_ranking
     if not state.triage_ranking_enabled or verdict is None:
         return {"ranking": state.triage_ranking_enabled or None}
     snapshot = state.triage_ranking_snapshot
-    families = {c.id: c.family for c in snapshot.candidates} if snapshot else {}
+    shown = {c.id: c for c in snapshot.candidates} if snapshot else {}
     return {
         "ranking": True,
         "ranking_status": verdict.status,
@@ -510,7 +511,12 @@ def ranking_record(state) -> dict:
         "ranking_requests": state.triage_ranking_requests,
         "ranking_fingerprint": verdict.snapshot_fingerprint,
         "ranking_picks": tuple(
-            (p.candidate_id, families.get(p.candidate_id, ""), p.confidence)
+            (
+                p.candidate_id,
+                shown[p.candidate_id].family if p.candidate_id in shown else "",
+                shown[p.candidate_id].machine_id if p.candidate_id in shown else None,
+                p.confidence,
+            )
             for p in verdict.picks
         ),
     }
