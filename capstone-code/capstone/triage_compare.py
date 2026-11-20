@@ -240,6 +240,37 @@ def evidence_tests(arm: Arm) -> str:
     )
 
 
+def rankings(arm: Arm) -> str:
+    """TRIAGE_RANKING verdicts as accepted / abstained / rejected / unavailable.
+
+    "-" when no triage in the arm asked for a ranking, so an arm with the
+    flag off reads differently from one whose rankings all failed.
+    """
+    # Variables:
+    #   asked: The arm's triages that asked for a ranking and kept a verdict.
+    asked = [t for t in arm.triages if t.ranking and t.ranking_status]
+    if not asked:
+        return MISSING
+    statuses = [t.ranking_status for t in asked]
+    return " / ".join(
+        str(statuses.count(s))
+        for s in ("accepted", "abstained", "rejected", "unavailable")
+    )
+
+
+def ranking_corrections(arm: Arm) -> str:
+    """Rankings that needed the one correction, and how many it made usable."""
+    # Variables:
+    #   corrected: Triages whose ranking took two requests.
+    #   saved: Of those, the ones that ended accepted or abstained.
+    asked = [t for t in arm.triages if t.ranking and t.ranking_status]
+    if not asked:
+        return MISSING
+    corrected = [t for t in asked if (t.ranking_requests or 0) > 1]
+    saved = sum(t.ranking_status in ("accepted", "abstained") for t in corrected)
+    return f"{len(corrected)} ({saved} saved)"
+
+
 def stages_of(arms: Sequence[Arm]) -> list[str]:
     """Every stage any arm asked a model question in, in name order."""
     return sorted(
@@ -287,6 +318,8 @@ def rows(arms: Sequence[Arm]) -> list[tuple[str, list[str]]]:
         ("plan: fixed / model", plans),
         ("investigate: compiled / model", investigate),
         ("evidence tests", evidence_tests),
+        ("ranking: accepted / abstained / rejected / unavailable", rankings),
+        ("ranking corrected (saved)", ranking_corrections),
     ]
     return [(name, [cell(arm) for arm in arms]) for name, cell in table]
 

@@ -267,3 +267,22 @@ def test_the_table_is_aligned(triaged):
     lines = text.splitlines()[1:]
     bars = {line.index("|") for line in lines if "|" in line}
     assert len(bars) == 1
+
+
+def test_rankings_are_counted_and_an_arm_without_them_shows_missing(triaged):
+    ranked = [
+        variant(
+            triaged,
+            f"r{n}",
+            triage={"ranking": True, "ranking_status": status, "ranking_requests": req},
+        )
+        for n, (status, req) in enumerate(
+            [("accepted", 1), ("accepted", 2), ("rejected", 2), ("unavailable", 1)]
+        )
+    ]
+    rows_ = table(arm("off", triaged), arm("on", *ranked))
+    assert rows_["ranking: accepted / abstained / rejected / unavailable"] == [
+        "-",
+        "2 / 0 / 1 / 1",
+    ]
+    assert rows_["ranking corrected (saved)"] == ["-", "2 (1 saved)"]

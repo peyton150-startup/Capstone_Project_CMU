@@ -1580,6 +1580,14 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     if state.mode == "triage" and state.triage_ranking_enabled:
         snapshot = ranking_snapshot(state)
         state.triage_ranking_snapshot = snapshot
+        ranking_event(
+            state,
+            deps,
+            "triage.ranking_requested",
+            snapshot,
+            reason="ranking_requested",
+            attempt=1,
+        )
     if (
         state.mode == "triage"
         and state.triage_conclude_cap
@@ -1742,6 +1750,7 @@ def settle_ranking(
         )
     attempts = [verdict.reason]
     requests = 1
+    ranking_event(state, deps, "triage.ranking_judged", snapshot, verdict, attempt=1)
     if (
         verdict.status == "rejected"
         and verdict.reason != "candidate_snapshot_stale"
@@ -1751,6 +1760,14 @@ def settle_ranking(
         requests += 1
         started = deps.clock()
         reason = verdict.reason
+        ranking_event(
+            state,
+            deps,
+            "triage.ranking_correction_requested",
+            snapshot,
+            reason=reason,
+            attempt=2,
+        )
         try:
             raw = ask_policy(
                 state,
@@ -1779,9 +1796,60 @@ def settle_ranking(
         finally:
             state.triage_ranking_correction_seconds = max(0.0, deps.clock() - started)
         attempts.append(verdict.reason)
+        ranking_event(
+            state,
+            deps,
+            "triage.ranking_judged",
+            snapshot,
+            verdict,
+            attempt=2,
+            seconds=state.triage_ranking_correction_seconds,
+        )
     state.triage_ranking = verdict
     state.triage_ranking_attempts = tuple(attempts)
     state.triage_ranking_requests = requests
+    ranking_event(
+        state, deps, "triage.ranking_completed", snapshot, verdict, attempt=requests
+    )
+
+
+def ranking_event(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    event: str,
+    snapshot: RankingSnapshot,
+    verdict: RankingVerdict | None = None,
+    *,
+    reason: str | None = None,
+    attempt: int,
+    seconds: float | None = None,
+) -> None:
+    """Record one ranking lifecycle step as a triage trace event.
+
+    Only fixed codes, ids and counts are recorded: the snapshot fingerprint,
+    the attempt, the candidate count, and the verdict and its reason;
+    never the picks, the model's rationale or its confidences (those stay
+    in the state and the experiment record).
+    """
+    # Variables:
+    #   verdict: The judgement this event reports, or None for a request.
+    #   reason: The code to record when there is no verdict yet (a request,
+    #     or the rejection a correction answers).
+    #   attempt: 1 for the conclusion's ranking, 2 for the correction.
+    from capstone.agent.triage_trace import emit_triage_event
+
+    emit_triage_event(
+        state,
+        deps,
+        event=event,
+        phase="conclude",
+        reason_code=verdict.reason if verdict is not None else reason,
+        status=verdict.status if verdict is not None else None,
+        request_hash=snapshot.fingerprint,
+        attempt=attempt,
+        candidate_count=len(snapshot.candidates),
+        duration_ms=None if seconds is None else seconds * 1000.0,
+    )
 
 
 def rejection_reason(error: Exception) -> str:
