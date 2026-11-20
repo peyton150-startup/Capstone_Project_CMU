@@ -160,6 +160,7 @@ GROUPS: dict[str, list[str]] = {
         "triage_compiled_chain",
         "triage_deterministic_decide",
         "triage_question_gaps",
+        "triage_ranking",
         "triage_deterministic_hypothesize",
         "triage_run_mode",
         "triage_run_controls",
