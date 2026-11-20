@@ -229,7 +229,9 @@ def run(state, decisions, answer):
     return provider, policy
 
 
-@pytest.mark.parametrize(("mean", "verdict"), [(4.6, "true"), (4.4, "false")])
+@pytest.mark.parametrize(
+    ("mean", "verdict"), [(4.6, "true"), (4.4, "true"), (4.0, "false")]
+)
 def test_on_reads_q1_without_a_model_and_its_predicate_settles_it(mean, verdict):
     state = planned(TEMPLATES["vibration alarm"])
     provider, policy = run(state, [], answer={"sample_count": 12, "mean": mean})

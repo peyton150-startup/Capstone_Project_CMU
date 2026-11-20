@@ -239,17 +239,21 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
         call.arguments["job_id"]
         for call in provider.calls
         if call.name == "get_job_history"
-    ) == [10, 11]
+    ) == [1, 10, 11]  # job 1 is the pace baseline for Q3
     assert {"Q1", "Q2"} <= set(state.answers)
     assert state.answers["Q1"] == state.triage_question_evidence["Q1"]
 
 
 def test_current_settings_snapshot_does_not_prove_a_change():
+    """Q4 asks for job times, never a settings snapshot; no jobs keeps it open."""
     state = state_for()
-    run_inner_loop(state, deps_for(FakeProvider(answer, tick=45)), "investigate")
-    assert (
-        state.triage_requirement_results["Q4:setting_change"].status == "insufficient"
-    )
+    provider = FakeProvider(answer, tick=45)
+    run_inner_loop(state, deps_for(provider), "investigate")
+    assert "Q4:setting_change" not in state.triage_requirements
+    result = state.triage_requirement_results["Q4:cycle_time"]
+    assert result.status == "insufficient"
+    assert result.reason == "too few finished jobs to compare job times"
+    assert not any(call.name == "get_settings" for call in provider.calls)
     assert "Q4" in {q.id for q in state.unanswered_questions}
 
 
@@ -340,7 +344,7 @@ def test_no_candidate_stops_without_a_model_fallback():
     provider = FakeProvider(answer, tick=45)
     deps = deps_for(provider)
     run_inner_loop(state, deps, "investigate")
-    state.triage_requirements.pop("Q4:setting_change")
+    state.triage_requirements.pop("Q4:cycle_time")
     state.unanswered_questions = [q for q in state.unanswered_questions if q.id == "Q2"]
     before = len(provider.calls)
     reason = run_inner_loop(state, deps, "investigate")
@@ -441,12 +445,17 @@ def test_investigate_ranking_prefers_shared_coverage_over_a_single_source():
     state = state_for()
     provider = FakeProvider(answer, tick=45)
     run_inner_loop(state, deps_for(provider), "investigate")
-    # The vibration window answers both Q1:trigger and Q5:vibration at once,
-    # so it must be the first read, not whatever the dict happened to hold.
-    first = provider.calls[0]
-    assert first.name == "get_sensor_summary"
-    assert first.arguments["sensor"] == "vibration"
-    assert state.triage_decide_trace[0].reason.endswith("(read-ranking-v1)")
+    # Here the cutoff is so early that Q3's event window and Q4's since-start
+    # job-time window are the same request: one read answers both, so it leads.
+    first = state.triage_decide_trace[0]
+    assert first.tool == "get_events"
+    assert set(first.requirement_ids) == {"Q3:events", "Q4:cycle_time"}
+    assert first.reason.endswith("(read-ranking-v1)")
+    # Among single-requirement reads, a direct measurement beats a record and
+    # Q1 leads on a tie: the trigger's vibration window comes next.
+    second = provider.calls[1]
+    assert second.name == "get_sensor_summary"
+    assert second.arguments["sensor"] == "vibration"
 
 
 def test_unavailable_status_survives_reconciliation_cycles():

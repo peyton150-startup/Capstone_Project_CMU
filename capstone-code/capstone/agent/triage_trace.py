@@ -61,6 +61,7 @@ _REQUIREMENT_REASONS = {
         "alarm_coverage_missing"
     ),
     "measurement lacks qualified samples or span": "measurement_coverage_missing",
+    "too few finished jobs to compare job times": "job_time_coverage_missing",
 }
 
 

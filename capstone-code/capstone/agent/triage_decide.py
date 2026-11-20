@@ -5,6 +5,7 @@ correct. Hypothesize and Conclude retain their existing model-backed roles.
 """
 
 import json
+import re
 from hashlib import sha256
 from math import isfinite
 from typing import TYPE_CHECKING
@@ -199,7 +200,14 @@ def matching_evidence(
     # Variables:
     #   decision: The request associated with a saved evidence item.
     #   cutoff: A response after the fixed horizon cannot qualify this run.
+    #   covering: Whether only reads whose window covers the requirement's own
+    #     window count: true for the reads that compare jobs over a lookback,
+    #     where a shorter read of the same tool would miss jobs.
     cutoff = state.triage_observation_cutoff_tick
+    covering = requirement.from_tick is not None and (
+        requirement.qualification == "cycle_time_shift"
+        or bool(requirement.failed_job_ids)
+    )
     observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
     found: list[tuple[str, object]] = []
     for evidence in state.evidence:
@@ -224,6 +232,13 @@ def matching_evidence(
         if requirement.sensor is not None and args.get("sensor") != requirement.sensor:
             continue
         if requirement.job_id is not None and args.get("job_id") != requirement.job_id:
+            continue
+        if covering and not (
+            type(args.get("from_tick")) is int
+            and type(args.get("to_tick")) is int
+            and args["from_tick"] <= requirement.from_tick
+            and args["to_tick"] >= requirement.to_tick
+        ):
             continue
         try:
             data = json.loads(evidence.content)
@@ -252,6 +267,205 @@ def matching_evidence(
     return found
 
 
+# A station's job time must move by at least this fraction at one point to be
+# reported as a shift, with at least this many finished jobs either side.
+# Chosen defaults: a wrong setting in the simulator moves job times by roughly
+# 10-25% at once, while a station's own jobs vary by a few percent.
+SHIFT_FRACTION = 0.10
+SHIFT_MIN_JOBS = 2
+JOB_EVENT = re.compile(r"^job (?P<job>\d+) (?P<stage>started|finished)$")
+
+
+def job_durations(rows: list) -> dict[str, list[tuple[int, int]]]:
+    """Each station's finished jobs as (start tick, ticks worked), in start order.
+
+    Built from job "started" and "finished" events. A job still running at
+    the read's end, or started before its window, has no pair and is left out.
+    """
+    # Variables:
+    #   started: The tick each (station, job) started, waiting for its finish.
+    #   durations: Each station's finished jobs, the result.
+    started: dict[tuple[str, int], int] = {}
+    durations: dict[str, list[tuple[int, int]]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or row.get("kind") != "job":
+            continue
+        machine, tick = row.get("machine_id"), row.get("tick")
+        found = JOB_EVENT.match(str(row.get("message", "")))
+        if found is None or not isinstance(machine, str) or type(tick) is not int:
+            continue
+        key = (machine, int(found["job"]))
+        if found["stage"] == "started":
+            started[key] = tick
+        elif key in started:
+            begin = started.pop(key)
+            durations.setdefault(machine, []).append((begin, tick - begin))
+    for jobs in durations.values():
+        jobs.sort()
+    return durations
+
+
+def largest_shift(jobs: list[tuple[int, int]]) -> tuple[float, int, float, float]:
+    """The one split of a station's job times where their mean moves the most.
+
+    Returns (relative change, tick of the first job after the split, mean
+    before, mean after). A step change, as a changed setting makes, gives one
+    large split; steady wear spreads its change over every split.
+    """
+    # Variables:
+    #   times: The ticks worked per job, in start order.
+    #   best: The largest relative change found so far, with its split.
+    times = [worked for _, worked in jobs]
+    best = (0.0, jobs[0][0], 0.0, 0.0)
+    for split in range(SHIFT_MIN_JOBS, len(times) - SHIFT_MIN_JOBS + 1):
+        before = sum(times[:split]) / split
+        after = sum(times[split:]) / (len(times) - split)
+        if before <= 0:
+            continue
+        change = (after - before) / before
+        if abs(change) > abs(best[0]):
+            best = (change, jobs[split][0], before, after)
+    return best
+
+
+def cycle_time_result(rows: list, ids: tuple[str, ...]) -> RequirementResult:
+    """Whether any station's job times shifted at one point (manual §2.7).
+
+    The settings record shows only current speeds, and each station's normal
+    speed is on its own setup sheet, so a changed setting is found from its
+    effect: one station's job times move at one point and stay there. This
+    reports which stations moved and by how much; it is evidence, not a
+    diagnosis (a worn bearing also lengthens jobs, gradually).
+    """
+    # Variables:
+    #   durations: Each station's finished jobs over the read's window.
+    #   comparable: Stations with enough jobs either side of some split.
+    #   shifted: Stations whose largest one-point change reaches SHIFT_FRACTION.
+    durations = job_durations(rows)
+    comparable = {
+        machine: largest_shift(jobs)
+        for machine, jobs in sorted(durations.items())
+        if len(jobs) >= 2 * SHIFT_MIN_JOBS
+    }
+    if not comparable:
+        return RequirementResult(
+            status="insufficient",
+            evidence_ids=ids,
+            reason="too few finished jobs to compare job times",
+        )
+    shifted = [
+        f"{machine} {before:.1f} to {after:.1f} ticks per job "
+        f"({change:+.0%}) around tick {tick}, {len(durations[machine])} jobs"
+        for machine, (change, tick, before, after) in comparable.items()
+        if abs(change) >= SHIFT_FRACTION
+    ]
+    return RequirementResult(
+        status="satisfied",
+        evidence_ids=ids,
+        reason=(
+            "largest change in mean job time at one point: " + "; ".join(shifted)
+            if shifted
+            else f"no station's mean job time changed by {SHIFT_FRACTION:.0%} or "
+            f"more at any one point ({', '.join(comparable)} compared)"
+        ),
+    )
+
+
+def job_time_baseline_result(
+    baseline: list, failed: dict[int, list], ids: tuple[str, ...]
+) -> RequirementResult:
+    """Each station's time on the failed jobs against its time on the first job.
+
+    A changed setting makes one station work every later job at a different
+    pace; a bad batch fails parts without changing any station's pace. The
+    first job is the reference because it ran before most changes could have
+    been made; a change made before it reached a station leaves no difference.
+    """
+    # Variables:
+    #   reference: Each station's ticks worked on the first job.
+    #   paced: Each failed job's ticks worked per station.
+    #   changed: Stations where every failed job differs from the first job by
+    #     SHIFT_FRACTION or more, in the same direction.
+    reference = {
+        machine: jobs[0][1]
+        for machine, jobs in job_durations(baseline).items()
+        if jobs and jobs[0][1] > 0
+    }
+    paced = {
+        job: {machine: jobs[0][1] for machine, jobs in job_durations(rows).items()}
+        for job, rows in sorted(failed.items())
+    }
+    paced = {job: times for job, times in paced.items() if times}
+    if not reference or len(paced) < 2:
+        return RequirementResult(
+            status="insufficient",
+            evidence_ids=ids,
+            reason="too few finished jobs to compare job times",
+        )
+    changed = []
+    for machine, base in sorted(reference.items()):
+        times = [times[machine] for times in paced.values() if machine in times]
+        if len(times) < 2:
+            continue
+        changes = [(t - base) / base for t in times]
+        if all(c >= SHIFT_FRACTION for c in changes) or all(
+            c <= -SHIFT_FRACTION for c in changes
+        ):
+            mean = sum(changes) / len(changes)
+            changed.append(
+                f"{machine} {base} ticks on the first job, "
+                f"{', '.join(str(t) for t in times)} on failed jobs "
+                f"{', '.join(str(j) for j in paced)} ({mean:+.0%})"
+            )
+    return RequirementResult(
+        status="satisfied",
+        evidence_ids=ids,
+        reason=(
+            "a station worked every failed job at a different pace than the first "
+            "job: " + "; ".join(changed)
+            if changed
+            else "no station worked every failed job at a pace "
+            f"{SHIFT_FRACTION:.0%} or more different from the first job "
+            f"({', '.join(sorted(reference))} compared)"
+        ),
+    )
+
+
+def batch_failure_rates(matches: list[tuple[str, object]]) -> str:
+    """Each batch's failed and inspected job counts, as a reason suffix.
+
+    A bad batch fails often while other batches pass; a shared batch with a
+    similar rate elsewhere, or with no other batch inspected, separates little.
+    """
+    # Variables:
+    #   results: Each inspected job's batch and whether it failed, once per job.
+    results: dict[int, tuple[object, bool]] = {}
+    for _, data in matches:
+        if not isinstance(data, list):
+            continue
+        for row in data:
+            if (
+                isinstance(row, dict)
+                and type(row.get("job_id")) is int
+                and type(row.get("batch_id")) in (int, str)
+                and row.get("result") in ("passed", "failed")
+            ):
+                results[row["job_id"]] = (row["batch_id"], row["result"] == "failed")
+    if not results:
+        return ""
+    counts: dict[object, list[int]] = {}
+    for batch, failed in results.values():
+        tally = counts.setdefault(batch, [0, 0])
+        tally[0] += int(failed)
+        tally[1] += 1
+    parts = [
+        f"batch {batch}: {failed} of {seen} failed"
+        for batch, (failed, seen) in sorted(counts.items(), key=lambda b: str(b[0]))
+    ]
+    note = "" if len(counts) > 1 else "; no other batch inspected in the read"
+    return " (inspected jobs: " + "; ".join(parts) + note + ")"
+
+
 def qualify(
     state: InvestigationState, requirement: ReadRequirement
 ) -> RequirementResult:
@@ -261,6 +475,12 @@ def qualify(
     #   data: Parsed tool answer; shape and finite values must be checked.
     #   first, last: Actual first and last observed sample ticks around the alarm.
     #   best: Strongest predicate verdict based on sufficiently spread samples.
+    #   failed: For the job-1 baseline, each failed job's history rows, read by
+    #     the job-path requirements the inspection read added.
+    #   named: The failed jobs the anomaly named; when set, only they are
+    #     compared, and every one must be in the read.
+    #   rates: Each batch's failed and inspected counts, added to a batch
+    #     reason so a shared batch is weighed against the other batches.
     matches = matching_evidence(state, requirement)
     if not matches:
         return RequirementResult()
@@ -270,6 +490,29 @@ def qualify(
             status="insufficient",
             evidence_ids=ids,
             reason="current settings snapshot does not establish a historical change",
+        )
+    if requirement.qualification == "job_time_baseline":
+        failed = {
+            other.job_id: [
+                row
+                for _, data in matching_evidence(state, other)
+                if isinstance(data, list)
+                for row in data
+            ]
+            for other in state.triage_requirements.values()
+            if other.qualification == "job_path"
+            and other.job_id is not None
+            and other.job_id != requirement.job_id
+        }
+        return job_time_baseline_result(
+            [row for _, data in matches if isinstance(data, list) for row in data],
+            failed,
+            ids,
+        )
+    if requirement.qualification == "cycle_time_shift":
+        return cycle_time_result(
+            [row for _, data in matches if isinstance(data, list) for row in data],
+            ids,
         )
     if requirement.qualification == "record":
         # Empty history is a valid read, not proof of historical coverage.
@@ -292,12 +535,18 @@ def qualify(
         # A valid observation must account for every observed failed row;
         # missing job/batch identifiers cannot silently disappear from a
         # comparison just because two other rows happen to be complete.
+        # When the anomaly named its failed jobs, compare exactly those: an
+        # older, unrelated failure in the lookback must not join the set, and
+        # a named job the read missed leaves the comparison incomplete.
+        named = set(requirement.failed_job_ids)
         failures = [
             row
             for _, data in matches
             if isinstance(data, list)
             for row in data
-            if isinstance(row, dict) and row.get("result") == "failed"
+            if isinstance(row, dict)
+            and row.get("result") == "failed"
+            and (not named or row.get("job_id") in named)
         ]
         identified = [
             row
@@ -309,7 +558,10 @@ def qualify(
         ]
         jobs = {row["job_id"] for row in identified}
         comparable = (
-            len(jobs) >= 2 and len(identified) == len(failures) and len(failures) >= 2
+            len(jobs) >= 2
+            and len(identified) == len(failures)
+            and len(failures) >= 2
+            and named <= jobs
         )
         if requirement.qualification == "inspection_jobs":
             return RequirementResult(
@@ -326,13 +578,19 @@ def qualify(
         ]
         complete = comparable and len(batches) == len(identified)
         distinct = set(batches)
+        # Sharing a batch alone says little when batches are large: every
+        # failed job of a wrong-setting case shares one too. So each batch's
+        # failure rate over every inspected job in the read goes with it.
+        rates = batch_failure_rates(matches) if named else ""
         return RequirementResult(
             status="satisfied" if complete else "insufficient",
             evidence_ids=ids,
             reason=(
-                "all observed failed jobs share batch " + str(next(iter(distinct)))
+                "all observed failed jobs share batch "
+                + str(next(iter(distinct)))
+                + rates
                 if len(distinct) == 1
-                else "observed failed jobs have different batch identifiers"
+                else "observed failed jobs have different batch identifiers" + rates
             )
             if complete
             else "failed jobs lack comparable batch identifiers",
@@ -468,7 +726,8 @@ def expand_job_requirements(state: InvestigationState) -> None:
     """Require the path of every failed job found in an inspection read."""
     # Variables:
     #   parent: The inspection requirement whose question needs job paths.
-    #   job_ids: Every dated failed job in the observed inspection window.
+    #   job_ids: Every dated failed job in the observed inspection window, or
+    #     only the ones the anomaly named when it named them.
     parents = [
         requirement
         for requirement in state.triage_requirements.values()
@@ -485,6 +744,7 @@ def expand_job_requirements(state: InvestigationState) -> None:
             and type(row.get("job_id")) is int
             and row["job_id"] > 0
             and type(row.get("tick")) is int
+            and (not parent.failed_job_ids or row["job_id"] in parent.failed_job_ids)
         }
         for job_id in sorted(job_ids):
             rid = f"{parent.question_id}:job:{job_id}"

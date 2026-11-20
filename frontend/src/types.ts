@@ -168,7 +168,7 @@ export type RunPhaseProgress = {
 };
 
 export type SafeHypothesisProgress = {
-  rule_version: '1.1' | null;
+  rule_version: '1.1' | '1.2' | null;
   last_action: 'compiled' | 'refreshed' | 'no_candidates' | 'rejected' | null;
   candidate_count: number; candidates_truncated: boolean;
   candidates: Array<{

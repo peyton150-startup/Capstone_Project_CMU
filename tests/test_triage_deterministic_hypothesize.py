@@ -73,7 +73,7 @@ def test_safe_hypothesis_summary_omits_source_text_and_confidence():
     investigate(state, deps)
     hypothesize(state, deps)
     public = safe_hypothesis_progress(state)
-    assert public["rule_version"] == "1.1"
+    assert public["rule_version"] == "1.2"
     assert public["candidate_count"] == len(state.triage_candidates)
     assert all(c["status"] == "unconfirmed" for c in public["candidates"])
     assert "explanation" not in str(public)
@@ -186,7 +186,7 @@ def test_candidate_compiler_is_unscored_and_repeatable():
     assert hypothesize(state, deps) == "continue"
     before = compile_candidates(state)
     assert before == compile_candidates(state)
-    assert [c.id for c in state.triage_candidates] == ["TC1", "TC2", "TC3"]
+    assert [c.id for c in state.triage_candidates] == ["TC1", "TC2", "TC3", "TC4"]
     assert all(c.status == "unconfirmed" for c in state.triage_candidates)
     assert all(not hasattr(c, "confidence") for c in state.triage_candidates)
     assert "Q5:temperature" in state.triage_test_requirement_ids
@@ -321,7 +321,12 @@ def test_observability_logs_safe_metadata_and_persists_reason_trace():
     )
     assert "4.50" not in stream.getvalue()
     assert '"content"' not in stream.getvalue()
-    assert state.triage_hypothesis_trace[0].candidate_ids == ("TC1", "TC2", "TC3")
+    assert state.triage_hypothesis_trace[0].candidate_ids == (
+        "TC1",
+        "TC2",
+        "TC3",
+        "TC4",
+    )
     assert state.triage_hypothesis_trace[-1].stage == "test"
 
 
@@ -441,7 +446,7 @@ def test_job_paths_discovered_during_test_are_scheduled():
         request.arguments["job_id"]
         for request in provider.calls
         if request.name == "get_job_history"
-    ) == [10, 11]
+    ) == [1, 10, 11]  # job 1 is the pace baseline the failed jobs are timed against
     assert all(
         candidate.status == "unconfirmed" for candidate in state.triage_candidates
     )

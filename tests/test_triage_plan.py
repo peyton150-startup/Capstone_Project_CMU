@@ -117,7 +117,8 @@ def test_an_alarm_first_question_carries_a_sustained_reading_predicate():
     assert predicate.to_tick == 914 + SUSTAIN_TICKS
     assert predicate.statistic == "mean"
     assert predicate.comparison == "above"
-    assert predicate.threshold == 4.50
+    # The limit (4.50) less SUSTAIN_MARGIN: a mean just short of it is sustained.
+    assert predicate.threshold == 4.05
     assert predicate.min_samples == SUSTAIN_SAMPLES
 
 
@@ -125,7 +126,7 @@ def test_a_low_side_alarm_compares_below_and_an_early_alarm_starts_at_zero():
     said = "alarm on CNC-05: hydraulic_pressure 61.20 bar below 65.00"
     predicates = fixed_predicates(anomaly(description=said, machine="CNC-05", tick=5))
     predicate = predicates["Q1"]
-    assert predicate.comparison == "below" and predicate.threshold == 65.0
+    assert predicate.comparison == "below" and predicate.threshold == 71.5
     assert predicate.from_tick == 0
 
 

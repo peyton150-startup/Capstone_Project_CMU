@@ -36,12 +36,18 @@ class ReadRequirement(Contract):
     min_samples: int = Field(default=0, ge=0)
     min_span_ticks: int = Field(default=0, ge=0)
     required: bool = True
+    # The failed jobs the anomaly itself named. An inspection read must show
+    # every one of them before failed jobs can be compared (empty: any).
+    failed_job_ids: tuple[int, ...] = ()
     # A snapshot can be read, but cannot prove a historical setting change.
+    # "cycle_time_shift" looks for it in job times instead (manual §2.7).
     qualification: Literal[
         "measurement",
         "movement",
         "record",
         "setting_change",
+        "cycle_time_shift",
+        "job_time_baseline",
         "inspection_batch",
         "inspection_machine",
         "inspection_recent",
@@ -60,6 +66,8 @@ class ReadRequirement(Contract):
             raise ValueError("sensor requirements use get_sensor_summary")
         if self.job_id is not None and self.tool != "get_job_history":
             raise ValueError("job ids belong to job-history requirements")
+        if self.failed_job_ids and self.tool != "get_inspections":
+            raise ValueError("named failed jobs belong to inspection requirements")
         return self
 
 

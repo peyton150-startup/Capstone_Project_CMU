@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 # Reproducible rules: advance the version deliberately when family logic changes.
-TRIAGE_HYPOTHESIS_RULE_VERSION = "1.1"
+TRIAGE_HYPOTHESIS_RULE_VERSION = "1.2"
 CandidateFamily = Literal[
     "machine_condition",
     "operating_load",
@@ -33,6 +33,7 @@ CandidateFamily = Literal[
     "quality_signal",
     "cross_machine_review",
     "telemetry_coverage_gap",
+    "setting_shift",
 ]
 
 
@@ -57,7 +58,7 @@ class TriageCandidate(Contract):
 class TriageHypothesisPacket(Contract):
     """Unscored, validated decision input for deterministic Test planning."""
 
-    rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
+    rule_version: Literal["1.1", "1.2"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
     candidates: tuple[TriageCandidate, ...] = ()
     test_requirement_ids: tuple[str, ...] = ()
@@ -101,7 +102,7 @@ class TriageHypothesisTrace(Contract):
     """A bounded, replayable record of the fixed candidate compiler."""
 
     stage: Literal["hypothesize", "test"]
-    rule_version: Literal["1.1"] = TRIAGE_HYPOTHESIS_RULE_VERSION
+    rule_version: Literal["1.1", "1.2"] = TRIAGE_HYPOTHESIS_RULE_VERSION
     source_cutoff_tick: int | None = Field(default=None, ge=0)
     action: Literal["compiled", "refreshed", "no_candidates", "rejected"]
     candidate_ids: tuple[str, ...] = ()
@@ -131,6 +132,11 @@ ALARM_RULES = (
         "A transient or measurement issue remains possible",
         ("Q1:trigger",),
     ),
+    (
+        "setting_shift",
+        "A changed setting may show as job times shifting at one point",
+        ("Q4:cycle_time",),
+    ),
 )
 
 STATUS_RULES = (
@@ -147,7 +153,7 @@ STATUS_RULES = (
     (
         "service_context",
         "Service or settings may be relevant but not proven",
-        ("Q4:service",),
+        ("Q4:service", "Q4:cycle_time"),
     ),
 )
 
@@ -166,6 +172,11 @@ INSPECTION_RULES = (
         "preceding_events",
         "Recorded events may precede the failed parts",
         ("Q5:events",),
+    ),
+    (
+        "setting_shift",
+        "A changed setting may show as one station working at a different pace",
+        ("Q3:baseline_job",),
     ),
 )
 
@@ -209,6 +220,7 @@ def rule_specs(
                 ("Q5:inspections",),
             ),
             ALARM_RULES[2],
+            ALARM_RULES[3],
         )
     if state.anomaly.kind == "status":
         return STATUS_RULES

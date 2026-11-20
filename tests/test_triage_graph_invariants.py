@@ -163,10 +163,10 @@ def test_capability_loss_after_partial_evidence_survives_hypothesize_and_test():
 
 
 def test_alarm_fixed_plan_cannot_claim_sufficiency_from_a_settings_snapshot():
-    """Every read answered well: Q4 and Q5 still cannot be proven, by design."""
+    """Every read answered well: with no finished jobs, Q4 stays open, as Q5 does."""
     state, _, _ = graph_run()
     assert state.termination_reason is not TerminationReason.EVIDENCE_SUFFICIENT
-    assert state.triage_requirement_results["Q4:setting_change"].status != "satisfied"
+    assert state.triage_requirement_results["Q4:cycle_time"].status != "satisfied"
     assert "Q5" in state.triage_question_gaps
     assert {"Q4", "Q5"} <= {q.id for q in state.unanswered_questions}
     check_invariants(state)

@@ -270,6 +270,7 @@ _SAFE_DECIDE_REASONS = frozenset(
         "inspection_dates_missing",
         "alarm_coverage_missing",
         "measurement_coverage_missing",
+        "job_time_coverage_missing",
         "accepted",
         "missing_data",
         "invalid_shape",
@@ -423,7 +424,7 @@ class SafeHypothesisProgress(BaseModel):
     """Deterministic Hypothesize compiler metadata (#299) for live progress."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
-    rule_version: Literal["1.1"] | None = None
+    rule_version: Literal["1.1", "1.2"] | None = None
     last_action: (
         Literal["compiled", "refreshed", "no_candidates", "rejected"] | None
     ) = None
