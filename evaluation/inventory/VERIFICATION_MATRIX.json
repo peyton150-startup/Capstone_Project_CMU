@@ -75,7 +75,7 @@
   "capstone-code/capstone/evaluation/memory.py": "72e5486936c8c58886db3aa4da8f63e71ff786feb739abeedb9d092323037a13",
   "capstone-code/capstone/evaluation/scoring.py": "38efa009eb966bb0bc7a7b90fe21d8f4db05301bdd19b1fc763537821f94c79e",
   "capstone-code/capstone/evaluation/triage_metrics.py": "0996afb190975d935ea6b6365f6f30dad575c170a9e671bc43c104893285b7c4",
-  "capstone-code/capstone/experiment.py": "ee5f52c0afe482337278e1f8a65041dad9fd3fb521fd4ba7a437b7354d96bd1b",
+  "capstone-code/capstone/experiment.py": "994e2a6b50625d3ea91b6b73ea1168a25fe463b5995630cd9de2ed64d011f828",
   "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
   "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
   "capstone-code/capstone/ingestion/__main__.py": "725ce063d1eabcb2e090d48aa60c471a2f9f661c1e0bdeeffcfbdd5abfc30962",
@@ -344,7 +344,7 @@
   "tests/test_triage_plan.py": "433e906034cf72d690e6cc98ff4b4995c992c413e9421918a6593bf1554c7880",
   "tests/test_triage_question_gaps.py": "402ddffb0826c055673921c10707078b1999ca6b088aa722af6022172be4d52a",
   "tests/test_triage_ranking.py": "fb7bd170047b4e5b63c7d99ed88ad38809cfdbd0c78527ac5b94bbcf3cde5b12",
-  "tests/test_triage_ranking_conclude.py": "94fdc24b63e51ef8eef3cfae733e6fedc2b599ed790e42140a0a0a550f3c7ee6",
+  "tests/test_triage_ranking_conclude.py": "ccf9f68399aea3ffd952a65d73e486de72c2c8b78e4903969411ef20d5af9e88",
   "tests/test_triage_report.py": "a26644fd4e0f4639e50818063bb1f091fc229b154dc54723296a839d16d3be1c",
   "tests/test_triage_run_controls.py": "eaa0b1794c1146764dba8b335590038e89c52ab3ad21311bb4c294b1e9a97f3a",
   "tests/test_triage_run_mode.py": "9e90b0fb69f19405ca709c307c4112fc0a0f37b06a23a7c84962504f245fa77d",
@@ -361,8 +361,8 @@
   "tests/test_web_runs.py": "2021f42a2febc9572b751d4db7ae1dd87c493916018d53e1a35b1a13c96770f8",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "5148040b27a3d278dedf39d9fadea92402657a593d050841c1f7efaaa7eccb23",
- "junit_sha256": "87fcfd831cf68f2deb299ee472320d86a5cfe9c6ad76d869f1e91395a035c8ba",
+ "coverage_sha256": "0ba3a7ad3ef46f033aaaa6059e8d0ae811e42c4765aafbb2ec77fa691ca09f7a",
+ "junit_sha256": "17de273dc4a489a388ca00765cfd3a9e089d1ff6708772b15c1215b8edc1d729",
  "counts": {
   "functions": 1509,
   "classes_note": "classes are listed through their methods",
@@ -624,8 +624,7 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "failed": 2,
-   "passed": 2702,
+   "passed": 2704,
    "skipped": 24
   },
   "tests_with_no_assertion": [

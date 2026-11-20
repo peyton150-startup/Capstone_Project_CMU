@@ -39469,7 +39469,7 @@
     "exercises_no_project_function"
    ],
    "claims": "every setting is listed",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -59085,7 +59085,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -148553,9 +148553,9 @@
    "fixtures": [
     "monkeypatch"
    ],
-   "assertions": 8,
+   "assertions": 10,
    "assert_forms": {
-    "equality": 6,
+    "equality": 8,
     "is_none": 1,
     "truthiness": 1
    },
@@ -148662,7 +148662,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_rejected_ranking_gets_one_correction_with_its_reason",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_rejected_ranking_gets_one_correction_with_its_reason",
-   "line": 109,
+   "line": 111,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -148774,7 +148774,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_missing_ranking_is_asked_for_once_more",
-   "line": 118,
+   "line": 120,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -148886,7 +148886,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_only_one_correction_is_asked_then_the_ranking_is_rejected",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_only_one_correction_is_asked_then_the_ranking_is_rejected",
-   "line": 125,
+   "line": 127,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -148999,7 +148999,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_failed_correction_is_named",
-   "line": 142,
+   "line": 144,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -149114,7 +149114,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
-   "line": 151,
+   "line": 153,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -149226,7 +149226,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected",
-   "line": 160,
+   "line": 162,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -149338,7 +149338,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking",
-   "line": 202,
+   "line": 204,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -149459,7 +149459,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_without_a_snapshot_the_model_policy_asks_as_before",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_without_a_snapshot_the_model_policy_asks_as_before",
-   "line": 228,
+   "line": 230,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -149577,7 +149577,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_the_ranked_answer_schema_shows_the_full_ranking_shape",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_the_ranked_answer_schema_shows_the_full_ranking_shape",
-   "line": 242,
+   "line": 244,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
