@@ -39,9 +39,9 @@ whether that was the clock or an outage.
 import json
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
-from typing import Literal, Protocol, TypeVar
+from typing import Annotated, Literal, Protocol, TypeVar
 
-from pydantic import BaseModel, Field, JsonValue, model_validator
+from pydantic import BaseModel, Field, JsonValue, WithJsonSchema, model_validator
 
 from capstone.agent.artifacts import (
     AgentConclusion,
@@ -68,6 +68,13 @@ from capstone.agent.policy import (
     Stop,
 )
 from capstone.agent.state import InvestigationState, Question
+from capstone.agent.triage_ranking import (
+    CORRECTION_TEXT,
+    RANKING_INSTRUCTIONS,
+    RankingAnswer,
+    ranking_schema,
+    ranking_view,
+)
 from capstone.agent.untrusted import UNTRUSTED_NOTE, looks_like_instruction
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
@@ -312,6 +319,18 @@ class StepsAnswer(NextSteps):
 class ConcludeAnswer(Contract):
     conclusion: AgentConclusion
     action: ActionRequest | None = None
+
+
+class RankedConcludeAnswer(ConcludeAnswer):
+    """A triage conclusion that also carries the two-candidate ranking.
+
+    The ranking is held raw: the conclusion is checked as usual, and the
+    ranking is judged afterwards against the frozen snapshot
+    (`triage_ranking.judge_reply`), so a bad ranking never costs the
+    conclusion. The schema shown to the model is the ranking's full shape.
+    """
+
+    ranking: Annotated[JsonValue | None, WithJsonSchema(ranking_schema())] = None
 
 
 class StepAnswer(NextStep):
@@ -1189,6 +1208,13 @@ def calls_note(state: InvestigationState) -> str:
     return DECIDE_CALLS_NOTE.format(limit=state.decide_calls)
 
 
+RANKING_SYSTEM = (
+    f"{COMMON}\n\nYour job: rank the two most plausible candidate causes from "
+    "a fixed list, or abstain. Your ranking is a belief for a reviewer; it "
+    "is checked against the list and never changes any action."
+)
+
+
 class ModelPolicy:
     """The seven policy questions, each put to its own model client."""
 
@@ -1212,6 +1238,9 @@ class ModelPolicy:
         self.tools = tuple(tools)
         self.late_seconds = late_seconds
         self.calls: list[ModelCall] = []
+        # The raw ranking from the last conclusion, or None; the loop judges
+        # it (`investigation.conclude`).
+        self.last_ranking: JsonValue | None = None
 
     def client_for(self, job: str, state: InvestigationState) -> Client:
         """The client to ask: the triage route, a late route, else the job's own.
@@ -1246,11 +1275,15 @@ class ModelPolicy:
         answer_type: type[Answer],
         *,
         system: str | None = None,
+        label: str | None = None,
     ) -> Answer:
         """Ask one question within the time state allows, and record it.
 
         `system` replaces the job's own system prompt, for a policy that asks
         one job more than one kind of question (`tree_of_thought.py`).
+        `label` names the question in the call record instead of the job, for
+        a second kind of question on one job's client (the ranking
+        correction).
         """
         # Variables:
         #   job: Which of the seven questions this is; it picks the client and system
@@ -1261,6 +1294,7 @@ class ModelPolicy:
         #   outcome: answered, invalid_reply or no_answer, written to the call record
         #     either way, with state.stage and state.mode so a triage's model time
         #     can be split by stage (`evaluation/triage_metrics.py`).
+        #   label: The name written to the call record; the job when None.
         #   triage: Extra keyword for a triage question, sent only to a
         #     FallbackClient (other clients, such as test fakes, do not take
         #     it); empty in a deep run, so its requests are unchanged.
@@ -1287,7 +1321,7 @@ class ModelPolicy:
         finally:
             self.calls.append(
                 ModelCall(
-                    job=job,
+                    job=job if label is None else label,
                     outcome=outcome,
                     answered_by=getattr(client, "answered_by", None)
                     if outcome == "answered"
@@ -1459,11 +1493,24 @@ class ModelPolicy:
         #     then the action-bar note, then, when no hypothesis was formed,
         #     NO_HYPOTHESES_NOTE so the answer does not name one (a named
         #     hypothesis that was never formed is refused).
+        #   snapshot: The frozen candidate list when TRIAGE_RANKING is on; the
+        #     prompt then lists it and asks for the ranking, and the raw
+        #     ranking is kept in self.last_ranking for the loop to judge.
         prompt = render(state)
         if state.mode == "triage" and state.triage_conclude_brief:
             prompt += "\n" + "\n".join(["", *brief_lines(state)])
         prompt += action_bar_note(state)
-        if state.mode == "triage" and state.triage_candidates:
+        snapshot = state.triage_ranking_snapshot if state.mode == "triage" else None
+        if snapshot is not None:
+            prompt += (
+                "\nFixed triage possibilities use TC ids. The rules did not "
+                "rate them: the ranking below asks for your own belief, but "
+                "never treat any possibility as confirmed. Cite observable "
+                "evidence and unresolved tests. When proof is missing, use "
+                "unresolved/escalate.\n"
+                + "\n".join(["", *ranking_view(snapshot), RANKING_INSTRUCTIONS])
+            )
+        elif state.mode == "triage" and state.triage_candidates:
             prompt += (
                 "\nFixed triage possibilities use TC ids. They were not rated "
                 "by a model: you may select an existing TC id, or none, but "
@@ -1473,7 +1520,12 @@ class ModelPolicy:
             )
         elif not state.hypotheses:
             prompt += NO_HYPOTHESES_NOTE
-        answer = self._ask("conclude", state, prompt, ConcludeAnswer)
+        self.last_ranking = None
+        if snapshot is not None:
+            answer = self._ask("conclude", state, prompt, RankedConcludeAnswer)
+            self.last_ranking = answer.ranking
+        else:
+            answer = self._ask("conclude", state, prompt, ConcludeAnswer)
         conclusion = answer.conclusion
         if conclusion.assessment is None:
             conclusion = conclusion.model_copy(
@@ -1486,6 +1538,41 @@ class ModelPolicy:
                 }
             )
         return conclusion, answer.action
+
+    def rerank(self, state: InvestigationState, reason: str) -> JsonValue:
+        """Ask once more for the ranking alone, after the first was rejected.
+
+        The model is shown the same frozen candidates, the fixed sentence
+        for what was wrong, and the instructions; nothing else about its
+        first answer is repeated. The reply is the raw ranking, judged by the
+        loop exactly as the first one was.
+        """
+        # Variables:
+        #   snapshot: The candidate list the first answer was judged against;
+        #     the correction must use the same list.
+        #   reason: The first answer's rejection code, turned into a fixed
+        #     sentence (CORRECTION_TEXT) so the model learns what to fix.
+        snapshot = state.triage_ranking_snapshot
+        if snapshot is None:
+            raise ValueError("no ranking snapshot to correct against")
+        prompt = "\n".join(
+            [
+                *ranking_view(snapshot),
+                "",
+                "Your previous ranking was rejected: "
+                + CORRECTION_TEXT.get(reason, "it did not match the contract."),
+                RANKING_INSTRUCTIONS,
+            ]
+        )
+        answer = self._ask(
+            "conclude",
+            state,
+            prompt,
+            RankingAnswer,
+            system=RANKING_SYSTEM,
+            label="ranking_correction",
+        )
+        return answer.ranking.model_dump(mode="json")
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:
         # Variables:

@@ -234,6 +234,7 @@ def run_recorded_investigation(
         triage_packet_prompt=profile.packet_prompt,
         triage_conclude_brief=settings.triage_conclude_brief,
         triage_conclude_cap=settings.triage_conclude_cap,
+        triage_ranking=settings.triage_ranking,
         triage_fixed_plan=profile.plan == "fixed",
     )
     state.triage_run_mode = profile.run_mode

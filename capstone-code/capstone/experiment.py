@@ -360,6 +360,17 @@ class TriageRecord(BaseModel):
     # TRIAGE_CONCLUDE_CAP: whether the conclusion question was held to the
     # conclusion window. None in records from before it was kept.
     conclude_cap: bool | None = None
+    # TRIAGE_RANKING: whether the conclusion was asked for a two-candidate
+    # ranking, and what the checks made of it. None in older records and when
+    # no ranking was asked. Picks are (candidate id, family, confidence), most
+    # plausible first; confidences are the model's, uncalibrated.
+    ranking: bool | None = None
+    ranking_status: str | None = None
+    ranking_reason: str | None = None
+    ranking_attempts: tuple[str, ...] | None = None
+    ranking_requests: int | None = None
+    ranking_fingerprint: str | None = None
+    ranking_picks: tuple[tuple[str, str, float], ...] | None = None
     # TRIAGE_HYPOTHESIS_SECONDS: the reserve the triage kept for hypothesize,
     # and whether it was what stopped research (so hypothesize was still
     # asked). None in older records.
@@ -480,6 +491,31 @@ class ExperimentRecord(BaseModel):
 NOT_FACTORY = frozenset({RECALL_TOOL, MANUAL_TOOL})
 
 
+def ranking_record(state) -> dict:
+    """The ranking fields of an experiment record; empty when none was asked."""
+    # Variables:
+    #   verdict: The checked ranking on the triage state, or None.
+    #   families: Each snapshot candidate's family by id, so a pick is
+    #     recorded with what its TC id meant when the model saw it.
+    verdict = state.triage_ranking
+    if not state.triage_ranking_enabled or verdict is None:
+        return {"ranking": state.triage_ranking_enabled or None}
+    snapshot = state.triage_ranking_snapshot
+    families = {c.id: c.family for c in snapshot.candidates} if snapshot else {}
+    return {
+        "ranking": True,
+        "ranking_status": verdict.status,
+        "ranking_reason": verdict.reason,
+        "ranking_attempts": state.triage_ranking_attempts,
+        "ranking_requests": state.triage_ranking_requests,
+        "ranking_fingerprint": verdict.snapshot_fingerprint,
+        "ranking_picks": tuple(
+            (p.candidate_id, families.get(p.candidate_id, ""), p.confidence)
+            for p in verdict.picks
+        ),
+    }
+
+
 def count_factory_calls(state) -> int:
     """Counted calls to the factory's own tools.
 
@@ -579,6 +615,9 @@ def triage_record(
     #     conclusion model's time and the Python validation time, apart.
     #   first.triage_conclude_brief: Whether the conclusion saw the brief.
     #   first.triage_conclude_cap: Whether the conclusion was held to its window.
+    #   first.triage_ranking: The checked two-candidate ranking, if one was
+    #     asked; its picks are recorded with their snapshot family, so the
+    #     offline evaluator never has to re-derive what a TC id meant.
     #   first.triage_hypothesis_seconds, first.hypothesis_reserve_used: The
     #     triage's hypothesis reserve and whether it stopped research.
     first = result.triage
@@ -651,6 +690,7 @@ def triage_record(
         conclude_check_seconds=first.conclude_check_seconds,
         conclude_brief=first.triage_conclude_brief,
         conclude_cap=first.triage_conclude_cap,
+        **ranking_record(first),
         hypothesis_reserve_seconds=first.triage_hypothesis_seconds,
         hypothesis_reserve_used=first.hypothesis_reserve_used,
     )

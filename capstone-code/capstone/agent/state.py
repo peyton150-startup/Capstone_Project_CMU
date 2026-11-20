@@ -29,6 +29,7 @@ from capstone.agent.artifacts import (
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
+from capstone.agent.triage_ranking import RankingSnapshot, RankingVerdict
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import (
     ReadRequirement,
@@ -513,6 +514,23 @@ class InvestigationState(BaseModel):
     triage_hypothesis_trace: list[TriageHypothesisTrace] = Field(default_factory=list)
     # Audit-only counter: optional logging faults do not change read selection.
     triage_hypothesis_logging_failures: int = Field(default=0, ge=0)
+    # TRIAGE_RANKING (2026-11-20), triage only: the conclusion also names its
+    # two most plausible candidates (`agent.triage_ranking`). Set on each
+    # triage from the setting; a deep run never ranks.
+    triage_ranking_enabled: bool = False
+    # What the ranking question showed, frozen and fingerprinted; None when
+    # no ranking was asked (setting off, or no candidates).
+    triage_ranking_snapshot: RankingSnapshot | None = None
+    # The final checked verdict: accepted, abstained, rejected or unavailable.
+    # Never a diagnosis and never permission to act on a machine.
+    triage_ranking: RankingVerdict | None = None
+    # Each ranking attempt's reason code, in order: the conclusion's own, then
+    # the one correction's, if one was asked.
+    triage_ranking_attempts: tuple[str, ...] = ()
+    # Model requests that carried a ranking question (1, or 2 with a correction).
+    triage_ranking_requests: int = Field(default=0, ge=0)
+    # Seconds the correction request took; 0 when none was asked.
+    triage_ranking_correction_seconds: float = Field(default=0.0, ge=0)
     # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
     # attached to a question, by question id: with one, a successful call
     # closes the question only on a "true" or "false" verdict. Empty: every

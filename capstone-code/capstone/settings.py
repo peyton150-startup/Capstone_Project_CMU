@@ -364,6 +364,13 @@ class Settings(BaseSettings):
     triage_conclude_brief: bool = Field(
         default=True, validation_alias="TRIAGE_CONCLUDE_BRIEF"
     )
+    # TRIAGE_RANKING (2026-11-20), triage only: the conclusion question also
+    # asks the model to name the two most plausible TC candidates with its own
+    # uncalibrated confidence each, or to abstain; Python checks the ranking
+    # (`agent.triage_ranking`) and allows one correction inside the conclusion
+    # deadline. Off by default: off leaves the conclusion exactly as before.
+    # Needs candidates (deterministic Hypothesize); a deep run never ranks.
+    triage_ranking: bool = Field(default=False, validation_alias="TRIAGE_RANKING")
     # TRIAGE_CONCLUDE_CAP (2026-11-14), triage only: the conclusion question
     # gets at most the triage's conclusion window (TRIAGE_CONCLUDE_SECONDS),
     # even when research ended early. In the 2026-11-14 afternoon runs an early

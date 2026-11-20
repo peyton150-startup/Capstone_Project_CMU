@@ -19,7 +19,7 @@ import json
 from hashlib import sha256
 from typing import TYPE_CHECKING, Annotated, Literal
 
-from pydantic import Field, ValidationError, model_validator
+from pydantic import Field, TypeAdapter, ValidationError, model_validator
 
 from capstone.agent.triage_hypothesize import (
     TRIAGE_HYPOTHESIS_RULE_VERSION,
@@ -56,7 +56,38 @@ RankingReason = Literal[
     "score_invalid",
     "evidence_reference_invalid",
     "check_reference_invalid",
+    # No ranking to check: the reply left it out, or no reply came.
+    "ranking_missing",
+    "provider_unavailable",
+    "conclusion_deadline_exceeded",
 ]
+
+# Failures that end without an answer to check: the verdict is "unavailable".
+UNAVAILABLE_REASONS = frozenset(
+    {"provider_unavailable", "conclusion_deadline_exceeded"}
+)
+
+# What each failure is told in the one correction request: a fixed sentence,
+# never the model's own text or any evidence content.
+CORRECTION_TEXT: dict[str, str] = {
+    "candidate_list_empty": "There are no candidates to rank; abstain.",
+    "candidate_count_insufficient": (
+        "Fewer than two candidates exist; abstain instead of ranking."
+    ),
+    "schema_invalid": "The ranking did not match the required JSON shape.",
+    "selection_count_invalid": "A ranking must name exactly two candidates.",
+    "duplicate_candidate_id": "The two picks must name two different candidates.",
+    "unknown_candidate_id": "Every pick must name a candidate id from the list.",
+    "score_invalid": "Each confidence must be a number from 0 to 1.",
+    "evidence_reference_invalid": (
+        "Cite only evidence ids from the list, and never the same id both for "
+        "and against one pick."
+    ),
+    "check_reference_invalid": (
+        "Missing checks must be requirement ids listed for that candidate."
+    ),
+    "ranking_missing": "The answer had no ranking.",
+}
 
 # Why a model may decline to rank.
 AbstainReason = Literal["evidence_insufficient", "candidates_indistinguishable"]
@@ -235,7 +266,8 @@ def parse_reason(error: ValidationError) -> RankingReason:
 class RankingVerdict(Contract):
     """What the checks made of one answer; only an accepted verdict has picks."""
 
-    status: Literal["accepted", "abstained", "rejected"]
+    # "unavailable": no answer could be checked (no reply, or no time left).
+    status: Literal["accepted", "abstained", "rejected", "unavailable"]
     reason: RankingReason
     snapshot_fingerprint: str = Field(pattern=r"^[0-9a-f]{20}$")
     # Most plausible first: by the model's confidence, ties in snapshot order.
@@ -250,8 +282,12 @@ class RankingVerdict(Contract):
         expected = {"accepted": "ranking_accepted", "abstained": "ranking_abstained"}
         if self.status in expected and self.reason != expected[self.status]:
             raise ValueError("reason does not match status")
-        if self.status == "rejected" and self.reason in expected.values():
-            raise ValueError("a rejected verdict needs a failure reason")
+        if self.status == "rejected" and (
+            self.reason in expected.values() or self.reason in UNAVAILABLE_REASONS
+        ):
+            raise ValueError("a rejected verdict needs a checked failure reason")
+        if (self.status == "unavailable") != (self.reason in UNAVAILABLE_REASONS):
+            raise ValueError("unavailable exactly when no answer could be checked")
         if (len(self.picks) == RANKED_PICKS) != (self.status == "accepted"):
             raise ValueError("only an accepted verdict carries its two picks")
         if (self.abstain_reason is not None) != (self.status == "abstained"):
@@ -338,3 +374,96 @@ def check_ranking(
         snapshot_fingerprint=fingerprint,
         picks=picks,
     )
+
+
+def unavailable(snapshot: RankingSnapshot, reason: RankingReason) -> RankingVerdict:
+    """The verdict when no answer could be checked: no reply, or no time left."""
+    return RankingVerdict(
+        status="unavailable", reason=reason, snapshot_fingerprint=snapshot.fingerprint
+    )
+
+
+def judge_reply(
+    snapshot: RankingSnapshot, raw: object, *, current_fingerprint: str
+) -> RankingVerdict:
+    """Check a ranking as it came in a reply: raw JSON, possibly missing or malformed."""
+    # Variables:
+    #   raw: The reply's "ranking" value exactly as parsed from JSON, never
+    #     trusted: None when the reply left it out.
+    #   parsed: The value validated into a ranked or abstained answer.
+    if raw is None:
+        return RankingVerdict(
+            status="rejected",
+            reason="ranking_missing",
+            snapshot_fingerprint=snapshot.fingerprint,
+        )
+    try:
+        parsed = RankingAnswer.model_validate({"ranking": raw}).ranking
+    except ValidationError as error:
+        return RankingVerdict(
+            status="rejected",
+            reason=parse_reason(error),
+            snapshot_fingerprint=snapshot.fingerprint,
+        )
+    return check_ranking(snapshot, parsed, current_fingerprint=current_fingerprint)
+
+
+def ranking_view(snapshot: RankingSnapshot) -> list[str]:
+    """The snapshot as prompt lines: every candidate, and the citable evidence ids."""
+    # Variables:
+    #   lines: One line per candidate, in snapshot order, then the evidence ids.
+    lines = ["CANDIDATES TO RANK (unscored; fixed rules, not diagnoses):"]
+    for c in snapshot.candidates:
+        lines.append(
+            f"- {c.id} {c.family}"
+            + (f" on {c.machine_id}" if c.machine_id else "")
+            + f": {c.explanation}; related evidence "
+            f"{', '.join(c.observation_evidence_ids) or 'none'}; checks "
+            f"{', '.join(c.discriminating_requirement_ids) or 'none'}; still "
+            f"missing {', '.join(c.missing_requirement_ids) or 'none'}."
+        )
+    lines.append(
+        "Evidence ids you may cite: " + (", ".join(snapshot.evidence_ids) or "none")
+    )
+    return lines
+
+
+RANKING_INSTRUCTIONS = (
+    'Also fill "ranking": either kind "ranked" naming exactly two different '
+    "candidate ids from the list, most plausible first, each with your own "
+    "confidence from 0 to 1 (independent: the two need not add to 1, and they "
+    "are beliefs, not measured probabilities), a short rationale, the evidence "
+    "ids that support it (at least one) and any against it, and the listed "
+    'checks still missing; or kind "abstained" when the evidence cannot '
+    "support two defensible picks. Never invent a candidate or an evidence id. "
+    "The ranking never changes what may be done to a machine."
+)
+
+
+def ranking_schema() -> dict:
+    """The ranking's JSON schema with every reference written out in place.
+
+    The conclusion reply carries the ranking as a loosely typed field (so a
+    bad ranking never costs the conclusion), but the model must still be
+    shown the full shape: this is that shape, self-contained, with `anyOf`
+    for the two kinds.
+    """
+    # Variables:
+    #   full: The union's schema with its shared definitions under "$defs".
+    #   defs: Those definitions, by name, substituted wherever referenced.
+    full = TypeAdapter(CandidateRanking).json_schema()
+    defs = full.pop("$defs", {})
+
+    def inline(node):
+        if isinstance(node, dict):
+            if "$ref" in node:
+                return inline(defs[node["$ref"].rsplit("/", 1)[-1]])
+            node = {k: inline(v) for k, v in node.items() if k != "discriminator"}
+            if "oneOf" in node:
+                node["anyOf"] = node.pop("oneOf")
+            return node
+        if isinstance(node, list):
+            return [inline(item) for item in node]
+        return node
+
+    return inline(full)
