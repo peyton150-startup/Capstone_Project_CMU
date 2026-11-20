@@ -1140,6 +1140,42 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     )
 
 
+def format_ranking(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on the two-candidate rankings; None when no run asked for one.
+
+    Form only: how often a ranking was accepted, abstained, rejected or
+    unavailable, how many needed the correction and how many it saved, and
+    the commonest reasons. Whether the picks were right is part 5's job.
+    """
+    # Variables:
+    #   kept: The triage record of each run that asked for a ranking and
+    #     recorded a verdict (the ranking fields live on `TriageRecord`).
+    #   corrected: Runs that asked the one correction (two requests).
+    #   saved: Corrected runs whose final ranking was usable (accepted or
+    #     abstained).
+    #   reasons: How often each final reason occurred, commonest first.
+    kept = [
+        r.triage
+        for r in records
+        if r.triage is not None
+        and r.triage.ranking
+        and r.triage.ranking_status is not None
+    ]
+    if not kept:
+        return None
+    count = Counter(r.ranking_status for r in kept)
+    corrected = [r for r in kept if (r.ranking_requests or 0) > 1]
+    saved = sum(r.ranking_status in ("accepted", "abstained") for r in corrected)
+    reasons = Counter(r.ranking_reason for r in kept).most_common(3)
+    return (
+        f"ranking: {len(kept)} asked; {count['accepted']} accepted, "
+        f"{count['abstained']} abstained, {count['rejected']} rejected, "
+        f"{count['unavailable']} unavailable; {len(corrected)} corrected "
+        f"({saved} saved); reasons "
+        + ", ".join(f"{reason} {n}" for reason, n in reasons)
+    )
+
+
 def format_triage_outcomes(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on where triage plans came from and how the reports ended.
 
@@ -1450,6 +1486,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if triaged is None else [triaged]
     outcomes = format_triage_outcomes(records)
     lines += [] if outcomes is None else [outcomes]
+    ranked = format_ranking(records)
+    lines += [] if ranked is None else [ranked]
     stages = format_triage_stages(records)
     lines += [] if stages is None else [stages]
     advised = format_investigate(records)

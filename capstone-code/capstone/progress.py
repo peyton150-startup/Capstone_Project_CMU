@@ -134,6 +134,38 @@ def report_lines(report: TriageReport) -> list[str]:
     return lines
 
 
+def ranking_lines(state: InvestigationState) -> list[str]:
+    """The checked two-candidate ranking: verdict, attempts, then each pick.
+
+    Empty when TRIAGE_RANKING was off. Confidences are the model's own,
+    uncalibrated beliefs; the ranking never changed the report above.
+    """
+    # Variables:
+    #   verdict: The checked ranking; its picks are ordered most plausible first.
+    #   families: What each TC id meant in the snapshot the model was shown.
+    verdict = state.triage_ranking
+    if verdict is None:
+        return []
+    snapshot = state.triage_ranking_snapshot
+    families = {c.id: c.family for c in snapshot.candidates} if snapshot else {}
+    lines = [
+        f"TRIAGE RANKING {verdict.status} ({verdict.reason}); "
+        f"{state.triage_ranking_requests} request(s), attempts "
+        f"{' -> '.join(state.triage_ranking_attempts)}; "
+        f"snapshot {verdict.snapshot_fingerprint}"
+        + (f", {len(snapshot.candidates)} candidate(s)" if snapshot else "")
+    ]
+    for n, pick in enumerate(verdict.picks, start=1):
+        lines.append(
+            f"  {n}. {pick.candidate_id} {families.get(pick.candidate_id, '?')} "
+            f"belief {pick.confidence:.2f} (uncalibrated): "
+            f"{shorten(pick.rationale, 120)}"
+        )
+    if verdict.abstain_reason:
+        lines.append(f"  abstained: {verdict.abstain_reason}")
+    return lines
+
+
 def evidence_test_line(record: TriageTestRecord) -> str:
     """One TRIAGE_EVIDENCE_TESTS record as a line: what the triage rule did."""
     # Variables:
@@ -595,6 +627,8 @@ class ProgressView:
         if state.triage_report is not None and state.triage_report != self.report:
             self.report = state.triage_report
             for line in report_lines(state.triage_report):
+                self.write(line)
+            for line in ranking_lines(state):
                 self.write(line)
             if not self.ledger_shown:
                 self.ledger_shown = True
