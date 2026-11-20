@@ -8,6 +8,8 @@ import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, Revie
 import { TriageRunEditor } from './triageRunEditor';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, SourceState, toneFor, Unavailable } from '../ui';
 import { reportHasAcceptedConclusion, selectTriageReport } from '../sourceState.mjs';
+import { describeJournal, journalLogger, newDiagnostics, runJournal, skippedCount } from '../sseJournal.mjs';
+import type { JournalDiagnostics } from '../sseJournal.mjs';
 import { ModelCallTimeline } from './model_call_timeline';
 import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
 import { DeepInvestigationProgress } from './deep_progress';
@@ -224,76 +226,58 @@ export function ManagedRunList() {
 }
 
 function useJournal(runId: string | undefined, token: string, enabled: boolean, backend: ApiBackend) {
+  // Variables:
+  //   events: The most recent 250 accepted stage events, newest last; reset
+  //     whenever the run, credential or backend changes.
+  //   diagnostics: What the reader is doing and has done (connections,
+  //     retries, skipped frames, last sequence), shown in the journal panel.
+  //   abort: Ends the reader and any scheduled reconnect when the page
+  //     leaves the run or its inputs change.
   const [events, setEvents] = useState<RunEvent[]>([]);
-  const [status, setStatus] = useState('not_connected');
-  const cursor = useRef(0);
+  const [diagnostics, setDiagnostics] = useState<JournalDiagnostics>(newDiagnostics);
   useEffect(() => {
     setEvents([]);
-    cursor.current = 0;
+    setDiagnostics(newDiagnostics());
     if (!enabled || !runId) return;
-    let closed = false;
-    let retry: ReturnType<typeof setTimeout> | undefined;
     const abort = new AbortController();
-
-    async function connect() {
-      if (closed || !runId) return;
-      try {
-        setStatus('connecting');
-        const url = resolveApiUrl('/api/v1/lab/runs/' + encodeURIComponent(runId) +
-          '/events?workspace=simulator&since=' + cursor.current, backend, window.location.hostname);
-        const response = await fetch(url, {
-          headers: token ? { Authorization: 'Bearer ' + token } : {},
-          signal: abort.signal, cache: 'no-store',
-        });
-        if (!response.ok || !response.body) throw new Error('Event stream unavailable (' + response.status + ')');
-        setStatus('connected');
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-        while (!closed) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          // Normalize after concatenation: CR/LF can cross network chunks.
-          buffer = (buffer + decoder.decode(value, { stream: true })).replaceAll('\r\n', '\n');
-          if (buffer.length > 65536) throw new Error('Event frame exceeded safe size');
-          let end = buffer.indexOf('\n\n');
-          while (end >= 0) {
-            const frame = buffer.slice(0, end);
-            buffer = buffer.slice(end + 2);
-            let seq = 0, name = 'message', data = '';
-            for (const line of frame.split('\n')) {
-              if (line.startsWith('id: ')) seq = Number(line.slice(4));
-              if (line.startsWith('event: ')) name = line.slice(7);
-              if (line.startsWith('data: ')) data = line.slice(6);
-            }
-            // Terminal runs may have no explicit final journal event after
-            // recovery. The server marks a fully replayed terminal stream.
-            if (name === 'stream.closed') {
-              setStatus('finished');
-              closed = true;
-            }
-            if (seq > cursor.current && Number.isSafeInteger(seq) && data) {
-              const parsed: unknown = JSON.parse(data);
-              cursor.current = seq;
-              if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed))
-                setEvents(previous=>[...previous, { seq, event: name, data: parsed as Record<string,unknown> }].slice(-250));
-              if (name === 'run.completed' || name === 'run.failed' || name === 'run.interrupted') {
-                setStatus('finished');
-                closed = true;
-              }
-            }
-            end = buffer.indexOf('\n\n');
-          }
-        }
-      } catch (problem) {
-        if (!closed) setStatus(problem instanceof Error ? problem.message : 'disconnected');
-      }
-      if (!closed) retry = setTimeout(connect, 2000);
-    }
-    void connect();
-    return () => { closed = true; abort.abort(); if (retry) clearTimeout(retry); };
+    void runJournal({
+      fetchImpl: (url, init) => fetch(url, init),
+      urlFor: cursor => resolveApiUrl('/api/v1/lab/runs/' + encodeURIComponent(runId) +
+        '/events?workspace=simulator&since=' + cursor, backend, window.location.hostname),
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      signal: abort.signal,
+      onEvent: event => setEvents(previous => [...previous, event].slice(-250)),
+      onDiagnostics: setDiagnostics,
+      log: journalLogger(runId),
+    });
+    return () => abort.abort();
   }, [runId, token, enabled, backend]);
-  return {events, status};
+  return {events, diagnostics, status: describeJournal(diagnostics)};
+}
+
+/** The journal reader's own record, so a reviewer can tell a quiet run from a
+ * broken stream without opening the browser console. */
+function JournalDiagnosticsRows({ diagnostics }: { diagnostics: JournalDiagnostics }) {
+  // Variables:
+  //   skipped: Frames that arrived but could not be shown; each reason is
+  //     listed so a malformed payload is never silently hidden.
+  const d = diagnostics;
+  const skipped = skippedCount(d);
+  const reasons = (Object.entries(d.skipped) as [string, number][])
+    .filter(([, n]) => n > 0).map(([reason, n]) => reason.replace('_', ' ') + ': ' + n).join(' · ');
+  return <details className="journal-diagnostics">
+    <summary>Stream diagnostics{skipped ? ' · ' + skipped + ' malformed event' + (skipped === 1 ? '' : 's') + ' skipped' : ''}</summary>
+    <DataRow label="Reader state" value={describeJournal(d)}/>
+    <DataRow label="Connections" value={String(d.connects) + (d.httpStatus !== null ? ' (last HTTP ' + d.httpStatus + ')' : '')}/>
+    <DataRow label="Last connected" value={formatStamp(d.lastConnectedAt)}/>
+    <DataRow label="Events shown" value={String(d.accepted)}/>
+    <DataRow label="Last sequence" value={String(d.lastSeq)}/>
+    <DataRow label="Last event" value={formatStamp(d.lastEventAt)}/>
+    <DataRow label="Replayed duplicates" value={String(d.duplicates)}/>
+    <DataRow label="Skipped frames" value={skipped ? reasons : 'None'}/>
+    <DataRow label="Last problem" value={d.lastError ? d.lastError + ' (' + formatStamp(d.lastErrorAt) + ')' : 'None'}/>
+    {d.closeReason && <DataRow label="Closed by" value={d.closeReason}/>}
+  </details>;
 }
 
 function readableStage(value: string | null | undefined): string {
@@ -794,11 +778,16 @@ export function RunDetailPage() {
         Packet counts and qualified calls indicate observed coverage, not proof of root cause.</p>
     </Panel>
     <Panel title="Stage event journal" subtitle={'Nonblocking and reconnectable · ' + journal.status}>
+      {journal.diagnostics.state === 'stopped' &&
+        <InfoState kind="warning" title="Stage journal stopped" detail={journal.diagnostics.lastError ||
+          'The event stream cannot be read with the current settings.'}/>}
       {journal.events.length ? journal.events.map(row=>
         <div className="settings-row" key={row.seq}><span>{String(row.seq).padStart(4, '0')} · {row.event}</span>
           <span className="settings-value">{eventStageSummary(row)}</span></div>):
-        <InfoState title={journal.status === 'connecting' ? 'Connecting to the stage journal' : 'No stage updates yet'}
+        journal.diagnostics.state !== 'stopped' &&
+        <InfoState title={journal.diagnostics.state === 'connecting' ? 'Connecting to the stage journal' : 'No stage updates yet'}
           detail={'The worker has not published any permitted stage events for this run (stream: ' + journal.status + ').'}/>}
+      <JournalDiagnosticsRows diagnostics={journal.diagnostics}/>
       <p className="body-copy">Event updates are metadata only. If a UI update is dropped, the authoritative persisted run snapshot remains the source of truth.</p>
     </Panel>
   </>;
