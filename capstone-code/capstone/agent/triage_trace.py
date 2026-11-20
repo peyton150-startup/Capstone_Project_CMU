@@ -35,6 +35,12 @@ TriageEventName = Literal[
     "triage.requirement_evaluated",
     "triage.completion_converted",
     "triage.stopped",
+    # The two-candidate ranking (TRIAGE_RANKING): asked with the
+    # conclusion, each answer judged, at most one correction, the end.
+    "triage.ranking_requested",
+    "triage.ranking_judged",
+    "triage.ranking_correction_requested",
+    "triage.ranking_completed",
 ]
 _CODE = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 _HASH = re.compile(r"[a-f0-9]{20}\Z")
