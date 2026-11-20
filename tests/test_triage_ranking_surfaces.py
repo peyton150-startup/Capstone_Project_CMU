@@ -25,6 +25,7 @@ def test_the_report_carries_the_accepted_ranking_with_what_each_id_meant(
         first.family,
     )
     assert ranking.picks[0].explanation == first.explanation
+    assert ranking.picks[0].machine_id == first.machine_id
     assert ranking.picks[0].confidence == 0.6
     # The ranking never changes the report's own judgement.
     assert state.triage_report.recommendation == "escalate"

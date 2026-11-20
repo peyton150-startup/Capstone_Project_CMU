@@ -43,6 +43,7 @@ class ReportRankingPick(Contract):
 
     candidate_id: str
     family: str
+    machine_id: str | None = None
     explanation: str
     # The model's own uncalibrated belief, 0-1; never a measured probability.
     confidence: float = Field(ge=0, le=1)
@@ -92,6 +93,7 @@ def report_ranking(state: InvestigationState) -> ReportRanking | None:
             ReportRankingPick(
                 candidate_id=p.candidate_id,
                 family=shown[p.candidate_id].family,
+                machine_id=shown[p.candidate_id].machine_id,
                 explanation=shown[p.candidate_id].explanation,
                 confidence=p.confidence,
                 rationale=p.rationale,

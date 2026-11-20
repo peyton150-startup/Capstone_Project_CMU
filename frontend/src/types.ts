@@ -279,7 +279,8 @@ export type TriageRanking = {
   status: 'accepted' | 'abstained' | 'rejected' | 'unavailable';
   reason: string; abstain_reason: string | null; attempts: string[];
   requests: number; snapshot_fingerprint: string; candidate_count: number;
-  picks: Array<{candidate_id: string; family: string; explanation: string;
+  picks: Array<{candidate_id: string; family: string; machine_id: string | null;
+    explanation: string;
     confidence: number; rationale: string; evidence_ids: string[];
     contradicting_evidence_ids: string[]; missing_checks: string[]}>;
 };

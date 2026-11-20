@@ -858,7 +858,7 @@ export function RankingView({ ranking }: { ranking: TriageRanking }) {
     <DataRow label="Snapshot" value={ranking.snapshot_fingerprint}/>
     {ranking.picks.map((pick, n)=>
       <div className="hypothesis-card" key={pick.candidate_id}>
-        <strong>{n + 1}. {pick.candidate_id} · {pick.family}</strong>
+        <strong>{n + 1}. {pick.candidate_id} · {pick.family}{pick.machine_id ? ' on ' + pick.machine_id : ''}</strong>
         <p>{pick.explanation}</p>
         <DataRow label="Model belief" value={Math.round(pick.confidence * 100) +
           '/100 (uncalibrated, independent of the other pick)'}/>
