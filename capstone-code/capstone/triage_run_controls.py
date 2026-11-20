@@ -34,6 +34,7 @@ class TriageRunOptions(BaseModel):
     then_deep: bool | None = None
     conclude_brief: bool | None = None
     conclude_cap: bool | None = None
+    ranking: bool | None = None
     seconds: float | None = Field(default=None, ge=5, le=900, allow_inf_nan=False)
     tool_calls: int | None = Field(default=None, ge=1, le=30)
     hypothesis_seconds: float | None = Field(
@@ -56,6 +57,8 @@ class EffectiveTriageRun(BaseModel):
     then_deep: bool
     conclude_brief: bool
     conclude_cap: bool
+    # TRIAGE_RANKING; False keeps payloads saved before it valid.
+    ranking: bool = False
     seconds: float = Field(ge=5, le=900, allow_inf_nan=False)
     tool_calls: int = Field(ge=1, le=30)
     hypothesis_seconds: float = Field(ge=0, le=300, allow_inf_nan=False)
@@ -184,6 +187,7 @@ def resolve_triage_run(
         then_deep=get("then_deep", settings.triage_then_deep),
         conclude_brief=get("conclude_brief", settings.triage_conclude_brief),
         conclude_cap=get("conclude_cap", settings.triage_conclude_cap),
+        ranking=get("ranking", settings.triage_ranking),
         seconds=get("seconds", settings.triage_seconds),
         tool_calls=get("tool_calls", settings.triage_tool_calls),
         hypothesis_seconds=hypothesis_seconds,

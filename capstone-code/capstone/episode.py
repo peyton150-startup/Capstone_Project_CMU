@@ -565,6 +565,8 @@ def run_triage_then_deep(
     #     only, so its conclusion question shows what was tested and missing.
     #   first.triage_conclude_cap: TRIAGE_CONCLUDE_CAP, set on the triage only,
     #     so its conclusion question keeps to the conclusion window.
+    #   first.triage_ranking_enabled: TRIAGE_RANKING, set on the triage only,
+    #     so its conclusion also names two candidates; a deep run never ranks.
     #   first.triage_observe_separate: TRIAGE_OBSERVE_CALLS=separate, set on the
     #     triage only, so Observe's own reads leave its research calls whole.
     #   first.triage_hypothesis_seconds: The triage's hypothesis reserve
@@ -587,6 +589,9 @@ def run_triage_then_deep(
         settings.triage_conclude_cap
         if configuration is None
         else configuration.conclude_cap
+    )
+    first.triage_ranking_enabled = (
+        settings.triage_ranking if configuration is None else configuration.ranking
     )
     first.triage_fixed_plan = profile.plan == "fixed"
     first.triage_observe_separate = profile.observe_calls == "separate"

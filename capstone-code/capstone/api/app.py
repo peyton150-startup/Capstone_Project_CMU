@@ -73,6 +73,7 @@ PUBLIC_SETTING_FIELDS = {
     "TRIAGE_EVIDENCE_TESTS": "triage_evidence_tests",
     "TRIAGE_CONCLUDE_BRIEF": "triage_conclude_brief",
     "TRIAGE_CONCLUDE_CAP": "triage_conclude_cap",
+    "TRIAGE_RANKING": "triage_ranking",
     "TRIAGE_HYPOTHESIS_SECONDS": "triage_hypothesis_seconds",
     "TRIAGE_THEN_DEEP": "triage_then_deep",
     "STEP_QUESTIONS": "step_questions",

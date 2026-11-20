@@ -39,7 +39,7 @@ import json
 from dataclasses import replace
 from typing import Literal
 
-from pydantic import JsonValue
+from pydantic import JsonValue, ValidationError
 from pydantic_graph import GraphBuilder, StepContext
 
 from capstone.agent.artifacts import (
@@ -68,6 +68,7 @@ from capstone.agent.loop import (
     notify,
     record,
     run_inner_loop,
+    seconds_left,
 )
 from capstone.agent.policy import (
     ActionRequest,
@@ -92,6 +93,16 @@ from capstone.agent.triage_plan import (
     fixed_predicates,
     is_screening_question,
     screening_answer,
+)
+from capstone.agent.triage_ranking import (
+    UNAVAILABLE_REASONS,
+    RankingReason,
+    RankingSnapshot,
+    RankingVerdict,
+    judge_reply,
+    parse_reason,
+    ranking_snapshot,
+    unavailable,
 )
 from capstone.agent.triage_report import build_triage_report
 from capstone.contracts.hypotheses import Hypothesis
@@ -1555,10 +1566,20 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     conclusion window (`budgets.followup_seconds`) from when the question
     #     is asked, so an early end of research does not hand it all the time
     #     left; `loop.seconds_left` holds the question to it.
+    #   snapshot: With TRIAGE_RANKING on in a triage, the candidate list
+    #     frozen before the question, which the ranking is judged against;
+    #     None otherwise, and then nothing about ranking runs.
+    #   ranking_failed: Why the conclusion question gave no ranking to judge
+    #     (no time, or an unusable reply); None when it answered.
     state.stage = "decide"
     outcome = "decided"
     asked_at = deps.clock()
     checking = 0.0
+    snapshot = None
+    ranking_failed: RankingReason | None = None
+    if state.mode == "triage" and state.triage_ranking_enabled:
+        snapshot = ranking_snapshot(state)
+        state.triage_ranking_snapshot = snapshot
     if (
         state.mode == "triage"
         and state.triage_conclude_cap
@@ -1570,6 +1591,12 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
             answer, wanted = ask_policy(
                 state, deps, deps.policy.conclude, research=False
             )
+        except ModelError:
+            # An outage with time left ends the run upstream; the ranking
+            # still says why it has no answer.
+            if snapshot is not None:
+                settle_ranking(state, deps, snapshot, "provider_unavailable")
+            raise
         finally:
             checked_at = deps.clock()
             state.conclude_model_seconds = max(0.0, checked_at - asked_at)
@@ -1604,6 +1631,7 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
             )
     except OutOfTime as stop:
         conclusion, request, outcome = UNDETERMINED, None, "stopped"
+        ranking_failed = "conclusion_deadline_exceeded"
         state.termination_reason = TerminationReason.TIMEOUT
         if state.mode == "triage" and stop.asked:
             # Models were asked for the conclusion and none answered: the
@@ -1613,6 +1641,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     except POLICY_ERRORS as error:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
         state.conclusion_rejected = rejection_reason(error)
+        ranking_failed = "schema_invalid"
+    if snapshot is not None:
+        settle_ranking(state, deps, snapshot, ranking_failed)
     state.conclusion = conclusion
     state.concluded_tick = state.last_tick
     if state.mode == "triage":
@@ -1665,6 +1696,92 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         evidence_ids=conclusion.evidence_ids,
         termination_reason=state.termination_reason,
     )
+
+
+def settle_ranking(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    snapshot: RankingSnapshot,
+    failed: RankingReason | None,
+) -> None:
+    """Judge the conclusion's ranking, with at most one correction, and save it.
+
+    The ranking is a belief for the reviewer only: nothing here changes the
+    conclusion, the recommendation or any action. A rejected ranking is
+    asked for once more (the ranking alone, `policy.rerank`) when time is
+    left before the conclusion deadline; a stale one is not, since its
+    candidate list no longer exists. Each answer is judged against the
+    frozen snapshot and the list as it stands now.
+    """
+
+    # Variables:
+    #   failed: Why the conclusion question had no ranking to judge (no time,
+    #     an outage, an unusable reply); None when it answered.
+    #   verdict: The current judgement: accepted, abstained, rejected or
+    #     unavailable, replaced by the correction's when one is asked.
+    #   attempts: Each judgement's reason code in order, so the record shows
+    #     a rejection and what the correction made of it.
+    #   requests: How many model questions carried the ranking: the
+    #     conclusion's, plus the correction's if asked.
+    #   now: The fingerprint of the candidate list as it stands, so an answer
+    #     about a list that has since changed is rejected as stale.
+    def now() -> str:
+        return ranking_snapshot(state).fingerprint
+
+    if failed in UNAVAILABLE_REASONS:
+        verdict = unavailable(snapshot, failed)
+    elif failed is not None:
+        verdict = RankingVerdict(
+            status="rejected", reason=failed, snapshot_fingerprint=snapshot.fingerprint
+        )
+    else:
+        verdict = judge_reply(
+            snapshot,
+            getattr(deps.policy, "last_ranking", None),
+            current_fingerprint=now(),
+        )
+    attempts = [verdict.reason]
+    requests = 1
+    if (
+        verdict.status == "rejected"
+        and verdict.reason != "candidate_snapshot_stale"
+        and hasattr(deps.policy, "rerank")
+        and seconds_left(state, deps, research=False) > 0
+    ):
+        requests += 1
+        started = deps.clock()
+        reason = verdict.reason
+        try:
+            raw = ask_policy(
+                state,
+                deps,
+                lambda view: deps.policy.rerank(view, reason),
+                research=False,
+            )
+        except OutOfTime:
+            verdict = unavailable(snapshot, "conclusion_deadline_exceeded")
+        except ModelError:
+            verdict = unavailable(snapshot, "provider_unavailable")
+        except ValidationError as error:
+            verdict = RankingVerdict(
+                status="rejected",
+                reason=parse_reason(error),
+                snapshot_fingerprint=snapshot.fingerprint,
+            )
+        except POLICY_ERRORS:
+            verdict = RankingVerdict(
+                status="rejected",
+                reason="schema_invalid",
+                snapshot_fingerprint=snapshot.fingerprint,
+            )
+        else:
+            verdict = judge_reply(snapshot, raw, current_fingerprint=now())
+        finally:
+            state.triage_ranking_correction_seconds = max(0.0, deps.clock() - started)
+        attempts.append(verdict.reason)
+    state.triage_ranking = verdict
+    state.triage_ranking_attempts = tuple(attempts)
+    state.triage_ranking_requests = requests
 
 
 def rejection_reason(error: Exception) -> str:
