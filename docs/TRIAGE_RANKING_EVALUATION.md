@@ -57,7 +57,9 @@ fails if a new `CandidateFamily` is added without a mapping.
 Per case (`CaseRankingScore`): status (accepted / abstained / rejected /
 missing), reason code, valid (accepted or abstained), abstained, top-1 correct,
 top-2 correct, true cause among the candidates, candidate count, top-pick
-confidence. A verdict whose fingerprint differs from the snapshot given is
+confidence. `score_case` works from a snapshot and verdict in memory;
+`score_record` from a run record (below), where a ranking the run could not
+have is status `unavailable` (invalid). A verdict whose fingerprint differs from the snapshot given is
 refused (`ValueError`): it was joined to the wrong question.
 
 Over cases (`RankingAccuracy`):
@@ -66,7 +68,8 @@ Over cases (`RankingAccuracy`):
   reason code (`"missing"` when no verdict was stored).
 - **Accuracy:** top-1 and top-2 accuracy over accepted rankings, and over all
   cases (abstained, rejected and missing count as not right).
-- **Blame:** candidate-coverage rate (a true cause was offered at all), and
+- **Blame:** candidate-coverage rate over cases whose candidates are known
+  (`coverage_known`; a true cause was offered at all), and
   top-2 accuracy over accepted rankings of covered cases only. A miss on an
   uncovered case is the candidate compiler's, not the model's.
 - **Confidence:** mean top-pick confidence when right and when wrong, with
@@ -108,14 +111,17 @@ So the live run's best possible top-2 accuracy over all 13 cases is 12/13.
 
 Run after parts 2-4 are merged. One live run at a time (AGENTS.md §12).
 
-**Source:** `main` at `<SHA — fill in after parts 2-4 merge>`. Record it in
-the benchmark note.
+**Source:** `main` after parts 2-4 have merged (PR 330 and the stacked PRs
+after it): run on main's tip at that point and record its SHA in the
+benchmark note and from the run header.
 
 **Settings:** the deterministic arm of `triage-docker\triage-docker.ps1`
 (`TRIAGE_RUN_MODE=deterministic`, `TRIAGE_MODEL=nvidia/nvidia/nemotron-3.5-lightning-30b-a3b`,
 `TRIAGE_MODEL_THINKING=off`, `TRIAGE_CONCLUDE_BRIEF=on`,
 `TRIAGE_CONCLUDE_CAP=on`, with `TRIAGE=on`, `TRIAGE_THEN_DEEP=off`,
 `TRIAGE_SECONDS=90`), plus `TRIAGE_RANKING=on` and `TRIAGE_TOOL_CALLS=8`.
+`TRIAGE_RANKING=on` needs deterministic Hypothesize to give it candidates:
+`TRIAGE_RUN_MODE=deterministic` does that.
 
 **Command** (from `C:\Users\nicol\Capstone_Project_CMU`, Docker Desktop
 running; the script's targeted tests must pass before any model call):
@@ -133,42 +139,42 @@ Two repetitions (the default): 26 triages.
 Copy the records and config into `docs/benchmarks/<date>-triage-ranking-live/`
 with a README, as for earlier triage runs.
 
-**Computing the metrics.** Each record's `score.causes` holds the true causes.
-The ranking verdict and its snapshot are written to the record by part 4;
-replace `SNAPSHOT_KEY` and `VERDICT_KEY` below with the keys it uses (part 2
-names the state fields `triage_ranking_snapshot` and `triage_ranking`). Then:
+**Computing the metrics.** Each record's `score.causes` holds the true causes,
+and its `triage` (a `TriageRecord`) holds the ranking, as part 2 writes it:
+
+| Field | Meaning |
+|---|---|
+| `ranking` | True when a ranking was asked; None in older records and when none was |
+| `ranking_status` | `accepted`, `abstained`, `rejected` or `unavailable` |
+| `ranking_reason` | the fixed reason code of the final verdict |
+| `ranking_attempts` | the reason code of each attempt (one, or two with the bounded correction) |
+| `ranking_requests` | how many times the model was asked (1 or 2) |
+| `ranking_fingerprint` | the snapshot the verdict answers |
+| `ranking_picks` | (candidate id, family, machine id or None, confidence), most plausible first; empty unless accepted |
+
+`score_record` scores a record straight from its picks' family and machine,
+so no snapshot is needed. Coverage comes from the same record's
+`triage.deterministic_candidates` (the candidates as triage ended); pass
+`covered=` to override it, and it is `None` only in records without them. A
+pick whose TC id was not in the snapshot is recorded with family `""` and
+names nothing.
+(Part 4 also puts the ranking on `TriageReport.ranking`, whose picks carry
+the family and explanation, for the report and the UI; the scorer reads
+records, not reports.)
 
 ```python
 import json
 from pathlib import Path
 
-from capstone.agent.triage_ranking import RankingSnapshot, RankingVerdict
-from capstone.evaluation.ranking_accuracy import aggregate, score_case
-from capstone.evaluation.scoring import Cause
+from capstone.evaluation.ranking_accuracy import aggregate, score_record
 
-
-def dig(record, dotted):
-    """record["a"]["b"] for "a.b"; None when any step is missing."""
-    for key in dotted.split("."):
-        record = record.get(key) if isinstance(record, dict) else None
-    return record
-
-
-SNAPSHOT_KEY = "<fill in from part 4>"
-VERDICT_KEY = "<fill in from part 4>"
-scores = []
-for path in sorted(Path("<results folder>").glob("*.records.jsonl")):
-    for line in path.read_text(encoding="utf-8").splitlines():
-        record = json.loads(line)
-        snap, verdict = dig(record, SNAPSHOT_KEY), dig(record, VERDICT_KEY)
-        scores.append(
-            score_case(
-                record["scenario_id"],
-                RankingSnapshot.model_validate(snap) if snap else None,
-                RankingVerdict.model_validate(verdict) if verdict else None,
-                [Cause.model_validate(c) for c in record["score"]["causes"]],
-            )
-        )
+scores = [
+    score_record(json.loads(line))
+    for path in sorted(Path("<results folder>").glob("*.records.jsonl"))
+    for line in path.read_text(encoding="utf-8").splitlines()
+]
+for score in scores:
+    print(score.model_dump_json())
 print(aggregate(scores).model_dump_json(indent=2))
 ```
 
