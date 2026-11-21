@@ -77,7 +77,7 @@ def ranked(snap, first, second, confidences=(0.7, 0.4)):
     """check_ranking's verdict on a two-pick answer."""
     # Variables:
     #   first, second: The TC ids picked, in the order given; check_ranking
-    #     reorders them by confidence.
+    #     keeps that order (prompt version 3), whatever the confidences.
     answer = RankedAnswer(
         picks=(pick(first, confidences[0]), pick(second, confidences[1]))
     )
@@ -209,6 +209,39 @@ def test_either_of_two_true_causes_counts():
     ]
     score = score_case("KA-09", snap, ranked(snap, "TC4", "TC3"), causes)
     assert score.top1_correct
+    # Top-2 counts either cause; naming every cause is reported apart.
+    assert (score.causes_named, score.true_cause_count) == (1, 2)
+    both = score_case("KA-09", snap, ranked(snap, "TC4", "TC1"), causes)
+    assert (both.causes_named, both.true_cause_count) == (2, 2)
+
+
+def test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart():
+    snap = snapshot(*ALARM)
+    # The model put the wrong candidate first, with the lower confidence.
+    verdict = ranked(snap, "TC3", "TC1", confidences=(0.4, 0.8))
+    assert verdict.order_conflicts_confidence
+    score = score_case("KA-01", snap, verdict, [BEARING])
+    assert not score.top1_correct and score.top1_by_confidence_correct
+    assert score.top1_confidence == 0.4
+
+
+def test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside():
+    record = {
+        "scenario_id": "KA-01",
+        "score": {"causes": [BEARING.model_dump(mode="json")]},
+        "triage": {
+            "ranking": True,
+            "ranking_status": "accepted",
+            "ranking_reason": "ranking_accepted",
+            "ranking_picks": [
+                ["TC3", "sensor_or_transient", "CNC-02", 0.4],
+                ["TC1", "machine_condition", "CNC-02", 0.8],
+            ],
+        },
+    }
+    score = score_record(record)
+    assert not score.top1_correct and score.top1_by_confidence_correct
+    assert score.top2_correct and score.causes_named == 1
 
 
 def test_a_verdict_for_another_snapshot_is_refused():
@@ -227,12 +260,19 @@ def test_no_snapshot_means_no_coverage():
 
 
 def case(status="accepted", reason="ranking_accepted", top1=False, top2=False,
-         covered=True, confidence=0.5):  # fmt: skip
+         covered=True, confidence=0.5, by_confidence=None, named=None,
+         causes=1):  # fmt: skip
     """A hand-made case score; validity and abstention follow from `status`."""
     # Variables:
     #   covered: Whether a true cause was among the case's candidates.
     #   confidence: The top pick's confidence, kept only when accepted.
+    #   by_confidence: Top-1 by confidence; the same as top1 unless given.
+    #   named, causes: True causes the picks name, of how many; by default
+    #     one when top-2 is right.
     return CaseRankingScore(
+        top1_by_confidence_correct=top1 if by_confidence is None else by_confidence,
+        causes_named=int(top2) if named is None else named,
+        true_cause_count=causes,
         scenario_id="KA",
         status=status,
         reason=reason,
@@ -272,6 +312,22 @@ def test_aggregate_rates_and_confidences():
     assert result.mean_confidence_top1_incorrect == pytest.approx(0.5)
     assert result.small_sample and "not an accuracy estimate" in result.warning
     assert "uncalibrated" in result.confidence_note
+
+
+def test_aggregate_reports_top1_by_confidence_and_compound_coverage():
+    scores = [
+        case(top1=True, top2=True, by_confidence=False),
+        case(top2=True, by_confidence=True),
+        case(top1=True, top2=True, named=1, causes=2),
+        case(top1=True, top2=True, named=2, causes=2),
+    ]
+    result = aggregate(scores)
+    assert result.top1_accuracy_accepted == pytest.approx(3 / 4)
+    assert result.top1_by_confidence_accuracy_accepted == pytest.approx(3 / 4)
+    assert result.top1_rules_disagree == 2
+    assert result.compound_accepted == 2
+    assert result.all_causes_named_rate == pytest.approx(1 / 2)
+    assert "not complete-diagnosis accuracy" in result.accuracy_note
 
 
 def test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted():

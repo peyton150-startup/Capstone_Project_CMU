@@ -133,6 +133,13 @@ assert set(FAMILY_FAULTS) == set(get_args(CandidateFamily)), "map every family"
 # Below this many cases, rates are a functionality check, not an estimate.
 SMALL_SAMPLE_CASES = 30
 
+ACCURACY_NOTE = (
+    "Family-level: a pick counts when its family names a true fault kind "
+    "(and, where FAMILY_FAULTS says so, the faulty machine). A batch pick "
+    "names no batch, and either cause of a compound case is a hit, so this "
+    "is not complete-diagnosis accuracy."
+)
+
 CONFIDENCE_NOTE = (
     "Confidences are the model's own, uncalibrated and independent per pick; "
     "their means describe this run, not how often a confidence is right."
@@ -195,6 +202,31 @@ class CaseRankingScore(BaseModel):
     candidate_count: int | None
     # The top pick's confidence; None unless accepted.
     top1_confidence: float | None
+    # The pick with the higher confidence (ties: the model's first) names a
+    # true cause. Equal to top1_correct when order and confidences agree,
+    # and for records before prompt version 3, whose picks were sorted.
+    top1_by_confidence_correct: bool = False
+    # How many of the case's distinct true causes the two picks name
+    # together, out of true_cause_count (2 in the compound challenge).
+    causes_named: int = 0
+    true_cause_count: int = 1
+
+
+def pick_measures(
+    hits: Sequence[Sequence[bool]], confidences: Sequence[float], cause_count: int
+) -> tuple[bool, int]:
+    """Top-1 by confidence, and how many true causes the picks name together."""
+    # Variables:
+    #   hits: For each pick in the model's order, for each true cause,
+    #     whether the pick names that cause.
+    #   confidences: Each pick's confidence, in the same order.
+    #   best: The pick with the highest confidence; on a tie the model's
+    #     earlier pick, as the record's order before version 3 also was.
+    if not hits:
+        return False, 0
+    best = max(range(len(hits)), key=lambda i: (confidences[i], -i))
+    named = sum(any(h[c] for h in hits) for c in range(cause_count))
+    return any(hits[best]), named
 
 
 def score_case(
@@ -217,6 +249,9 @@ def score_case(
     #   picks: The accepted picks' candidates, most plausible first (empty
     #     unless accepted).
     #   right: For each pick, whether it names a true cause.
+    #   by_confidence: Whether the more confident pick names a true cause,
+    #     reported beside top-1 (the model's own first pick).
+    #   named: How many distinct true causes the two picks name together.
     candidates = snapshot.candidates if snapshot is not None else ()
     covered = any(names_any(c, causes) for c in candidates)
     if verdict is None:
@@ -231,13 +266,22 @@ def score_case(
             true_cause_in_candidates=covered,
             candidate_count=len(candidates),
             top1_confidence=None,
+            true_cause_count=len(causes),
         )
     if snapshot is not None and verdict.snapshot_fingerprint != snapshot.fingerprint:
         raise ValueError(f"{scenario_id}: the verdict answers a different snapshot")
     by_id = {c.id: c for c in candidates}
     picks = [by_id[p.candidate_id] for p in verdict.picks]
     right = [names_any(c, causes) for c in picks]
+    by_confidence, named = pick_measures(
+        [[candidate_names(c, cause) for cause in causes] for c in picks],
+        [p.confidence for p in verdict.picks],
+        len(causes),
+    )
     return CaseRankingScore(
+        top1_by_confidence_correct=by_confidence,
+        causes_named=named,
+        true_cause_count=len(causes),
         scenario_id=scenario_id,
         status=verdict.status,
         reason=verdict.reason,
@@ -278,6 +322,9 @@ def score_record(record: dict, *, covered: bool | None = None) -> CaseRankingSco
     #     or the record predates rankings, which scores as missing.
     #   picks: The accepted (family, machine, confidence) picks, best first.
     #   right: For each pick, whether it names a true cause.
+    #   by_confidence: Whether the more confident pick names a true cause,
+    #     reported beside top-1 (the model's own first pick).
+    #   named: How many distinct true causes the two picks name together.
     triage = record.get("triage") or {}
     causes = [Cause.model_validate(c) for c in record["score"]["causes"]]
     candidates = (
@@ -304,7 +351,18 @@ def score_record(record: dict, *, covered: bool | None = None) -> CaseRankingSco
         any(family_names(family, machine_id, cause) for cause in causes)
         for family, machine_id, _ in picks
     ]
+    by_confidence, named = pick_measures(
+        [
+            [family_names(family, machine_id, cause) for cause in causes]
+            for family, machine_id, _ in picks
+        ],
+        [confidence for _, _, confidence in picks],
+        len(causes),
+    )
     return CaseRankingScore(
+        top1_by_confidence_correct=by_confidence,
+        causes_named=named,
+        true_cause_count=len(causes),
         scenario_id=record["scenario_id"],
         status=status or MISSING,
         reason=(triage.get("ranking_reason") or status) if status else MISSING,
@@ -343,9 +401,18 @@ class RankingAccuracy(BaseModel):
     coverage_known: int
     candidate_coverage_rate: float | None
     top2_accuracy_covered: float | None
+    # Top-1 over accepted rankings when the top pick is the more confident
+    # one, and in how many accepted cases the two top-1 rules disagree.
+    top1_by_confidence_accuracy_accepted: float | None = None
+    top1_rules_disagree: int = 0
+    # Accepted cases with more than one true cause, and the share whose two
+    # picks named every one of them (finding either is a top-2 hit above).
+    compound_accepted: int = 0
+    all_causes_named_rate: float | None = None
     # Mean top-pick confidence when the top pick was right, and when wrong.
     mean_confidence_top1_correct: float | None
     mean_confidence_top1_incorrect: float | None
+    accuracy_note: str = ACCURACY_NOTE
     confidence_note: str = CONFIDENCE_NOTE
     small_sample: bool
     warning: str | None
@@ -372,8 +439,11 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
     #   invalid: Reason codes of rejected and missing verdicts, counted.
     #   n: How many cases; the denominator of every "all cases" rate.
     #   small: Fewer than SMALL_SAMPLE_CASES cases, so the warning is set.
+    #   compound: Accepted cases with more than one true cause, where naming
+    #     only one is a top-2 hit but not a complete answer.
     n = len(scores)
     accepted = [s for s in scores if s.status == "accepted"]
+    compound = [s for s in accepted if s.true_cause_count > 1]
     known = [s for s in scores if s.true_cause_in_candidates is not None]
     covered_accepted = [s for s in accepted if s.true_cause_in_candidates is True]
     invalid = Counter(s.reason for s in scores if not s.valid)
@@ -400,6 +470,16 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
         ),
         top2_accuracy_covered=_rate(
             sum(s.top2_correct for s in covered_accepted), len(covered_accepted)
+        ),
+        top1_by_confidence_accuracy_accepted=_rate(
+            sum(s.top1_by_confidence_correct for s in accepted), len(accepted)
+        ),
+        top1_rules_disagree=sum(
+            s.top1_by_confidence_correct != s.top1_correct for s in accepted
+        ),
+        compound_accepted=len(compound),
+        all_causes_named_rate=_rate(
+            sum(s.causes_named == s.true_cause_count for s in compound), len(compound)
         ),
         mean_confidence_top1_correct=_mean(
             [s.top1_confidence for s in accepted if s.top1_correct]

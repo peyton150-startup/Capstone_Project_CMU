@@ -141,7 +141,9 @@ def ranking_lines(state: InvestigationState) -> list[str]:
     uncalibrated beliefs; the ranking never changed the report above.
     """
     # Variables:
-    #   verdict: The checked ranking; its picks are ordered most plausible first.
+    #   verdict: The checked ranking; its picks are in the model's own order
+    #     (most plausible first, as asked), flagged when the confidences
+    #     disagree with that order.
     #   families: What each TC id meant in the snapshot the model was shown.
     #   detail: A rejected attempt's field and wrong ids, printed after the
     #     picks so a batch log shows why an answer failed.
@@ -156,6 +158,11 @@ def ranking_lines(state: InvestigationState) -> list[str]:
         f"{' -> '.join(state.triage_ranking_attempts)}; "
         f"snapshot {verdict.snapshot_fingerprint}"
         + (f", {len(snapshot.candidates)} candidate(s)" if snapshot else "")
+        + (
+            "; order differs from confidences"
+            if verdict.order_conflicts_confidence
+            else ""
+        )
     ]
     for n, pick in enumerate(verdict.picks, start=1):
         lines.append(
