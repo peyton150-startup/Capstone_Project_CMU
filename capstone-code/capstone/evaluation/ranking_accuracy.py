@@ -34,7 +34,7 @@ from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict
 
-from capstone.agent.triage_hypothesize import CandidateFamily
+from capstone.agent.triage_hypothesize import CandidateFamily, candidate_role
 from capstone.agent.triage_ranking import (
     RankingSnapshot,
     RankingVerdict,
@@ -200,6 +200,10 @@ class CaseRankingScore(BaseModel):
     # the candidates are not known (an older run record without them).
     true_cause_in_candidates: bool | None
     candidate_count: int | None
+    # How many candidates were causes, the only ones a ranking may name
+    # (prompt version 4). With exactly two, top-2 is automatic: both causes
+    # must be named. None when the candidates are not known.
+    cause_candidate_count: int | None = None
     # The top pick's confidence; None unless accepted.
     top1_confidence: float | None
     # The pick with the higher confidence (ties: the model's first) names a
@@ -227,6 +231,11 @@ def pick_measures(
     best = max(range(len(hits)), key=lambda i: (confidences[i], -i))
     named = sum(any(h[c] for h in hits) for c in range(cause_count))
     return any(hits[best]), named
+
+
+def cause_count(families: Iterable[str]) -> int:
+    """How many of these candidate families name a possible cause."""
+    return sum(f in FAMILY_FAULTS and candidate_role(f) == "cause" for f in families)
 
 
 def score_case(
@@ -265,6 +274,7 @@ def score_case(
             top2_correct=False,
             true_cause_in_candidates=covered,
             candidate_count=len(candidates),
+            cause_candidate_count=cause_count(c.family for c in candidates),
             top1_confidence=None,
             true_cause_count=len(causes),
         )
@@ -291,6 +301,7 @@ def score_case(
         top2_correct=any(right),
         true_cause_in_candidates=covered,
         candidate_count=len(candidates),
+        cause_candidate_count=cause_count(c.family for c in candidates),
         top1_confidence=verdict.picks[0].confidence if verdict.picks else None,
     )
 
@@ -372,6 +383,9 @@ def score_record(record: dict, *, covered: bool | None = None) -> CaseRankingSco
         top2_correct=any(right),
         true_cause_in_candidates=covered,
         candidate_count=None if candidates is None else len(candidates),
+        cause_candidate_count=(
+            None if candidates is None else cause_count(f for f, _ in candidates)
+        ),
         top1_confidence=picks[0][2] if picks else None,
     )
 
@@ -401,6 +415,11 @@ class RankingAccuracy(BaseModel):
     coverage_known: int
     candidate_coverage_rate: float | None
     top2_accuracy_covered: float | None
+    # Top-2 over accepted rankings with more than two cause candidates. A
+    # case with exactly two is a top-2 hit whenever it is accepted and
+    # covered, so it says nothing about the model's choice.
+    top2_forced: int = 0
+    top2_accuracy_unforced: float | None = None
     # Top-1 over accepted rankings when the top pick is the more confident
     # one, and in how many accepted cases the two top-1 rules disagree.
     top1_by_confidence_accuracy_accepted: float | None = None
@@ -441,9 +460,16 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
     #   small: Fewer than SMALL_SAMPLE_CASES cases, so the warning is set.
     #   compound: Accepted cases with more than one true cause, where naming
     #     only one is a top-2 hit but not a complete answer.
+    #   unforced: Accepted cases with more than two cause candidates, the only
+    #     ones where top-2 reflects a choice (with two, both must be named).
     n = len(scores)
     accepted = [s for s in scores if s.status == "accepted"]
     compound = [s for s in accepted if s.true_cause_count > 1]
+    unforced = [
+        s
+        for s in accepted
+        if s.cause_candidate_count is not None and s.cause_candidate_count > 2
+    ]
     known = [s for s in scores if s.true_cause_in_candidates is not None]
     covered_accepted = [s for s in accepted if s.true_cause_in_candidates is True]
     invalid = Counter(s.reason for s in scores if not s.valid)
@@ -467,6 +493,10 @@ def aggregate(scores: Sequence[CaseRankingScore]) -> RankingAccuracy:
         coverage_known=len(known),
         candidate_coverage_rate=_rate(
             sum(bool(s.true_cause_in_candidates) for s in known), len(known)
+        ),
+        top2_forced=sum(s.cause_candidate_count == 2 for s in accepted),
+        top2_accuracy_unforced=_rate(
+            sum(s.top2_correct for s in unforced), len(unforced)
         ),
         top2_accuracy_covered=_rate(
             sum(s.top2_correct for s in covered_accepted), len(covered_accepted)
