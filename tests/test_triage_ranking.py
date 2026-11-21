@@ -4,9 +4,16 @@ No model is asked: these tests build snapshots by hand or from a real triage
 run with a scripted conclusion, then check hand-written answers.
 """
 
+from typing import get_args
+
 import pytest
 from pydantic import ValidationError
 
+from capstone.agent.triage_hypothesize import (
+    FAMILY_ROLES,
+    CandidateFamily,
+    candidate_role,
+)
 from capstone.agent.triage_ranking import (
     NOT_AN_ID,
     RANKING_INSTRUCTIONS,
@@ -24,6 +31,7 @@ from capstone.agent.triage_ranking import (
     parse_reason,
     ranking_schema,
     ranking_snapshot,
+    ranking_view,
     snapshot_fingerprint,
 )
 
@@ -327,6 +335,48 @@ def test_only_a_rejected_verdict_may_carry_a_detail():
             abstain_reason="evidence_insufficient",
             detail=RejectionDetail(field="x"),
         )
+
+
+# --- causes are ranked; context is shown apart (prompt version 4) ------------------
+
+
+def test_every_family_is_a_cause_or_context():
+    assert set(FAMILY_ROLES) == set(get_args(CandidateFamily))
+    assert candidate_role("common_machine_path") == "context"
+    assert candidate_role("common_material_batch") == "cause"
+
+
+def test_picking_a_context_candidate_is_its_own_rejection():
+    snap = snapshot(("common_machine_path", "common_material_batch", "setting_shift"))
+    verdict = check(ranked(pick("TC1", 0.7), pick("TC2", 0.4, ("E2",))), snap)
+    assert verdict.reason == "context_candidate_picked"
+    assert verdict.detail == RejectionDetail(
+        field="candidate_id", offending_ids=("TC1",), named_ids=("TC1", "TC2")
+    )
+    assert "context candidates are evidence" in correction_text(
+        verdict.reason, verdict.detail
+    )
+    causes_only = check(ranked(pick("TC2", 0.7, ("E2",)), pick("TC3", 0.4)), snap)
+    assert causes_only.status == "accepted"
+
+
+def test_fewer_than_two_causes_cannot_be_ranked_whatever_the_context():
+    snap = snapshot(("common_machine_path", "preceding_events", "setting_shift"))
+    verdict = check(ranked(pick("TC3", 0.7), pick("TC1", 0.4)), snap)
+    assert verdict.reason == "candidate_count_insufficient"
+    abstained = check(AbstainedAnswer(reason="evidence_insufficient"), snap)
+    assert abstained.status == "abstained"
+
+
+def test_the_view_lists_causes_to_rank_then_context_then_citable_evidence():
+    snap = snapshot(("common_machine_path", "common_material_batch", "setting_shift"))
+    lines = ranking_view(snap)
+    assert lines[0].startswith("CANDIDATE CAUSES TO RANK")
+    assert [line[:6] for line in lines[1:3]] == ["- TC2 ", "- TC3 "]
+    assert lines[3].startswith("CONTEXT") and "never rank it" in lines[3]
+    assert lines[4].startswith("- TC1 common_machine_path")
+    assert "manual excerpts and memories are not citable" in lines[5]
+    assert "never a context id" in RANKING_INSTRUCTIONS
 
 
 def test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on():

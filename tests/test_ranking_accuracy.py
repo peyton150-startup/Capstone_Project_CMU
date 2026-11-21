@@ -26,6 +26,7 @@ from capstone.evaluation.ranking_accuracy import (
     CaseRankingScore,
     aggregate,
     candidate_names,
+    names_any,
     score_case,
     score_record,
 )
@@ -156,7 +157,7 @@ def test_accepted_with_the_true_cause_second_is_top2_only():
 
 def test_accepted_but_wrong():
     snap = snapshot(*ALARM)
-    score = score_case("KA-01", snap, ranked(snap, "TC2", "TC3"), [BEARING])
+    score = score_case("KA-01", snap, ranked(snap, "TC3", "TC4"), [BEARING])
     assert score.valid
     assert not score.top1_correct and not score.top2_correct
     assert score.true_cause_in_candidates
@@ -196,7 +197,7 @@ def test_missing_verdict():
 
 def test_true_cause_absent_from_the_candidates():
     snap = snapshot("operating_load", "sensor_or_transient", "setting_shift")
-    score = score_case("KA-01", snap, ranked(snap, "TC1", "TC2"), [BEARING])
+    score = score_case("KA-01", snap, ranked(snap, "TC2", "TC3"), [BEARING])
     assert not score.true_cause_in_candidates
     assert not score.top2_correct
 
@@ -328,6 +329,27 @@ def test_aggregate_reports_top1_by_confidence_and_compound_coverage():
     assert result.compound_accepted == 2
     assert result.all_causes_named_rate == pytest.approx(1 / 2)
     assert "not complete-diagnosis accuracy" in result.accuracy_note
+
+
+def test_top2_with_only_two_cause_candidates_is_reported_as_forced():
+    # An inspection case: two causes, two context candidates.
+    snap = snapshot(
+        "common_machine_path",
+        "common_material_batch",
+        "preceding_events",
+        "setting_shift",
+        machine=None,
+    )
+    batch = Cause(fault="bad_material_batch", batch_id=2)
+    forced = score_case("KA-03", snap, ranked(snap, "TC4", "TC2"), [batch])
+    assert (forced.cause_candidate_count, forced.top2_correct) == (2, True)
+    alarm = snapshot(*ALARM)
+    unforced = score_case("KA-01", alarm, ranked(alarm, "TC3", "TC4"), [BEARING])
+    assert unforced.cause_candidate_count == 3
+    result = aggregate([forced, unforced])
+    assert result.top2_accuracy_accepted == pytest.approx(1 / 2)
+    assert result.top2_forced == 1
+    assert result.top2_accuracy_unforced == 0.0
 
 
 def test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted():
@@ -537,3 +559,19 @@ def test_known_case_candidates_cover_the_true_cause(scenario_id, monkeypatch):
     else:
         families = [c.family for c in snap.candidates]
         assert score.true_cause_in_candidates, (families, result.score.causes)
+    # Only cause candidates may be ranked (prompt version 4): every known
+    # case must still offer two, or no ranking of it could ever be accepted.
+    from capstone.agent.triage_hypothesize import candidate_role
+
+    rankable = [
+        c.family for c in snap.candidates if candidate_role(c.family) == "cause"
+    ]
+    assert len(rankable) >= 2, [c.family for c in snap.candidates]
+    # A true cause, where covered, is always among the rankable candidates:
+    # context families name no fault, so the split loses no coverage.
+    if score.true_cause_in_candidates:
+        assert any(
+            names_any(c, result.score.causes)
+            for c in snap.candidates
+            if candidate_role(c.family) == "cause"
+        )

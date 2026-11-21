@@ -26,6 +26,7 @@ from pydantic import Field, TypeAdapter, ValidationError, model_validator
 from capstone.agent.triage_hypothesize import (
     TRIAGE_HYPOTHESIS_RULE_VERSION,
     CandidateFamily,
+    candidate_role,
 )
 from capstone.contracts import Contract
 
@@ -41,7 +42,11 @@ TRIAGE_RANKING_CONTRACT_VERSION = "1.0"
 # "3": the picks keep the model's own order (no longer re-sorted by
 # confidence); an evidence id given both for and against a pick has its own
 # reason and correction sentence.
-RANKING_PROMPT_VERSION = "3"
+# "4": only cause candidates may be ranked; context candidates (a shared
+# machine path, recorded events, load as a symptom) are listed apart as
+# context, and naming one is its own rejection. Manual excerpts are said
+# to be uncitable.
+RANKING_PROMPT_VERSION = "4"
 
 # How many candidates a ranking names. Two, as the developer asked
 # (2026-11-20): the most plausible and the runner-up.
@@ -63,6 +68,8 @@ RankingReason = Literal[
     "selection_count_invalid",
     "duplicate_candidate_id",
     "unknown_candidate_id",
+    # A pick named a context candidate (from prompt version 4).
+    "context_candidate_picked",
     "score_invalid",
     # A cited evidence id the snapshot does not offer.
     "evidence_reference_invalid",
@@ -88,12 +95,16 @@ UNAVAILABLE_REASONS = frozenset(
 CORRECTION_TEXT: dict[str, str] = {
     "candidate_list_empty": "There are no candidates to rank; abstain.",
     "candidate_count_insufficient": (
-        "Fewer than two candidates exist; abstain instead of ranking."
+        "Fewer than two candidate causes exist; abstain instead of ranking."
     ),
     "schema_invalid": "The ranking did not match the required JSON shape.",
     "selection_count_invalid": "A ranking must name exactly two candidates.",
     "duplicate_candidate_id": "The two picks must name two different candidates.",
     "unknown_candidate_id": "Every pick must name a candidate id from the list.",
+    "context_candidate_picked": (
+        "Pick only from the candidate causes; context candidates are evidence "
+        "about where to look, not causes."
+    ),
     "score_invalid": "Each confidence must be a number from 0 to 1.",
     "evidence_reference_invalid": (
         "Cite only evidence ids from the list of evidence ids you may cite."
@@ -456,6 +467,10 @@ def check_ranking(
     #     both from the snapshot (the model is not asked for either).
     #   unseen / repeated: A pick's cited ids the snapshot does not offer, and
     #     those it cites twice; each its own rejection reason.
+    #   causes: The snapshot's candidates whose family names a possible cause;
+    #     only these may be ranked, so fewer than two cannot be ranked.
+    #   context_ids: Picks that named a context candidate (where to look or
+    #     what else was seen), which is not an answer to what caused it.
     def rejected(
         reason: RankingReason, detail: RejectionDetail | None = None
     ) -> RankingVerdict:
@@ -488,7 +503,8 @@ def check_ranking(
         )
     if not snapshot.candidates:
         return rejected("candidate_list_empty")
-    if len(snapshot.candidates) < RANKED_PICKS:
+    causes = [c for c in snapshot.candidates if candidate_role(c.family) == "cause"]
+    if len(causes) < RANKED_PICKS:
         return rejected("candidate_count_insufficient")
     ids = [pick.candidate_id for pick in answer.picks]
     named = safe_ids(ids)
@@ -505,6 +521,18 @@ def check_ranking(
             RejectionDetail(
                 field="candidate_id",
                 offending_ids=safe_ids(unknown_ids),
+                named_ids=named,
+            ),
+        )
+    context_ids = [
+        cid for cid in ids if candidate_role(known[cid][1].family) == "context"
+    ]
+    if context_ids:
+        return rejected(
+            "context_candidate_picked",
+            RejectionDetail(
+                field="candidate_id",
+                offending_ids=safe_ids(context_ids),
                 named_ids=named,
             ),
         )
@@ -595,34 +623,55 @@ def correction_text(reason: str, detail: RejectionDetail | None = None) -> str:
     return text
 
 
+def candidate_line(c: SnapshotCandidate) -> str:
+    """One snapshot candidate as a prompt line."""
+    return (
+        f"- {c.id} {c.family}"
+        + (f" on {c.machine_id}" if c.machine_id else "")
+        + f": {c.explanation}; related evidence "
+        f"{', '.join(c.observation_evidence_ids) or 'none'}; checks "
+        f"{', '.join(c.discriminating_requirement_ids) or 'none'}; still "
+        f"missing {', '.join(c.missing_requirement_ids) or 'none'}."
+    )
+
+
 def ranking_view(snapshot: RankingSnapshot) -> list[str]:
-    """The snapshot as prompt lines: every candidate, and the citable evidence ids."""
+    """The snapshot as prompt lines: causes to rank, context, citable evidence."""
     # Variables:
-    #   lines: One line per candidate, in snapshot order, then the evidence ids.
-    lines = ["CANDIDATES TO RANK (unscored; fixed rules, not diagnoses):"]
-    for c in snapshot.candidates:
+    #   causes / context: The snapshot's candidates split by their family's
+    #     role, each kept in snapshot order; only causes may be ranked.
+    #   lines: The cause lines, then the context lines (if any), then the
+    #     evidence ids a pick may cite.
+    causes = [c for c in snapshot.candidates if candidate_role(c.family) == "cause"]
+    context = [c for c in snapshot.candidates if candidate_role(c.family) == "context"]
+    lines = ["CANDIDATE CAUSES TO RANK (unscored; fixed rules, not diagnoses):"]
+    lines.extend(candidate_line(c) for c in causes)
+    if not causes:
+        lines.append("- none")
+    if context:
         lines.append(
-            f"- {c.id} {c.family}"
-            + (f" on {c.machine_id}" if c.machine_id else "")
-            + f": {c.explanation}; related evidence "
-            f"{', '.join(c.observation_evidence_ids) or 'none'}; checks "
-            f"{', '.join(c.discriminating_requirement_ids) or 'none'}; still "
-            f"missing {', '.join(c.missing_requirement_ids) or 'none'}."
+            "CONTEXT (where to look or what else was seen; use it as evidence, "
+            "never rank it as a cause):"
         )
+        lines.extend(candidate_line(c) for c in context)
     lines.append(
-        "Evidence ids you may cite: " + (", ".join(snapshot.evidence_ids) or "none")
+        "Evidence ids you may cite: "
+        + (", ".join(snapshot.evidence_ids) or "none")
+        + " (factory observations only; manual excerpts and memories are not "
+        "citable)."
     )
     return lines
 
 
 RANKING_INSTRUCTIONS = (
     'Also fill "ranking": either kind "ranked" naming exactly two different '
-    "candidate ids from the list, most plausible first, each with your own "
+    "candidate cause ids (never a context id), most plausible first, each "
+    "with your own "
     "confidence from 0 to 1 (independent: the two need not add to 1, and they "
     "are beliefs, not measured probabilities), a short rationale, the evidence "
     "ids that support it (at least one) and any against it, copied exactly "
     'from the list; or kind "abstained" when the evidence cannot support two '
-    "defensible picks. Do not list missing checks: they are filled in from "
+    "defensible causes. Do not list missing checks: they are filled in from "
     "the candidate list. Never invent a candidate or an evidence id. "
     "The ranking never changes what may be done to a machine."
 )

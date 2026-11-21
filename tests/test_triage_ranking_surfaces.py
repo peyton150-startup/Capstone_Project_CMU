@@ -7,7 +7,7 @@ import json
 
 from capstone.agent.triage_report import TriageReport
 from capstone.api.runs import SafeExecutedTriage, safe_executed_triage
-from tests.test_triage_ranking_conclude import Ranker, good, run, unknown
+from tests.test_triage_ranking_conclude import Ranker, causes, good, run, unknown
 
 
 def test_the_report_carries_the_accepted_ranking_with_what_each_id_meant(
@@ -19,7 +19,7 @@ def test_the_report_carries_the_accepted_ranking_with_what_each_id_meant(
     assert ranking.status == "accepted" and ranking.requests == 1
     assert ranking.snapshot_fingerprint == snap.fingerprint
     assert ranking.candidate_count == len(snap.candidates)
-    first = snap.candidates[1]
+    first = causes(snap)[1]
     assert (ranking.picks[0].candidate_id, ranking.picks[0].family) == (
         first.id,
         first.family,

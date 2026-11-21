@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 from capstone.experiment import format_ranking
 from capstone.progress import ranking_lines
-from tests.test_triage_ranking_conclude import Ranker, good, run, unknown
+from tests.test_triage_ranking_conclude import Ranker, causes, good, run, unknown
 
 
 def ranking_events(state):
@@ -71,13 +71,13 @@ def test_the_terminal_shows_the_verdict_attempts_and_picks(monkeypatch):
     assert lines[0].startswith("TRIAGE RANKING accepted (ranking_accepted)")
     assert "unknown_candidate_id -> ranking_accepted" in lines[0]
     assert snap.fingerprint in lines[0]
-    first = snap.candidates[1]
+    first = causes(snap)[1]
     assert lines[1].startswith(f"  1. {first.id} {first.family} belief 0.60")
     assert "uncalibrated" in lines[1]
     # The rejected first attempt is shown with where it broke, ids only.
     assert lines[3] == (
         f"  attempt 1 unknown_candidate_id at candidate_id: TC99 "
-        f"(named {snap.candidates[1].id}, TC99)"
+        f"(named {causes(snap)[1].id}, TC99)"
     )
     assert len(lines) == 4
 

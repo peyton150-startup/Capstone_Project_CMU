@@ -14,6 +14,7 @@ from capstone.agent.model_policy import (
     RankedConcludeAnswer,
     conclusion_context,
 )
+from capstone.agent.triage_hypothesize import candidate_role
 from capstone.agent.triage_ranking import (
     RankingAnswer,
     RankingSnapshot,
@@ -25,9 +26,14 @@ from tests.test_triage_graph_invariants import ConcludeOnly
 from tests.test_triage_question_gaps import run_known_case
 
 
+def causes(snapshot: RankingSnapshot):
+    """The snapshot's cause candidates, in snapshot order: the rankable ones."""
+    return [c for c in snapshot.candidates if candidate_role(c.family) == "cause"]
+
+
 def good(snapshot: RankingSnapshot):
-    """A valid ranking of the snapshot's first two candidates, the second first."""
-    first, second = snapshot.candidates[:2]
+    """A valid ranking of the first two cause candidates, the second first."""
+    first, second = causes(snapshot)[:2]
     return {
         "kind": "ranked",
         "picks": [
@@ -106,16 +112,16 @@ def test_a_valid_first_ranking_is_accepted_and_leaves_the_conclusion_alone(
     assert state.triage_ranking_requests == 1 and policy.reranks == []
     snap = state.triage_ranking_snapshot
     assert [p.candidate_id for p in verdict.picks] == [
-        snap.candidates[1].id,
-        snap.candidates[0].id,
+        causes(snap)[1].id,
+        causes(snap)[0].id,
     ]
     # The ranking never changes the conclusion or what may be done.
     assert state.conclusion.recommendation == "escalate"
     assert state.proposed_action is None
     record = ranking_record(state)
     assert record["ranking_status"] == "accepted"
-    assert record["ranking_picks"][0][1] == snap.candidates[1].family
-    assert record["ranking_picks"][0][2] == snap.candidates[1].machine_id
+    assert record["ranking_picks"][0][1] == causes(snap)[1].family
+    assert record["ranking_picks"][0][2] == causes(snap)[1].machine_id
     assert record["ranking_picks"][0][3] == 0.6
     assert record["ranking_order_conflict"] is False
     # `good` cites each candidate's own related evidence where it has some.
@@ -136,12 +142,12 @@ def test_a_rejected_ranking_gets_one_correction_with_its_reason(monkeypatch):
 def test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them(monkeypatch):
     policy = Ranker(unknown, corrections=[good])
     state = run(monkeypatch, policy)
-    first = state.triage_ranking_snapshot.candidates[1].id
+    first = causes(state.triage_ranking_snapshot)[1].id
     detail = policy.details[0]
     assert (detail.field, detail.offending_ids) == ("candidate_id", ("TC99",))
     assert state.triage_ranking_details == (detail, None)
     record = ranking_record(state)
-    assert record["ranking_prompt_version"] == "3"
+    assert record["ranking_prompt_version"] == "4"
     assert record["ranking_rejections"] == (
         {
             "attempt": 1,
@@ -257,7 +263,7 @@ def test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking(
     policy.conclude(state)
     answer_type, prompt = client.prompts[-1]
     assert answer_type is RankedConcludeAnswer
-    assert "CANDIDATES TO RANK" in prompt and snap.candidates[0].id in prompt
+    assert "CANDIDATE CAUSES TO RANK" in prompt and causes(snap)[0].id in prompt
     assert "must not invent a probability" not in prompt
     assert policy.last_ranking == good(snap)
 
@@ -272,7 +278,7 @@ def test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking(
     assert "Problem at candidate_id: TC99." in correction
     # The correction sees what the conclusion saw, not only the candidates.
     assert correction.startswith(conclusion_context(state))
-    assert "CANDIDATES TO RANK" in correction
+    assert "CANDIDATE CAUSES TO RANK" in correction
     assert policy.calls[-1].job == "ranking_correction"
 
 

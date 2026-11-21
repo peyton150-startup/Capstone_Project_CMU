@@ -98356,7 +98356,7 @@
    "id": "tests/test_ranking_accuracy.py::test_every_candidate_family_is_mapped",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_every_candidate_family_is_mapped",
-   "line": 93,
+   "line": 94,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98386,7 +98386,7 @@
    "id": "tests/test_ranking_accuracy.py::test_mapped_faults_are_real_fault_kinds",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_mapped_faults_are_real_fault_kinds",
-   "line": 97,
+   "line": 98,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98417,7 +98417,7 @@
    "id": "tests/test_ranking_accuracy.py::test_every_known_fault_is_named_by_some_family",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_every_known_fault_is_named_by_some_family",
-   "line": 103,
+   "line": 104,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98447,7 +98447,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_machine_family_needs_the_faulty_machine",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_machine_family_needs_the_faulty_machine",
-   "line": 109,
+   "line": 110,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98484,7 +98484,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_setting_shift_without_a_machine_still_counts",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_setting_shift_without_a_machine_still_counts",
-   "line": 118,
+   "line": 119,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98521,7 +98521,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_batch_family_ignores_the_machine",
-   "line": 126,
+   "line": 127,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98557,7 +98557,7 @@
    "id": "tests/test_ranking_accuracy.py::test_an_evidence_family_names_no_fault",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_an_evidence_family_names_no_fault",
-   "line": 132,
+   "line": 133,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98593,7 +98593,7 @@
    "id": "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_first",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_accepted_with_the_true_cause_first",
-   "line": 140,
+   "line": 141,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98608,6 +98608,7 @@
    "claims": "accepted with the true cause first",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98615,13 +98616,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98637,7 +98640,7 @@
    "id": "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_accepted_with_the_true_cause_second_is_top2_only",
-   "line": 150,
+   "line": 151,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98653,6 +98656,7 @@
    "claims": "accepted with the true cause second is top2 only",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98660,13 +98664,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98682,7 +98688,7 @@
    "id": "tests/test_ranking_accuracy.py::test_accepted_but_wrong",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_accepted_but_wrong",
-   "line": 157,
+   "line": 158,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98698,6 +98704,7 @@
    "claims": "accepted but wrong",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98705,13 +98712,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98727,7 +98736,7 @@
    "id": "tests/test_ranking_accuracy.py::test_abstained_is_valid_and_never_correct",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_abstained_is_valid_and_never_correct",
-   "line": 165,
+   "line": 166,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98743,18 +98752,21 @@
    "claims": "abstained is valid and never correct",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
     "capstone.agent.triage_ranking:check_ranking",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 9,
+   "exercise_count": 11,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98770,7 +98782,7 @@
    "id": "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_rejected_carries_its_reason",
-   "line": 178,
+   "line": 179,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98785,6 +98797,7 @@
    "claims": "rejected carries its reason",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98793,13 +98806,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 12,
+   "exercise_count": 14,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98815,7 +98830,7 @@
    "id": "tests/test_ranking_accuracy.py::test_missing_verdict",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_missing_verdict",
-   "line": 190,
+   "line": 191,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98830,15 +98845,18 @@
    "claims": "missing verdict",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 6,
+   "exercise_count": 8,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98854,7 +98872,7 @@
    "id": "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_true_cause_absent_from_the_candidates",
-   "line": 197,
+   "line": 198,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98868,6 +98886,7 @@
    "claims": "true cause absent from the candidates",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98875,13 +98894,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98897,7 +98918,7 @@
    "id": "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_either_of_two_true_causes_counts",
-   "line": 204,
+   "line": 205,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98912,6 +98933,7 @@
    "claims": "either of two true causes counts",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98919,13 +98941,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98941,7 +98965,7 @@
    "id": "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
-   "line": 218,
+   "line": 219,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -98956,6 +98980,7 @@
    "claims": "top1 is the models first pick and by confidence is reported apart",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -98963,13 +98988,15 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -98985,7 +99012,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside",
-   "line": 228,
+   "line": 229,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99021,7 +99048,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_verdict_for_another_snapshot_is_refused",
-   "line": 247,
+   "line": 248,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99033,10 +99060,12 @@
    "claims": "a verdict for another snapshot is refused",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
     "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:candidate_names",
@@ -99044,8 +99073,9 @@
     "capstone.evaluation.ranking_accuracy:names_any",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 10,
+   "exercise_count": 12,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -99061,7 +99091,7 @@
    "id": "tests/test_ranking_accuracy.py::test_no_snapshot_means_no_coverage",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_no_snapshot_means_no_coverage",
-   "line": 254,
+   "line": 255,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99077,9 +99107,10 @@
    "claims": "no snapshot means no coverage",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 1,
+   "exercise_count": 2,
    "modules_exercised": [
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -99095,7 +99126,7 @@
    "id": "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_aggregate_rates_and_confidences",
-   "line": 289,
+   "line": 290,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99131,7 +99162,7 @@
    "id": "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_aggregate_reports_top1_by_confidence_and_compound_coverage",
-   "line": 317,
+   "line": 318,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99163,10 +99194,59 @@
    ]
   },
   {
+   "id": "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced",
+   "file": "tests/test_ranking_accuracy.py",
+   "name": "test_top2_with_only_two_cause_candidates_is_reported_as_forced",
+   "line": 334,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 5
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "top2 with only two cause candidates is reported as forced",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:safe_ids",
+    "capstone.agent.triage_ranking:snapshot_fingerprint",
+    "capstone.evaluation.ranking_accuracy:_mean",
+    "capstone.evaluation.ranking_accuracy:_rate",
+    "capstone.evaluation.ranking_accuracy:aggregate",
+    "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
+    "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
+    "capstone.evaluation.ranking_accuracy:score_case"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_ranking",
+    "capstone.evaluation.ranking_accuracy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted",
-   "line": 333,
+   "line": 355,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99201,7 +99281,7 @@
    "id": "tests/test_ranking_accuracy.py::test_aggregate_of_nothing",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_aggregate_of_nothing",
-   "line": 340,
+   "line": 362,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99237,7 +99317,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_large_sample_has_no_warning",
-   "line": 345,
+   "line": 367,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99273,7 +99353,7 @@
    "id": "tests/test_ranking_accuracy.py::test_rejected_verdicts_are_not_counted_valid",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_rejected_verdicts_are_not_counted_valid",
-   "line": 350,
+   "line": 372,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99288,10 +99368,11 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
@@ -99308,7 +99389,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_accepted_right_first",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_accepted_right_first",
-   "line": 397,
+   "line": 419,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99343,7 +99424,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_accepted_right_second",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_accepted_right_second",
-   "line": 409,
+   "line": 431,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99379,7 +99460,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_pick_on_the_wrong_machine_is_wrong",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_pick_on_the_wrong_machine_is_wrong",
-   "line": 416,
+   "line": 438,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99413,7 +99494,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_abstained_rejected_and_unavailable",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_abstained_rejected_and_unavailable",
-   "line": 423,
+   "line": 445,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99447,7 +99528,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_without_a_ranking_is_missing",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_without_a_ranking_is_missing",
-   "line": 436,
+   "line": 458,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99480,7 +99561,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_coverage_can_be_supplied",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_coverage_can_be_supplied",
-   "line": 442,
+   "line": 464,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99514,7 +99595,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_coverage_comes_from_the_recorded_candidates",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_coverage_comes_from_the_recorded_candidates",
-   "line": 446,
+   "line": 468,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99529,14 +99610,17 @@
    "claims": "record coverage comes from the recorded candidates",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ],
-   "exercise_count": 5,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -99552,7 +99636,7 @@
    "id": "tests/test_ranking_accuracy.py::test_record_candidates_fit_the_real_triage_record",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_record_candidates_fit_the_real_triage_record",
-   "line": 453,
+   "line": 475,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99568,14 +99652,17 @@
    "claims": "record candidates fit the real triage record",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
+    "capstone.evaluation.ranking_accuracy:cause_count",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ],
-   "exercise_count": 5,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking",
     "capstone.evaluation.ranking_accuracy"
    ],
@@ -99591,7 +99678,7 @@
    "id": "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_a_pick_with_no_recorded_family_names_nothing",
-   "line": 474,
+   "line": 496,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99627,7 +99714,7 @@
    "id": "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_aggregate_counts_coverage_only_where_known",
-   "line": 480,
+   "line": 502,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -99664,16 +99751,18 @@
    "id": "tests/test_ranking_accuracy.py::test_known_case_candidates_cover_the_true_cause",
    "file": "tests/test_ranking_accuracy.py",
    "name": "test_known_case_candidates_cover_the_true_cause",
-   "line": 523,
+   "line": 545,
    "docstring": "Every known case's candidates name a true cause, or it is a listed gap.",
    "parametrized": true,
    "fixtures": [
     "scenario_id",
     "monkeypatch"
    ],
-   "assertions": 2,
+   "assertions": 4,
    "assert_forms": {
+    "call_truthiness": 1,
     "negation": 1,
+    "ordering": 1,
     "truthiness": 1
    },
    "raises_checks": 0,
@@ -99727,7 +99816,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 292,
+   "exercise_count": 294,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -149396,7 +149485,7 @@
    "id": "tests/test_triage_ranking.py::test_the_fingerprint_is_stable_and_follows_the_content",
    "file": "tests/test_triage_ranking.py",
    "name": "test_the_fingerprint_is_stable_and_follows_the_content",
-   "line": 79,
+   "line": 87,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149430,7 +149519,7 @@
    "id": "tests/test_triage_ranking.py::test_a_snapshot_changed_without_validation_is_refused_when_revalidated",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_snapshot_changed_without_validation_is_refused_when_revalidated",
-   "line": 85,
+   "line": 93,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149461,7 +149550,7 @@
    "id": "tests/test_triage_ranking.py::test_a_snapshot_rejects_repeated_ids_and_unoffered_candidate_evidence",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_snapshot_rejects_repeated_ids_and_unoffered_candidate_evidence",
-   "line": 92,
+   "line": 100,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149492,7 +149581,7 @@
    "id": "tests/test_triage_ranking.py::test_two_valid_picks_are_accepted_in_the_models_own_order",
    "file": "tests/test_triage_ranking.py",
    "name": "test_two_valid_picks_are_accepted_in_the_models_own_order",
-   "line": 110,
+   "line": 118,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149508,6 +149597,7 @@
    "claims": "two valid picks are accepted in the models own order",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149515,8 +149605,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149531,7 +149622,7 @@
    "id": "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
-   "line": 118,
+   "line": 126,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149546,6 +149637,7 @@
    "claims": "a less confident first pick keeps its place and is flagged",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149553,8 +149645,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149569,7 +149662,7 @@
    "id": "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict",
    "file": "tests/test_triage_ranking.py",
    "name": "test_confidences_need_not_add_to_one_and_ties_are_no_conflict",
-   "line": 126,
+   "line": 134,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149584,6 +149677,7 @@
    "claims": "confidences need not add to one and ties are no conflict",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149591,8 +149685,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149607,7 +149702,7 @@
    "id": "tests/test_triage_ranking.py::test_only_an_accepted_verdict_may_flag_an_order_conflict",
    "file": "tests/test_triage_ranking.py",
    "name": "test_only_an_accepted_verdict_may_flag_an_order_conflict",
-   "line": 133,
+   "line": 141,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149637,7 +149732,7 @@
    "id": "tests/test_triage_ranking.py::test_support_outside_the_candidates_related_evidence_is_recorded_not_rejected",
    "file": "tests/test_triage_ranking.py",
    "name": "test_support_outside_the_candidates_related_evidence_is_recorded_not_rejected",
-   "line": 143,
+   "line": 151,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149651,6 +149746,7 @@
    "claims": "support outside the candidates related evidence is recorded not rejected",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149658,8 +149754,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149674,7 +149771,7 @@
    "id": "tests/test_triage_ranking.py::test_an_abstention_is_a_valid_outcome_without_picks",
    "file": "tests/test_triage_ranking.py",
    "name": "test_an_abstention_is_a_valid_outcome_without_picks",
-   "line": 151,
+   "line": 159,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149711,7 +149808,7 @@
    "id": "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_changed_candidate_list_rejects_the_answer_as_stale",
-   "line": 160,
+   "line": 168,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149748,7 +149845,7 @@
    "id": "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason",
    "file": "tests/test_triage_ranking.py",
    "name": "test_each_fault_in_an_answer_has_its_own_reason",
-   "line": 187,
+   "line": 195,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -149768,6 +149865,7 @@
    "claims": "each fault in an answer has its own reason",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149776,8 +149874,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149792,7 +149891,7 @@
    "id": "tests/test_triage_ranking.py::test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot",
    "file": "tests/test_triage_ranking.py",
    "name": "test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot",
-   "line": 196,
+   "line": 204,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149806,6 +149905,7 @@
    "claims": "missing checks the model sends are ignored and filled from the snapshot",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149814,8 +149914,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149830,7 +149931,7 @@
    "id": "tests/test_triage_ranking.py::test_the_schema_the_model_sees_no_longer_asks_for_missing_checks",
    "file": "tests/test_triage_ranking.py",
    "name": "test_the_schema_the_model_sees_no_longer_asks_for_missing_checks",
-   "line": 227,
+   "line": 235,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149863,7 +149964,7 @@
    "id": "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
    "file": "tests/test_triage_ranking.py",
    "name": "test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-   "line": 241,
+   "line": 249,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149878,6 +149979,7 @@
    "claims": "an unknown candidate is recorded with its id and the ids named",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149887,8 +149989,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149903,7 +150006,7 @@
    "id": "tests/test_triage_ranking.py::test_unoffered_and_repeated_evidence_are_told_apart",
    "file": "tests/test_triage_ranking.py",
    "name": "test_unoffered_and_repeated_evidence_are_told_apart",
-   "line": 251,
+   "line": 259,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149918,6 +150021,7 @@
    "claims": "unoffered and repeated evidence are told apart",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149927,8 +150031,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149943,7 +150048,7 @@
    "id": "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept",
    "file": "tests/test_triage_ranking.py",
    "name": "test_prose_in_an_id_field_is_never_kept",
-   "line": 274,
+   "line": 282,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -149958,6 +150063,7 @@
    "claims": "prose in an id field is never kept",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -149967,8 +150073,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -149983,7 +150090,7 @@
    "id": "tests/test_triage_ranking.py::test_a_value_that_is_not_an_id_is_kept_only_as_its_shape",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_value_that_is_not_an_id_is_kept_only_as_its_shape",
-   "line": 295,
+   "line": 303,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -150018,7 +150125,7 @@
    "id": "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
-   "line": 299,
+   "line": 307,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150032,6 +150139,7 @@
    "claims": "a short malformed candidate id reaches the unknown check with its shape",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -150041,8 +150149,9 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -150057,7 +150166,7 @@
    "id": "tests/test_triage_ranking.py::test_a_shape_error_is_recorded_with_its_field_path",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_shape_error_is_recorded_with_its_field_path",
-   "line": 310,
+   "line": 318,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150095,7 +150204,7 @@
    "id": "tests/test_triage_ranking.py::test_only_a_rejected_verdict_may_carry_a_detail",
    "file": "tests/test_triage_ranking.py",
    "name": "test_only_a_rejected_verdict_may_carry_a_detail",
-   "line": 321,
+   "line": 329,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150122,10 +150231,163 @@
    ]
   },
   {
+   "id": "tests/test_triage_ranking.py::test_every_family_is_a_cause_or_context",
+   "file": "tests/test_triage_ranking.py",
+   "name": "test_every_family_is_a_cause_or_context",
+   "line": 343,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "every family is a cause or context",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_hypothesize"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking.py::test_picking_a_context_candidate_is_its_own_rejection",
+   "file": "tests/test_triage_ranking.py",
+   "name": "test_picking_a_context_candidate_is_its_own_rejection",
+   "line": 349,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "picking a context candidate is its own rejection",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
+    "capstone.agent.triage_ranking:correction_text",
+    "capstone.agent.triage_ranking:safe_ids",
+    "capstone.agent.triage_ranking:snapshot_fingerprint"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_ranking"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking.py::test_fewer_than_two_causes_cannot_be_ranked_whatever_the_context",
+   "file": "tests/test_triage_ranking.py",
+   "name": "test_fewer_than_two_causes_cannot_be_ranked_whatever_the_context",
+   "line": 363,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "fewer than two causes cannot be ranked whatever the context",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
+    "capstone.agent.triage_ranking:snapshot_fingerprint"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_ranking"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking.py::test_the_view_lists_causes_to_rank_then_context_then_citable_evidence",
+   "file": "tests/test_triage_ranking.py",
+   "name": "test_the_view_lists_causes_to_rank_then_context_then_citable_evidence",
+   "line": 371,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 1,
+    "membership": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the view lists causes to rank then context then citable evidence",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:candidate_line",
+    "capstone.agent.triage_ranking:ranking_view",
+    "capstone.agent.triage_ranking:snapshot_fingerprint"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_ranking"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_ranking.py::test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on",
    "file": "tests/test_triage_ranking.py",
    "name": "test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on",
-   "line": 332,
+   "line": 382,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150139,6 +150401,7 @@
    "claims": "too few candidates cannot be ranked but can be abstained on",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.triage_hypothesize:candidate_role",
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
@@ -150146,8 +150409,9 @@
     "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
+    "capstone.agent.triage_hypothesize",
     "capstone.agent.triage_ranking"
    ],
    "judgment": "NOT ASSESSED",
@@ -150162,7 +150426,7 @@
    "id": "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
    "file": "tests/test_triage_ranking.py",
    "name": "test_an_answer_forged_past_validation_is_rejected_not_trusted",
-   "line": 346,
+   "line": 396,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150201,7 +150465,7 @@
    "id": "tests/test_triage_ranking.py::test_a_reply_that_breaks_the_shape_is_named_precisely",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_reply_that_breaks_the_shape_is_named_precisely",
-   "line": 385,
+   "line": 435,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -150237,7 +150501,7 @@
    "id": "tests/test_triage_ranking.py::test_nan_and_infinity_are_refused_in_a_json_reply",
    "file": "tests/test_triage_ranking.py",
    "name": "test_nan_and_infinity_are_refused_in_a_json_reply",
-   "line": 391,
+   "line": 441,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150270,7 +150534,7 @@
    "id": "tests/test_triage_ranking.py::test_a_verdict_cannot_claim_acceptance_without_two_picks",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_verdict_cannot_claim_acceptance_without_two_picks",
-   "line": 401,
+   "line": 451,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -150302,7 +150566,7 @@
    "id": "tests/test_triage_ranking.py::test_a_snapshot_of_a_real_run_offers_only_observable_evidence",
    "file": "tests/test_triage_ranking.py",
    "name": "test_a_snapshot_of_a_real_run_offers_only_observable_evidence",
-   "line": 419,
+   "line": 469,
    "docstring": "KA-06 under deterministic triage (scripted conclusion, no model).",
    "parametrized": false,
    "fixtures": [
@@ -150416,7 +150680,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_with_the_flag_off_nothing_about_ranking_runs",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_with_the_flag_off_nothing_about_ranking_runs",
-   "line": 89,
+   "line": 95,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -150530,7 +150794,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_valid_first_ranking_is_accepted_and_leaves_the_conclusion_alone",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_valid_first_ranking_is_accepted_and_leaves_the_conclusion_alone",
-   "line": 98,
+   "line": 104,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -150594,7 +150858,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150646,7 +150910,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_rejected_ranking_gets_one_correction_with_its_reason",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_rejected_ranking_gets_one_correction_with_its_reason",
-   "line": 127,
+   "line": 133,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -150707,7 +150971,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150758,7 +151022,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them",
-   "line": 136,
+   "line": 142,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -150820,7 +151084,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150872,7 +151136,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_missing_ranking_is_asked_for_once_more",
-   "line": 160,
+   "line": 166,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -150933,7 +151197,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150984,7 +151248,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_only_one_correction_is_asked_then_the_ranking_is_rejected",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_only_one_correction_is_asked_then_the_ranking_is_rejected",
-   "line": 167,
+   "line": 173,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -151045,7 +151309,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151097,7 +151361,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_failed_correction_is_named",
-   "line": 184,
+   "line": 190,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -151118,118 +151382,6 @@
     "patches_dependencies"
    ],
    "claims": "a failed correction is named",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:note",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
-    "capstone.agent.investigation:build_graph.<locals>.critique_step",
-    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
-    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
-    "capstone.agent.investigation:build_graph.<locals>.manual_step",
-    "capstone.agent.investigation:build_graph.<locals>.observe_step",
-    "capstone.agent.investigation:build_graph.<locals>.plan_step",
-    "capstone.agent.investigation:build_graph.<locals>.propose_step",
-    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
-    "capstone.agent.investigation:build_graph.<locals>.staged",
-    "capstone.agent.investigation:build_graph.<locals>.test_step",
-    "capstone.agent.investigation:check_conclusion",
-    "capstone.agent.investigation:close_screening_questions",
-    "capstone.agent.investigation:conclude",
-    "capstone.agent.investigation:conclusion_gaps",
-    "capstone.agent.investigation:consult_manual",
-    "capstone.agent.investigation:critique",
-    "capstone.agent.investigation:gathered_in",
-    "capstone.agent.investigation:hypothesize",
-    "capstone.agent.investigation:investigate",
-    "capstone.agent.investigation:needs_deep_run",
-    "capstone.agent.investigation:observe",
-    "capstone.agent.investigation:plan",
-    "capstone.agent.investigation:propose",
-    "capstone.agent.investigation:ranking_event",
-    "capstone.agent.investigation:recheck",
-    "capstone.agent.investigation:release_observe_calls",
-    "capstone.agent.investigation:run_investigation",
-    "capstone.agent.investigation:settle_ranking",
-    "capstone.agent.investigation:settle_ranking.<locals>.now",
-    "capstone.agent.investigation:test",
-    "capstone.agent.investigation:triage_clearance_gaps",
-    "capstone.agent.investigation:triage_rival_gaps",
-    "capstone.agent.investigation:unresolved_confidence",
-    "capstone.agent.loop:InvestigationDeps.__post_init__"
-   ],
-   "exercise_count": 258,
-   "modules_exercised": [
-    "capstone.agent.evidence_brief",
-    "capstone.agent.evidence_tests",
-    "capstone.agent.investigation",
-    "capstone.agent.loop",
-    "capstone.agent.monitor",
-    "capstone.agent.state",
-    "capstone.agent.triage_decide",
-    "capstone.agent.triage_evidence_validation",
-    "capstone.agent.triage_hypothesize",
-    "capstone.agent.triage_packet",
-    "capstone.agent.triage_plan",
-    "capstone.agent.triage_ranking",
-    "capstone.agent.triage_report",
-    "capstone.agent.triage_requirements",
-    "capstone.agent.triage_trace",
-    "capstone.contracts.investigations",
-    "capstone.contracts.tools",
-    "capstone.episode",
-    "capstone.evaluation.scoring",
-    "capstone.faults",
-    "capstone.providers.factory",
-    "capstone.settings",
-    "capstone.simulator.clock",
-    "capstone.simulator.events",
-    "capstone.simulator.generator",
-    "capstone.simulator.line",
-    "capstone.simulator.maintenance",
-    "capstone.simulator.rng",
-    "capstone.simulator.scenarios",
-    "capstone.simulator.sensors",
-    "capstone.simulator.simulator",
-    "capstone.simulator.state",
-    "capstone.simulator.thermal",
-    "capstone.tools.actions",
-    "capstone.tools.observation",
-    "capstone.tools.screening"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
-   "file": "tests/test_triage_ranking_conclude.py",
-   "name": "test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
-   "line": 193,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [
-    "monkeypatch"
-   ],
-   "assertions": 1,
-   "assert_forms": {
-    "equality": 1
-   },
-   "raises_checks": 0,
-   "uses": [
-    "monkeypatch"
-   ],
-   "quality_flags": [
-    "patches_dependencies"
-   ],
-   "claims": "a correction whose reply breaks the shape is named precisely",
    "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.evidence_brief:observations",
@@ -151321,10 +151473,122 @@
    ]
   },
   {
+   "id": "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
+   "file": "tests/test_triage_ranking_conclude.py",
+   "name": "test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
+   "line": 199,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a correction whose reply breaks the shape is named precisely",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:ranking_event",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:settle_ranking",
+    "capstone.agent.investigation:settle_ranking.<locals>.now",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 260,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_ranking",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_ranking_conclude.py::test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected",
-   "line": 202,
+   "line": 208,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -151385,7 +151649,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151436,7 +151700,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking",
-   "line": 244,
+   "line": 250,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -151502,7 +151766,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 285,
+   "exercise_count": 287,
    "modules_exercised": [
     "capstone.agent.conclude_brief",
     "capstone.agent.evidence_brief",
@@ -151558,7 +151822,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_without_a_snapshot_the_model_policy_asks_as_before",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_without_a_snapshot_the_model_policy_asks_as_before",
-   "line": 279,
+   "line": 285,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -151676,7 +151940,7 @@
    "id": "tests/test_triage_ranking_conclude.py::test_the_ranked_answer_schema_shows_the_full_ranking_shape",
    "file": "tests/test_triage_ranking_conclude.py",
    "name": "test_the_ranked_answer_schema_shows_the_full_ranking_shape",
-   "line": 293,
+   "line": 299,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -151769,7 +152033,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151882,7 +152146,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151995,7 +152259,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152221,7 +152485,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 259,
+   "exercise_count": 260,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152335,7 +152599,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152514,7 +152778,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152626,7 +152890,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152850,7 +153114,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152964,7 +153228,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",

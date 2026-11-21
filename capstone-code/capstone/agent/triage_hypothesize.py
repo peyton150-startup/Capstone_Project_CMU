@@ -36,6 +36,37 @@ CandidateFamily = Literal[
     "setting_shift",
 ]
 
+# What a family's candidate is. A "cause" family names something that could
+# have produced the anomaly (a wearing part, a changed setting, a bad batch,
+# a false reading). A "context" family says where to look or what else was
+# seen (a shared machine path, recorded events, load as a symptom, a
+# coverage gap): useful evidence, but not an answer to "what caused it".
+# Only cause candidates may be ranked as the two most plausible causes.
+CandidateRole = Literal["cause", "context"]
+FAMILY_ROLES: dict[str, CandidateRole] = {
+    "machine_condition": "cause",
+    "process_condition": "cause",
+    "sensor_or_transient": "cause",
+    "setting_shift": "cause",
+    "service_context": "cause",
+    "common_material_batch": "cause",
+    "operating_load": "context",
+    "related_quality": "context",
+    "stoppage_event": "context",
+    "common_machine_path": "context",
+    "preceding_events": "context",
+    "observed_event": "context",
+    "quality_signal": "context",
+    "cross_machine_review": "context",
+    "telemetry_coverage_gap": "context",
+}
+assert set(FAMILY_ROLES) == set(CandidateFamily.__args__), "give every family a role"
+
+
+def candidate_role(family: str) -> CandidateRole:
+    """Whether a candidate family names a possible cause or only context."""
+    return FAMILY_ROLES[family]
+
 
 class TriageCandidate(Contract):
     """A source-linked possibility, without fabricated model confidence."""
