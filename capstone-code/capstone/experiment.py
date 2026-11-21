@@ -76,6 +76,7 @@ from capstone.agent.state import (
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
+from capstone.agent.triage_ranking import RANKING_PROMPT_VERSION
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import RequirementResult, TriageDecisionRecord
 from capstone.agent.triage_trace import TriageTraceEvent
@@ -368,6 +369,11 @@ class TriageRecord(BaseModel):
     ranking_status: str | None = None
     ranking_reason: str | None = None
     ranking_attempts: tuple[str, ...] | None = None
+    # Each rejected attempt: {"attempt", "reason", "field", "offending_ids",
+    # "named_ids"}, ids only. None in records from before it was kept.
+    ranking_rejections: tuple[dict, ...] | None = None
+    # Which ranking prompt asked (RANKING_PROMPT_VERSION); None before "2".
+    ranking_prompt_version: str | None = None
     ranking_requests: int | None = None
     ranking_fingerprint: str | None = None
     ranking_picks: tuple[tuple[str, str, str | None, float], ...] | None = None
@@ -498,6 +504,9 @@ def ranking_record(state) -> dict:
     #   shown: Each snapshot candidate by id, so a pick is recorded with the
     #     family and machine its TC id had when the model saw it (what an
     #     offline scorer needs to judge it against the known fault).
+    #   ranking_rejections: For each rejected attempt, its number, reason,
+    #     the field where it broke and the wrong ids (never model text), so a
+    #     run can say why a first answer failed.
     verdict = state.triage_ranking
     if not state.triage_ranking_enabled or verdict is None:
         return {"ranking": state.triage_ranking_enabled or None}
@@ -508,6 +517,15 @@ def ranking_record(state) -> dict:
         "ranking_status": verdict.status,
         "ranking_reason": verdict.reason,
         "ranking_attempts": state.triage_ranking_attempts,
+        "ranking_rejections": tuple(
+            {"attempt": n, "reason": reason, **detail.model_dump(mode="json")}
+            for n, (reason, detail) in enumerate(
+                zip(state.triage_ranking_attempts, state.triage_ranking_details),
+                start=1,
+            )
+            if detail is not None
+        ),
+        "ranking_prompt_version": RANKING_PROMPT_VERSION,
         "ranking_requests": state.triage_ranking_requests,
         "ranking_fingerprint": verdict.snapshot_fingerprint,
         "ranking_picks": tuple(

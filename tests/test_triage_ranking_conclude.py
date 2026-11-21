@@ -8,8 +8,17 @@ import pytest
 from pydantic import ValidationError
 
 from capstone.agent import investigation
-from capstone.agent.model_policy import JOBS, ModelPolicy, RankedConcludeAnswer
-from capstone.agent.triage_ranking import RankingAnswer, RankingSnapshot
+from capstone.agent.model_policy import (
+    JOBS,
+    ModelPolicy,
+    RankedConcludeAnswer,
+    conclusion_context,
+)
+from capstone.agent.triage_ranking import (
+    RankingAnswer,
+    RankingSnapshot,
+    RejectionDetail,
+)
 from capstone.experiment import ranking_record
 from capstone.providers.chat import ModelError
 from tests.test_triage_graph_invariants import ConcludeOnly
@@ -48,6 +57,7 @@ class Ranker(ConcludeOnly):
         self.first = first
         self.corrections = list(corrections)
         self.reranks = []
+        self.details = []
         self.last_ranking = None
 
     def conclude(self, state):
@@ -59,8 +69,9 @@ class Ranker(ConcludeOnly):
             self.last_ranking = None
         return super().conclude(state)
 
-    def rerank(self, state, reason):
+    def rerank(self, state, reason, detail=None):
         self.reranks.append(reason)
+        self.details.append(detail)
         nxt = self.corrections.pop(0)
         if isinstance(nxt, Exception):
             raise nxt
@@ -115,6 +126,30 @@ def test_a_rejected_ranking_gets_one_correction_with_its_reason(monkeypatch):
     assert state.triage_ranking.status == "accepted"
     assert state.triage_ranking_attempts == ("unknown_candidate_id", "ranking_accepted")
     assert state.triage_ranking_requests == 2
+
+
+def test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them(monkeypatch):
+    policy = Ranker(unknown, corrections=[good])
+    state = run(monkeypatch, policy)
+    first = state.triage_ranking_snapshot.candidates[0].id
+    detail = policy.details[0]
+    assert (detail.field, detail.offending_ids) == ("candidate_id", ("TC99",))
+    assert state.triage_ranking_details == (detail, None)
+    record = ranking_record(state)
+    assert record["ranking_prompt_version"] == "2"
+    assert record["ranking_rejections"] == (
+        {
+            "attempt": 1,
+            "reason": "unknown_candidate_id",
+            "field": "candidate_id",
+            "offending_ids": ["TC99"],
+            "named_ids": [first, "TC99"],
+        },
+    )
+    # Every key the record writes is a TriageRecord field.
+    from capstone.experiment import TriageRecord
+
+    assert set(record) <= set(TriageRecord.model_fields)
 
 
 def test_a_missing_ranking_is_asked_for_once_more(monkeypatch):
@@ -221,9 +256,18 @@ def test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking(
     assert "must not invent a probability" not in prompt
     assert policy.last_ranking == good(snap)
 
-    raw = policy.rerank(state, "unknown_candidate_id")
+    raw = policy.rerank(
+        state,
+        "unknown_candidate_id",
+        detail=RejectionDetail(field="candidate_id", offending_ids=("TC99",)),
+    )
     assert raw["kind"] == "ranked"
-    assert "must name a candidate id from the list" in client.prompts[-1][1]
+    correction = client.prompts[-1][1]
+    assert "must name a candidate id from the list" in correction
+    assert "Problem at candidate_id: TC99." in correction
+    # The correction sees what the conclusion saw, not only the candidates.
+    assert correction.startswith(conclusion_context(state))
+    assert "CANDIDATES TO RANK" in correction
     assert policy.calls[-1].job == "ranking_correction"
 
 

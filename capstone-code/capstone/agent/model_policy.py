@@ -69,9 +69,10 @@ from capstone.agent.policy import (
 )
 from capstone.agent.state import InvestigationState, Question
 from capstone.agent.triage_ranking import (
-    CORRECTION_TEXT,
     RANKING_INSTRUCTIONS,
     RankingAnswer,
+    RejectionDetail,
+    correction_text,
     ranking_schema,
     ranking_view,
 )
@@ -1215,6 +1216,21 @@ RANKING_SYSTEM = (
 )
 
 
+def conclusion_context(state: InvestigationState) -> str:
+    """What the conclusion question shows before its own notes.
+
+    The shared investigation view, then (triage with TRIAGE_CONCLUDE_BRIEF)
+    the conclusion brief. A ranking correction is shown the same, so it ranks
+    from the evidence the first answer had, not from the candidate list alone.
+    """
+    # Variables:
+    #   prompt: The view, extended with the brief when that setting is on.
+    prompt = render(state)
+    if state.mode == "triage" and state.triage_conclude_brief:
+        prompt += "\n" + "\n".join(["", *brief_lines(state)])
+    return prompt
+
+
 class ModelPolicy:
     """The seven policy questions, each put to its own model client."""
 
@@ -1496,9 +1512,7 @@ class ModelPolicy:
         #   snapshot: The frozen candidate list when TRIAGE_RANKING is on; the
         #     prompt then lists it and asks for the ranking, and the raw
         #     ranking is kept in self.last_ranking for the loop to judge.
-        prompt = render(state)
-        if state.mode == "triage" and state.triage_conclude_brief:
-            prompt += "\n" + "\n".join(["", *brief_lines(state)])
+        prompt = conclusion_context(state)
         prompt += action_bar_note(state)
         snapshot = state.triage_ranking_snapshot if state.mode == "triage" else None
         if snapshot is not None:
@@ -1539,28 +1553,40 @@ class ModelPolicy:
             )
         return conclusion, answer.action
 
-    def rerank(self, state: InvestigationState, reason: str) -> JsonValue:
+    def rerank(
+        self,
+        state: InvestigationState,
+        reason: str,
+        detail: RejectionDetail | None = None,
+    ) -> JsonValue:
         """Ask once more for the ranking alone, after the first was rejected.
 
-        The model is shown the same frozen candidates, the fixed sentence
-        for what was wrong, and the instructions; nothing else about its
-        first answer is repeated. The reply is the raw ranking, judged by the
-        loop exactly as the first one was.
+        The model is shown what the conclusion question showed it (the
+        investigation view and, with TRIAGE_CONCLUDE_BRIEF, the brief), so the
+        correction ranks from the same evidence as the first answer; then the
+        same frozen candidates, the fixed sentence for what was wrong with the
+        offending ids, and the instructions. The model's own earlier text is
+        never repeated. The reply is the raw ranking, judged by the loop
+        exactly as the first one was.
         """
         # Variables:
         #   snapshot: The candidate list the first answer was judged against;
         #     the correction must use the same list.
         #   reason: The first answer's rejection code, turned into a fixed
         #     sentence (CORRECTION_TEXT) so the model learns what to fix.
+        #   detail: Where the first answer broke and the wrong ids (ids only),
+        #     added after that sentence; None when nothing was read.
         snapshot = state.triage_ranking_snapshot
         if snapshot is None:
             raise ValueError("no ranking snapshot to correct against")
         prompt = "\n".join(
             [
+                conclusion_context(state),
+                "",
                 *ranking_view(snapshot),
                 "",
                 "Your previous ranking was rejected: "
-                + CORRECTION_TEXT.get(reason, "it did not match the contract."),
+                + correction_text(reason, detail),
                 RANKING_INSTRUCTIONS,
             ]
         )

@@ -16,6 +16,7 @@ of reinterpreting it.
 """
 
 import json
+import re
 from hashlib import sha256
 from typing import TYPE_CHECKING, Annotated, Literal
 
@@ -32,6 +33,11 @@ if TYPE_CHECKING:
 
 # Advance deliberately when the snapshot or answer shape changes.
 TRIAGE_RANKING_CONTRACT_VERSION = "1.0"
+
+# Advance when what the model is asked changes, so runs can be compared.
+# "2": the model no longer writes missing checks (Python fills them from the
+# snapshot), and a correction is shown the conclusion's own context.
+RANKING_PROMPT_VERSION = "2"
 
 # How many candidates a ranking names. Two, as the developer asked
 # (2026-11-20): the most plausible and the runner-up.
@@ -55,6 +61,8 @@ RankingReason = Literal[
     "unknown_candidate_id",
     "score_invalid",
     "evidence_reference_invalid",
+    # No longer produced (prompt version 2 stopped asking the model for
+    # missing checks); kept so records from earlier runs still load.
     "check_reference_invalid",
     # No ranking to check: the reply left it out, or no reply came.
     "ranking_missing",
@@ -83,11 +91,15 @@ CORRECTION_TEXT: dict[str, str] = {
         "Cite only evidence ids from the list, and never the same id both for "
         "and against one pick."
     ),
-    "check_reference_invalid": (
-        "Missing checks must be requirement ids listed for that candidate."
-    ),
     "ranking_missing": "The answer had no ranking.",
 }
+
+# The one shape an id in a rejection detail may have; anything else (prose,
+# a long string) is recorded only as NOT_AN_ID, so no model text is kept.
+ID_PATTERN = re.compile(r"^[A-Za-z0-9_.:\-]{1,40}$")
+NOT_AN_ID = "<not an id>"
+# Most offending or named ids one detail keeps.
+MAX_DETAIL_IDS = 4
 
 # Why a model may decline to rank.
 AbstainReason = Literal["evidence_insufficient", "candidates_indistinguishable"]
@@ -202,8 +214,8 @@ def ranking_snapshot(state: "InvestigationState") -> RankingSnapshot:
 # --- the answer the model gives ------------------------------------------------------
 
 
-class RankedPick(Contract):
-    """One named candidate, with the model's own confidence in it."""
+class PickFields(Contract):
+    """What a pick says: the candidate, the model's belief, its reasons."""
 
     candidate_id: str = Field(min_length=1, max_length=12)
     # The model's belief that this candidate explains the anomaly: 0 to 1,
@@ -214,7 +226,33 @@ class RankedPick(Contract):
     # Observable evidence for the pick, and any against it.
     evidence_ids: tuple[str, ...] = Field(min_length=1)
     contradicting_evidence_ids: tuple[str, ...] = ()
-    # The candidate's own checks that would still separate it from the other.
+
+
+class RankedPick(PickFields):
+    """One named candidate as the model answers it.
+
+    The model is not asked which checks are still missing: Python already
+    knows (the snapshot's `missing_requirement_ids`) and fills them in on
+    acceptance. A reply that still sends `missing_checks` out of habit is
+    not punished; the field is dropped unread.
+    """
+
+    @model_validator(mode="before")
+    @classmethod
+    def drop_missing_checks(cls, data):
+        """Ignore a `missing_checks` the model was not asked for."""
+        # Variables:
+        #   data: The raw pick before validation; a copy without the field.
+        if isinstance(data, dict) and "missing_checks" in data:
+            data = {k: v for k, v in data.items() if k != "missing_checks"}
+        return data
+
+
+class AcceptedPick(PickFields):
+    """An accepted pick, with the candidate's still-missing checks from Python."""
+
+    # The candidate's own checks still unanswered when the snapshot froze:
+    # copied from the snapshot, never written by the model.
     missing_checks: tuple[str, ...] = ()
 
 
@@ -246,6 +284,14 @@ class RankingAnswer(Contract):
     ranking: CandidateRanking
 
 
+def shape_detail(error: ValidationError) -> "RejectionDetail":
+    """Where an answer broke the ranking shape: the first error's field path."""
+    # Variables:
+    #   where: The first error's location, list positions included, as a path.
+    where = ".".join(str(part) for part in error.errors()[0]["loc"]) or "ranking"
+    return RejectionDetail(field=where[:80])
+
+
 def parse_reason(error: ValidationError) -> RankingReason:
     """Name what was wrong with an answer that did not fit the ranking shape."""
     # Variables:
@@ -263,6 +309,29 @@ def parse_reason(error: ValidationError) -> RankingReason:
 # --- the check ------------------------------------------------------------------------
 
 
+def safe_ids(values) -> tuple[str, ...]:
+    """Up to MAX_DETAIL_IDS values kept as ids; anything else as NOT_AN_ID."""
+    # Variables:
+    #   values: Strings the answer gave (candidate or evidence ids, or not).
+    return tuple(
+        v if isinstance(v, str) and ID_PATTERN.match(v) else NOT_AN_ID
+        for v in list(values)[:MAX_DETAIL_IDS]
+    )
+
+
+class RejectionDetail(Contract):
+    """Why one answer was rejected, in ids only: enough to debug, no prose.
+
+    `field` names where the answer broke; `offending_ids` are the values
+    there that were wrong; `named_ids` are the candidate ids the answer
+    named. Every value passed `safe_ids`, so model prose is never kept.
+    """
+
+    field: str = Field(min_length=1, max_length=80)
+    offending_ids: tuple[str, ...] = ()
+    named_ids: tuple[str, ...] = ()
+
+
 class RankingVerdict(Contract):
     """What the checks made of one answer; only an accepted verdict has picks."""
 
@@ -271,8 +340,10 @@ class RankingVerdict(Contract):
     reason: RankingReason
     snapshot_fingerprint: str = Field(pattern=r"^[0-9a-f]{20}$")
     # Most plausible first: by the model's confidence, ties in snapshot order.
-    picks: tuple[RankedPick, ...] = ()
+    picks: tuple[AcceptedPick, ...] = ()
     abstain_reason: AbstainReason | None = None
+    # Only on a rejected answer that was read: where it broke and the ids.
+    detail: RejectionDetail | None = None
 
     @model_validator(mode="after")
     def picks_match_status(self):
@@ -292,6 +363,8 @@ class RankingVerdict(Contract):
             raise ValueError("only an accepted verdict carries its two picks")
         if (self.abstain_reason is not None) != (self.status == "abstained"):
             raise ValueError("only an abstention carries an abstain reason")
+        if self.detail is not None and self.status != "rejected":
+            raise ValueError("only a rejected verdict carries a rejection detail")
         return self
 
 
@@ -316,10 +389,19 @@ def check_ranking(
     #   fingerprint: The snapshot's own fingerprint, recorded on every verdict
     #     so a verdict can be joined to the question it answers.
     #   answer: Re-validated before use, since a copy may have skipped validation.
-    #   picks: The answer's picks, most plausible first.
-    def rejected(reason: RankingReason) -> RankingVerdict:
+    #   named: The candidate ids the answer named, kept (as ids only) in any
+    #     rejection detail so a failure can be read back later.
+    #   picks: The answer's picks, most plausible first, each given its
+    #     candidate's still-missing checks from the snapshot (the model is
+    #     not asked for them).
+    def rejected(
+        reason: RankingReason, detail: RejectionDetail | None = None
+    ) -> RankingVerdict:
         return RankingVerdict(
-            status="rejected", reason=reason, snapshot_fingerprint=fingerprint
+            status="rejected",
+            reason=reason,
+            snapshot_fingerprint=fingerprint,
+            detail=detail,
         )
 
     fingerprint = snapshot.fingerprint
@@ -334,7 +416,7 @@ def check_ranking(
     try:
         answer = RankingAnswer.model_validate({"ranking": answer.model_dump()}).ranking
     except ValidationError as error:
-        return rejected(parse_reason(error))
+        return rejected(parse_reason(error), shape_detail(error))
     if isinstance(answer, AbstainedAnswer):
         return RankingVerdict(
             status="abstained",
@@ -347,23 +429,43 @@ def check_ranking(
     if len(snapshot.candidates) < RANKED_PICKS:
         return rejected("candidate_count_insufficient")
     ids = [pick.candidate_id for pick in answer.picks]
+    named = safe_ids(ids)
     if len(set(ids)) != len(ids):
-        return rejected("duplicate_candidate_id")
+        return rejected(
+            "duplicate_candidate_id",
+            RejectionDetail(field="candidate_id", offending_ids=named, named_ids=named),
+        )
     known = {c.id: (position, c) for position, c in enumerate(snapshot.candidates)}
-    if any(cid not in known for cid in ids):
-        return rejected("unknown_candidate_id")
+    unknown_ids = [cid for cid in ids if cid not in known]
+    if unknown_ids:
+        return rejected(
+            "unknown_candidate_id",
+            RejectionDetail(
+                field="candidate_id",
+                offending_ids=safe_ids(unknown_ids),
+                named_ids=named,
+            ),
+        )
     offered = set(snapshot.evidence_ids)
     for pick in answer.picks:
         cited = (*pick.evidence_ids, *pick.contradicting_evidence_ids)
         if not set(cited) <= offered or len(set(cited)) != len(cited):
-            return rejected("evidence_reference_invalid")
-        candidate = known[pick.candidate_id][1]
-        if not set(pick.missing_checks) <= set(
-            candidate.discriminating_requirement_ids
-        ):
-            return rejected("check_reference_invalid")
+            unseen = [e for e in dict.fromkeys(cited) if e not in offered]
+            repeated = [e for e in dict.fromkeys(cited) if cited.count(e) > 1]
+            return rejected(
+                "evidence_reference_invalid",
+                RejectionDetail(
+                    field=f"{pick.candidate_id}.evidence",
+                    offending_ids=safe_ids(unseen + repeated),
+                    named_ids=named,
+                ),
+            )
     picks = tuple(
-        sorted(
+        AcceptedPick(
+            **pick.model_dump(),
+            missing_checks=known[pick.candidate_id][1].missing_requirement_ids,
+        )
+        for pick in sorted(
             answer.picks,
             key=lambda pick: (-pick.confidence, known[pick.candidate_id][0]),
         )
@@ -404,8 +506,24 @@ def judge_reply(
             status="rejected",
             reason=parse_reason(error),
             snapshot_fingerprint=snapshot.fingerprint,
+            detail=shape_detail(error),
         )
     return check_ranking(snapshot, parsed, current_fingerprint=current_fingerprint)
+
+
+def correction_text(reason: str, detail: RejectionDetail | None = None) -> str:
+    """What a correction is told: the fixed sentence, then the offending ids."""
+    # Variables:
+    #   reason: The rejection code, turned into its fixed CORRECTION_TEXT.
+    #   detail: Where the rejected answer broke and which ids were wrong;
+    #     ids only, so echoing them back never repeats model prose.
+    text = CORRECTION_TEXT.get(reason, "It did not match the contract.")
+    if detail is not None:
+        text += f" Problem at {detail.field}"
+        if detail.offending_ids:
+            text += f": {', '.join(detail.offending_ids)}"
+        text += "."
+    return text
 
 
 def ranking_view(snapshot: RankingSnapshot) -> list[str]:
@@ -433,9 +551,10 @@ RANKING_INSTRUCTIONS = (
     "candidate ids from the list, most plausible first, each with your own "
     "confidence from 0 to 1 (independent: the two need not add to 1, and they "
     "are beliefs, not measured probabilities), a short rationale, the evidence "
-    "ids that support it (at least one) and any against it, and the listed "
-    'checks still missing; or kind "abstained" when the evidence cannot '
-    "support two defensible picks. Never invent a candidate or an evidence id. "
+    "ids that support it (at least one) and any against it, copied exactly "
+    'from the list; or kind "abstained" when the evidence cannot support two '
+    "defensible picks. Do not list missing checks: they are filled in from "
+    "the candidate list. Never invent a candidate or an evidence id. "
     "The ranking never changes what may be done to a machine."
 )
 

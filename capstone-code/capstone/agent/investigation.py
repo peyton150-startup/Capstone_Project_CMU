@@ -102,6 +102,7 @@ from capstone.agent.triage_ranking import (
     judge_reply,
     parse_reason,
     ranking_snapshot,
+    shape_detail,
     unavailable,
 )
 from capstone.agent.triage_report import build_triage_report
@@ -1731,6 +1732,9 @@ def settle_ranking(
     #     a rejection and what the correction made of it.
     #   requests: How many model questions carried the ranking: the
     #     conclusion's, plus the correction's if asked.
+    #   details: Each judgement's rejection detail in order (None when the
+    #     answer was not rejected or could not be read), so a failed answer's
+    #     field and wrong ids survive in the record without its text.
     #   now: The fingerprint of the candidate list as it stands, so an answer
     #     about a list that has since changed is rejected as stale.
     def now() -> str:
@@ -1749,6 +1753,7 @@ def settle_ranking(
             current_fingerprint=now(),
         )
     attempts = [verdict.reason]
+    details = [verdict.detail]
     requests = 1
     ranking_event(state, deps, "triage.ranking_judged", snapshot, verdict, attempt=1)
     if (
@@ -1760,6 +1765,7 @@ def settle_ranking(
         requests += 1
         started = deps.clock()
         reason = verdict.reason
+        detail = verdict.detail
         ranking_event(
             state,
             deps,
@@ -1772,7 +1778,7 @@ def settle_ranking(
             raw = ask_policy(
                 state,
                 deps,
-                lambda view: deps.policy.rerank(view, reason),
+                lambda view: deps.policy.rerank(view, reason, detail=detail),
                 research=False,
             )
         except OutOfTime:
@@ -1784,6 +1790,7 @@ def settle_ranking(
                 status="rejected",
                 reason=parse_reason(error),
                 snapshot_fingerprint=snapshot.fingerprint,
+                detail=shape_detail(error),
             )
         except POLICY_ERRORS:
             verdict = RankingVerdict(
@@ -1796,6 +1803,7 @@ def settle_ranking(
         finally:
             state.triage_ranking_correction_seconds = max(0.0, deps.clock() - started)
         attempts.append(verdict.reason)
+        details.append(verdict.detail)
         ranking_event(
             state,
             deps,
@@ -1807,6 +1815,7 @@ def settle_ranking(
         )
     state.triage_ranking = verdict
     state.triage_ranking_attempts = tuple(attempts)
+    state.triage_ranking_details = tuple(details)
     state.triage_ranking_requests = requests
     ranking_event(
         state, deps, "triage.ranking_completed", snapshot, verdict, attempt=requests

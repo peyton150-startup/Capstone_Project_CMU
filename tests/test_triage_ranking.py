@@ -8,14 +8,20 @@ import pytest
 from pydantic import ValidationError
 
 from capstone.agent.triage_ranking import (
+    NOT_AN_ID,
+    RANKING_INSTRUCTIONS,
     AbstainedAnswer,
     RankedAnswer,
     RankedPick,
     RankingAnswer,
     RankingSnapshot,
     RankingVerdict,
+    RejectionDetail,
     check_ranking,
+    correction_text,
+    judge_reply,
     parse_reason,
+    ranking_schema,
     ranking_snapshot,
     snapshot_fingerprint,
 )
@@ -147,15 +153,112 @@ def test_a_changed_candidate_list_rejects_the_answer_as_stale():
             ),
             "evidence_reference_invalid",
         ),
-        (
-            ranked(pick("TC2", 0.7), pick("TC1", 0.3, missing_checks=("Q2:check",))),
-            "check_reference_invalid",
-        ),
     ],
 )
 def test_each_fault_in_an_answer_has_its_own_reason(answer, reason):
     verdict = check(answer)
     assert verdict.status == "rejected" and verdict.reason == reason
+    assert verdict.detail is not None
+
+
+# --- missing checks come from Python, not the model (prompt version 2) -------------
+
+
+def test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot():
+    body = snapshot().model_dump(mode="json", exclude={"fingerprint"})
+    body["candidates"][0]["missing_requirement_ids"] = ["Q1:check"]
+    snap = RankingSnapshot.model_validate(
+        {**body, "fingerprint": snapshot_fingerprint(body)}
+    )
+    raw = {
+        "kind": "ranked",
+        "picks": [
+            {
+                "candidate_id": "TC1",
+                "confidence": 0.7,
+                "rationale": "r",
+                "evidence_ids": ["E1"],
+                # Not asked for, and not an id the candidate lists: no harm.
+                "missing_checks": ["check the spindle", "Q9:made_up"],
+            },
+            {
+                "candidate_id": "TC2",
+                "confidence": 0.3,
+                "rationale": "r",
+                "evidence_ids": ["E2"],
+            },
+        ],
+    }
+    verdict = judge_reply(snap, raw, current_fingerprint=snap.fingerprint)
+    assert verdict.status == "accepted"
+    assert verdict.picks[0].missing_checks == ("Q1:check",)
+    assert verdict.picks[1].missing_checks == ()
+
+
+def test_the_schema_the_model_sees_no_longer_asks_for_missing_checks():
+    ranked_schema = next(
+        s for s in ranking_schema()["anyOf"] if "picks" in s.get("properties", {})
+    )
+    assert (
+        "missing_checks"
+        not in ranked_schema["properties"]["picks"]["items"]["properties"]
+    )
+    assert "Do not list missing checks" in RANKING_INSTRUCTIONS
+
+
+# --- a rejection keeps where it broke and the wrong ids, never prose ---------------
+
+
+def test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named():
+    verdict = check(ranked(pick("TC2", 0.7), pick("TC9", 0.3)))
+    assert verdict.detail == RejectionDetail(
+        field="candidate_id", offending_ids=("TC9",), named_ids=("TC2", "TC9")
+    )
+    assert correction_text(verdict.reason, verdict.detail).endswith(
+        "Problem at candidate_id: TC9."
+    )
+
+
+def test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids():
+    unseen = check(ranked(pick("TC2", 0.7), pick("TC1", 0.3, ("E9",))))
+    assert (unseen.detail.field, unseen.detail.offending_ids) == (
+        "TC1.evidence",
+        ("E9",),
+    )
+    both = check(
+        ranked(pick("TC2", 0.7), pick("TC1", 0.3, contradicting_evidence_ids=("E1",)))
+    )
+    assert both.detail.offending_ids == ("E1",)
+
+
+def test_prose_in_an_id_field_is_never_kept():
+    verdict = check(
+        ranked(pick("TC2", 0.7), pick("TC1", 0.3, ("the spindle bearing is worn",)))
+    )
+    assert verdict.detail.offending_ids == (NOT_AN_ID,)
+    assert "spindle" not in str(verdict.model_dump())
+
+
+def test_a_shape_error_is_recorded_with_its_field_path():
+    snap = snapshot()
+    verdict = judge_reply(
+        snap,
+        {"kind": "ranked", "picks": [{"candidate_id": "TC1"}] * 2},
+        current_fingerprint=snap.fingerprint,
+    )
+    assert verdict.reason == "score_invalid"
+    assert verdict.detail.field == "ranking.ranked.picks.0.confidence"
+
+
+def test_only_a_rejected_verdict_may_carry_a_detail():
+    with pytest.raises(ValidationError, match="rejection detail"):
+        RankingVerdict(
+            status="abstained",
+            reason="ranking_abstained",
+            snapshot_fingerprint="0" * 20,
+            abstain_reason="evidence_insufficient",
+            detail=RejectionDetail(field="x"),
+        )
 
 
 def test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on():
