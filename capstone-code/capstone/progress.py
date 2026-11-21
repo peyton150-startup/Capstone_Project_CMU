@@ -143,6 +143,8 @@ def ranking_lines(state: InvestigationState) -> list[str]:
     # Variables:
     #   verdict: The checked ranking; its picks are ordered most plausible first.
     #   families: What each TC id meant in the snapshot the model was shown.
+    #   detail: A rejected attempt's field and wrong ids, printed after the
+    #     picks so a batch log shows why an answer failed.
     verdict = state.triage_ranking
     if verdict is None:
         return []
@@ -163,6 +165,23 @@ def ranking_lines(state: InvestigationState) -> list[str]:
         )
     if verdict.abstain_reason:
         lines.append(f"  abstained: {verdict.abstain_reason}")
+    for n, (reason, detail) in enumerate(
+        zip(state.triage_ranking_attempts, state.triage_ranking_details), start=1
+    ):
+        if detail is not None:
+            lines.append(
+                f"  attempt {n} {reason} at {detail.field}"
+                + (
+                    f": {', '.join(detail.offending_ids)}"
+                    if detail.offending_ids
+                    else ""
+                )
+                + (
+                    f" (named {', '.join(detail.named_ids)})"
+                    if detail.named_ids
+                    else ""
+                )
+            )
     return lines
 
 

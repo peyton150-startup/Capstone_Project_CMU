@@ -29,7 +29,11 @@ from capstone.agent.artifacts import (
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
-from capstone.agent.triage_ranking import RankingSnapshot, RankingVerdict
+from capstone.agent.triage_ranking import (
+    RankingSnapshot,
+    RankingVerdict,
+    RejectionDetail,
+)
 from capstone.agent.triage_report import TriageReport
 from capstone.agent.triage_requirements import (
     ReadRequirement,
@@ -527,6 +531,10 @@ class InvestigationState(BaseModel):
     # Each ranking attempt's reason code, in order: the conclusion's own, then
     # the one correction's, if one was asked.
     triage_ranking_attempts: tuple[str, ...] = ()
+    # Each attempt's rejection detail, aligned with triage_ranking_attempts:
+    # where a rejected answer broke and its wrong ids (ids only, no model
+    # text); None for an attempt that was accepted, abstained or unread.
+    triage_ranking_details: tuple[RejectionDetail | None, ...] = ()
     # Model requests that carried a ranking question (1, or 2 with a correction).
     triage_ranking_requests: int = Field(default=0, ge=0)
     # Seconds the correction request took; 0 when none was asked.

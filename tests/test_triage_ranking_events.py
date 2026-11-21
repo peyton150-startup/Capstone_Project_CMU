@@ -74,14 +74,23 @@ def test_the_terminal_shows_the_verdict_attempts_and_picks(monkeypatch):
     first = snap.candidates[1]
     assert lines[1].startswith(f"  1. {first.id} {first.family} belief 0.60")
     assert "uncalibrated" in lines[1]
-    assert len(lines) == 3
+    # The rejected first attempt is shown with where it broke, ids only.
+    assert lines[3] == (
+        f"  attempt 1 unknown_candidate_id at candidate_id: TC99 "
+        f"(named {snap.candidates[0].id}, TC99)"
+    )
+    assert len(lines) == 4
 
 
 def test_a_rejected_ranking_prints_no_picks(monkeypatch):
     state = run(monkeypatch, Ranker(unknown, corrections=[unknown]))
     lines = ranking_lines(state)
     assert lines[0].startswith("TRIAGE RANKING rejected (unknown_candidate_id)")
-    assert len(lines) == 1
+    # No picks; only the two rejected attempts, each with its wrong id.
+    assert [line.split(" at ")[0] for line in lines[1:]] == [
+        "  attempt 1 unknown_candidate_id",
+        "  attempt 2 unknown_candidate_id",
+    ]
 
 
 def record(status, reason, requests=1):
