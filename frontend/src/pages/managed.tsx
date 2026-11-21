@@ -4,7 +4,7 @@ import { postJson, useResource } from '../api';
 import { resolveApiUrl } from '../backend.mjs';
 import type { ApiBackend } from '../backend.mjs';
 import { useUi } from '../context';
-import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, StageProgress, TriageReport, TriageRunDefaults, TriageRunOptions, TriageRunPreview } from '../types';
+import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, SafeHypothesisProgress, StageProgress, TriageRanking, TriageReport, TriageRunDefaults, TriageRunOptions, TriageRunPreview } from '../types';
 import { TriageRunEditor } from './triageRunEditor';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, SourceState, toneFor, Unavailable } from '../ui';
 import { reportHasAcceptedConclusion, selectTriageReport } from '../sourceState.mjs';
@@ -604,6 +604,7 @@ export function RunDetailPage() {
         ['packet','Observe packet'],['packet_prompt','Packet in model context'],
         ['observe_calls','Observe calls'],['then_deep','Deep escalation'],
         ['conclude_brief','Conclude evidence brief'],['conclude_cap','Conclude cap'],
+        ['ranking','Two-candidate ranking'],
         ['seconds','Triage seconds'],['tool_calls','Research tool calls'],
         ['hypothesis_seconds','Hypothesis reserve seconds'],
       ] as const).map(([key,label])=>{
@@ -639,6 +640,10 @@ export function RunDetailPage() {
         ['compiled_candidates','Compiled candidate count'],
         ['conclusion_available','Conclude stage completed'],
         ['deep_recommended','Deep investigation recommended'],
+        ['ranking_enabled','Two-candidate ranking asked'],
+        ['ranking_status','Ranking verdict'],
+        ['ranking_reason','Ranking reason code'],
+        ['ranking_requests','Ranking questions asked'],
       ] as const).map(([key,label])=>{
         const value = run.snapshot.triage_execution?.[key];
         const shown = typeof value === 'boolean' ? value ? 'On' : 'Off' :
@@ -830,9 +835,40 @@ export function TriageReportView({ report }: { report: TriageReport }) {
         <DataRow label="Observed tick" value={item.observed_tick ?? 'Not recorded'}/>
       </div>) : <SourceState item="Evidence citations" availability="available" count={0}
         emptyDetail="This report cites no findings."/>}
+    {report.ranking && <RankingView ranking={report.ranking}/>}
     <p className="body-copy">A successful sensor read does not imply a passed predicate or a verified fault.
       The listed model rating is not a calibrated fault probability.</p>
   </Panel>;
+}
+
+/** The checked two-candidate ranking: the model's belief, never a finding.
+ * Picks show only when Python accepted the ranking; otherwise the reason. */
+export function RankingView({ ranking }: { ranking: TriageRanking }) {
+  // Variables:
+  //   attempts: Each judgement's reason code in order, so a corrected
+  //     ranking shows what was wrong the first time.
+  const attempts = ranking.attempts.join(' \u2192 ') || 'None recorded';
+  return <div className="soft-note">
+    <h3>Two most plausible candidates (model belief)</h3>
+    <Pill text={ranking.status} tone={ranking.status === 'accepted' ? 'good' : 'neutral'}/>
+    <DataRow label="Reason" value={ranking.abstain_reason ?
+      ranking.reason + ' (' + ranking.abstain_reason + ')' : ranking.reason}/>
+    <DataRow label="Attempts" value={attempts}/>
+    <DataRow label="Candidates offered" value={String(ranking.candidate_count)}/>
+    <DataRow label="Snapshot" value={ranking.snapshot_fingerprint}/>
+    {ranking.picks.map((pick, n)=>
+      <div className="hypothesis-card" key={pick.candidate_id}>
+        <strong>{n + 1}. {pick.candidate_id} · {pick.family}{pick.machine_id ? ' on ' + pick.machine_id : ''}</strong>
+        <p>{pick.explanation}</p>
+        <DataRow label="Model belief" value={Math.round(pick.confidence * 100) +
+          '/100 (uncalibrated, independent of the other pick)'}/>
+        <DataRow label="Rationale" value={pick.rationale}/>
+        <DataRow label="Supporting evidence" value={pick.evidence_ids.join(', ')}/>
+        <DataRow label="Evidence against" value={pick.contradicting_evidence_ids.join(', ') || 'None cited'}/>
+        <DataRow label="Checks still missing" value={pick.missing_checks.join(', ') || 'None named'}/>
+      </div>)}
+    <p className="body-copy">The ranking never changed the assessment, recommendation or any action.</p>
+  </div>;
 }
 
 /** Rapid Triage: choose a managed run and read its persisted TriageReport.

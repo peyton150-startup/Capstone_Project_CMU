@@ -101,7 +101,7 @@
     "tests/test_detector_side_effects.py::test_no_hidden_truth_in_any_known_case",
     "tests/test_detector_side_effects.py::test_the_screening_pushes_no_other_evidence_out_of_the_prompt"
    ],
-   "test_count": 399,
+   "test_count": 405,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -210,7 +210,7 @@
     "tests/test_hazards.py::test_an_episode_with_hazards_reports_them_and_repeats_exactly",
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported"
    ],
-   "test_count": 265,
+   "test_count": 271,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -871,7 +871,7 @@
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
     "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run"
    ],
-   "test_count": 339,
+   "test_count": 345,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1012,7 +1012,7 @@
     "tests/test_detector_side_effects.py::test_the_standard_hazards_land_on_the_same_calls",
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too"
    ],
-   "test_count": 371,
+   "test_count": 377,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1088,10 +1088,16 @@
     "tests/test_triage_ranking_events.py::test_ranking_events_carry_no_model_text_or_confidence",
     "tests/test_triage_ranking_events.py::test_the_terminal_shows_the_verdict_attempts_and_picks",
     "tests/test_triage_ranking_events.py::test_with_the_flag_off_there_are_no_ranking_events_or_lines",
+    "tests/test_triage_ranking_surfaces.py::test_a_rejected_ranking_is_reported_without_picks",
+    "tests/test_triage_ranking_surfaces.py::test_the_api_projection_is_off_without_the_flag_and_old_payloads_load",
+    "tests/test_triage_ranking_surfaces.py::test_the_api_projects_only_the_rankings_codes",
+    "tests/test_triage_ranking_surfaces.py::test_the_report_carries_the_accepted_ranking_with_what_each_id_meant",
+    "tests/test_triage_ranking_surfaces.py::test_the_report_survives_storage_and_old_reports_still_load",
+    "tests/test_triage_ranking_surfaces.py::test_without_the_flag_the_report_has_no_ranking",
     "tests/test_triage_run_controls.py::test_real_graph_episode_uses_only_submitted_triage_settings",
     "tests/test_triage_run_mode.py::test_triage_only_does_not_construct_deep_critic"
    ],
-   "test_count": 43,
+   "test_count": 49,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1278,7 +1284,7 @@
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported",
     "tests/test_known_answers.py::test_each_case_builds_its_pinned_fault_and_symptom"
    ],
-   "test_count": 255,
+   "test_count": 261,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1407,7 +1413,7 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored"
    ],
-   "test_count": 356,
+   "test_count": 362,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",

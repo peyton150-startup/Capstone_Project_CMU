@@ -37305,7 +37305,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -102040,7 +102040,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 156,
+   "exercise_count": 157,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -102859,7 +102859,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 90,
+   "exercise_count": 91,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -122925,7 +122925,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123041,7 +123041,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123153,7 +123153,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123266,7 +123266,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123378,7 +123378,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123489,7 +123489,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 262,
+   "exercise_count": 263,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123601,7 +123601,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123713,7 +123713,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123826,7 +123826,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 276,
+   "exercise_count": 277,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -123940,7 +123940,7 @@
     "capstone.agent.monitor:detect_anomaly",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 202,
+   "exercise_count": 203,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigation",
@@ -124123,7 +124123,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 308,
+   "exercise_count": 309,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -124374,7 +124374,7 @@
     "capstone.agent.investigation:propose",
     "capstone.agent.investigation:recheck"
    ],
-   "exercise_count": 278,
+   "exercise_count": 279,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -124487,7 +124487,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -124599,7 +124599,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -124816,7 +124816,7 @@
     "capstone.agent.loop:gather.<locals>.audit_observe",
     "capstone.agent.loop:gather.<locals>.observe_validator"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -126512,7 +126512,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 282,
+   "exercise_count": 283,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -126621,7 +126621,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 300,
+   "exercise_count": 301,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128353,7 +128353,7 @@
     "capstone.agent.investigation:rejection_reason",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 286,
+   "exercise_count": 287,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128445,9 +128445,10 @@
     "capstone.agent.state:InvestigationState.remaining_seconds",
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking",
     "capstone.evaluation.triage_metrics:triage_metrics"
    ],
-   "exercise_count": 20,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128554,9 +128555,10 @@
     "capstone.agent.state:InvestigationState.confidence",
     "capstone.agent.state:InvestigationState.remaining_seconds",
     "capstone.agent.triage_report:build_triage_report",
-    "capstone.agent.triage_report:report_outcome"
+    "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -128637,7 +128639,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -128791,7 +128793,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128903,7 +128905,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129017,7 +129019,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129129,7 +129131,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129240,7 +129242,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -134588,7 +134590,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 109,
+   "exercise_count": 110,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -137282,7 +137284,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 286,
+   "exercise_count": 287,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -139034,7 +139036,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -139147,7 +139149,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_packet",
     "capstone.agent.evidence_tests",
@@ -139620,7 +139622,7 @@
     "capstone.agent.investigation:plan",
     "capstone.agent.investigation:propose"
    ],
-   "exercise_count": 296,
+   "exercise_count": 297,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -141143,7 +141145,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 308,
+   "exercise_count": 309,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141256,7 +141258,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 282,
+   "exercise_count": 283,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141369,7 +141371,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 282,
+   "exercise_count": 283,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141484,7 +141486,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 280,
+   "exercise_count": 281,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141598,7 +141600,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 277,
+   "exercise_count": 278,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141706,7 +141708,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 109,
+   "exercise_count": 110,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141794,7 +141796,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 109,
+   "exercise_count": 110,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141882,7 +141884,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 109,
+   "exercise_count": 110,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -141978,7 +141980,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 243,
+   "exercise_count": 244,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -142241,7 +142243,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -142347,7 +142349,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -142454,7 +142456,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -142559,7 +142561,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -142666,7 +142668,7 @@
     "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination"
    ],
-   "exercise_count": 203,
+   "exercise_count": 204,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -142770,7 +142772,7 @@
     "capstone.agent.monitor:detect_anomaly",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigation",
@@ -142881,7 +142883,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -142993,7 +142995,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -144296,7 +144298,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -145090,7 +145092,7 @@
     "capstone.agent.investigation:close_screening_questions",
     "capstone.agent.investigation:conclude"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -145198,7 +145200,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 263,
+   "exercise_count": 264,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -145311,7 +145313,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -145420,7 +145422,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 263,
+   "exercise_count": 264,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -145534,7 +145536,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 263,
+   "exercise_count": 264,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -145621,10 +145623,11 @@
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
     "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking",
     "capstone.progress:report_lines",
     "capstone.progress:shorten"
    ],
-   "exercise_count": 21,
+   "exercise_count": 22,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -145664,10 +145667,11 @@
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
     "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking",
     "capstone.progress:report_lines",
     "capstone.progress:shorten"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.agent.triage_report",
@@ -145779,7 +145783,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 268,
+   "exercise_count": 269,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -145894,7 +145898,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -146517,7 +146521,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 308,
+   "exercise_count": 309,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -147281,7 +147285,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 235,
+   "exercise_count": 236,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -147387,7 +147391,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 235,
+   "exercise_count": 236,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -147494,7 +147498,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 235,
+   "exercise_count": 236,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -147599,7 +147603,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -148017,7 +148021,7 @@
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critic_view"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -148126,7 +148130,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 258,
+   "exercise_count": 259,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -148340,7 +148344,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -148451,7 +148455,7 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:gather.<locals>.audit_observe"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -149073,7 +149077,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -149186,7 +149190,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -149752,7 +149756,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -149866,7 +149870,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -149980,7 +149984,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150093,7 +150097,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150205,7 +150209,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 253,
+   "exercise_count": 254,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150317,7 +150321,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 255,
+   "exercise_count": 256,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150433,7 +150437,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 255,
+   "exercise_count": 256,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150545,7 +150549,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 255,
+   "exercise_count": 256,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150657,7 +150661,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -150773,7 +150777,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 280,
+   "exercise_count": 281,
    "modules_exercised": [
     "capstone.agent.conclude_brief",
     "capstone.agent.evidence_brief",
@@ -150892,7 +150896,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 270,
+   "exercise_count": 271,
    "modules_exercised": [
     "capstone.agent.conclude_brief",
     "capstone.agent.evidence_brief",
@@ -151040,7 +151044,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 253,
+   "exercise_count": 254,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151153,7 +151157,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151266,7 +151270,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 253,
+   "exercise_count": 254,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151378,7 +151382,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151492,7 +151496,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151606,7 +151610,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 255,
+   "exercise_count": 256,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151720,6 +151724,683 @@
    ]
   },
   {
+   "id": "tests/test_triage_ranking_surfaces.py::test_the_report_carries_the_accepted_ranking_with_what_each_id_meant",
+   "file": "tests/test_triage_ranking_surfaces.py",
+   "name": "test_the_report_carries_the_accepted_ranking_with_what_each_id_meant",
+   "line": 13,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 7,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the report carries the accepted ranking with what each id meant",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:ranking_event",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:settle_ranking",
+    "capstone.agent.investigation:settle_ranking.<locals>.now",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 254,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_ranking",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking_surfaces.py::test_a_rejected_ranking_is_reported_without_picks",
+   "file": "tests/test_triage_ranking_surfaces.py",
+   "name": "test_a_rejected_ranking_is_reported_without_picks",
+   "line": 34,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a rejected ranking is reported without picks",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:ranking_event",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:settle_ranking",
+    "capstone.agent.investigation:settle_ranking.<locals>.now",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 255,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_ranking",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking_surfaces.py::test_without_the_flag_the_report_has_no_ranking",
+   "file": "tests/test_triage_ranking_surfaces.py",
+   "name": "test_without_the_flag_the_report_has_no_ranking",
+   "line": 45,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "without the flag the report has no ranking",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:call_signature"
+   ],
+   "exercise_count": 245,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking_surfaces.py::test_the_report_survives_storage_and_old_reports_still_load",
+   "file": "tests/test_triage_ranking_surfaces.py",
+   "name": "test_the_report_survives_storage_and_old_reports_still_load",
+   "line": 50,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the report survives storage and old reports still load",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:ranking_event",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:settle_ranking",
+    "capstone.agent.investigation:settle_ranking.<locals>.now",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 254,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_ranking",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking_surfaces.py::test_the_api_projects_only_the_rankings_codes",
+   "file": "tests/test_triage_ranking_surfaces.py",
+   "name": "test_the_api_projects_only_the_rankings_codes",
+   "line": 58,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "identity_constant": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the api projects only the rankings codes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:ranking_event",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:settle_ranking",
+    "capstone.agent.investigation:settle_ranking.<locals>.now",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 256,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_ranking",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.api.runs",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_ranking_surfaces.py::test_the_api_projection_is_off_without_the_flag_and_old_payloads_load",
+   "file": "tests/test_triage_ranking_surfaces.py",
+   "name": "test_the_api_projection_is_off_without_the_flag_and_old_payloads_load",
+   "line": 69,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "identity_constant": 2,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the api projection is off without the flag and old payloads load",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:close_screening_questions",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:release_observe_calls",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:call_signature"
+   ],
+   "exercise_count": 246,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_decide",
+    "capstone.agent.triage_evidence_validation",
+    "capstone.agent.triage_hypothesize",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.agent.triage_requirements",
+    "capstone.agent.triage_trace",
+    "capstone.api.runs",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_report.py::test_a_triage_the_model_concluded_reports_its_checked_diagnosis",
    "file": "tests/test_triage_report.py",
    "name": "test_a_triage_the_model_concluded_reports_its_checked_diagnosis",
@@ -151785,7 +152466,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -151896,7 +152577,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152010,7 +152691,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152123,7 +152804,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152236,7 +152917,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152453,7 +153134,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152564,7 +153245,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152647,9 +153328,10 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
-    "capstone.agent.triage_report:report_outcome"
+    "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking"
    ],
-   "exercise_count": 19,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152702,9 +153384,10 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
-    "capstone.agent.triage_report:report_outcome"
+    "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -152744,9 +153427,10 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
-    "capstone.agent.triage_report:report_outcome"
+    "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.agent.triage_report"
@@ -152780,9 +153464,10 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
-    "capstone.agent.triage_report:report_outcome"
+    "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.agent.triage_report"
@@ -152818,9 +153503,10 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.triage_report:build_triage_report",
     "capstone.agent.triage_report:finding",
-    "capstone.agent.triage_report:report_outcome"
+    "capstone.agent.triage_report:report_outcome",
+    "capstone.agent.triage_report:report_ranking"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.agent.triage_report"
@@ -152899,7 +153585,7 @@
     "capstone.agent.loop:gather.<locals>.audit_observe",
     "capstone.agent.loop:gather.<locals>.observe_validator"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -153164,7 +153850,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 243,
+   "exercise_count": 244,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -153280,7 +153966,7 @@
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -153424,7 +154110,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 242,
+   "exercise_count": 243,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -153641,7 +154327,7 @@
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 120,
+   "exercise_count": 121,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -154694,7 +155380,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 231,
+   "exercise_count": 232,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -154802,7 +155488,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 231,
+   "exercise_count": 232,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -154909,7 +155595,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 231,
+   "exercise_count": 232,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -155017,7 +155703,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 201,
+   "exercise_count": 202,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.investigation",
@@ -155122,7 +155808,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 274,
+   "exercise_count": 275,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",

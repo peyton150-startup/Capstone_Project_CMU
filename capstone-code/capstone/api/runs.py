@@ -455,6 +455,15 @@ class SafeExecutedTriage(BaseModel):
     compiled_candidates: int = Field(ge=0)
     conclusion_available: bool
     deep_recommended: bool
+    # TRIAGE_RANKING (2026-11-20): whether the ranking was asked, how it was
+    # judged (fixed codes only), and how many questions carried it. Defaults
+    # keep payloads saved before it valid.
+    ranking_enabled: bool = False
+    ranking_status: (
+        Literal["accepted", "abstained", "rejected", "unavailable"] | None
+    ) = None
+    ranking_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z0-9_]{0,63}$")
+    ranking_requests: int = Field(default=0, ge=0, le=2)
 
 
 class SafeStageSnapshot(BaseModel):
@@ -574,8 +583,11 @@ def safe_executed_triage(state: Any) -> dict[str, Any] | None:
     # Variables:
     #   state: The finished triage Graph state, or None when no triage ran; a
     #     deep state also yields None, because these flags describe triage only.
+    #   ranking: The checked ranking verdict; only its status, reason code and
+    #     request count cross to the browser here (the picks are in the report).
     if state is None or state.mode != "triage":
         return None
+    ranking = state.triage_ranking
     return SafeExecutedTriage.model_validate(
         {
             "run_mode": state.triage_run_mode,
@@ -593,6 +605,10 @@ def safe_executed_triage(state: Any) -> dict[str, Any] | None:
             "compiled_candidates": len(state.triage_candidates),
             "conclusion_available": state.conclusion is not None,
             "deep_recommended": bool(state.deep_recommended),
+            "ranking_enabled": state.triage_ranking_enabled,
+            "ranking_status": None if ranking is None else ranking.status,
+            "ranking_reason": None if ranking is None else ranking.reason,
+            "ranking_requests": state.triage_ranking_requests,
         }
     ).model_dump(mode="json")
 
