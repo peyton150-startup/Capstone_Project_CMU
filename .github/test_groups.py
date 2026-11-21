@@ -164,6 +164,7 @@ GROUPS: dict[str, list[str]] = {
         "triage_ranking",
         "triage_ranking_conclude",
         "triage_ranking_events",
+        "triage_ranking_surfaces",
         "triage_deterministic_hypothesize",
         "triage_run_mode",
         "triage_run_controls",

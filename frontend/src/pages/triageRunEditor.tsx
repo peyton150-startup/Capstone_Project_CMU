@@ -28,6 +28,7 @@ const visibleFields: Array<{key: keyof TriageRunOptions; label: string}> = [
   {key:'then_deep', label:'Escalate to deep if unresolved'},
   {key:'conclude_brief', label:'Conclude evidence brief'},
   {key:'conclude_cap', label:'Conclude time cap'},
+  {key:'ranking', label:'Two-candidate ranking'},
   {key:'seconds', label:'Total triage deadline (seconds)'},
   {key:'tool_calls', label:'Research tool-call budget'},
 ];
@@ -132,8 +133,9 @@ export function TriageRunEditor({
         ['then_deep','Allow escalation into a separate deep run',false],
         ['conclude_brief','Include evidence coverage in model Conclude',false],
         ['conclude_cap','Cap the model Conclude time window',false],
+        ['ranking','Ask Conclude to rank the two most plausible candidates',false],
       ] as const).map(([key,label,locked])=>
-        <label key={key}><input type="checkbox" checked={forced&&locked?true:value[key]}
+        <label key={key}><input type="checkbox" checked={forced&&locked?true:Boolean(value[key])}
           disabled={off||locked} onChange={e=>update(key,e.target.checked)}/> {label}
           {locked && forced ? ' (forced on)' : ''}</label>)}
     </div>
