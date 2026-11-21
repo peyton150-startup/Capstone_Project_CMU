@@ -29,7 +29,7 @@
   "capstone-code/capstone/agent/triage_hypothesize.py": "6033e50b720eecf31772bc7640219d469affedfdb2536601123648466773bbf0",
   "capstone-code/capstone/agent/triage_packet.py": "cf584ff96717238fb971fe8fb656e3194e9397dcbb84241b2667929439a10425",
   "capstone-code/capstone/agent/triage_plan.py": "2c85a699d3957e3e13eae3afd07b096b41f207cf3209df26d049154827ce0c56",
-  "capstone-code/capstone/agent/triage_ranking.py": "5f65d08c0a2804b44a74429107852b6311657592e9d21045e17d679f33f6d018",
+  "capstone-code/capstone/agent/triage_ranking.py": "a7cb65b2194e6148f786b9fc4e60708d3014318b643923e7cceb25fbbb901744",
   "capstone-code/capstone/agent/triage_report.py": "2a273e1dcffdacf9a5db673b7452c783fc3dd16556bad28cab718acb354c59e4",
   "capstone-code/capstone/agent/triage_requirements.py": "d2eb37230b33d27f86c8b77f7792fd623374d75a214256fe367ee4a0666d2ce5",
   "capstone-code/capstone/agent/triage_trace.py": "bc172894844b42a04959c3a656ca44587b7e85bf6c176fa13c6fe798efdf5b71",
@@ -73,10 +73,10 @@
   "capstone-code/capstone/evaluation/labels.py": "39dbc146c75b19ae9b3b8e9c1e210c9bd32bc267ea3e01cddea586132642b4d2",
   "capstone-code/capstone/evaluation/manual.py": "fb9c5466bde3b3006e64bd8197a79e5c9a2ab9a957ac74594f41d94ca12d0dc2",
   "capstone-code/capstone/evaluation/memory.py": "72e5486936c8c58886db3aa4da8f63e71ff786feb739abeedb9d092323037a13",
-  "capstone-code/capstone/evaluation/ranking_accuracy.py": "f8beef47cf3691be8cafd8379206f07437764ed6c87043644b85bc5bcf231941",
+  "capstone-code/capstone/evaluation/ranking_accuracy.py": "dd84bbe854a9f7a397226c19a781bd6ba04c40b4c49d054b4111cb6e889d01d9",
   "capstone-code/capstone/evaluation/scoring.py": "38efa009eb966bb0bc7a7b90fe21d8f4db05301bdd19b1fc763537821f94c79e",
   "capstone-code/capstone/evaluation/triage_metrics.py": "0996afb190975d935ea6b6365f6f30dad575c170a9e671bc43c104893285b7c4",
-  "capstone-code/capstone/experiment.py": "0c500db267524c78892622345177ef731ad9d2b42120206e1925f38872c00714",
+  "capstone-code/capstone/experiment.py": "a6afa24ee66375c06859e94cdc26b72148fbaf770e7b7212f7fd4723ea0f19c1",
   "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
   "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
   "capstone-code/capstone/ingestion/__main__.py": "725ce063d1eabcb2e090d48aa60c471a2f9f661c1e0bdeeffcfbdd5abfc30962",
@@ -125,7 +125,7 @@
   "capstone-code/capstone/monitoring/monitor.py": "ec3960f528b6653bfe90ef7adb7c05b31e7a7bfd68a2d956c3ba80ebf3eb1ddb",
   "capstone-code/capstone/monitoring/runner.py": "245aa7c1658c87ed7cfdf090192470b93e74d77307a4d0707f1e9ec9efc35e2f",
   "capstone-code/capstone/observability.py": "f741c26d16d89f29381560731fbfea9a839cb57ea973324f7c30db596618180f",
-  "capstone-code/capstone/progress.py": "ebab267920b64bd7f76c258cab9277a749d04b3622cfd735ad0fd675be3a73e4",
+  "capstone-code/capstone/progress.py": "a2efd21197345317046598e94105b254ffedb61a6a91fb7d5c598c11bccb0fbe",
   "capstone-code/capstone/providers/__init__.py": "718f331830c4a46d2addd3f99b7ce7444d07d88db058a4972f56df4cc3e0f168",
   "capstone-code/capstone/providers/chat.py": "9b5786e499f64e51b25849c922ef11a7517057d8334a7ba594eaff472e65d8a3",
   "capstone-code/capstone/providers/embeddings.py": "85409f5b146755d751dcaf2223a53c72aa78a2f698458f1df2c430bb5eb8c4c9",
@@ -290,7 +290,7 @@
   "tests/test_production_line.py": "2a0ec5f665acec73cee477967f4701fdd0470da2c53b4bb7364b4feaa08a63df",
   "tests/test_progress_view.py": "4b76697910b2898d95b9685e23b9b0541033b03043219f4a263adb7c06437573",
   "tests/test_quality.py": "95705427326b5474aa5b485c1d11c150538adecd7b20c4c592e17c79270c92ff",
-  "tests/test_ranking_accuracy.py": "b9ef1b8951b3cc5f3696aaf2bdac846cc805436525d6c67a38e2656792c54d7e",
+  "tests/test_ranking_accuracy.py": "32da0c341a909949792b5556503c09cfa4470b1b700080d359c0267729fad73b",
   "tests/test_reasoning_evidence.py": "c72b04a9f538318baf4aa57c873b17d30e6c47c1f0600ab9981aebfccee551cb",
   "tests/test_recall_tool.py": "5c32b0e324ca5e7b6032893f6ddce146adf4a78b3f88c0430a4764a45c505ecc",
   "tests/test_recorded_investigation.py": "4cad9ba7f0b3786dc43d89024e457d01e11dd9704b3363c4b41126ecc7a01d8b",
@@ -345,9 +345,9 @@
   "tests/test_triage_observe_calls.py": "e11fd6d47aa7fc38c90b31656bcb444dbddec65c490bd58564bd149c4eb72b8f",
   "tests/test_triage_plan.py": "433e906034cf72d690e6cc98ff4b4995c992c413e9421918a6593bf1554c7880",
   "tests/test_triage_question_gaps.py": "402ddffb0826c055673921c10707078b1999ca6b088aa722af6022172be4d52a",
-  "tests/test_triage_ranking.py": "01a361348c21e8adf86484de9aeb1c298842812845c867df92986f5c6be7935f",
-  "tests/test_triage_ranking_conclude.py": "8f2ede950bec9e4417ce835687c879d3db1444ba418cecde0865cb122850b0e7",
-  "tests/test_triage_ranking_events.py": "eaad6b25b4e770aac4c2ed04e4524f860ff853c1b36ba48b98f4258c5c037d06",
+  "tests/test_triage_ranking.py": "ff18d02c8e7344fd1f5cbae2ffdff4f1642360d81218993ef1419e5429592339",
+  "tests/test_triage_ranking_conclude.py": "0325ffd2960bc1820cb898ad1526570350d1439d203c2dc4e64bd8c39931ba2f",
+  "tests/test_triage_ranking_events.py": "ca7a6cf08d8e9e0878d73abcddc4d104e804692b1e807b52d1fe3feb8e0df960",
   "tests/test_triage_ranking_surfaces.py": "d2456aae39b8a0b7cb3c9c47557d1b3eec7775e5beb8ffb44492e274be2dc404",
   "tests/test_triage_report.py": "a26644fd4e0f4639e50818063bb1f091fc229b154dc54723296a839d16d3be1c",
   "tests/test_triage_run_controls.py": "eaa0b1794c1146764dba8b335590038e89c52ab3ad21311bb4c294b1e9a97f3a",
@@ -365,29 +365,29 @@
   "tests/test_web_runs.py": "2021f42a2febc9572b751d4db7ae1dd87c493916018d53e1a35b1a13c96770f8",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "4d176f307392736410635efa9fe6365c4f470af10e367b6a847ae29b16c9a88b",
- "junit_sha256": "88410d09117b8646a218a32182402c9c9069bd7cde238c84b7299a88fa610c7a",
+ "coverage_sha256": "29bd196ee38b8a86d1cab471609748299e86a99ca156601edbb8798b81b6f320",
+ "junit_sha256": "1687612de5ff5b9c3687f4957957ed9b87896e1193a97c66a8f68359b63ec725",
  "counts": {
-  "functions": 1528,
+  "functions": 1530,
   "classes_note": "classes are listed through their methods",
-  "tests": 2784,
+  "tests": 2792,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 680,
    "NOT APPLICABLE": 29,
    "NOT TESTED": 107,
-   "PARTIALLY VERIFIED": 667,
+   "PARTIALLY VERIFIED": 669,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 696,
+   "direct": 698,
    "import-only": 6,
    "indirect": 690,
    "no-statements": 29,
    "none": 107
   },
-  "functions_executed_in_tests": 1386,
-  "functions_with_direct_tests": 696,
+  "functions_executed_in_tests": 1388,
+  "functions_with_direct_tests": 698,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -525,7 +525,6 @@
    "capstone.agent.triage_evidence_validation:validate_triage_result (73/107)",
    "capstone.agent.triage_evidence_validation:validate_triage_observe_result (28/39)",
    "capstone.agent.triage_hypothesize:TriageHypothesisPacket.consistent_test_plan (15/20)",
-   "capstone.agent.triage_ranking:RankingVerdict.picks_match_status (11/14)",
    "capstone.agent.triage_requirements:ReadRequirement.valid_window (7/11)",
    "capstone.agent.triage_trace:TriageTraceEvent.validated_hash (2/3)",
    "capstone.agent.triage_trace:TriageTraceEvent.finite_duration (2/3)",
@@ -625,7 +624,7 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2760,
+   "passed": 2768,
    "skipped": 24
   },
   "tests_with_no_assertion": [
@@ -683,7 +682,7 @@
    "tests/test_model_policy.py::test_a_clean_stop_is_still_accepted",
    "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
    "tests/test_ranking_accuracy.py::test_accepted_but_wrong",
-   "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
+   "tests/test_ranking_accuracy.py::test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside",
    "tests/test_ranking_accuracy.py::test_no_snapshot_means_no_coverage",
    "tests/test_ranking_accuracy.py::test_aggregate_of_nothing",
    "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
@@ -978,9 +977,9 @@
    "direct": 8
   },
   "capstone.agent.triage_ranking": {
-   "functions": 16,
-   "executed": 16,
-   "direct": 14
+   "functions": 17,
+   "executed": 17,
+   "direct": 15
   },
   "capstone.agent.triage_report": {
    "functions": 4,
@@ -1153,9 +1152,9 @@
    "direct": 1
   },
   "capstone.evaluation.ranking_accuracy": {
-   "functions": 8,
-   "executed": 8,
-   "direct": 8
+   "functions": 9,
+   "executed": 9,
+   "direct": 9
   },
   "capstone.evaluation.scoring": {
    "functions": 17,
@@ -8081,11 +8080,13 @@
    ]
   },
   "capstone.agent.triage_ranking:snapshot_fingerprint": {
-   "count": 51,
+   "count": 55,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
+    "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
     "tests/test_triage_ranking.py::test_a_shape_error_is_recorded_with_its_field_path",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_a_snapshot_changed_without_validation_is_refused_when_revalidated",
     "tests/test_triage_ranking.py::test_a_snapshot_of_a_real_run_offers_only_observable_evidence",
     "tests/test_triage_ranking.py::test_a_snapshot_rejects_repeated_ids_and_unoffered_candidate_evidence",
@@ -8093,9 +8094,7 @@
     "tests/test_triage_ranking.py::test_an_abstention_is_a_valid_outcome_without_picks",
     "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
-    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order",
-    "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason"
+    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict"
    ],
    "indirect": [
     "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
@@ -8113,11 +8112,13 @@
    ]
   },
   "capstone.agent.triage_ranking:RankingSnapshot.consistent": {
-   "count": 51,
+   "count": 55,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
+    "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
     "tests/test_triage_ranking.py::test_a_shape_error_is_recorded_with_its_field_path",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_a_snapshot_changed_without_validation_is_refused_when_revalidated",
     "tests/test_triage_ranking.py::test_a_snapshot_of_a_real_run_offers_only_observable_evidence",
     "tests/test_triage_ranking.py::test_a_snapshot_rejects_repeated_ids_and_unoffered_candidate_evidence",
@@ -8125,9 +8126,7 @@
     "tests/test_triage_ranking.py::test_an_abstention_is_a_valid_outcome_without_picks",
     "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
-    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order",
-    "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason"
+    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict"
    ],
    "indirect": [
     "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
@@ -8166,21 +8165,21 @@
    ]
   },
   "capstone.agent.triage_ranking:RankedPick.drop_missing_checks": {
-   "count": 38,
+   "count": 42,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
+    "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
     "tests/test_triage_ranking.py::test_a_reply_that_breaks_the_shape_is_named_precisely",
     "tests/test_triage_ranking.py::test_a_shape_error_is_recorded_with_its_field_path",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
-    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order",
+    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict",
     "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason",
     "tests/test_triage_ranking.py::test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot",
     "tests/test_triage_ranking.py::test_nan_and_infinity_are_refused_in_a_json_reply",
-    "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept",
-    "tests/test_triage_ranking.py::test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on"
+    "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept"
    ],
    "indirect": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -8189,12 +8188,12 @@
     "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
     "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
+    "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
     "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates",
     "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
     "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named",
     "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more",
-    "tests/test_triage_ranking_conclude.py::test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected",
-    "tests/test_triage_ranking_conclude.py::test_a_rejected_ranking_gets_one_correction_with_its_reason"
+    "tests/test_triage_ranking_conclude.py::test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected"
    ]
   },
   "capstone.agent.triage_ranking:shape_detail": {
@@ -8221,17 +8220,30 @@
     "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely"
    ]
   },
-  "capstone.agent.triage_ranking:safe_ids": {
-   "count": 31,
+  "capstone.agent.triage_ranking:id_shape": {
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
+    "tests/test_triage_ranking.py::test_a_value_that_is_not_an_id_is_kept_only_as_its_shape",
+    "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept"
+   ],
+   "indirect": []
+  },
+  "capstone.agent.triage_ranking:safe_ids": {
+   "count": 35,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
-    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order",
+    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict",
     "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason",
     "tests/test_triage_ranking.py::test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot",
     "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept",
-    "tests/test_triage_ranking.py::test_two_valid_picks_are_accepted_most_plausible_first"
+    "tests/test_triage_ranking.py::test_support_outside_the_candidates_related_evidence_is_recorded_not_rejected",
+    "tests/test_triage_ranking.py::test_two_valid_picks_are_accepted_in_the_models_own_order",
+    "tests/test_triage_ranking.py::test_unoffered_and_repeated_evidence_are_told_apart"
    ],
    "indirect": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -8240,30 +8252,30 @@
     "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
     "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
+    "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
     "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates",
     "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
     "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named",
     "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more",
-    "tests/test_triage_ranking_conclude.py::test_a_rejected_ranking_gets_one_correction_with_its_reason",
-    "tests/test_triage_ranking_conclude.py::test_a_valid_first_ranking_is_accepted_and_leaves_the_conclusion_alone"
+    "tests/test_triage_ranking_conclude.py::test_a_rejected_ranking_gets_one_correction_with_its_reason"
    ]
   },
   "capstone.agent.triage_ranking:RankingVerdict.picks_match_status": {
-   "count": 41,
+   "count": 46,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
+    "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
     "tests/test_triage_ranking.py::test_a_shape_error_is_recorded_with_its_field_path",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_a_verdict_cannot_claim_acceptance_without_two_picks",
     "tests/test_triage_ranking.py::test_an_abstention_is_a_valid_outcome_without_picks",
     "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
-    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order",
+    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict",
     "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason",
     "tests/test_triage_ranking.py::test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot",
-    "tests/test_triage_ranking.py::test_only_a_rejected_verdict_may_carry_a_detail",
-    "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept"
+    "tests/test_triage_ranking.py::test_only_a_rejected_verdict_may_carry_a_detail"
    ],
    "indirect": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -8274,27 +8286,28 @@
     "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
     "tests/test_ranking_accuracy.py::test_rejected_verdicts_are_not_counted_valid",
+    "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
     "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates",
     "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
-    "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named",
-    "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more"
+    "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named"
    ]
   },
   "capstone.agent.triage_ranking:check_ranking": {
-   "count": 37,
+   "count": 41,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
+    "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_an_abstention_is_a_valid_outcome_without_picks",
     "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
-    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order",
+    "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict",
     "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason",
     "tests/test_triage_ranking.py::test_missing_checks_the_model_sends_are_ignored_and_filled_from_the_snapshot",
     "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept",
-    "tests/test_triage_ranking.py::test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on",
-    "tests/test_triage_ranking.py::test_two_valid_picks_are_accepted_most_plausible_first"
+    "tests/test_triage_ranking.py::test_support_outside_the_candidates_related_evidence_is_recorded_not_rejected",
+    "tests/test_triage_ranking.py::test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on"
    ],
    "indirect": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -8304,29 +8317,29 @@
     "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
     "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
+    "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
     "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates",
     "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
     "tests/test_triage_ranking_conclude.py::test_a_failed_correction_is_named",
-    "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more",
-    "tests/test_triage_ranking_conclude.py::test_a_ranking_about_a_changed_candidate_list_is_stale_and_not_corrected"
+    "tests/test_triage_ranking_conclude.py::test_a_missing_ranking_is_asked_for_once_more"
    ]
   },
   "capstone.agent.triage_ranking:check_ranking.<locals>.rejected": {
-   "count": 19,
+   "count": 20,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
+    "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape",
     "tests/test_triage_ranking.py::test_an_answer_forged_past_validation_is_rejected_not_trusted",
     "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
-    "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids",
     "tests/test_triage_ranking.py::test_each_fault_in_an_answer_has_its_own_reason",
     "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept",
     "tests/test_triage_ranking.py::test_too_few_candidates_cannot_be_ranked_but_can_be_abstained_on",
+    "tests/test_triage_ranking.py::test_unoffered_and_repeated_evidence_are_told_apart",
     "tests/test_triage_ranking_conclude.py::test_a_rejected_ranking_gets_one_correction_with_its_reason",
     "tests/test_triage_ranking_conclude.py::test_only_one_correction_is_asked_then_the_ranking_is_rejected",
-    "tests/test_triage_ranking_events.py::test_a_rejected_ranking_prints_no_picks",
-    "tests/test_triage_ranking_surfaces.py::test_a_rejected_ranking_is_reported_without_picks"
+    "tests/test_triage_ranking_events.py::test_a_rejected_ranking_prints_no_picks"
    ],
    "indirect": [
     "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely",
@@ -8369,10 +8382,11 @@
    ]
   },
   "capstone.agent.triage_ranking:correction_text": {
-   "count": 2,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
-    "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named"
+    "tests/test_triage_ranking.py::test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named",
+    "tests/test_triage_ranking.py::test_unoffered_and_repeated_evidence_are_told_apart"
    ],
    "indirect": [
     "tests/test_triage_ranking_conclude.py::test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking"
@@ -11810,12 +11824,13 @@
    ]
   },
   "capstone.evaluation.ranking_accuracy:family_names": {
-   "count": 22,
+   "count": 24,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
     "tests/test_ranking_accuracy.py::test_a_machine_family_needs_the_faulty_machine",
     "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing",
+    "tests/test_ranking_accuracy.py::test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside",
     "tests/test_ranking_accuracy.py::test_a_setting_shift_without_a_machine_still_counts",
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
     "tests/test_ranking_accuracy.py::test_abstained_is_valid_and_never_correct",
@@ -11823,13 +11838,12 @@
     "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_first",
     "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
     "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
-    "tests/test_ranking_accuracy.py::test_an_evidence_family_names_no_fault",
-    "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts"
+    "tests/test_ranking_accuracy.py::test_an_evidence_family_names_no_fault"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:candidate_names": {
-   "count": 14,
+   "count": 15,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
@@ -11848,7 +11862,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:names_any": {
-   "count": 10,
+   "count": 11,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -11860,12 +11874,32 @@
     "tests/test_ranking_accuracy.py::test_known_case_candidates_cover_the_true_cause",
     "tests/test_ranking_accuracy.py::test_missing_verdict",
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
+    "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
     "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates"
    ],
    "indirect": []
   },
+  "capstone.evaluation.ranking_accuracy:pick_measures": {
+   "count": 20,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing",
+    "tests/test_ranking_accuracy.py::test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside",
+    "tests/test_ranking_accuracy.py::test_abstained_is_valid_and_never_correct",
+    "tests/test_ranking_accuracy.py::test_accepted_but_wrong",
+    "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_first",
+    "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only",
+    "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
+    "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts",
+    "tests/test_ranking_accuracy.py::test_record_abstained_rejected_and_unavailable",
+    "tests/test_ranking_accuracy.py::test_record_accepted_right_first",
+    "tests/test_ranking_accuracy.py::test_record_accepted_right_second",
+    "tests/test_ranking_accuracy.py::test_record_candidates_fit_the_real_triage_record"
+   ],
+   "indirect": []
+  },
   "capstone.evaluation.ranking_accuracy:score_case": {
-   "count": 12,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -11879,15 +11913,16 @@
     "tests/test_ranking_accuracy.py::test_no_snapshot_means_no_coverage",
     "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason",
     "tests/test_ranking_accuracy.py::test_rejected_verdicts_are_not_counted_valid",
-    "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates"
+    "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:score_record": {
-   "count": 10,
+   "count": 11,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing",
+    "tests/test_ranking_accuracy.py::test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside",
     "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
     "tests/test_ranking_accuracy.py::test_record_abstained_rejected_and_unavailable",
     "tests/test_ranking_accuracy.py::test_record_accepted_right_first",
@@ -11901,37 +11936,40 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:_rate": {
-   "count": 5,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
     "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
     "tests/test_ranking_accuracy.py::test_aggregate_of_nothing",
     "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
+    "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
     "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:_mean": {
-   "count": 5,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
     "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
     "tests/test_ranking_accuracy.py::test_aggregate_of_nothing",
     "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
+    "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
     "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:aggregate": {
-   "count": 5,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
     "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known",
     "tests/test_ranking_accuracy.py::test_aggregate_of_nothing",
     "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
+    "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
     "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted"
    ],
    "indirect": []
@@ -57336,7 +57374,7 @@
    ]
   },
   "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_first": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -57348,11 +57386,12 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
   "tests/test_ranking_accuracy.py::test_accepted_with_the_true_cause_second_is_top2_only": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -57364,11 +57403,12 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
   "tests/test_ranking_accuracy.py::test_accepted_but_wrong": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -57380,11 +57420,12 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
   "tests/test_ranking_accuracy.py::test_abstained_is_valid_and_never_correct": {
-   "count": 8,
+   "count": 9,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
@@ -57394,11 +57435,12 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
   "tests/test_ranking_accuracy.py::test_rejected_carries_its_reason": {
-   "count": 11,
+   "count": 12,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -57411,6 +57453,7 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
@@ -57427,7 +57470,7 @@
    ]
   },
   "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -57439,11 +57482,12 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
   "tests/test_ranking_accuracy.py::test_either_of_two_true_causes_counts": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -57455,7 +57499,34 @@
     "capstone.evaluation.ranking_accuracy:candidate_names",
     "capstone.evaluation.ranking_accuracy:family_names",
     "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
+   ]
+  },
+  "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:safe_ids",
+    "capstone.agent.triage_ranking:snapshot_fingerprint",
+    "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
+    "capstone.evaluation.ranking_accuracy:score_case"
+   ]
+  },
+  "tests/test_ranking_accuracy.py::test_a_record_is_scored_in_its_stored_order_with_by_confidence_alongside": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
+    "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused": {
@@ -57482,6 +57553,15 @@
    ]
   },
   "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.ranking_accuracy:_mean",
+    "capstone.evaluation.ranking_accuracy:_rate",
+    "capstone.evaluation.ranking_accuracy:aggregate"
+   ]
+  },
+  "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage": {
    "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
@@ -57518,95 +57598,106 @@
    ]
   },
   "tests/test_ranking_accuracy.py::test_rejected_verdicts_are_not_counted_valid": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_accepted_right_first": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_accepted_right_second": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_pick_on_the_wrong_machine_is_wrong": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_abstained_rejected_and_unavailable": {
-   "count": 1,
+   "count": 2,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_without_a_ranking_is_missing": {
-   "count": 1,
+   "count": 2,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_coverage_can_be_supplied": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_coverage_comes_from_the_recorded_candidates": {
-   "count": 4,
+   "count": 5,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_record_candidates_fit_the_real_triage_record": {
-   "count": 4,
+   "count": 5,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankingSnapshot.consistent",
     "capstone.agent.triage_ranking:snapshot_fingerprint",
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing": {
-   "count": 2,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
   "tests/test_ranking_accuracy.py::test_aggregate_counts_coverage_only_where_known": {
-   "count": 5,
+   "count": 6,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evaluation.ranking_accuracy:_mean",
     "capstone.evaluation.ranking_accuracy:_rate",
     "capstone.evaluation.ranking_accuracy:aggregate",
     "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
     "capstone.evaluation.ranking_accuracy:score_record"
    ]
   },
@@ -73084,7 +73175,7 @@
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ]
   },
-  "tests/test_triage_ranking.py::test_two_valid_picks_are_accepted_most_plausible_first": {
+  "tests/test_triage_ranking.py::test_two_valid_picks_are_accepted_in_the_models_own_order": {
    "count": 6,
    "judgment": "NOT ASSESSED",
    "functions": [
@@ -73096,7 +73187,38 @@
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ]
   },
-  "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order": {
+  "tests/test_triage_ranking.py::test_a_less_confident_first_pick_keeps_its_place_and_is_flagged": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:safe_ids",
+    "capstone.agent.triage_ranking:snapshot_fingerprint"
+   ]
+  },
+  "tests/test_triage_ranking.py::test_confidences_need_not_add_to_one_and_ties_are_no_conflict": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:safe_ids",
+    "capstone.agent.triage_ranking:snapshot_fingerprint"
+   ]
+  },
+  "tests/test_triage_ranking.py::test_only_an_accepted_verdict_may_flag_an_order_conflict": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status"
+   ]
+  },
+  "tests/test_triage_ranking.py::test_support_outside_the_candidates_related_evidence_is_recorded_not_rejected": {
    "count": 6,
    "judgment": "NOT ASSESSED",
    "functions": [
@@ -73178,8 +73300,8 @@
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ]
   },
-  "tests/test_triage_ranking.py::test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids": {
-   "count": 7,
+  "tests/test_triage_ranking.py::test_unoffered_and_repeated_evidence_are_told_apart": {
+   "count": 8,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -73187,12 +73309,13 @@
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
     "capstone.agent.triage_ranking:check_ranking",
     "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
+    "capstone.agent.triage_ranking:correction_text",
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ]
   },
   "tests/test_triage_ranking.py::test_prose_in_an_id_field_is_never_kept": {
-   "count": 7,
+   "count": 8,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
@@ -73200,6 +73323,28 @@
     "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
     "capstone.agent.triage_ranking:check_ranking",
     "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
+    "capstone.agent.triage_ranking:id_shape",
+    "capstone.agent.triage_ranking:safe_ids",
+    "capstone.agent.triage_ranking:snapshot_fingerprint"
+   ]
+  },
+  "tests/test_triage_ranking.py::test_a_value_that_is_not_an_id_is_kept_only_as_its_shape": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_ranking:id_shape"
+   ]
+  },
+  "tests/test_triage_ranking.py::test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_ranking:RankedPick.drop_missing_checks",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:check_ranking",
+    "capstone.agent.triage_ranking:check_ranking.<locals>.rejected",
+    "capstone.agent.triage_ranking:id_shape",
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ]

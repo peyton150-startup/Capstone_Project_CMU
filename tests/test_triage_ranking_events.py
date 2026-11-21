@@ -77,7 +77,7 @@ def test_the_terminal_shows_the_verdict_attempts_and_picks(monkeypatch):
     # The rejected first attempt is shown with where it broke, ids only.
     assert lines[3] == (
         f"  attempt 1 unknown_candidate_id at candidate_id: TC99 "
-        f"(named {snap.candidates[0].id}, TC99)"
+        f"(named {snap.candidates[1].id}, TC99)"
     )
     assert len(lines) == 4
 

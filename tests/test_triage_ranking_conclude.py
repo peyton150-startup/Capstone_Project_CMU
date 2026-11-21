@@ -26,7 +26,7 @@ from tests.test_triage_question_gaps import run_known_case
 
 
 def good(snapshot: RankingSnapshot):
-    """A valid ranking of the snapshot's first two candidates."""
+    """A valid ranking of the snapshot's first two candidates, the second first."""
     first, second = snapshot.candidates[:2]
     return {
         "kind": "ranked",
@@ -38,7 +38,7 @@ def good(snapshot: RankingSnapshot):
                 "evidence_ids": list(c.observation_evidence_ids[:1])
                 or [snapshot.evidence_ids[0]],
             }
-            for c, confidence in ((first, 0.3), (second, 0.6))
+            for c, confidence in ((second, 0.6), (first, 0.3))
         ],
     }
 
@@ -117,6 +117,11 @@ def test_a_valid_first_ranking_is_accepted_and_leaves_the_conclusion_alone(
     assert record["ranking_picks"][0][1] == snap.candidates[1].family
     assert record["ranking_picks"][0][2] == snap.candidates[1].machine_id
     assert record["ranking_picks"][0][3] == 0.6
+    assert record["ranking_order_conflict"] is False
+    # `good` cites each candidate's own related evidence where it has some.
+    assert record["ranking_unrelated_citations"] == tuple(
+        0 if snap.candidates[i].observation_evidence_ids else 1 for i in (1, 0)
+    )
 
 
 def test_a_rejected_ranking_gets_one_correction_with_its_reason(monkeypatch):
@@ -131,12 +136,12 @@ def test_a_rejected_ranking_gets_one_correction_with_its_reason(monkeypatch):
 def test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them(monkeypatch):
     policy = Ranker(unknown, corrections=[good])
     state = run(monkeypatch, policy)
-    first = state.triage_ranking_snapshot.candidates[0].id
+    first = state.triage_ranking_snapshot.candidates[1].id
     detail = policy.details[0]
     assert (detail.field, detail.offending_ids) == ("candidate_id", ("TC99",))
     assert state.triage_ranking_details == (detail, None)
     record = ranking_record(state)
-    assert record["ranking_prompt_version"] == "2"
+    assert record["ranking_prompt_version"] == "3"
     assert record["ranking_rejections"] == (
         {
             "attempt": 1,

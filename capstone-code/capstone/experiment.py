@@ -377,6 +377,11 @@ class TriageRecord(BaseModel):
     ranking_requests: int | None = None
     ranking_fingerprint: str | None = None
     ranking_picks: tuple[tuple[str, str, str | None, float], ...] | None = None
+    # From prompt version 3: whether the model's order and its confidences
+    # disagree, and per pick how many supporting ids lie outside the picked
+    # candidate's related evidence. None in older records.
+    ranking_order_conflict: bool | None = None
+    ranking_unrelated_citations: tuple[int, ...] | None = None
     # TRIAGE_HYPOTHESIS_SECONDS: the reserve the triage kept for hypothesize,
     # and whether it was what stopped research (so hypothesize was still
     # asked). None in older records.
@@ -507,6 +512,11 @@ def ranking_record(state) -> dict:
     #   ranking_rejections: For each rejected attempt, its number, reason,
     #     the field where it broke and the wrong ids (never model text), so a
     #     run can say why a first answer failed.
+    #   ranking_picks: The accepted picks in the model's own order (from
+    #     prompt version 3; earlier records were sorted by confidence).
+    #   ranking_unrelated_citations: Per pick, how many supporting evidence
+    #     ids lie outside its candidate's related evidence: a diagnostic of
+    #     citations that are valid but may not bear on that candidate.
     verdict = state.triage_ranking
     if not state.triage_ranking_enabled or verdict is None:
         return {"ranking": state.triage_ranking_enabled or None}
@@ -536,6 +546,10 @@ def ranking_record(state) -> dict:
                 p.confidence,
             )
             for p in verdict.picks
+        ),
+        "ranking_order_conflict": verdict.order_conflicts_confidence,
+        "ranking_unrelated_citations": tuple(
+            len(p.unrelated_evidence_ids) for p in verdict.picks
         ),
     }
 

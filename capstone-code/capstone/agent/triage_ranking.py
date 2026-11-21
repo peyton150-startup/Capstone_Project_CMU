@@ -17,6 +17,7 @@ of reinterpreting it.
 
 import json
 import re
+import string
 from hashlib import sha256
 from typing import TYPE_CHECKING, Annotated, Literal
 
@@ -37,7 +38,10 @@ TRIAGE_RANKING_CONTRACT_VERSION = "1.0"
 # Advance when what the model is asked changes, so runs can be compared.
 # "2": the model no longer writes missing checks (Python fills them from the
 # snapshot), and a correction is shown the conclusion's own context.
-RANKING_PROMPT_VERSION = "2"
+# "3": the picks keep the model's own order (no longer re-sorted by
+# confidence); an evidence id given both for and against a pick has its own
+# reason and correction sentence.
+RANKING_PROMPT_VERSION = "3"
 
 # How many candidates a ranking names. Two, as the developer asked
 # (2026-11-20): the most plausible and the runner-up.
@@ -60,7 +64,11 @@ RankingReason = Literal[
     "duplicate_candidate_id",
     "unknown_candidate_id",
     "score_invalid",
+    # A cited evidence id the snapshot does not offer.
     "evidence_reference_invalid",
+    # One evidence id cited twice for a pick (for and against, or repeated).
+    # Before prompt version 3 this was folded into evidence_reference_invalid.
+    "evidence_reference_repeated",
     # No longer produced (prompt version 2 stopped asking the model for
     # missing checks); kept so records from earlier runs still load.
     "check_reference_invalid",
@@ -88,16 +96,23 @@ CORRECTION_TEXT: dict[str, str] = {
     "unknown_candidate_id": "Every pick must name a candidate id from the list.",
     "score_invalid": "Each confidence must be a number from 0 to 1.",
     "evidence_reference_invalid": (
-        "Cite only evidence ids from the list, and never the same id both for "
-        "and against one pick."
+        "Cite only evidence ids from the list of evidence ids you may cite."
+    ),
+    "evidence_reference_repeated": (
+        "Cite each evidence id at most once per pick: never both for and against it."
     ),
     "ranking_missing": "The answer had no ranking.",
 }
 
 # The one shape an id in a rejection detail may have; anything else (prose,
-# a long string) is recorded only as NOT_AN_ID, so no model text is kept.
+# a long string) is recorded only as a shape summary starting NOT_AN_ID
+# ("<not an id: len 4, inner space, starts TC>"), so no model text is kept.
 ID_PATTERN = re.compile(r"^[A-Za-z0-9_.:\-]{1,40}$")
-NOT_AN_ID = "<not an id>"
+NOT_AN_ID = "<not an id"
+# Punctuation an id may contain, so it is not reported in a shape summary.
+ID_PUNCTUATION = frozenset("_.:-")
+# Most distinct punctuation marks one shape summary lists.
+MAX_SHAPE_MARKS = 6
 # Most offending or named ids one detail keeps.
 MAX_DETAIL_IDS = 4
 
@@ -249,11 +264,15 @@ class RankedPick(PickFields):
 
 
 class AcceptedPick(PickFields):
-    """An accepted pick, with the candidate's still-missing checks from Python."""
+    """An accepted pick, with what Python knows about its candidate."""
 
     # The candidate's own checks still unanswered when the snapshot froze:
     # copied from the snapshot, never written by the model.
     missing_checks: tuple[str, ...] = ()
+    # Supporting evidence ids that are offered but are not among this
+    # candidate's own related evidence. A diagnostic, not a rejection: a
+    # related reading is not proof of support, nor an unrelated one of none.
+    unrelated_evidence_ids: tuple[str, ...] = ()
 
 
 class RankedAnswer(Contract):
@@ -309,12 +328,46 @@ def parse_reason(error: ValidationError) -> RankingReason:
 # --- the check ------------------------------------------------------------------------
 
 
+def id_shape(value: object) -> str:
+    """A value that is not id-shaped, described by its shape, never its text.
+
+    For example "<not an id: len 4, inner space, starts TC>" for "TC 1". It
+    says what kind of mistake the model made without storing model prose.
+    """
+    # Variables:
+    #   marks: What the summary says: length, where any whitespace is,
+    #     whether it starts like a TC or E id, and the punctuation used.
+    #   stripped: The value without leading and trailing whitespace, to tell
+    #     a stray edge space from a space inside.
+    #   punct: The distinct ASCII punctuation an id may not contain.
+    if not isinstance(value, str):
+        return f"{NOT_AN_ID}: {type(value).__name__}>"
+    stripped = value.strip()
+    marks = [f"len {len(value)}"]
+    if stripped != value:
+        marks.append("edge space")
+    if any(c.isspace() for c in stripped):
+        marks.append("inner space")
+    if stripped[:2].upper() == "TC":
+        marks.append("starts TC")
+    elif stripped[:1].upper() == "E" and stripped[1:2].isdigit():
+        marks.append("starts E")
+    punct = sorted(
+        {c for c in value if c in string.punctuation and c not in ID_PUNCTUATION}
+    )
+    if punct:
+        marks.append("punct " + "".join(punct[:MAX_SHAPE_MARKS]))
+    if any(ord(c) > 127 for c in value):
+        marks.append("non-ascii")
+    return f"{NOT_AN_ID}: {', '.join(marks)}>"
+
+
 def safe_ids(values) -> tuple[str, ...]:
-    """Up to MAX_DETAIL_IDS values kept as ids; anything else as NOT_AN_ID."""
+    """Up to MAX_DETAIL_IDS values kept as ids; anything else as its shape."""
     # Variables:
     #   values: Strings the answer gave (candidate or evidence ids, or not).
     return tuple(
-        v if isinstance(v, str) and ID_PATTERN.match(v) else NOT_AN_ID
+        v if isinstance(v, str) and ID_PATTERN.match(v) else id_shape(v)
         for v in list(values)[:MAX_DETAIL_IDS]
     )
 
@@ -339,8 +392,12 @@ class RankingVerdict(Contract):
     status: Literal["accepted", "abstained", "rejected", "unavailable"]
     reason: RankingReason
     snapshot_fingerprint: str = Field(pattern=r"^[0-9a-f]{20}$")
-    # Most plausible first: by the model's confidence, ties in snapshot order.
+    # In the model's own order: it was asked for the most plausible first.
+    # (Before prompt version 3 they were re-sorted by confidence.)
     picks: tuple[AcceptedPick, ...] = ()
+    # Whether the model's second pick has the higher confidence: its order
+    # and its confidences disagree. Only an accepted verdict can say True.
+    order_conflicts_confidence: bool = False
     abstain_reason: AbstainReason | None = None
     # Only on a rejected answer that was read: where it broke and the ids.
     detail: RejectionDetail | None = None
@@ -365,6 +422,8 @@ class RankingVerdict(Contract):
             raise ValueError("only an abstention carries an abstain reason")
         if self.detail is not None and self.status != "rejected":
             raise ValueError("only a rejected verdict carries a rejection detail")
+        if self.order_conflicts_confidence and self.status != "accepted":
+            raise ValueError("only an accepted verdict has an order to compare")
         return self
 
 
@@ -391,9 +450,12 @@ def check_ranking(
     #   answer: Re-validated before use, since a copy may have skipped validation.
     #   named: The candidate ids the answer named, kept (as ids only) in any
     #     rejection detail so a failure can be read back later.
-    #   picks: The answer's picks, most plausible first, each given its
-    #     candidate's still-missing checks from the snapshot (the model is
-    #     not asked for them).
+    #   picks: The answer's picks in the model's own order (most plausible
+    #     first, as asked), each given its candidate's still-missing checks
+    #     and the cited support outside the candidate's related evidence,
+    #     both from the snapshot (the model is not asked for either).
+    #   unseen / repeated: A pick's cited ids the snapshot does not offer, and
+    #     those it cites twice; each its own rejection reason.
     def rejected(
         reason: RankingReason, detail: RejectionDetail | None = None
     ) -> RankingVerdict:
@@ -449,32 +511,39 @@ def check_ranking(
     offered = set(snapshot.evidence_ids)
     for pick in answer.picks:
         cited = (*pick.evidence_ids, *pick.contradicting_evidence_ids)
-        if not set(cited) <= offered or len(set(cited)) != len(cited):
-            unseen = [e for e in dict.fromkeys(cited) if e not in offered]
-            repeated = [e for e in dict.fromkeys(cited) if cited.count(e) > 1]
-            return rejected(
-                "evidence_reference_invalid",
-                RejectionDetail(
-                    field=f"{pick.candidate_id}.evidence",
-                    offending_ids=safe_ids(unseen + repeated),
-                    named_ids=named,
-                ),
-            )
+        unseen = [e for e in dict.fromkeys(cited) if e not in offered]
+        repeated = [e for e in dict.fromkeys(cited) if cited.count(e) > 1]
+        for reason, ids in (
+            ("evidence_reference_invalid", unseen),
+            ("evidence_reference_repeated", repeated),
+        ):
+            if ids:
+                return rejected(
+                    reason,
+                    RejectionDetail(
+                        field=f"{pick.candidate_id}.evidence",
+                        offending_ids=safe_ids(ids),
+                        named_ids=named,
+                    ),
+                )
     picks = tuple(
         AcceptedPick(
             **pick.model_dump(),
             missing_checks=known[pick.candidate_id][1].missing_requirement_ids,
+            unrelated_evidence_ids=tuple(
+                e
+                for e in pick.evidence_ids
+                if e not in known[pick.candidate_id][1].observation_evidence_ids
+            ),
         )
-        for pick in sorted(
-            answer.picks,
-            key=lambda pick: (-pick.confidence, known[pick.candidate_id][0]),
-        )
+        for pick in answer.picks
     )
     return RankingVerdict(
         status="accepted",
         reason="ranking_accepted",
         snapshot_fingerprint=fingerprint,
         picks=picks,
+        order_conflicts_confidence=picks[1].confidence > picks[0].confidence,
     )
 
 

@@ -19,6 +19,7 @@ from capstone.agent.triage_ranking import (
     RejectionDetail,
     check_ranking,
     correction_text,
+    id_shape,
     judge_reply,
     parse_reason,
     ranking_schema,
@@ -106,17 +107,45 @@ def test_a_snapshot_rejects_repeated_ids_and_unoffered_candidate_evidence():
 # --- accepted and abstained ----------------------------------------------------------
 
 
-def test_two_valid_picks_are_accepted_most_plausible_first():
-    verdict = check(ranked(pick("TC1", 0.2), pick("TC2", 0.7, ("E2", "E3"))))
+def test_two_valid_picks_are_accepted_in_the_models_own_order():
+    verdict = check(ranked(pick("TC2", 0.7, ("E2", "E3")), pick("TC1", 0.2)))
     assert verdict.status == "accepted" and verdict.reason == "ranking_accepted"
     assert [p.candidate_id for p in verdict.picks] == ["TC2", "TC1"]
+    assert verdict.order_conflicts_confidence is False
     assert verdict.snapshot_fingerprint == snapshot().fingerprint
 
 
-def test_confidences_need_not_add_to_one_and_ties_keep_snapshot_order():
+def test_a_less_confident_first_pick_keeps_its_place_and_is_flagged():
+    # The model was asked for the most plausible first; Python no longer
+    # re-sorts by confidence, so top-1 is the model's own first choice.
+    verdict = check(ranked(pick("TC1", 0.2), pick("TC2", 0.7, ("E2", "E3"))))
+    assert [p.candidate_id for p in verdict.picks] == ["TC1", "TC2"]
+    assert verdict.order_conflicts_confidence is True
+
+
+def test_confidences_need_not_add_to_one_and_ties_are_no_conflict():
     verdict = check(ranked(pick("TC3", 0.9), pick("TC1", 0.9)))
     assert verdict.status == "accepted"
-    assert [p.candidate_id for p in verdict.picks] == ["TC1", "TC3"]
+    assert [p.candidate_id for p in verdict.picks] == ["TC3", "TC1"]
+    assert verdict.order_conflicts_confidence is False
+
+
+def test_only_an_accepted_verdict_may_flag_an_order_conflict():
+    with pytest.raises(ValidationError, match="order to compare"):
+        RankingVerdict(
+            status="rejected",
+            reason="unknown_candidate_id",
+            snapshot_fingerprint="0" * 20,
+            order_conflicts_confidence=True,
+        )
+
+
+def test_support_outside_the_candidates_related_evidence_is_recorded_not_rejected():
+    # TC1's related evidence is E1; citing E3 for it is valid but unrelated.
+    verdict = check(ranked(pick("TC1", 0.7, ("E1", "E3")), pick("TC2", 0.3, ("E2",))))
+    assert verdict.status == "accepted"
+    assert verdict.picks[0].unrelated_evidence_ids == ("E3",)
+    assert verdict.picks[1].unrelated_evidence_ids == ()
 
 
 def test_an_abstention_is_a_valid_outcome_without_picks():
@@ -151,7 +180,7 @@ def test_a_changed_candidate_list_rejects_the_answer_as_stale():
             ranked(
                 pick("TC2", 0.7), pick("TC1", 0.3, contradicting_evidence_ids=("E1",))
             ),
-            "evidence_reference_invalid",
+            "evidence_reference_repeated",
         ),
     ],
 )
@@ -219,8 +248,9 @@ def test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named():
     )
 
 
-def test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids():
+def test_unoffered_and_repeated_evidence_are_told_apart():
     unseen = check(ranked(pick("TC2", 0.7), pick("TC1", 0.3, ("E9",))))
+    assert unseen.reason == "evidence_reference_invalid"
     assert (unseen.detail.field, unseen.detail.offending_ids) == (
         "TC1.evidence",
         ("E9",),
@@ -228,15 +258,53 @@ def test_bad_evidence_is_recorded_by_pick_with_the_unoffered_or_repeated_ids():
     both = check(
         ranked(pick("TC2", 0.7), pick("TC1", 0.3, contradicting_evidence_ids=("E1",)))
     )
+    assert both.reason == "evidence_reference_repeated"
     assert both.detail.offending_ids == ("E1",)
+    assert "never both for and against" in correction_text(both.reason, both.detail)
+    # An answer with both faults is named for the unoffered id first.
+    mixed = check(
+        ranked(
+            pick("TC2", 0.7),
+            pick("TC1", 0.3, ("E9",), contradicting_evidence_ids=("E9",)),
+        )
+    )
+    assert mixed.reason == "evidence_reference_invalid"
 
 
 def test_prose_in_an_id_field_is_never_kept():
     verdict = check(
         ranked(pick("TC2", 0.7), pick("TC1", 0.3, ("the spindle bearing is worn",)))
     )
-    assert verdict.detail.offending_ids == (NOT_AN_ID,)
+    (shape,) = verdict.detail.offending_ids
+    assert shape.startswith(NOT_AN_ID) and "inner space" in shape
     assert "spindle" not in str(verdict.model_dump())
+
+
+@pytest.mark.parametrize(
+    ("value", "shape"),
+    [
+        ("TC 1", "<not an id: len 4, inner space, starts TC>"),
+        ("TC1 ", "<not an id: len 4, edge space, starts TC>"),
+        ("#TC1", "<not an id: len 4, punct #>"),
+        ("TC1,TC2", "<not an id: len 7, starts TC, punct ,>"),
+        ("E5)", "<not an id: len 3, starts E, punct )>"),
+        ("TC\u00b71", "<not an id: len 4, starts TC, non-ascii>"),
+        (3, "<not an id: int>"),
+    ],
+)
+def test_a_value_that_is_not_an_id_is_kept_only_as_its_shape(value, shape):
+    assert id_shape(value) == shape
+
+
+def test_a_short_malformed_candidate_id_reaches_the_unknown_check_with_its_shape():
+    # Under the 12-character limit, so not a shape error: the six
+    # "<not an id>" rejections of 2026-11-21 were values like this.
+    verdict = check(ranked(pick("TC 1", 0.7), pick("TC 2", 0.3, ("E2",))))
+    assert verdict.reason == "unknown_candidate_id"
+    assert (
+        verdict.detail.offending_ids
+        == ("<not an id: len 4, inner space, starts TC>",) * 2
+    )
 
 
 def test_a_shape_error_is_recorded_with_its_field_path():
