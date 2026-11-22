@@ -1,0 +1,11 @@
+D0-baseline	triage-D0-baseline-20261121-160326
+D1-reads6	triage-D1-reads6-20261121-161958
+D2-reads12	triage-D2-reads12-20261121-162316
+D3-no-brief	triage-D3-no-brief-20261121-162636
+D4-no-cap	triage-D4-no-cap-20261121-163004
+D5-thinking	triage-D5-thinking-20261121-163344
+R0-ranking	triage-R0-ranking-20261121-163956
+R1-ranking-no-cap	triage-R1-ranking-no-cap-20261121-164327
+R2-ranking-no-brief	triage-R2-ranking-no-brief-20261121-164713
+R3-ranking-thinking	triage-R3-ranking-thinking-20261121-165042
+R4-ranking-reads12	triage-R4-ranking-reads12-20261121-165732

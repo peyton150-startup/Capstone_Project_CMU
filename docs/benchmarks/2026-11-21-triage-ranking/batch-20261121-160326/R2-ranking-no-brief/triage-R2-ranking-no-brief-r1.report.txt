@@ -1,0 +1,29 @@
+0/0 root causes correctly identified (13 not judged); 0/0 right machine or batch; 4/13 right recommendations; 0/13 unnecessary interventions asked for; 4/13 appropriate interventions; 3/13 resolved; 77% of relevant evidence collected; wrong diagnoses: 0 missed evidence, 0 misread it; average 10.7 tool calls, 6.0 iterations and 0 ticks; runs with several faults: 0/1 fully right, 0/2 causes found, 0/2 causes resolved
+one fault: 0/0 root causes correctly identified (12 not judged); 0/0 right machine or batch; 4/12 right recommendations; 0/12 unnecessary interventions asked for; 4/12 appropriate interventions; 3/12 resolved; 88% of relevant evidence collected; wrong diagnoses: 0 missed evidence, 0 misread it; average 10.6 tool calls, 5.9 iterations and 0 ticks
+several faults: 0/0 root causes correctly identified (1 not judged); 0/0 right machine or batch; 0/1 right recommendations; 0/1 unnecessary interventions asked for; 0/1 appropriate interventions; 0/1 resolved; 0% of relevant evidence collected; wrong diagnoses: 0 missed evidence, 0 misread it; average 12.0 tool calls, 7.0 iterations and 0 ticks; runs with several faults: 0/1 fully right, 0/2 causes found, 0/2 causes resolved
+model questions: 14 (14 answered, 0 invalid replies, 0 unanswered, 0 failed attempts); 5 s per episode on average
+held-out seeds: 0/13 runs
+manual: 13 search(es) in 13 of 13 run(s), 0 refused; sections given: §1.2 8, §2.14 8, §2.1 4, §2.4 4, §2.9 4
+triage: 13 run(s), p50 4 s, p95 7 s; 0 supported, 13 not (0 timed out, 0 no model answered); deep run asked for 13, ran 0; 139 triage tool calls
+triage plan: 13 fixed table, 0 model; reports: 13 model conclusion, 0 refused, 0 no model answer, 0 none; 13 held open by checks; 0 cleared without a model conclusion
+ranking: 13 asked; 13 accepted, 0 abstained, 0 rejected, 0 unavailable; 1 corrected (1 saved); reasons ranking_accepted 13
+triage stages: model questions decide 14 (50 s); 0 answered by a fallback; first hypothesis in 0/13 (none formed); rival tested in 0; reads 138 observed, 0 uninterpreted, 1 failed, 0 repeated
+evidence tests: on in 13 of 13 triage(s), changed an outcome in 2; support withheld 0 (open rival question), 0 (one sensor counted twice); conclusions held open by a rival question 0, clearances held open by an unsettled question 0; questions kept open 2, closed by a measured verdict 11
+stage views: 13 off
+
+runs with one fault:
+KA-01-bearing            cause=-     asked=False extra=0 acted=False resolved=False evidence=3/3 miss=- calls=12 stop=no_useful_action questions=1 invalid=0 unanswered=0 s=4 manual=§1.2
+KA-02-bearing            cause=-     asked=False extra=0 acted=False resolved=False evidence=3/3 miss=- calls=12 stop=no_useful_action questions=2 invalid=0 unanswered=0 s=5 manual=none
+KA-03-batch              cause=-     asked=True  extra=0 acted=True  resolved=True  evidence=3/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=5 manual=§2.9
+KA-04-batch              cause=-     asked=True  extra=0 acted=True  resolved=False evidence=3/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=3 manual=§2.9
+KA-05-setting            cause=-     asked=False extra=0 acted=False resolved=False evidence=1/3 miss=- calls=9 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=4 manual=§2.13
+KA-06-setting            cause=-     asked=False extra=0 acted=False resolved=False evidence=1/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=6 manual=§2.13
+KA-07-false-alarm        cause=-     asked=True  extra=0 acted=True  resolved=True  evidence=2/2 miss=- calls=12 stop=no_useful_action questions=1 invalid=0 unanswered=0 s=4 manual=§1.2
+KA-08-false-alarm        cause=-     asked=True  extra=0 acted=True  resolved=True  evidence=2/2 miss=- calls=12 stop=no_useful_action questions=1 invalid=0 unanswered=0 s=5 manual=§1.2
+KA-10-servo              cause=-     asked=False extra=0 acted=False resolved=False evidence=3/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=4 manual=§2.14
+KA-11-servo              cause=-     asked=False extra=0 acted=False resolved=False evidence=3/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=8 manual=§2.14
+KA-12-hydraulic          cause=-     asked=False extra=0 acted=False resolved=False evidence=3/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=5 manual=§2.15
+KA-13-hydraulic          cause=-     asked=False extra=0 acted=False resolved=False evidence=3/3 miss=- calls=10 stop=evidence_sufficient questions=1 invalid=0 unanswered=0 s=5 manual=§2.15
+
+runs with several faults:
+KA-09-challenge          cause=-     causes=-/2 fixed=0/2 asked=False extra=0 acted=False resolved=False evidence=0/5 miss=- calls=12 stop=no_useful_action questions=1 invalid=0 unanswered=0 s=5 manual=§1.2
