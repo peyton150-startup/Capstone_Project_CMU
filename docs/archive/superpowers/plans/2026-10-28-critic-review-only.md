@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11, Pydantic v2, pydantic_graph, pytest, the project's own `providers/chat.py` client.
 
-**Spec:** `docs/superpowers/specs/2026-10-28-critic-review-only-design.md` (PR #104).
+**Spec:** `docs/archive/superpowers/specs/2026-10-28-critic-review-only-design.md` (PR #104).
 
 ## Global Constraints
 
