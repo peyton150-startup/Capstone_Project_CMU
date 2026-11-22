@@ -41,7 +41,14 @@ from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from typing import Annotated, Literal, Protocol, TypeVar
 
-from pydantic import BaseModel, Field, JsonValue, WithJsonSchema, model_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    JsonValue,
+    WithJsonSchema,
+    create_model,
+    model_validator,
+)
 
 from capstone.agent.artifacts import (
     AgentConclusion,
@@ -70,9 +77,10 @@ from capstone.agent.policy import (
 from capstone.agent.state import InvestigationState, Question
 from capstone.agent.triage_ranking import (
     RANKING_INSTRUCTIONS,
-    RankingAnswer,
+    RankingSnapshot,
     RejectionDetail,
     correction_text,
+    rankable_ids,
     ranking_schema,
     ranking_view,
 )
@@ -332,6 +340,37 @@ class RankedConcludeAnswer(ConcludeAnswer):
     """
 
     ranking: Annotated[JsonValue | None, WithJsonSchema(ranking_schema())] = None
+
+
+class RankingCorrection(Contract):
+    """The correction's reply: the ranking alone, held raw for the loop to judge."""
+
+    ranking: Annotated[JsonValue, WithJsonSchema(ranking_schema())]
+
+
+def answer_types_for(
+    snapshot: RankingSnapshot,
+) -> tuple[type[RankedConcludeAnswer], type[RankingCorrection]]:
+    """The two answer types for this snapshot, with its cause ids as an enum.
+
+    Same names and fields as RankedConcludeAnswer and RankingCorrection; only
+    the ranking's schema differs, listing this snapshot's cause ids as the
+    only allowed candidate_id. Built per question because the ids change.
+    """
+    # Variables:
+    #   schema: The ranking schema with the snapshot's rankable ids as an enum.
+    schema = ranking_schema(rankable_ids(snapshot))
+    conclude = create_model(
+        "RankedConcludeAnswer",
+        __base__=RankedConcludeAnswer,
+        ranking=(Annotated[JsonValue | None, WithJsonSchema(schema)], None),
+    )
+    correction = create_model(
+        "RankingCorrection",
+        __base__=RankingCorrection,
+        ranking=(Annotated[JsonValue, WithJsonSchema(schema)], ...),
+    )
+    return conclude, correction
 
 
 class StepAnswer(NextStep):
@@ -1511,7 +1550,9 @@ class ModelPolicy:
         #     hypothesis that was never formed is refused).
         #   snapshot: The frozen candidate list when TRIAGE_RANKING is on; the
         #     prompt then lists it and asks for the ranking, and the raw
-        #     ranking is kept in self.last_ranking for the loop to judge.
+        #     ranking is kept in self.last_ranking for the loop to judge. The
+        #     answer type's schema then lists the snapshot's cause ids as the
+        #     only allowed candidate_id (answer_types_for).
         prompt = conclusion_context(state)
         prompt += action_bar_note(state)
         snapshot = state.triage_ranking_snapshot if state.mode == "triage" else None
@@ -1536,7 +1577,7 @@ class ModelPolicy:
             prompt += NO_HYPOTHESES_NOTE
         self.last_ranking = None
         if snapshot is not None:
-            answer = self._ask("conclude", state, prompt, RankedConcludeAnswer)
+            answer = self._ask("conclude", state, prompt, answer_types_for(snapshot)[0])
             self.last_ranking = answer.ranking
         else:
             answer = self._ask("conclude", state, prompt, ConcludeAnswer)
@@ -1575,7 +1616,11 @@ class ModelPolicy:
         #   reason: The first answer's rejection code, turned into a fixed
         #     sentence (CORRECTION_TEXT) so the model learns what to fix.
         #   detail: Where the first answer broke and the wrong ids (ids only),
-        #     added after that sentence; None when nothing was read.
+        #     added after that sentence; None when nothing was read. After a
+        #     candidate-id failure the sentence also lists the valid ids.
+        #   The answer type comes from answer_types_for(snapshot): its schema
+        #     allows only this snapshot's cause ids, and the reply is returned
+        #     raw so the loop judges it with check_ranking as before.
         snapshot = state.triage_ranking_snapshot
         if snapshot is None:
             raise ValueError("no ranking snapshot to correct against")
@@ -1586,7 +1631,7 @@ class ModelPolicy:
                 *ranking_view(snapshot),
                 "",
                 "Your previous ranking was rejected: "
-                + correction_text(reason, detail),
+                + correction_text(reason, detail, rankable_ids(snapshot)),
                 RANKING_INSTRUCTIONS,
             ]
         )
@@ -1594,11 +1639,11 @@ class ModelPolicy:
             "conclude",
             state,
             prompt,
-            RankingAnswer,
+            answer_types_for(snapshot)[1],
             system=RANKING_SYSTEM,
             label="ranking_correction",
         )
-        return answer.ranking.model_dump(mode="json")
+        return answer.ranking
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:
         # Variables:
