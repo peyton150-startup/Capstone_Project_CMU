@@ -1,0 +1,30 @@
+{
+  "combined_commit": "f9758c0ca9fa5c200d87c9a841555e6dabec7eae",
+  "base": {
+    "ref": "origin/main",
+    "commit": "f9758c0ca9fa5c200d87c9a841555e6dabec7eae"
+  },
+  "merged": [],
+  "python": "3.14.7",
+  "repeats": 1,
+  "tests_only": false,
+  "full_suite_run": false,
+  "settings": {
+    "TRIAGE": "on",
+    "TRIAGE_THEN_DEEP": "off",
+    "TRIAGE_SECONDS": "90",
+    "TRIAGE_TOOL_CALLS": "12",
+    "STEP_QUESTIONS": "1",
+    "DECIDE_CALLS": "1",
+    "LINE_CONTEXT": "off",
+    "STAGE_CONTEXT": "off",
+    "MANUAL_STEP": "on",
+    "TRIAGE_RUN_MODE": "deterministic",
+    "TRIAGE_MODEL": "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "TRIAGE_MODEL_THINKING": "off",
+    "TRIAGE_CONCLUDE_BRIEF": "on",
+    "TRIAGE_CONCLUDE_CAP": "on"
+  },
+  "failure_log": true,
+  "trace": true
+}
