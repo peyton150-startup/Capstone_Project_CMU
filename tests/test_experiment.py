@@ -7,6 +7,7 @@ import pytest
 import capstone.experiment as experiment
 from capstone.agent.completion import AuditLog
 from capstone.agent.model_policy import ModelCall
+from capstone.agent.state import Budgets
 from capstone.benchmark import DEFAULT_SEEDS
 from capstone.evaluation.known_answers import KNOWN_CASES
 from capstone.evaluation.labels import Label, LabelBook, apply_label
@@ -110,6 +111,54 @@ def test_hazards_are_off_unless_asked_for(tmp_path, monkeypatch):
     argv = ["run", "--name", "c", "--known", "--out", out, "--hazards", "blackout"]
     assert main(argv) == 0
     assert ran["hazards"] == "blackout"
+
+
+def capture_run(monkeypatch):
+    """Replace the run with one that keeps its cases and budgets."""
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(cases=cases, budgets=options["budgets"])
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    return ran
+
+
+def test_cases_picks_known_cases_by_id_or_prefix(tmp_path, monkeypatch):
+    ran = capture_run(monkeypatch)
+    out = str(tmp_path / "r.jsonl")
+    argv = ["run", "--name", "a", "--known", "--out", out, "--quiet", "--no-audit"]
+    assert main([*argv, "--cases", "KA-01,KA-05-setting, KA-07"]) == 0
+    assert [c.scenario_id for c in ran["cases"]] == [
+        "KA-01-bearing",
+        "KA-05-setting",
+        "KA-07-false-alarm",
+    ]
+    # A prefix matches only up to a hyphen: "KA-1" is not KA-10 to KA-13.
+    with pytest.raises(SystemExit):
+        main([*argv, "--cases", "KA-1"])
+    with pytest.raises(SystemExit):
+        main(["run", "--name", "b", "--seeds", "1", "--out", out, "--cases", "KA-01"])
+
+
+def test_tool_calls_and_iterations_set_the_budgets(tmp_path, monkeypatch):
+    ran = capture_run(monkeypatch)
+    out = str(tmp_path / "r.jsonl")
+    argv = ["run", "--name", "a", "--known", "--out", out, "--quiet", "--no-audit"]
+    assert main(argv) == 0
+    assert ran["budgets"] is None
+    assert main([*argv, "--tool-calls", "60", "--iterations", "70"]) == 0
+    budgets = ran["budgets"]
+    assert (budgets.max_tool_calls, budgets.max_iterations) == (60, 70)
+    assert budgets.timeout_seconds == Budgets().timeout_seconds
+    assert main([*argv, "--tool-calls", "60", "--timeout-seconds", "3600"]) == 0
+    budgets = ran["budgets"]
+    assert (budgets.max_tool_calls, budgets.max_iterations) == (60, 24)
+    assert (budgets.timeout_seconds, budgets.followup_seconds) == (3600, 1200)
 
 
 def test_run_command_audits_by_default_and_allows_explicit_opt_out(
