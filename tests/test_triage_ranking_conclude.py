@@ -12,6 +12,8 @@ from capstone.agent.model_policy import (
     JOBS,
     ModelPolicy,
     RankedConcludeAnswer,
+    RankingCorrection,
+    answer_types_for,
     conclusion_context,
 )
 from capstone.agent.triage_hypothesize import candidate_role
@@ -19,6 +21,9 @@ from capstone.agent.triage_ranking import (
     RankingAnswer,
     RankingSnapshot,
     RejectionDetail,
+    correction_text,
+    rankable_ids,
+    ranking_schema,
 )
 from capstone.experiment import ranking_record
 from capstone.providers.chat import ModelError
@@ -147,7 +152,7 @@ def test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them(monkeypa
     assert (detail.field, detail.offending_ids) == ("candidate_id", ("TC99",))
     assert state.triage_ranking_details == (detail, None)
     record = ranking_record(state)
-    assert record["ranking_prompt_version"] == "4"
+    assert record["ranking_prompt_version"] == "5"
     assert record["ranking_rejections"] == (
         {
             "attempt": 1,
@@ -244,7 +249,9 @@ class FakeClient:
 
     def ask(self, system, prompt, answer_type, *, max_seconds=None):
         self.prompts.append((answer_type, prompt))
-        return answer_type.model_validate(self.replies[answer_type])
+        # Keyed by class name: the policy builds its ranking types per snapshot.
+        replies = {getattr(k, "__name__", k): v for k, v in self.replies.items()}
+        return answer_type.model_validate(replies[answer_type.__name__])
 
 
 def test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking(
@@ -256,13 +263,15 @@ def test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking(
     client = FakeClient(
         {
             RankedConcludeAnswer: {"conclusion": conclusion, "ranking": good(snap)},
-            RankingAnswer: {"ranking": good(snap)},
+            RankingCorrection: {"ranking": good(snap)},
         }
     )
     policy = ModelPolicy({job: client for job in JOBS}, ())
     policy.conclude(state)
     answer_type, prompt = client.prompts[-1]
-    assert answer_type is RankedConcludeAnswer
+    assert issubclass(answer_type, RankedConcludeAnswer)
+    ranking = answer_type.model_json_schema()["properties"]["ranking"]
+    assert ids_enum(ranking) == list(rankable_ids(snap))
     assert "CANDIDATE CAUSES TO RANK" in prompt and causes(snap)[0].id in prompt
     assert "must not invent a probability" not in prompt
     assert policy.last_ranking == good(snap)
@@ -276,10 +285,55 @@ def test_the_model_policy_shows_the_candidates_and_keeps_the_raw_ranking(
     correction = client.prompts[-1][1]
     assert "must name a candidate id from the list" in correction
     assert "Problem at candidate_id: TC99." in correction
+    assert f"Valid candidate ids: {', '.join(rankable_ids(snap))}." in correction
+    correction_type = client.prompts[-1][0]
+    assert issubclass(correction_type, RankingCorrection)
+    assert ids_enum(correction_type.model_json_schema()["properties"]["ranking"]) == (
+        list(rankable_ids(snap))
+    )
     # The correction sees what the conclusion saw, not only the candidates.
     assert correction.startswith(conclusion_context(state))
     assert "CANDIDATE CAUSES TO RANK" in correction
     assert policy.calls[-1].job == "ranking_correction"
+
+
+def ids_enum(ranking_schema_json: dict) -> list[str]:
+    """The candidate_id enum in a ranking schema's ranked branch."""
+    branches = ranking_schema_json.get("anyOf", [])
+    for branch in branches:
+        picks = branch.get("properties", {}).get("picks")
+        if picks is not None:
+            return picks["items"]["properties"]["candidate_id"].get("enum", [])
+        if "anyOf" in branch:
+            found = ids_enum(branch)
+            if found:
+                return found
+    return []
+
+
+def test_the_schema_enum_lists_only_the_cause_ids(monkeypatch):
+    state = run(monkeypatch, Ranker(good))
+    snap = state.triage_ranking_snapshot
+    causes_only = rankable_ids(snap)
+    assert causes_only == tuple(c.id for c in causes(snap))
+    assert ids_enum(ranking_schema(causes_only)) == list(causes_only)
+    # Without ids the schema stays open, as before.
+    assert ids_enum(ranking_schema()) == []
+    conclude, correction = answer_types_for(snap)
+    assert conclude.__name__ == "RankedConcludeAnswer"
+    assert correction.__name__ == "RankingCorrection"
+    # The correction reply is held raw: an unknown id still validates here
+    # and is judged later by check_ranking.
+    bad = {"kind": "ranked", "picks": [{"candidate_id": "TC99"}]}
+    assert correction.model_validate({"ranking": bad}).ranking == bad
+
+
+def test_only_candidate_id_failures_list_the_valid_ids():
+    ids = ("TC2", "TC3")
+    for reason in ("unknown_candidate_id", "context_candidate_picked"):
+        assert "Valid candidate ids: TC2, TC3." in correction_text(reason, None, ids)
+    assert "Valid candidate ids" not in correction_text("schema_invalid", None, ids)
+    assert "Valid candidate ids" not in correction_text("unknown_candidate_id")
 
 
 def test_without_a_snapshot_the_model_policy_asks_as_before(monkeypatch):

@@ -46,7 +46,12 @@ TRIAGE_RANKING_CONTRACT_VERSION = "1.0"
 # machine path, recorded events, load as a symptom) are listed apart as
 # context, and naming one is its own rejection. Manual excerpts are said
 # to be uncitable.
-RANKING_PROMPT_VERSION = "4"
+# "5": each candidate line starts with its bare id in brackets ("[TC1]"),
+# the answer schema lists the cause ids as the only allowed candidate_id
+# values (an enum: NVIDIA's strict JSON decoding cut "TC1_machine_condition"
+# to its 12-character limit, "TC1_machine_"), and a correction is told the
+# valid ids.
+RANKING_PROMPT_VERSION = "5"
 
 # How many candidates a ranking names. Two, as the developer asked
 # (2026-11-20): the most plausible and the runner-up.
@@ -124,6 +129,11 @@ NOT_AN_ID = "<not an id"
 ID_PUNCTUATION = frozenset("_.:-")
 # Most distinct punctuation marks one shape summary lists.
 MAX_SHAPE_MARKS = 6
+# Rejections about which candidate was named: their correction also lists
+# the valid ids.
+ID_REASONS = frozenset(
+    {"unknown_candidate_id", "context_candidate_picked", "duplicate_candidate_id"}
+)
 # Most offending or named ids one detail keeps.
 MAX_DETAIL_IDS = 4
 
@@ -467,8 +477,9 @@ def check_ranking(
     #     both from the snapshot (the model is not asked for either).
     #   unseen / repeated: A pick's cited ids the snapshot does not offer, and
     #     those it cites twice; each its own rejection reason.
-    #   causes: The snapshot's candidates whose family names a possible cause;
-    #     only these may be ranked, so fewer than two cannot be ranked.
+    #   causes: The ids of the snapshot's candidates whose family names a
+    #     possible cause (rankable_ids); only these may be ranked, so fewer
+    #     than two cannot be ranked.
     #   context_ids: Picks that named a context candidate (where to look or
     #     what else was seen), which is not an answer to what caused it.
     def rejected(
@@ -503,7 +514,7 @@ def check_ranking(
         )
     if not snapshot.candidates:
         return rejected("candidate_list_empty")
-    causes = [c for c in snapshot.candidates if candidate_role(c.family) == "cause"]
+    causes = rankable_ids(snapshot)
     if len(causes) < RANKED_PICKS:
         return rejected("candidate_count_insufficient")
     ids = [pick.candidate_id for pick in answer.picks]
@@ -608,25 +619,40 @@ def judge_reply(
     return check_ranking(snapshot, parsed, current_fingerprint=current_fingerprint)
 
 
-def correction_text(reason: str, detail: RejectionDetail | None = None) -> str:
+def rankable_ids(snapshot: RankingSnapshot) -> tuple[str, ...]:
+    """The ids a ranking may name: the cause candidates', in snapshot order."""
+    return tuple(
+        c.id for c in snapshot.candidates if candidate_role(c.family) == "cause"
+    )
+
+
+def correction_text(
+    reason: str,
+    detail: RejectionDetail | None = None,
+    valid_ids: tuple[str, ...] = (),
+) -> str:
     """What a correction is told: the fixed sentence, then the offending ids."""
     # Variables:
     #   reason: The rejection code, turned into its fixed CORRECTION_TEXT.
     #   detail: Where the rejected answer broke and which ids were wrong;
     #     ids only, so echoing them back never repeats model prose.
+    #   valid_ids: The ids a pick may name, listed after a candidate-id
+    #     failure so the correction is told what a right answer looks like.
     text = CORRECTION_TEXT.get(reason, "It did not match the contract.")
     if detail is not None:
         text += f" Problem at {detail.field}"
         if detail.offending_ids:
             text += f": {', '.join(detail.offending_ids)}"
         text += "."
+    if valid_ids and reason in ID_REASONS:
+        text += f" Valid candidate ids: {', '.join(valid_ids)}."
     return text
 
 
 def candidate_line(c: SnapshotCandidate) -> str:
     """One snapshot candidate as a prompt line."""
     return (
-        f"- {c.id} {c.family}"
+        f"- [{c.id}] {c.family}"
         + (f" on {c.machine_id}" if c.machine_id else "")
         + f": {c.explanation}; related evidence "
         f"{', '.join(c.observation_evidence_ids) or 'none'}; checks "
@@ -642,7 +668,7 @@ def ranking_view(snapshot: RankingSnapshot) -> list[str]:
     #     role, each kept in snapshot order; only causes may be ranked.
     #   lines: The cause lines, then the context lines (if any), then the
     #     evidence ids a pick may cite.
-    causes = [c for c in snapshot.candidates if candidate_role(c.family) == "cause"]
+    causes = [c for c in snapshot.candidates if c.id in rankable_ids(snapshot)]
     context = [c for c in snapshot.candidates if candidate_role(c.family) == "context"]
     lines = ["CANDIDATE CAUSES TO RANK (unscored; fixed rules, not diagnoses):"]
     lines.extend(candidate_line(c) for c in causes)
@@ -665,7 +691,8 @@ def ranking_view(snapshot: RankingSnapshot) -> list[str]:
 
 RANKING_INSTRUCTIONS = (
     'Also fill "ranking": either kind "ranked" naming exactly two different '
-    "candidate cause ids (never a context id), most plausible first, each "
+    "candidate cause ids (never a context id), each exactly the bracketed "
+    'id with nothing added (for example "TC2"), most plausible first, each '
     "with your own "
     "confidence from 0 to 1 (independent: the two need not add to 1, and they "
     "are beliefs, not measured probabilities), a short rationale, the evidence "
@@ -677,7 +704,7 @@ RANKING_INSTRUCTIONS = (
 )
 
 
-def ranking_schema() -> dict:
+def ranking_schema(candidate_ids: tuple[str, ...] = ()) -> dict:
     """The ranking's JSON schema with every reference written out in place.
 
     The conclusion reply carries the ranking as a loosely typed field (so a
@@ -686,6 +713,10 @@ def ranking_schema() -> dict:
     for the two kinds.
     """
     # Variables:
+    #   candidate_ids: When given, the only values a pick's candidate_id may
+    #     take (an enum). A service that enforces the schema while decoding
+    #     (NVIDIA) then cannot produce any other id; the reply is still
+    #     judged by check_ranking as before.
     #   full: The union's schema with its shared definitions under "$defs".
     #   defs: Those definitions, by name, substituted wherever referenced.
     full = TypeAdapter(CandidateRanking).json_schema()
@@ -703,4 +734,12 @@ def ranking_schema() -> dict:
             return [inline(item) for item in node]
         return node
 
-    return inline(full)
+    schema = inline(full)
+    if candidate_ids:
+        for kind in schema["anyOf"]:
+            picks = kind.get("properties", {}).get("picks")
+            if picks is not None:
+                picks["items"]["properties"]["candidate_id"]["enum"] = list(
+                    candidate_ids
+                )
+    return schema
