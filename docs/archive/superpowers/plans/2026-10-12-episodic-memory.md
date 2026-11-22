@@ -1,7 +1,7 @@
 # Episodic Memory Implementation Plan
 
 **Goal:** Store verified reusable investigation lessons behind deterministic gates.
-**Spec:** `docs/superpowers/specs/2026-10-12-episodic-memory-design.md`
+**Spec:** `docs/archive/superpowers/specs/2026-10-12-episodic-memory-design.md`
 **Execution:** Agent 2 implements inline with developer understanding
 checkpoints, reinstated by the developer on 2026-10-12. Explain each meaningful
 increment and verify understanding before implementation; verify it again
