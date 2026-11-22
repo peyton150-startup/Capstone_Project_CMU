@@ -372,9 +372,9 @@ def test_the_view_lists_causes_to_rank_then_context_then_citable_evidence():
     snap = snapshot(("common_machine_path", "common_material_batch", "setting_shift"))
     lines = ranking_view(snap)
     assert lines[0].startswith("CANDIDATE CAUSES TO RANK")
-    assert [line[:6] for line in lines[1:3]] == ["- TC2 ", "- TC3 "]
+    assert [line[:7] for line in lines[1:3]] == ["- [TC2]", "- [TC3]"]
     assert lines[3].startswith("CONTEXT") and "never rank it" in lines[3]
-    assert lines[4].startswith("- TC1 common_machine_path")
+    assert lines[4].startswith("- [TC1] common_machine_path")
     assert "manual excerpts and memories are not citable" in lines[5]
     assert "never a context id" in RANKING_INSTRUCTIONS
 
