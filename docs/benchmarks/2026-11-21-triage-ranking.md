@@ -29,7 +29,7 @@ Shared by every arm: `TRIAGE=on`, `TRIAGE_THEN_DEEP=off`, `TRIAGE_RUN_MODE=deter
 |---|---|---|---|
 | `batch-20261121-160326` (A) | `f9758c0` | version 2 (before PRs 336/337) | D0–D5, R0–R4 |
 | `batch-20261121-191330` (B) | `0f2e006` (PRs 336 and 337) | version 4: only cause candidates may be ranked; context is shown apart | D0, R0, R1, R4 |
-| `batch-20261122-125932` (C, 2026-11-22) | `0461597` (PR 338) | version 5: candidate ids as a schema enum | R0 ×2 so far (R5 running) |
+| `batch-20261122-125932` (C, 2026-11-22) | `0461597` (PR 338) | version 5: candidate ids as a schema enum | R0 ×2, R5 (Super 120B) ×2 |
 
 | Arm | Change from D0 |
 |---|---|
@@ -119,7 +119,7 @@ Per case (1 = ranked first, 2 = ranked second, . = ranked but missed, x = no acc
 
 ### Batch C (prompt version 5, 2026-11-22, R0 only, 2 repetitions)
 
-The first arm of the R0 vs `R5-ranking-super` batch (`batch-20261122-125932`). It ran on main `0461597`, after PR 338 (prompt version 5: candidate ids as an enum in the answer schema, bracketed ids, valid ids listed in the correction). The full test suite passed in the container before it (3501 passed, 26 skipped). The R5 arm was still running when this was recorded. An earlier start of the same batch (`batch-20261122-124755`) stopped before any triage and saved nothing.
+The first arm of the R0 vs `R5-ranking-super` batch (`batch-20261122-125932`). It ran on main `0461597`, after PR 338 (prompt version 5: candidate ids as an enum in the answer schema, bracketed ids, valid ids listed in the correction). The full test suite passed in the container before it (3501 passed, 26 skipped). An earlier start of the same batch (`batch-20261122-124755`) stopped before any triage and saved nothing.
 
 | Repetition | Accepted | Abstained | Rejected | Top-1 | Top-2 | Top-2 unforced | Coverage |
 |---|---|---|---|---|---|---|---|
@@ -133,6 +133,31 @@ The first arm of the R0 vs `R5-ranking-super` batch (`batch-20261122-125932`). I
 | r2 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | n (abstained) | 1 | 1 | 1 | 1 |
 
 Conclusion in both repetitions: 4/13 right recommendations, 0/13 unnecessary interventions, 3/13 resolved, 77% of relevant evidence, 10.7 tool calls on average: the same as every other arm.
+
+**R5-ranking-super** (the same settings, `TRIAGE_MODEL=nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b`, thinking off), 2 repetitions:
+
+| Repetition | Accepted | Abstained | Rejected (reasons) | Top-1 | Top-2 | Top-2 unforced | Coverage |
+|---|---|---|---|---|---|---|---|
+| r1 | 7/13 | 0 | 6 (evidence_reference_repeated 5, conclusion_deadline_exceeded 1) | 3/13 (23%) | 6/13 (46%) | 80% | 92% |
+| r2 | 11/13 | 0 | 2 (evidence_reference_repeated 2) | 7/13 (54%) | 10/13 (77%) | 88% | 92% |
+| **Both** | **18/26** | **0** | **8** | **10/26 (38%)** | **16/26 (62%)** | **85%** | 92% |
+
+| Repetition | KA-01 | KA-02 | KA-03 | KA-04 | KA-05 | KA-06 | KA-07 | KA-08 | KA-09 | KA-10 | KA-11 | KA-12 | KA-13 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| r1 | 1 | 1 | x | x | 2 | 2 | x | 2 | n | x | x | x | 1 |
+| r2 | 1 | 1 | x | 1 | 2 | 1 | 2 | 2 | n | 1 | 1 | 1 | x |
+
+Batch C side by side (from `compare.txt`):
+
+| | R0 (Lightning 30B) | R5 (Super 120B) |
+|---|---|---|
+| Model calls (time) | 26 (99 s) | 49 (253 s) |
+| Triage p50 / p95 | 4 / 7 s | 10 / 15 s |
+| Ranking accepted / abstained / rejected / unavailable | 25 / 1 / 0 / 0 | 18 / 0 / 7 / 1 |
+| Ranking corrected (saved) | 0 (0) | 23 (15) |
+| Model conclusion | 26 | 26 |
+
+Super 120B needed a correction in 23 of 26 triages, mostly for citing the same evidence id twice, and 8 rankings were still lost. The developer saw its questions repeatedly cut off by the question time limit. When it was accepted it was right first in 10 of 18 triages, against R0's 18 of 25. The conclusion was unchanged (4/13 right recommendations in both repetitions).
 
 Corrections (from `compare.txt`): batch A R0 2 (2 saved), R1 0, R2 1 (1 saved), R3 2 (0 saved), R4 4 (4 saved); batch B R0 2 (2 saved), R1 3 (0 saved), R4 5 (1 saved).
 
@@ -148,4 +173,4 @@ Corrections (from `compare.txt`): batch A R0 2 (2 saved), R1 0, R2 1 (1 saved), 
 
 ## Next
 
-`R5-ranking-super` (Super 120B as the conclusion model, same settings) is running as the second arm of batch C. Comparing it with the batch C R0 above shows whether model size or evidence limits the ranking. Typed numeric evidence per candidate (B2) waits for it.
+Super 120B (R5) did worse than Lightning 30B (R0): mostly rejected answers and time cut-offs, not better picks. A bigger model on its own is not the next step. The developer's next comparison is Lightning 30B (R0) against Ministral 14B (`R6-ranking-ministral`, `TRIAGE_MODEL=mistral/ministral-14b-2512`). Typed numeric evidence per candidate (B2) remains open.
