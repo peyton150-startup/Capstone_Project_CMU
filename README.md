@@ -1,8 +1,165 @@
-# Capstone_Project_CMU
+# Manufacturing Research Agent (CMU capstone)
 
-Agentic AI capstone: a simulated manufacturing environment (machines,
-sensors, jobs, batches, quality, maintenance, events, hidden faults) and,
-later, an AI research agent that investigates it through tools.
+An AI agent that investigates faults on a simulated CNC production line the
+way a reliability engineer would. It reads sensors, jobs, inspections and
+maintenance records through tools, forms competing hypotheses, recommends a
+repair for a human to approve, and checks afterwards that the repair worked.
+A deterministic factory simulator supplies the faults, and keeps the true
+answer hidden from the agent so every investigation can be scored.
+
+## The problem
+
+When a machine alarms or parts start failing inspection, the obvious
+explanation is often wrong. A vibration alarm can come from a wearing
+bearing, a wrong spindle-speed setting, a bad material batch upstream, or a
+sensor glitch. Each needs a different response, and the wrong repair costs
+downtime and money. The evidence that tells these apart is spread across
+sensor histories, job and batch records, inspections and maintenance logs.
+
+This project asks whether an LLM agent can gather that evidence within a
+budget, tell the causes apart, and act safely. "Act safely" means:
+
+- recommend only what the evidence supports;
+- leave the final decision to a human;
+- verify the result.
+
+The simulator makes this measurable. Every case has a known root cause that
+only the evaluator can see.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph SIM["Simulator: reality, no LLM"]
+        F["Factory state<br/>machines, sensors, jobs,<br/>batches, inspections"]
+        GT[("Hidden ground truth")]
+    end
+    MON["Monitoring<br/>detects an anomaly"]
+    TOOLS["Tool / API boundary<br/>observations only"]
+    subgraph AG["Research agent: belief"]
+        TRI["Rapid triage<br/>Observe, Plan, Investigate,<br/>Hypothesize, Test, Conclude"]
+        DEEP["Deep investigation<br/>hypotheses, decide next tool,<br/>optional tree of thought"]
+        CRIT["Critic<br/>reviews the leading hypothesis"]
+        MAN["Manual retrieval<br/>semantic or keyword search"]
+        MEM["Episodic memory<br/>recall and a promotion gate"]
+    end
+    HUM{"Human approval"}
+    VER["Post-action verification"]
+    EVAL["Evaluation<br/>scores against ground truth"]
+
+    F --> MON --> TRI
+    TRI -- "escalate" --> DEEP
+    DEEP <--> CRIT
+    TRI <--> TOOLS
+    DEEP <--> TOOLS
+    TOOLS <--> F
+    DEEP <--> MAN
+    DEEP <--> MEM
+    TRI --> HUM
+    DEEP --> HUM
+    HUM -- "approved action" --> F
+    F --> VER
+    GT -.-> EVAL
+    VER --> EVAL
+```
+
+The diagram keeps three things apart:
+
+- **Reality:** the simulator's true state, including the fault it injected.
+- **Observation:** what the tools return.
+- **Belief:** what the agent concludes.
+
+The agent never reads the ground truth. Only the evaluator reads it, after the run, and tests check that it never crosses the tool boundary.
+
+| Part | What it does | Code |
+|---|---|---|
+| Simulator | A seeded factory of 3–8 CNC machines with causal fault models (bearing wear, wrong setting, bad material batch, false alarm, servo-drive wear, hydraulic leak), noise and distractors. The same seed gives the same run. | `capstone/simulator/` |
+| Tools | About 15 read-only factory tools (readings, trends, events, jobs, inspections, maintenance, line screening), optional injected tool failures, and the action tools behind approval. | `capstone/tools/`, `capstone/providers/` |
+| Rapid triage | A bounded first pass (about 90 s). In deterministic mode, Python plans and runs the reads, compiles candidate cause families (TC1..TCn), and tests them; only Conclude asks a model, which can rank its two most plausible candidates. | `capstone/agent/triage_*.py` |
+| Deep investigation | A loop that proposes hypotheses, chooses the next tool, and stops when evidence suffices or a budget runs out. Tree of thought is optional. | `capstone/agent/investigation.py`, `loop.py`, `tree_of_thought.py` |
+| Critic | A second model that reviews the leading hypothesis and can request one follow-up check. | `capstone/agent/critic.py` |
+| Manual retrieval | Searches a synthetic machine manual by meaning (Chroma), shared words, or a Neon store. | `capstone/manual/` |
+| Episodic memory | Lessons from past investigations, recalled by similarity and admitted through a promotion gate (PostgreSQL/Neon). | `capstone/memory/` |
+| Approval and verification | A human approves or rejects each recommended action; after an action, the agent checks whether the symptom cleared. | `capstone/episode.py`, `capstone/agent/` |
+| Evaluation | Scores root cause, target, action, resolution, evidence collected and calibration against hidden truth, plus an evaluator framework and inventories. | `capstone/evaluation/`, `evaluation/` |
+| Console and API | A React console and FastAPI service for runs, investigations, evidence and review, deployed as an API on Render, a worker on Northflank and a frontend on Vercel. | `frontend/`, `capstone/api/`, `capstone/worker/` |
+
+Code paths are under `capstone-code/`. Model providers are Mistral, Google Gemini, Groq, NVIDIA, Cohere and Cloudflare, plus the routers listed in `AGENTS.md` §9. The simulator, the tools and the whole test suite run offline with no model and no keys.
+
+## Quickstart
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/). Then
+set up the environment exactly as CI does: all extras, plus the web
+service's packages, which are kept out of `uv.lock` on purpose.
+
+```sh
+uv sync --locked --all-extras
+uv pip install -r frontend/requirements-api.txt
+uv run pytest
+```
+
+The tests run offline. CI runs them on Python 3.14 (from
+`.python-version`).
+
+**Offline demo (no model, no keys):** the rule-based baseline investigates
+the 13 known-answer cases and prints a scored line per case.
+
+```sh
+uv run python -m capstone.baseline --known
+```
+
+**Live investigation (needs model keys):** copy `.env.example` to `.env`,
+fill in at least one provider key, then run the 13 cases as rapid triage:
+
+```sh
+uv run python -m capstone.experiment run --name demo --known --triage --out runs/demo.records.jsonl
+uv run python -m capstone.experiment report --results runs/demo.records.jsonl
+```
+
+To start the console locally, see [`frontend/README.md`](frontend/README.md).
+
+## Results
+
+All rows use the 13 known-answer cases (`capstone/evaluation/known_answers.py`). There are two cases per fault and one compound challenge, scored against hidden truth. The samples are small, so these are functionality checks, not accuracy estimates.
+
+| Run | What ran | Result | Source |
+|---|---|---|---|
+| Rule baseline, offline | Hand-written rules, no model | 9/13 root causes right; 8/13 resolved; 4/13 unnecessary interventions. It has no rules for servo or hydraulic faults. | `python -m capstone.baseline --known` on current `main` |
+| Rapid triage, live, 2026-11-15 | Lightning 30B (thinking off), 2 × 13 cases, all triage blocks on, compared with the A0 control | 8/26 right recommendations and 6/26 resolved in both arms; 0 unnecessary interventions; 46–51% of relevant evidence collected against 23–28% for the control; p50 52 s against 68 s | [benchmark note](docs/benchmarks/2026-11-15-triage-lightning-model.md) |
+| Deep agent, live, 2026-10-30/31 | Tree of thought with the manual, critic off and on, 5 cases each | Critic off 1/5 right; critic on 1/4 judged, with 1 awaiting review. Both concluded "transient sensor" on the compound challenge. | [master results](docs/benchmarks/2026-10-31-master-results/README.md) |
+| Candidate coverage, offline | Deterministic triage with a scripted conclusion | 12/13 cases offer a candidate naming the true cause. The gap is KA-09, whose alarm comes from the distractor machine. | [ranking evaluation](docs/TRIAGE_RANKING_EVALUATION.md) |
+
+The evaluation audit's summary is that the system works end to end against real models, but that its reasoning quality is not yet proven ([`evaluation/FINAL_REPORT.md`](evaluation/FINAL_REPORT.md), question 7):
+
+- Budgets, timeouts, fallbacks, approval and verification all hold in live runs.
+- The model agent often diagnoses bearing wear and false alarms.
+- It did not diagnose the batch or setting faults in the master runs.
+- It rarely asks for a fix.
+
+## Limitations
+
+- **Reasoning quality is unproven.** Live runs are few, configurations changed between batches, and most cases ran once. No comparison yet shows the critic, the manual or memory improving accuracy.
+- **Batch and setting faults remain hard for the model agent.** Its triage recommendations are right about a third of the time, and the rule baseline still beats the model on the four original faults.
+- **Simulated data only.** The faults are causal models, not physics. A read-only pilot on real CNC machines is planned (see the [pilot runbook](docs/PRESTIGE_PILOT_RUNBOOK.md)). No real machine data is committed, and the console cannot act on a physical machine.
+- **Confidence is uncalibrated.** It is the model's own assessment, not a measured probability.
+- **Memory** is implemented and tested offline, but no live comparison has shown that it improves results.
+
+## Repository map
+
+- `capstone-code/capstone/`: the code, imported as `capstone`. Paths such as `capstone/simulator/` in these docs are inside `capstone-code/`.
+- `tests/`: the pytest suite. It runs offline; CI groups are in `.github/test_groups.py`.
+- `evaluation/`: the evaluator framework, inventories, rubric and audit. Start at [`evaluation/EVALUATION_README.md`](evaluation/EVALUATION_README.md).
+- `frontend/`: the React console and the FastAPI service's requirements.
+- `docs/`: the scope ([`MVP_SCOPE.md`](docs/MVP_SCOPE.md)), progress log ([`PROGRESS.md`](docs/PROGRESS.md)), benchmarks, design notes and future work. Older working notes are in [`docs/archive/`](docs/archive/).
+- `AGENTS.md`: the development rules and architecture principles used to build the project with coding agents. `CLAUDE.md` imports it.
+
+---
+
+# Developer reference
+
+The sections below are for working on the code.
+
+## Documentation index
 
 - `AGENTS.md` — development rules, architecture principles, and the
   gated teaching workflow used to build this project, for any coding
@@ -39,10 +196,6 @@ later, an AI research agent that investigates it through tools.
   packets, the Snap 1.1 decision questions, the rubric, and the audit of what
   the master runs prove. Start at
   [`evaluation/EVALUATION_README.md`](evaluation/EVALUATION_README.md).
-- `capstone-code/capstone/` — the code, imported as `capstone`. Paths such as
-  `capstone/simulator/` in these docs are inside `capstone-code/`.
-- `capstone-code/capstone/simulator/` — the simulator (runs with no LLM).
-- `tests/` — pytest suite.
 
 ## Frameworks and technology stack
 
@@ -86,9 +239,16 @@ for timing, limitations, and the component walkthrough.
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
 
 ```sh
-uv sync --locked
+uv sync --locked --all-extras
+uv pip install -r frontend/requirements-api.txt
 uv run --locked pytest
 ```
+
+`--all-extras` installs the optional groups the tests import (Pydantic Graph
+for the agent, the database, semantic and Siemens extras). The FastAPI,
+uvicorn and httpx packages for the web service come from
+`frontend/requirements-api.txt`, outside `uv.lock`; without them the API tests
+fail with `ModuleNotFoundError: fastapi`. CI installs both the same way.
 
 `pyproject.toml` declares dependencies, `uv.lock` records their resolved
 versions, and `.python-version` selects Python 3.14.7, the interpreter used
@@ -99,7 +259,7 @@ constraints in `pyproject.toml`; review those constraints before deliberately
 upgrading them. Use `uv add PACKAGE` for runtime dependencies or
 `uv add --group dev PACKAGE` for development tools.
 
-The existing pip setup remains available: `pip install -e ".[dev]"`, then
+The existing pip setup remains available: `pip install -e ".[dev,agent,database,semantic,siemens]"` and `pip install -r frontend/requirements-api.txt`, then
 `pytest`. To reproduce the locked versions with pip, export them with
 `uv export --locked --no-emit-project --output-file requirements-export.txt`,
 install that file with pip, then install the local package using
@@ -139,7 +299,8 @@ choice; committing the configuration does not install hooks automatically.
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `main` with
 read-only repository permissions. It installs uv with caching, selects Python
-from `.python-version`, syncs locked default dependencies, checks Ruff lint and
+from `.python-version`, syncs the locked dependencies with every extra (and
+the web service's packages for the test jobs), checks Ruff lint and
 formatting, and runs the offline test suite once with terminal coverage and a
 GitHub Actions Markdown summary. It uses no service credentials or live Neon,
 LLM, or MCP calls. Dependency setup downloads packages; the tests run offline.
