@@ -682,7 +682,7 @@ The status table and newer notes stay in `docs/PROGRESS.md`.
   the developer's planned macro-loop role without introducing an implementation
   or substituting CrewAI Flow. The CrewAI/LiteLLM provider design is retained.
   A scoped implementation/checklist plan is in
-  `docs/superpowers/plans/2026-10-11-developer-tooling.md`. No future-phase
+  `docs/archive/superpowers/plans/2026-10-11-developer-tooling.md`. No future-phase
   agent/MCP/RAG/multi-agent runtime dependencies were installed. Unrelated
   component implementation/understanding status is unchanged; tooling is built
   ungated, developer to review.
