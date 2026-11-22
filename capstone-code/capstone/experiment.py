@@ -1789,6 +1789,26 @@ def default_audit_path(out: Path) -> Path:
     return out.with_name(f"{stem}.audit.jsonl")
 
 
+def pick_cases(
+    cases: list[Case], wanted: str, parser: argparse.ArgumentParser
+) -> list[Case]:
+    """The cases whose id is, or starts with, one of the comma-separated ids."""
+    # Variables:
+    #   ids: The ids or prefixes asked for, such as "KA-01" or "KA-05-setting".
+    #     A prefix matches up to a hyphen, so "KA-1" matches no case.
+    #   unknown: Asked-for ids that match no case; any stops the command, so a
+    #     typo never runs the wrong set.
+    ids = [w.strip() for w in wanted.split(",") if w.strip()]
+
+    def matches(case: Case, want: str) -> bool:
+        return case.scenario_id == want or case.scenario_id.startswith(want + "-")
+
+    unknown = [w for w in ids if not any(matches(c, w) for c in cases)]
+    if not ids or unknown:
+        parser.error(f"no known case matches: {', '.join(unknown) or wanted!r}")
+    return [c for c in cases if any(matches(c, w) for w in ids)]
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """The command line: run cases, label their conclusions, or report them."""
     # Variables:
@@ -1799,8 +1819,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   book: For "compare", the hand labels from --label-book, by run key.
     #   cases: The cases to run, from exactly one of --known, --held-out,
     #     --challenge or --seeds (with --faults).
-    #   budgets: Time limits for each investigation; None keeps the defaults
-    #     unless --timeout-seconds was given.
+    #   budgets: Limits for each investigation; None keeps the defaults
+    #     unless --timeout-seconds, --tool-calls or --iterations was given.
+    #   limits: The Budgets fields those flags set; the rest keep their
+    #     defaults (followup_seconds is a third of --timeout-seconds).
+    #   args.cases: With --known, the case ids or id prefixes to keep
+    #     (pick_cases); any that matches no known case stops the command.
     #   memory, manual: Optional memory store and operator manual.
     #   audit_path, log: The chosen audit file and writer; new CLI runs use a
     #     companion file unless --no-audit was given.
@@ -1856,6 +1880,23 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     audit.add_argument("--no-audit", action="store_true", help="omit the audit log")
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
+    run.add_argument(
+        "--tool-calls",
+        type=int,
+        help="research tool calls per investigation (default: Budgets, 20)",
+    )
+    run.add_argument(
+        "--iterations",
+        type=int,
+        help="loop steps per investigation (default: Budgets, 24)",
+    )
+    run.add_argument(
+        "--cases",
+        help=(
+            "with --known: only these cases, by id or id prefix, comma separated "
+            '(for example "KA-01,KA-05-setting")'
+        ),
+    )
     run.add_argument(
         "--hazards",
         nargs="?",
@@ -1980,12 +2021,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             else:
                 faults = args.faults.split(",")
             cases = grid(seeds_from(args.seeds), faults)
-        budgets = None
+        if args.cases:
+            if not args.known:
+                parser.error("--cases needs --known")
+            cases = pick_cases(cases, args.cases, parser)
+        limits: dict[str, float | int] = {}
         if args.timeout_seconds is not None:
-            budgets = Budgets(
+            limits.update(
                 timeout_seconds=args.timeout_seconds,
                 followup_seconds=args.timeout_seconds / 3,
             )
+        if args.tool_calls is not None:
+            limits["max_tool_calls"] = args.tool_calls
+        if args.iterations is not None:
+            limits["max_iterations"] = args.iterations
+        budgets = Budgets(**limits) if limits else None
         memory = open_memory() if args.memory else None
         manual = open_manual(args.manual) if args.manual else None
         audit_path = (
