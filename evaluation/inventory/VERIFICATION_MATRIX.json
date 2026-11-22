@@ -76,7 +76,7 @@
   "capstone-code/capstone/evaluation/ranking_accuracy.py": "fc58de34e9568960884f1fbdf9edd3903acfde84fbcfb41962c1f9b38ffaf49f",
   "capstone-code/capstone/evaluation/scoring.py": "38efa009eb966bb0bc7a7b90fe21d8f4db05301bdd19b1fc763537821f94c79e",
   "capstone-code/capstone/evaluation/triage_metrics.py": "0996afb190975d935ea6b6365f6f30dad575c170a9e671bc43c104893285b7c4",
-  "capstone-code/capstone/experiment.py": "a6afa24ee66375c06859e94cdc26b72148fbaf770e7b7212f7fd4723ea0f19c1",
+  "capstone-code/capstone/experiment.py": "184d69e90925d8e9d4ad21e4de95e5f6b71a2ce7bbcaeed73b702a5d43142503",
   "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
   "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
   "capstone-code/capstone/ingestion/__main__.py": "725ce063d1eabcb2e090d48aa60c471a2f9f661c1e0bdeeffcfbdd5abfc30962",
@@ -231,7 +231,7 @@
   "tests/test_evaluation_tools.py": "bd60811148214715cc0894b0cd3e06062072695545913fa0fbe8202177330513",
   "tests/test_evaluator_integrity.py": "55533011833aff7b9547fa0d4e16e4428aa2cce5852be3cd08d3983c6a9d5848",
   "tests/test_events.py": "150b22af293be3062b8ed66f053f598d432981e58db6bfd340027721c1be969e",
-  "tests/test_experiment.py": "59e921d85d4245515c17c7301a1d03bc6bef975642bba73a0aeee1ce3636aae9",
+  "tests/test_experiment.py": "4ee99c50dfa2d0c4869722b9a253146b349f85359eac3c7d072bc2245ddbec82",
   "tests/test_factory_provider.py": "64dea43eebf1f219f836d44b678b4915e33089aa7781a1762a7205976b0e8748",
   "tests/test_failure.py": "cc763e628d7077023396226f5f30543c14aafd217d9e01e028e78b41184d1f56",
   "tests/test_false_alarm.py": "62545ff0ed79669d60810cade6f2cdb3ea209a579203e1d7c21618db2c364bd3",
@@ -365,29 +365,29 @@
   "tests/test_web_runs.py": "2021f42a2febc9572b751d4db7ae1dd87c493916018d53e1a35b1a13c96770f8",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "8e7ab124f67929812a1c8202203adf7aedd1321ce6a0790fa13a9a1392519a31",
- "junit_sha256": "a4f98c49c55f8f4c45f8eea11036d22d96843abfbd124c2be2470cfa8ee8d11f",
+ "coverage_sha256": "c7cf7e22302757927a8831719314ae9dd5d6cdf69a31af652fd85b525b3eda93",
+ "junit_sha256": "2a007d3b3d84af7a0ffb80c8e3b306c4f2a414972ef399f584fc4f7877587c36",
  "counts": {
-  "functions": 1535,
+  "functions": 1537,
   "classes_note": "classes are listed through their methods",
-  "tests": 2799,
+  "tests": 2801,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 681,
    "NOT APPLICABLE": 29,
    "NOT TESTED": 107,
-   "PARTIALLY VERIFIED": 673,
+   "PARTIALLY VERIFIED": 675,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 702,
+   "direct": 704,
    "import-only": 6,
    "indirect": 691,
    "no-statements": 29,
    "none": 107
   },
-  "functions_executed_in_tests": 1393,
-  "functions_with_direct_tests": 702,
+  "functions_executed_in_tests": 1395,
+  "functions_with_direct_tests": 704,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
    "capstone.api.__main__:main",
@@ -624,7 +624,8 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "passed": 2775,
+   "failed": 1,
+   "passed": 2776,
    "skipped": 24
   },
   "tests_with_no_assertion": [
@@ -1167,9 +1168,9 @@
    "direct": 1
   },
   "capstone.experiment": {
-   "functions": 51,
-   "executed": 50,
-   "direct": 47
+   "functions": 53,
+   "executed": 52,
+   "direct": 49
   },
   "capstone.faults": {
    "functions": 10,
@@ -6255,7 +6256,7 @@
    ]
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 966,
+   "count": 967,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10695,7 +10696,7 @@
    "indirect": []
   },
   "capstone.console:safe_console": {
-   "count": 29,
+   "count": 31,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_console.py::test_a_stream_that_cannot_be_reconfigured_is_left_alone",
@@ -10708,12 +10709,12 @@
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
-    "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
+    "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take"
    ]
   },
   "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence": {
@@ -12332,7 +12333,7 @@
    ]
   },
   "capstone.evaluation.scoring:summarize": {
-   "count": 44,
+   "count": 46,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -12391,7 +12392,7 @@
    ]
   },
   "capstone.evaluation.scoring:format_summary": {
-   "count": 42,
+   "count": 44,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12437,16 +12438,18 @@
    ]
   },
   "capstone.experiment:known_cases": {
-   "count": 16,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
     "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off",
+    "tests/test_experiment.py::test_tool_calls_and_iterations_set_the_budgets"
    ],
    "indirect": [
     "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
@@ -12480,9 +12483,10 @@
    "indirect": []
   },
   "capstone.experiment:grid": {
-   "count": 6,
+   "count": 7,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_seeds_and_grid",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
@@ -12816,7 +12820,7 @@
    ]
   },
   "capstone.experiment:labelled": {
-   "count": 43,
+   "count": 45,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -12824,13 +12828,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_memory_comparison.py::test_a_failed_semantic_search_is_reported_failed_not_answered_by_keyword",
@@ -12848,7 +12852,7 @@
    ]
   },
   "capstone.experiment:format_model_calls": {
-   "count": 37,
+   "count": 39,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -12856,13 +12860,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -12897,7 +12901,7 @@
    ]
   },
   "capstone.experiment:format_stage_context": {
-   "count": 35,
+   "count": 37,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -12905,13 +12909,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -12924,10 +12928,11 @@
    ]
   },
   "capstone.experiment:stage_context_mismatches": {
-   "count": 16,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_run_that_did_not_get_the_requested_setting_is_named",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
@@ -12937,8 +12942,7 @@
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
     "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ],
    "indirect": [
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
@@ -12948,7 +12952,7 @@
    ]
   },
   "capstone.experiment:format_investigate": {
-   "count": 36,
+   "count": 38,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -12956,13 +12960,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -12976,7 +12980,7 @@
    ]
   },
   "capstone.experiment:format_evidence_tests": {
-   "count": 38,
+   "count": 40,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -12984,13 +12988,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13006,7 +13010,7 @@
    ]
   },
   "capstone.experiment:format_triage": {
-   "count": 37,
+   "count": 39,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13014,13 +13018,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13035,7 +13039,7 @@
    ]
   },
   "capstone.experiment:format_ranking": {
-   "count": 37,
+   "count": 39,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13043,13 +13047,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13064,7 +13068,7 @@
    ]
   },
   "capstone.experiment:format_triage_outcomes": {
-   "count": 38,
+   "count": 40,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13072,13 +13076,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13094,7 +13098,7 @@
    ]
   },
   "capstone.experiment:format_triage_stages": {
-   "count": 36,
+   "count": 38,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13102,13 +13106,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13122,7 +13126,7 @@
    ]
   },
   "capstone.experiment:format_batches": {
-   "count": 36,
+   "count": 38,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13130,13 +13134,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_decide_calls.py::test_the_report_line_sums_the_batches",
@@ -13160,7 +13164,7 @@
    ]
   },
   "capstone.experiment:format_memory": {
-   "count": 35,
+   "count": 37,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13168,13 +13172,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13197,7 +13201,7 @@
    ]
   },
   "capstone.experiment:format_manual": {
-   "count": 35,
+   "count": 37,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13205,13 +13209,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13306,7 +13310,7 @@
    ]
   },
   "capstone.experiment:report": {
-   "count": 35,
+   "count": 37,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13314,13 +13318,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13333,7 +13337,7 @@
    ]
   },
   "capstone.experiment:report.<locals>.lines_for": {
-   "count": 35,
+   "count": 37,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -13341,13 +13345,13 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
     "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out"
    ],
    "indirect": [
     "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
@@ -13370,9 +13374,10 @@
    "indirect": []
   },
   "capstone.experiment:seeds_from": {
-   "count": 6,
+   "count": 7,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_seeds_and_grid",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
@@ -13428,9 +13433,10 @@
    ]
   },
   "capstone.experiment:add_manual_options": {
-   "count": 31,
+   "count": 33,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
@@ -13493,10 +13499,27 @@
    ],
    "indirect": []
   },
-  "capstone.experiment:main": {
-   "count": 22,
+  "capstone.experiment:pick_cases": {
+   "count": 1,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix"
+   ],
+   "indirect": []
+  },
+  "capstone.experiment:pick_cases.<locals>.matches": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix"
+   ],
+   "indirect": []
+  },
+  "capstone.experiment:main": {
+   "count": 24,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
@@ -16552,7 +16575,7 @@
    ]
   },
   "capstone.manual.index:KeywordManualSearch.__init__": {
-   "count": 30,
+   "count": 32,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16560,14 +16583,14 @@
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
     "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.manual.index:KeywordManualSearch.search": {
@@ -16932,7 +16955,7 @@
    ]
   },
   "capstone.manual.sections:parse_manual": {
-   "count": 18,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16940,18 +16963,18 @@
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
     "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.manual.sections:check_no_leaks": {
-   "count": 19,
+   "count": 21,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -16959,18 +16982,18 @@
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
     "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.manual.sections:load_manual": {
-   "count": 17,
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16978,14 +17001,14 @@
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
     "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.memory.backfill:backfill": {
@@ -20741,7 +20764,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage": {
-   "count": 395,
+   "count": 397,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -20773,7 +20796,7 @@
    ]
   },
   "capstone.settings:Settings.deterministic_triage_needs_fixed_plan": {
-   "count": 395,
+   "count": 397,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -20824,7 +20847,7 @@
    ]
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 406,
+   "count": 408,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -20893,7 +20916,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 287,
+   "count": 289,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -42533,6 +42556,58 @@
     "capstone.experiment:known_cases",
     "capstone.experiment:labelled",
     "capstone.experiment:main"
+   ]
+  },
+  "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix": {
+   "count": 33,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_evidence_tests",
+    "capstone.experiment:format_investigate",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_ranking",
+    "capstone.experiment:format_stage_context",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:format_triage_outcomes",
+    "capstone.experiment:format_triage_stages",
+    "capstone.experiment:grid",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:pick_cases"
+   ]
+  },
+  "tests/test_experiment.py::test_tool_calls_and_iterations_set_the_budgets": {
+   "count": 30,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_evidence_tests",
+    "capstone.experiment:format_investigate",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_ranking",
+    "capstone.experiment:format_stage_context",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:format_triage_outcomes",
+    "capstone.experiment:format_triage_stages",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:report"
    ]
   },
   "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out": {

@@ -47242,7 +47242,7 @@
     "may_skip"
    ],
    "claims": "Incomplete function packets keep FN-02/03 unknown, without a model call.",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
@@ -49982,7 +49982,7 @@
    "id": "tests/test_experiment.py::test_seeds_and_grid",
    "file": "tests/test_experiment.py",
    "name": "test_seeds_and_grid",
-   "line": 73,
+   "line": 74,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -50016,7 +50016,7 @@
    "id": "tests/test_experiment.py::test_watching_shows_each_case_live_but_never_the_truth",
    "file": "tests/test_experiment.py",
    "name": "test_watching_shows_each_case_live_but_never_the_truth",
-   "line": 84,
+   "line": 85,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -50117,7 +50117,7 @@
    "id": "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
    "file": "tests/test_experiment.py",
    "name": "test_hazards_are_off_unless_asked_for",
-   "line": 94,
+   "line": 95,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50194,10 +50194,161 @@
    ]
   },
   {
+   "id": "tests/test_experiment.py::test_cases_picks_known_cases_by_id_or_prefix",
+   "file": "tests/test_experiment.py",
+   "name": "test_cases_picks_known_cases_by_id_or_prefix",
+   "line": 131,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 2,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "cases picks known cases by id or prefix",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_evidence_tests",
+    "capstone.experiment:format_investigate",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_ranking",
+    "capstone.experiment:format_stage_context",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:format_triage_outcomes",
+    "capstone.experiment:format_triage_stages",
+    "capstone.experiment:grid",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:pick_cases",
+    "capstone.experiment:pick_cases.<locals>.matches",
+    "capstone.experiment:report",
+    "capstone.experiment:report.<locals>.lines_for",
+    "capstone.experiment:seeds_from",
+    "capstone.experiment:stage_context_mismatches",
+    "capstone.manual.index:KeywordManualSearch.__init__",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 33,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.manual.index",
+    "capstone.manual.sections",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_experiment.py::test_tool_calls_and_iterations_set_the_budgets",
+   "file": "tests/test_experiment.py",
+   "name": "test_tool_calls_and_iterations_set_the_budgets",
+   "line": 148,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 7,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "tool calls and iterations set the budgets",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_evidence_tests",
+    "capstone.experiment:format_investigate",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_ranking",
+    "capstone.experiment:format_stage_context",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:format_triage_outcomes",
+    "capstone.experiment:format_triage_stages",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:report",
+    "capstone.experiment:report.<locals>.lines_for",
+    "capstone.experiment:stage_context_mismatches",
+    "capstone.manual.index:KeywordManualSearch.__init__",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:Settings.deterministic_hypothesize_requires_guarded_triage",
+    "capstone.settings:Settings.deterministic_triage_needs_fixed_plan",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 30,
+   "modules_exercised": [
+    "capstone.agent.state",
+    "capstone.console",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.manual.index",
+    "capstone.manual.sections",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
    "file": "tests/test_experiment.py",
    "name": "test_run_command_audits_by_default_and_allows_explicit_opt_out",
-   "line": 115,
+   "line": 164,
    "docstring": "A new run records the evidence needed for later reasoning judgments.",
    "parametrized": false,
    "fixtures": [
@@ -50273,7 +50424,7 @@
    "id": "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_old_records_without_blackout_fields_still_read",
-   "line": 145,
+   "line": 194,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50372,7 +50523,7 @@
    "id": "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off",
    "file": "tests/test_experiment.py",
    "name": "test_the_run_command_watches_by_default_and_quiet_turns_it_off",
-   "line": 151,
+   "line": 200,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50456,7 +50607,7 @@
    "id": "tests/test_experiment.py::test_the_report_shows_an_overruled_intervention_and_why",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_shows_an_overruled_intervention_and_why",
-   "line": 177,
+   "line": 226,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50517,7 +50668,7 @@
    "id": "tests/test_experiment.py::test_the_report_shows_why_a_final_answer_was_refused",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_shows_why_a_final_answer_was_refused",
-   "line": 191,
+   "line": 240,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50578,7 +50729,7 @@
    "id": "tests/test_experiment.py::test_results_from_before_refusals_were_recorded_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_results_from_before_refusals_were_recorded_still_read",
-   "line": 204,
+   "line": 253,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50610,7 +50761,7 @@
    "id": "tests/test_experiment.py::test_results_from_before_the_policy_recommendation_was_kept_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_results_from_before_the_policy_recommendation_was_kept_still_read",
-   "line": 210,
+   "line": 259,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50645,7 +50796,7 @@
    "id": "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
    "file": "tests/test_experiment.py",
    "name": "test_run_keys_are_unique_per_execution",
-   "line": 217,
+   "line": 266,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50745,7 +50896,7 @@
    "id": "tests/test_experiment.py::test_a_label_scores_the_root_cause_from_the_row_alone",
    "file": "tests/test_experiment.py",
    "name": "test_a_label_scores_the_root_cause_from_the_row_alone",
-   "line": 223,
+   "line": 272,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50787,7 +50938,7 @@
    "id": "tests/test_experiment.py::test_a_batch_label_is_judged_by_batch",
    "file": "tests/test_experiment.py",
    "name": "test_a_batch_label_is_judged_by_batch",
-   "line": 240,
+   "line": 289,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50828,7 +50979,7 @@
    "id": "tests/test_experiment.py::test_label_book_keeps_the_latest_label",
    "file": "tests/test_experiment.py",
    "name": "test_label_book_keeps_the_latest_label",
-   "line": 250,
+   "line": 299,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50864,7 +51015,7 @@
    "id": "tests/test_experiment.py::test_report_applies_labels",
    "file": "tests/test_experiment.py",
    "name": "test_report_applies_labels",
-   "line": 263,
+   "line": 312,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50932,7 +51083,7 @@
    "id": "tests/test_experiment.py::test_asking_for_a_label_at_the_console",
    "file": "tests/test_experiment.py",
    "name": "test_asking_for_a_label_at_the_console",
-   "line": 278,
+   "line": 327,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -50969,7 +51120,7 @@
    "id": "tests/test_experiment.py::test_an_answer_that_is_not_a_choice_is_asked_again",
    "file": "tests/test_experiment.py",
    "name": "test_an_answer_that_is_not_a_choice_is_asked_again",
-   "line": 290,
+   "line": 339,
    "docstring": "Seen on 2026-10-21: pressing Enter with no answer stopped the command.",
    "parametrized": false,
    "fixtures": [
@@ -51005,7 +51156,7 @@
    "id": "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_line_runs_labels_and_reports",
-   "line": 303,
+   "line": 352,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51122,7 +51273,7 @@
    "id": "tests/test_experiment.py::test_invalid_replies_and_outages_are_counted_apart",
    "file": "tests/test_experiment.py",
    "name": "test_invalid_replies_and_outages_are_counted_apart",
-   "line": 346,
+   "line": 395,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -51156,7 +51307,7 @@
    "id": "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
    "file": "tests/test_experiment.py",
    "name": "test_model_failures_survive_the_cli_file_and_report",
-   "line": 370,
+   "line": 419,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -51277,7 +51428,7 @@
    "id": "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
    "file": "tests/test_experiment.py",
    "name": "test_recovered_service_failures_keep_the_answering_fallback",
-   "line": 428,
+   "line": 477,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51341,7 +51492,7 @@
    "id": "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
    "file": "tests/test_experiment.py",
    "name": "test_old_results_cannot_supply_missing_failure_details",
-   "line": 446,
+   "line": 495,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51402,7 +51553,7 @@
    "id": "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
    "file": "tests/test_experiment.py",
    "name": "test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
-   "line": 462,
+   "line": 511,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51463,7 +51614,7 @@
    "id": "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
    "file": "tests/test_experiment.py",
    "name": "test_a_model_policy_run_keeps_its_call_summary_and_its_time",
-   "line": 471,
+   "line": 520,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -51564,7 +51715,7 @@
    "id": "tests/test_experiment.py::test_a_policy_that_keeps_no_calls_records_none",
    "file": "tests/test_experiment.py",
    "name": "test_a_policy_that_keeps_no_calls_records_none",
-   "line": 483,
+   "line": 532,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51597,7 +51748,7 @@
    "id": "tests/test_experiment.py::test_a_results_line_from_before_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_results_line_from_before_still_reads",
-   "line": 488,
+   "line": 537,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51629,7 +51780,7 @@
    "id": "tests/test_experiment.py::test_the_report_shows_the_model_questions",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_shows_the_model_questions",
-   "line": 494,
+   "line": 543,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -51730,7 +51881,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_when_no_model_was_recorded",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_when_no_model_was_recorded",
-   "line": 507,
+   "line": 556,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51791,7 +51942,7 @@
    "id": "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
    "file": "tests/test_experiment.py",
    "name": "test_the_gate_decision_is_recorded_beside_the_run",
-   "line": 560,
+   "line": 609,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -51904,7 +52055,7 @@
    "id": "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
    "file": "tests/test_experiment.py",
    "name": "test_a_recalled_memory_the_agent_cites_is_marked_used",
-   "line": 570,
+   "line": 619,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52016,7 +52167,7 @@
    "id": "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
    "file": "tests/test_experiment.py",
    "name": "test_an_uncited_memory_is_unknown_not_unused",
-   "line": 578,
+   "line": 627,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52127,7 +52278,7 @@
    "id": "tests/test_experiment.py::test_without_memory_there_are_no_memory_records",
    "file": "tests/test_experiment.py",
    "name": "test_without_memory_there_are_no_memory_records",
-   "line": 584,
+   "line": 633,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52159,7 +52310,7 @@
    "id": "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
    "file": "tests/test_experiment.py",
    "name": "test_nothing_the_evaluator_knows_reaches_the_memory_store",
-   "line": 588,
+   "line": 637,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52270,7 +52421,7 @@
    "id": "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
-   "line": 596,
+   "line": 645,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52384,7 +52535,7 @@
    "id": "tests/test_experiment.py::test_the_report_has_no_memory_line_without_memory",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_has_no_memory_line_without_memory",
-   "line": 611,
+   "line": 660,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52444,7 +52595,7 @@
    "id": "tests/test_experiment.py::test_the_held_out_set_is_every_fault_on_ten_fixed_seeds",
    "file": "tests/test_experiment.py",
    "name": "test_the_held_out_set_is_every_fault_on_ten_fixed_seeds",
-   "line": 620,
+   "line": 669,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -52477,7 +52628,7 @@
    "id": "tests/test_experiment.py::test_no_seed_anyone_tuned_on_is_held_out",
    "file": "tests/test_experiment.py",
    "name": "test_no_seed_anyone_tuned_on_is_held_out",
-   "line": 629,
+   "line": 678,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -52507,7 +52658,7 @@
    "id": "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_runs_the_held_out_set",
-   "line": 635,
+   "line": 684,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52587,7 +52738,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_how_many_runs_were_held_out",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_how_many_runs_were_held_out",
-   "line": 651,
+   "line": 700,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52647,7 +52798,7 @@
    "id": "tests/test_experiment.py::test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
-   "line": 657,
+   "line": 706,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52734,7 +52885,7 @@
    "id": "tests/test_experiment.py::test_a_case_can_name_the_challenge",
    "file": "tests/test_experiment.py",
    "name": "test_a_case_can_name_the_challenge",
-   "line": 673,
+   "line": 722,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -52766,7 +52917,7 @@
    "id": "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_runs_the_challenge_on_the_given_seeds",
-   "line": 681,
+   "line": 730,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52846,7 +52997,7 @@
    "id": "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
    "file": "tests/test_experiment.py",
    "name": "test_a_challenge_run_is_built_and_scored_with_several_faults",
-   "line": 705,
+   "line": 754,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -52947,7 +53098,7 @@
    "id": "tests/test_experiment.py::test_the_report_totals_and_lists_one_and_several_fault_runs_apart",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_totals_and_lists_one_and_several_fault_runs_apart",
-   "line": 713,
+   "line": 762,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53010,7 +53161,7 @@
    "id": "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
    "file": "tests/test_experiment.py",
    "name": "test_a_report_of_one_kind_only_is_not_split",
-   "line": 729,
+   "line": 778,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53070,7 +53221,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_why_attempts_failed",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_why_attempts_failed",
-   "line": 734,
+   "line": 783,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -53169,7 +53320,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_why_replies_were_invalid",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_why_replies_were_invalid",
-   "line": 759,
+   "line": 808,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -53268,7 +53419,7 @@
    "id": "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_with_the_manual_records_what_it_looked_up",
-   "line": 812,
+   "line": 861,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53378,7 +53529,7 @@
    "id": "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_without_the_manual_has_no_manual_records",
-   "line": 834,
+   "line": 883,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53439,7 +53590,7 @@
    "id": "tests/test_experiment.py::test_the_manual_tool_is_offered_only_when_asked_for",
    "file": "tests/test_experiment.py",
    "name": "test_the_manual_tool_is_offered_only_when_asked_for",
-   "line": 841,
+   "line": 890,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53490,7 +53641,7 @@
    "id": "tests/test_experiment.py::test_the_command_passes_the_manual_on",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_passes_the_manual_on",
-   "line": 859,
+   "line": 908,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53572,7 +53723,7 @@
    "id": "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
    "file": "tests/test_experiment.py",
    "name": "test_the_manual_is_on_by_default_by_meaning",
-   "line": 885,
+   "line": 934,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53653,7 +53804,7 @@
    "id": "tests/test_experiment.py::test_the_manual_step_is_on_by_default",
    "file": "tests/test_experiment.py",
    "name": "test_the_manual_step_is_on_by_default",
-   "line": 903,
+   "line": 952,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53693,7 +53844,7 @@
    "id": "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
    "file": "tests/test_experiment.py",
    "name": "test_critic_questions_counted_and_tagged",
-   "line": 913,
+   "line": 962,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53798,7 +53949,7 @@
    "id": "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
    "file": "tests/test_experiment.py",
    "name": "test_critic_questions_follow_the_policy_s_own",
-   "line": 926,
+   "line": 975,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -53905,7 +54056,7 @@
    "id": "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
    "file": "tests/test_experiment.py",
    "name": "test_the_follow_up_is_kept_in_the_record",
-   "line": 936,
+   "line": 985,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54010,7 +54161,7 @@
    "id": "tests/test_experiment.py::test_old_records_without_recheck_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_old_records_without_recheck_still_read",
-   "line": 950,
+   "line": 999,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54042,7 +54193,7 @@
    "id": "tests/test_experiment.py::test_old_records_without_critique_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_old_records_without_critique_still_read",
-   "line": 955,
+   "line": 1004,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54074,7 +54225,7 @@
    "id": "tests/test_experiment.py::test_a_critique_from_before_answered_by_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_critique_from_before_answered_by_still_reads",
-   "line": 960,
+   "line": 1009,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -54104,7 +54255,7 @@
    "id": "tests/test_experiment.py::test_favoured_claim_comes_from_the_critique_not_the_final_beliefs",
    "file": "tests/test_experiment.py",
    "name": "test_favoured_claim_comes_from_the_critique_not_the_final_beliefs",
-   "line": 972,
+   "line": 1021,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -54138,7 +54289,7 @@
    "id": "tests/test_experiment.py::test_a_critique_from_before_favoured_claim_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_critique_from_before_favoured_claim_still_reads",
-   "line": 992,
+   "line": 1041,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -54168,7 +54319,7 @@
    "id": "tests/test_experiment.py::test_a_critique_from_before_after_stage_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_critique_from_before_after_stage_still_reads",
-   "line": 1004,
+   "line": 1053,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -54198,7 +54349,7 @@
    "id": "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
    "file": "tests/test_experiment.py",
    "name": "test_line_context_setting_and_evidence_references_reach_the_record",
-   "line": 1016,
+   "line": 1065,
    "docstring": "The opt-in packet is saved, and old experiment records still load.",
    "parametrized": false,
    "fixtures": [
@@ -54306,7 +54457,7 @@
    "id": "tests/test_experiment.py::test_request_sizes_are_totalled_by_job_over_every_attempt",
    "file": "tests/test_experiment.py",
    "name": "test_request_sizes_are_totalled_by_job_over_every_attempt",
-   "line": 1034,
+   "line": 1083,
    "docstring": "Failed and fallback attempts count: they were sent, and mostly paid for.",
    "parametrized": false,
    "fixtures": [],
@@ -54340,7 +54491,7 @@
    "id": "tests/test_experiment.py::test_older_summaries_without_request_sizes_still_load",
    "file": "tests/test_experiment.py",
    "name": "test_older_summaries_without_request_sizes_still_load",
-   "line": 1068,
+   "line": 1117,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -54372,7 +54523,7 @@
    "id": "tests/test_experiment.py::test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
    "file": "tests/test_experiment.py",
    "name": "test_stage_context_flag_reaches_every_case_and_is_none_when_left_out",
-   "line": 1078,
+   "line": 1127,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54449,7 +54600,7 @@
    "id": "tests/test_experiment.py::test_the_flag_beats_the_environment_in_both_directions",
    "file": "tests/test_experiment.py",
    "name": "test_the_flag_beats_the_environment_in_both_directions",
-   "line": 1103,
+   "line": 1152,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54552,7 +54703,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_how_many_runs_had_the_views_on",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_how_many_runs_had_the_views_on",
-   "line": 1114,
+   "line": 1163,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54613,7 +54764,7 @@
    "id": "tests/test_experiment.py::test_a_run_that_did_not_get_the_requested_setting_is_named",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_that_did_not_get_the_requested_setting_is_named",
-   "line": 1128,
+   "line": 1177,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -54647,7 +54798,7 @@
    "id": "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_fails_loudly_if_the_setting_did_not_take",
-   "line": 1138,
+   "line": 1187,
    "docstring": "A run asked for on whose records say off must not pass quietly.",
    "parametrized": false,
    "fixtures": [
@@ -54757,7 +54908,7 @@
    "id": "tests/test_experiment.py::test_the_header_names_the_setting_only_when_it_is_known",
    "file": "tests/test_experiment.py",
    "name": "test_the_header_names_the_setting_only_when_it_is_known",
-   "line": 1155,
+   "line": 1204,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
