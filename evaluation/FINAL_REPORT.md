@@ -1,4 +1,26 @@
-# Final report
+# Final report (historical snapshot, 2026-11-01)
+
+> **Historical.** This report describes `main` at `bc9d155` on 2026-11-01 and
+> has not been updated since. Read it as the evaluation audit of that date. Its
+> findings on reasoning quality still stand, but some facts have changed:
+>
+> - **Frontend and deployment.** Question 9 lists the frontend as out of scope.
+>   The repository now has a React console and a FastAPI service (`frontend/`,
+>   `capstone/api/`), deployed as an API on Render, a worker on Northflank and a
+>   frontend on Vercel.
+> - **Rapid triage.** A bounded first pass, including a deterministic mode in
+>   which only the conclusion asks a model, was added after this report. Its
+>   live results are in `docs/benchmarks/2026-11-1*-triage-*.md`.
+> - **Audited runs.** Runs with an audit log exist from 2026-11-02 onwards
+>   (`docs/benchmarks/2026-11-02-audited-known-cases/`), so the "none on
+>   record" in question 10 is out of date.
+> - **Memory.** It is implemented and tested offline, and a comparison command
+>   exists (`capstone/memory_comparison.py`). No live memory comparison has been
+>   recorded, so "memory never run live" in questions 6 and 9 still describes
+>   the evidence.
+>
+> For the current state, see the README's Results and Limitations sections
+> and `docs/PROGRESS.md`.
 
 Answers to the audit's final questions, with the evidence behind each. On
 `main` at `bc9d155`, 2026-11-01. Counts come from
