@@ -29,6 +29,7 @@ Shared by every arm: `TRIAGE=on`, `TRIAGE_THEN_DEEP=off`, `TRIAGE_RUN_MODE=deter
 |---|---|---|---|
 | `batch-20261121-160326` (A) | `f9758c0` | version 2 (before PRs 336/337) | D0–D5, R0–R4 |
 | `batch-20261121-191330` (B) | `0f2e006` (PRs 336 and 337) | version 4: only cause candidates may be ranked; context is shown apart | D0, R0, R1, R4 |
+| `batch-20261122-125932` (C, 2026-11-22) | `0461597` (PR 338) | version 5: candidate ids as a schema enum | R0 ×2 so far (R5 running) |
 
 | Arm | Change from D0 |
 |---|---|
@@ -116,6 +117,23 @@ Per case (1 = ranked first, 2 = ranked second, . = ranked but missed, x = no acc
 | R1-ranking-no-cap | 1 | 1 | 1 | 1 | x | 2 | x | 2 | n | 1 | x | x | x |
 | R4-ranking-reads12 | 1 | x | 1 | x | x | 2 | 2 | x | n | 1 | 1 | 1 | 1 |
 
+### Batch C (prompt version 5, 2026-11-22, R0 only, 2 repetitions)
+
+The first arm of the R0 vs `R5-ranking-super` batch (`batch-20261122-125932`). It ran on main `0461597`, after PR 338 (prompt version 5: candidate ids as an enum in the answer schema, bracketed ids, valid ids listed in the correction). The full test suite passed in the container before it (3501 passed, 26 skipped). The R5 arm was still running when this was recorded. An earlier start of the same batch (`batch-20261122-124755`) stopped before any triage and saved nothing.
+
+| Repetition | Accepted | Abstained | Rejected | Top-1 | Top-2 | Top-2 unforced | Coverage |
+|---|---|---|---|---|---|---|---|
+| r1 | 13/13 | 0 | 0 | 8/13 (62%) | 12/13 (92%) | 89% | 92% |
+| r2 | 12/13 | 1 (KA-09) | 0 | 10/13 (77%) | 12/13 (92%) | 100% | 92% |
+| **Both** | **25/26** | **1** | **0** | **18/26 (69%)** | **24/26 (92%)** | **94%** | 92% |
+
+| Repetition | KA-01 | KA-02 | KA-03 | KA-04 | KA-05 | KA-06 | KA-07 | KA-08 | KA-09 | KA-10 | KA-11 | KA-12 | KA-13 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| r1 | 1 | 1 | 1 | 1 | 2 | 2 | 2 | 2 | n | 1 | 1 | 1 | 1 |
+| r2 | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | n (abstained) | 1 | 1 | 1 | 1 |
+
+Conclusion in both repetitions: 4/13 right recommendations, 0/13 unnecessary interventions, 3/13 resolved, 77% of relevant evidence, 10.7 tool calls on average: the same as every other arm.
+
 Corrections (from `compare.txt`): batch A R0 2 (2 saved), R1 0, R2 1 (1 saved), R3 2 (0 saved), R4 4 (4 saved); batch B R0 2 (2 saved), R1 3 (0 saved), R4 5 (1 saved).
 
 ## Findings
@@ -126,7 +144,8 @@ Corrections (from `compare.txt`): batch A R0 2 (2 saved), R1 0, R2 1 (1 saved), 
 - **The setting cases are the weak spot.** KA-05 is missed in every batch-A arm, and KA-05/06 are at best second in batch B: the model ranks the material batch above the setting.
 - **KA-09 cannot be ranked right.** Its true cause is never among the candidates (coverage 92%).
 - **Batch B's rejections were mostly id format.** `unknown_candidate_id` rejections were ids like `TC1_machine_`, cut to the schema's 12 characters after the model copied the candidate line. PR 338 (prompt version 5) makes the ids an enum in the answer schema.
+- **With version 5, R0 had no rejected ranking in 26 triages** (batch C): 25 accepted, and the one abstention was KA-09, the case whose true cause is never offered, which is the right answer there. Top-1 was 18/26 (69%) and top-2 24/26 (92%). Both top-2 misses are KA-09. KA-07/08 (false alarms) were second in both repetitions, and KA-05/06 were second in r1 and first in r2, so the remaining errors are order, not coverage.
 
 ## Next
 
-The developer runs R0 against `R5-ranking-super` (Super 120B as the conclusion model) on prompt version 5 with `-Repeats 2`. That shows whether model size or evidence limits the ranking. Typed numeric evidence per candidate (B2) waits for it.
+`R5-ranking-super` (Super 120B as the conclusion model, same settings) is running as the second arm of batch C. Comparing it with the batch C R0 above shows whether model size or evidence limits the ranking. Typed numeric evidence per candidate (B2) waits for it.
