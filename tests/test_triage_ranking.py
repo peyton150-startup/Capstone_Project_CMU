@@ -256,6 +256,12 @@ def test_an_unknown_candidate_is_recorded_with_its_id_and_the_ids_named():
     )
 
 
+def test_initial_prompt_warns_against_repeated_evidence_ids():
+    """The initial ranking request must specify the rule used by validation."""
+    assert "For each pick, cite each evidence id at most once" in RANKING_INSTRUCTIONS
+    assert "never put the same id in both lists" in RANKING_INSTRUCTIONS
+
+
 def test_unoffered_and_repeated_evidence_are_told_apart():
     unseen = check(ranked(pick("TC2", 0.7), pick("TC1", 0.3, ("E9",))))
     assert unseen.reason == "evidence_reference_invalid"
