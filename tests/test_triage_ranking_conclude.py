@@ -152,7 +152,7 @@ def test_the_correction_is_told_the_wrong_ids_and_the_record_keeps_them(monkeypa
     assert (detail.field, detail.offending_ids) == ("candidate_id", ("TC99",))
     assert state.triage_ranking_details == (detail, None)
     record = ranking_record(state)
-    assert record["ranking_prompt_version"] == "5"
+    assert record["ranking_prompt_version"] == "6"
     assert record["ranking_rejections"] == (
         {
             "attempt": 1,

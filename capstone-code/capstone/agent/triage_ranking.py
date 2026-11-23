@@ -51,7 +51,9 @@ TRIAGE_RANKING_CONTRACT_VERSION = "1.0"
 # values (an enum: NVIDIA's strict JSON decoding cut "TC1_machine_condition"
 # to its 12-character limit, "TC1_machine_"), and a correction is told the
 # valid ids.
-RANKING_PROMPT_VERSION = "5"
+# "6": the initial and correction prompts explicitly prohibit repeated evidence ids
+# within one pick, including across supporting and contradicting lists.
+RANKING_PROMPT_VERSION = "6"
 
 # How many candidates a ranking names. Two, as the developer asked
 # (2026-11-20): the most plausible and the runner-up.
@@ -697,7 +699,9 @@ RANKING_INSTRUCTIONS = (
     "confidence from 0 to 1 (independent: the two need not add to 1, and they "
     "are beliefs, not measured probabilities), a short rationale, the evidence "
     "ids that support it (at least one) and any against it, copied exactly "
-    'from the list; or kind "abstained" when the evidence cannot support two '
+    "from the list. For each pick, cite each evidence id at most once "
+    "across supporting and contradicting evidence; never put the same id "
+    'in both lists; or use kind "abstained" when the evidence cannot support two '
     "defensible causes. Do not list missing checks: they are filled in from "
     "the candidate list. Never invent a candidate or an evidence id. "
     "The ranking never changes what may be done to a machine."

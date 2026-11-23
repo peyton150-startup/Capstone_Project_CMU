@@ -188,6 +188,32 @@ def test_rejected_carries_its_reason():
     assert not score.top2_correct
 
 
+def test_unavailable_is_invalid_in_memory_and_record_scoring():
+    """A deadline must not be counted as a valid ranking on either path."""
+    snap = snapshot(*ALARM)
+    verdict = RankingVerdict(
+        status="unavailable",
+        reason="conclusion_deadline_exceeded",
+        snapshot_fingerprint=snap.fingerprint,
+    )
+    scored = score_case("KA-01", snap, verdict, [BEARING])
+    record = {
+        "scenario_id": "KA-01",
+        "score": {"causes": [BEARING.model_dump(mode="json")]},
+        "triage": {
+            "ranking": True,
+            "ranking_status": "unavailable",
+            "ranking_reason": "conclusion_deadline_exceeded",
+            "ranking_picks": [],
+        },
+    }
+    stored = score_record(record)
+    assert not scored.valid and not stored.valid
+    summary = aggregate([scored, stored])
+    assert summary.validity_rate == 0
+    assert summary.invalid_by_reason == {"conclusion_deadline_exceeded": 2}
+
+
 def test_missing_verdict():
     snap = snapshot(*ALARM)
     score = score_case("KA-01", snap, None, [BEARING])
