@@ -1,0 +1,22 @@
+# November 22 offline ranking accuracy for presentation
+
+Scored the eight saved `*.records.jsonl` files (two repeats of 13 KA cases for each arm) with `capstone.evaluation.ranking_accuracy.score_record` and `aggregate` from draft PR #344. This was an **offline read of existing live runs**; no model was called. Accuracy here is against the simulator's recorded causes. It scores the **ranking picks**, not the final prose diagnosis or intervention outcome.
+
+| Arm | Accepted / 26 | Top-1, accepted | Top-2, accepted | Top-1 / Top-2, all 26 | Unforced Top-2 | Candidate coverage | Model questions | Triage time total |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| R0 Lightning | 23 | 19/23 (82.6%) | 23/23 (100%) | 19/26 (73.1%) / 23/26 (88.5%) | 15/15 (100%) | 24/26 (92.3%) | 27 | 122 s |
+| R6 Ministral configured | 23 | 14/23 (60.9%) | 21/23 (91.3%) | 14/26 (53.8%) / 21/26 (80.8%) | 13/15 (86.7%) | 24/26 (92.3%) | 30 | 244 s |
+| R5 Super VL, cap on | 19 | 11/19 (57.9%) | 17/19 (89.5%) | 11/26 (42.3%) / 17/26 (65.4%) | 13/15 (86.7%) | 24/26 (92.3%) | 49 | 243 s |
+| R7 Super VL, cap off | 20 | 15/20 (75.0%) | 18/20 (90.0%) | 15/26 (57.7%) / 18/26 (69.2%) | 13/15 (86.7%) | 24/26 (92.3%) | 50 | 264 s |
+
+“Unforced” means an accepted ranking had more than two cause candidates; when there are exactly two, Top-2 is automatic if the true cause was offered. All four arms had 15 unforced accepted rankings. The same 24/26 coverage in every arm means the candidate list omitted a true cause in both KA-09 challenge repeats. Those cases cannot be solved by reordering the offered candidates.
+
+**Validity:** R0 had 23 accepted, two abstained and one unavailable (deadline); R6 had 23 accepted, one rejected (schema) and two unavailable (deadline); R5 had 19 accepted and seven rejected (repeated evidence ID); R7 had 20 accepted and six rejected (repeated evidence ID). Unavailable is invalid under PR #344's corrected scorer. R0 has the strongest observed accepted-answer and all-case accuracy, with fewer questions and less total triage time. The high “corrected/saved” counters in R5/R7 did **not** establish higher truth accuracy.
+
+**Known-answer case view:** counts below are Top-1 correct out of two repetitions; `–` means neither repetition produced an accepted ranking. R0: bearing KA-01/02 2/2 each; batch KA-03/04 2/2 each; setting KA-05/06 2/2 each; false alarms KA-07/08 0/2 each; servo KA-10/11 2/2 each; hydraulic KA-12 2/2 and KA-13 1/2. R6: KA-01 –; KA-02 1/2; KA-03/04 2/2; KA-05/06 0/2; KA-07 2/2, KA-08 0/2; KA-10 1/2, KA-11/12/13 2/2. R5: KA-01 2/2, KA-02 1/2; KA-03 –; KA-04 1/2; KA-05 0/2, KA-06 1/2; KA-07/08 0/2; KA-10/11 1/2; KA-12/13 2/2. R7: KA-01 2/2, KA-02 –; KA-03 –; KA-04 2/2; KA-05 1/2, KA-06 2/2; KA-07/08 0/2; KA-10/11/12/13 2/2. KA-09 is 0/2 in every arm because its true causes were absent from the candidates.
+
+**Attribution limits:** R0/R6 ran main `c16d53c`; R5/R7 ran later main `c91567c`. All used ranking prompt v5. R6's configured Ministral model answered only four questions; Command A answered 24, so its result is largely a fallback mixture. R5 had one Command A fallback among 49 answered questions. R0's 26 answered questions used Lightning; R7's 50 used Super VL. R5 versus R7 shares code and model, but only 26 cases per arm and stochastic responses make the cap effect uncertain. The 26 cases per arm are two repeats of 13 known cases, not 26 independent scenario types.
+
+**PR #344 verification:** 111 targeted ranking/scoring tests passed locally; Ruff lint/format and test-group membership passed. GitHub's full suite, lint, evaluation test group and Siemens/OEM contracts passed on head `901cec79`. Offline SNAP preparation failed solely on stale generated inventory source hashes for the changed files. The full-suite job generated the replacement inventory artifact, committed to PR #344 as `14be053d`; its new CI status must pass before merge. The prompt change is untested with a live model and cannot be claimed to reduce repeated citations.
+
+**Presentation takeaway:** The ranking candidate coverage was stable at 92.3%, and R0 delivered the strongest observed ranking accuracy at the lowest question/time cost. Rejected citations hurt the Super VL arms. The next evidence step is a paired, source-matched and fallback-aware test of prompt v6; no architecture rewrite follows from this small batch.
