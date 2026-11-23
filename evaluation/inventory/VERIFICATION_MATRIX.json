@@ -29,7 +29,7 @@
   "capstone-code/capstone/agent/triage_hypothesize.py": "8c43d41af95288bec32d6cceb7d92295d3753d00a127f596610ef8a25d9c7982",
   "capstone-code/capstone/agent/triage_packet.py": "cf584ff96717238fb971fe8fb656e3194e9397dcbb84241b2667929439a10425",
   "capstone-code/capstone/agent/triage_plan.py": "2c85a699d3957e3e13eae3afd07b096b41f207cf3209df26d049154827ce0c56",
-  "capstone-code/capstone/agent/triage_ranking.py": "8535f42019f36fbf851ab3f9aa044d17cb079066ae36c3969717949dc3f4494b",
+  "capstone-code/capstone/agent/triage_ranking.py": "94c02e37356a414cd0dfeb289b2f741fdcc7aac7461c8837a8fe49d8f824ddea",
   "capstone-code/capstone/agent/triage_report.py": "2a273e1dcffdacf9a5db673b7452c783fc3dd16556bad28cab718acb354c59e4",
   "capstone-code/capstone/agent/triage_requirements.py": "d2eb37230b33d27f86c8b77f7792fd623374d75a214256fe367ee4a0666d2ce5",
   "capstone-code/capstone/agent/triage_trace.py": "bc172894844b42a04959c3a656ca44587b7e85bf6c176fa13c6fe798efdf5b71",
@@ -73,7 +73,7 @@
   "capstone-code/capstone/evaluation/labels.py": "39dbc146c75b19ae9b3b8e9c1e210c9bd32bc267ea3e01cddea586132642b4d2",
   "capstone-code/capstone/evaluation/manual.py": "fb9c5466bde3b3006e64bd8197a79e5c9a2ab9a957ac74594f41d94ca12d0dc2",
   "capstone-code/capstone/evaluation/memory.py": "72e5486936c8c58886db3aa4da8f63e71ff786feb739abeedb9d092323037a13",
-  "capstone-code/capstone/evaluation/ranking_accuracy.py": "fc58de34e9568960884f1fbdf9edd3903acfde84fbcfb41962c1f9b38ffaf49f",
+  "capstone-code/capstone/evaluation/ranking_accuracy.py": "ad0bc31b6431666589ee420f1f89313a748dcae77c4fe73bd178cb8bceb735ab",
   "capstone-code/capstone/evaluation/scoring.py": "38efa009eb966bb0bc7a7b90fe21d8f4db05301bdd19b1fc763537821f94c79e",
   "capstone-code/capstone/evaluation/triage_metrics.py": "0996afb190975d935ea6b6365f6f30dad575c170a9e671bc43c104893285b7c4",
   "capstone-code/capstone/experiment.py": "184d69e90925d8e9d4ad21e4de95e5f6b71a2ce7bbcaeed73b702a5d43142503",
@@ -290,7 +290,7 @@
   "tests/test_production_line.py": "2a0ec5f665acec73cee477967f4701fdd0470da2c53b4bb7364b4feaa08a63df",
   "tests/test_progress_view.py": "4b76697910b2898d95b9685e23b9b0541033b03043219f4a263adb7c06437573",
   "tests/test_quality.py": "95705427326b5474aa5b485c1d11c150538adecd7b20c4c592e17c79270c92ff",
-  "tests/test_ranking_accuracy.py": "7885190a682eb2504532992505de7aeb7fe894f1734c06f9e570256619ca7328",
+  "tests/test_ranking_accuracy.py": "861d37a2c42440000e68aa84c75c7510cf3e2f175a6f4788a80ae85ce7569304",
   "tests/test_reasoning_evidence.py": "c72b04a9f538318baf4aa57c873b17d30e6c47c1f0600ab9981aebfccee551cb",
   "tests/test_recall_tool.py": "5c32b0e324ca5e7b6032893f6ddce146adf4a78b3f88c0430a4764a45c505ecc",
   "tests/test_recorded_investigation.py": "4cad9ba7f0b3786dc43d89024e457d01e11dd9704b3363c4b41126ecc7a01d8b",
@@ -345,8 +345,8 @@
   "tests/test_triage_observe_calls.py": "e11fd6d47aa7fc38c90b31656bcb444dbddec65c490bd58564bd149c4eb72b8f",
   "tests/test_triage_plan.py": "433e906034cf72d690e6cc98ff4b4995c992c413e9421918a6593bf1554c7880",
   "tests/test_triage_question_gaps.py": "402ddffb0826c055673921c10707078b1999ca6b088aa722af6022172be4d52a",
-  "tests/test_triage_ranking.py": "d38151cf53e7c2e860ecea2a7004077ac20128fe4889dbf396f8e2433bc194be",
-  "tests/test_triage_ranking_conclude.py": "1fd0ac1ef29840094ce3bcd2aee0eb971d8725f1292991a8d010762c2dd69436",
+  "tests/test_triage_ranking.py": "3e8dfcfd06128bf585c4ce5b4bb8575a0f1417c7a55831c58c3818ff93e7c7dc",
+  "tests/test_triage_ranking_conclude.py": "12860e257dc0a507ebcc5d8b0a0347e6e9939ff22642bba5c6edb96e7d391a24",
   "tests/test_triage_ranking_events.py": "a89800ca3b76b4ef5c21e2f98c531a4e79d78baf18541bc820d38ff5eed61817",
   "tests/test_triage_ranking_surfaces.py": "7d817bfd20c480d6d82511f1f473a7af8caf1852f8048a2645e82b9c072f0ecf",
   "tests/test_triage_report.py": "a26644fd4e0f4639e50818063bb1f091fc229b154dc54723296a839d16d3be1c",
@@ -365,12 +365,12 @@
   "tests/test_web_runs.py": "2021f42a2febc9572b751d4db7ae1dd87c493916018d53e1a35b1a13c96770f8",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "c7cf7e22302757927a8831719314ae9dd5d6cdf69a31af652fd85b525b3eda93",
- "junit_sha256": "2a007d3b3d84af7a0ffb80c8e3b306c4f2a414972ef399f584fc4f7877587c36",
+ "coverage_sha256": "f9fafc5bc7560ef68736b72211553b2c97df9226234617913a131b46dc1c5238",
+ "junit_sha256": "1d1b07c8736649f78d7b4d666a7c447bf0a1b605a9196c4e758d327b5e2ae846",
  "counts": {
   "functions": 1537,
   "classes_note": "classes are listed through their methods",
-  "tests": 2801,
+  "tests": 2803,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 681,
@@ -624,8 +624,7 @@
   ],
   "stubs_or_protocols": 29,
   "tests_by_outcome": {
-   "failed": 1,
-   "passed": 2776,
+   "passed": 2779,
    "skipped": 24
   },
   "tests_with_no_assertion": [
@@ -866,6 +865,7 @@
    "tests/test_tree_search.py::test_older_trees_read_without_retained",
    "tests/test_tree_search.py::test_older_trees_read_without_a_shown_order",
    "tests/test_triage_metrics.py::test_a_call_from_an_old_record_still_loads_without_stage_or_mode",
+   "tests/test_triage_ranking.py::test_initial_prompt_warns_against_repeated_evidence_ids",
    "tests/test_triage_ranking_conclude.py::test_the_ranked_answer_schema_shows_the_full_ranking_shape",
    "tests/test_triage_run_controls.py::test_unrecognized_or_unsafe_request_fields_are_refused",
    "tests/test_wait_tool.py::test_wait_is_one_of_the_agents_action_tools"
@@ -7550,7 +7550,7 @@
    ]
   },
   "capstone.agent.triage_hypothesize:candidate_role": {
-   "count": 48,
+   "count": 49,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8109,7 +8109,7 @@
    ]
   },
   "capstone.agent.triage_ranking:snapshot_fingerprint": {
-   "count": 60,
+   "count": 61,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
@@ -8141,7 +8141,7 @@
    ]
   },
   "capstone.agent.triage_ranking:RankingSnapshot.consistent": {
-   "count": 60,
+   "count": 61,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
@@ -8291,7 +8291,7 @@
    ]
   },
   "capstone.agent.triage_ranking:RankingVerdict.picks_match_status": {
-   "count": 50,
+   "count": 51,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_ranking.py::test_a_changed_candidate_list_rejects_the_answer_as_stale",
@@ -8319,7 +8319,7 @@
     "tests/test_ranking_accuracy.py::test_top1_is_the_models_first_pick_and_by_confidence_is_reported_apart",
     "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced",
     "tests/test_ranking_accuracy.py::test_true_cause_absent_from_the_candidates",
-    "tests/test_triage_ranking_conclude.py::test_a_correction_whose_reply_breaks_the_shape_is_named_precisely"
+    "tests/test_ranking_accuracy.py::test_unavailable_is_invalid_in_memory_and_record_scoring"
    ]
   },
   "capstone.agent.triage_ranking:check_ranking": {
@@ -11907,7 +11907,7 @@
    ]
   },
   "capstone.evaluation.ranking_accuracy:family_names": {
-   "count": 25,
+   "count": 26,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
@@ -11926,7 +11926,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:candidate_names": {
-   "count": 16,
+   "count": 17,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_batch_family_ignores_the_machine",
@@ -11945,7 +11945,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:names_any": {
-   "count": 12,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -11964,7 +11964,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:pick_measures": {
-   "count": 21,
+   "count": 22,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing",
@@ -11983,7 +11983,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:cause_count": {
-   "count": 15,
+   "count": 16,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_abstained_is_valid_and_never_correct",
@@ -12002,7 +12002,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:score_case": {
-   "count": 14,
+   "count": 15,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_verdict_for_another_snapshot_is_refused",
@@ -12021,7 +12021,7 @@
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:score_record": {
-   "count": 11,
+   "count": 12,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_pick_with_no_recorded_family_names_nothing",
@@ -12034,12 +12034,13 @@
     "tests/test_ranking_accuracy.py::test_record_coverage_can_be_supplied",
     "tests/test_ranking_accuracy.py::test_record_coverage_comes_from_the_recorded_candidates",
     "tests/test_ranking_accuracy.py::test_record_pick_on_the_wrong_machine_is_wrong",
-    "tests/test_ranking_accuracy.py::test_record_without_a_ranking_is_missing"
+    "tests/test_ranking_accuracy.py::test_record_without_a_ranking_is_missing",
+    "tests/test_ranking_accuracy.py::test_unavailable_is_invalid_in_memory_and_record_scoring"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:_rate": {
-   "count": 7,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
@@ -12048,12 +12049,13 @@
     "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
     "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
     "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted",
-    "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced"
+    "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced",
+    "tests/test_ranking_accuracy.py::test_unavailable_is_invalid_in_memory_and_record_scoring"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:_mean": {
-   "count": 7,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
@@ -12062,12 +12064,13 @@
     "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
     "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
     "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted",
-    "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced"
+    "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced",
+    "tests/test_ranking_accuracy.py::test_unavailable_is_invalid_in_memory_and_record_scoring"
    ],
    "indirect": []
   },
   "capstone.evaluation.ranking_accuracy:aggregate": {
-   "count": 7,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ranking_accuracy.py::test_a_large_sample_has_no_warning",
@@ -12076,7 +12079,8 @@
     "tests/test_ranking_accuracy.py::test_aggregate_rates_and_confidences",
     "tests/test_ranking_accuracy.py::test_aggregate_reports_top1_by_confidence_and_compound_coverage",
     "tests/test_ranking_accuracy.py::test_aggregate_without_accepted_rankings_has_no_accuracy_over_accepted",
-    "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced"
+    "tests/test_ranking_accuracy.py::test_top2_with_only_two_cause_candidates_is_reported_as_forced",
+    "tests/test_ranking_accuracy.py::test_unavailable_is_invalid_in_memory_and_record_scoring"
    ],
    "indirect": []
   },
@@ -57651,6 +57655,26 @@
     "capstone.evaluation.ranking_accuracy:score_case"
    ]
   },
+  "tests/test_ranking_accuracy.py::test_unavailable_is_invalid_in_memory_and_record_scoring": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.triage_hypothesize:candidate_role",
+    "capstone.agent.triage_ranking:RankingSnapshot.consistent",
+    "capstone.agent.triage_ranking:RankingVerdict.picks_match_status",
+    "capstone.agent.triage_ranking:snapshot_fingerprint",
+    "capstone.evaluation.ranking_accuracy:_mean",
+    "capstone.evaluation.ranking_accuracy:_rate",
+    "capstone.evaluation.ranking_accuracy:aggregate",
+    "capstone.evaluation.ranking_accuracy:candidate_names",
+    "capstone.evaluation.ranking_accuracy:cause_count",
+    "capstone.evaluation.ranking_accuracy:family_names",
+    "capstone.evaluation.ranking_accuracy:names_any",
+    "capstone.evaluation.ranking_accuracy:pick_measures",
+    "capstone.evaluation.ranking_accuracy:score_case",
+    "capstone.evaluation.ranking_accuracy:score_record"
+   ]
+  },
   "tests/test_ranking_accuracy.py::test_missing_verdict": {
    "count": 8,
    "judgment": "NOT ASSESSED",
@@ -73550,6 +73574,11 @@
     "capstone.agent.triage_ranking:safe_ids",
     "capstone.agent.triage_ranking:snapshot_fingerprint"
    ]
+  },
+  "tests/test_triage_ranking.py::test_initial_prompt_warns_against_repeated_evidence_ids": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
   },
   "tests/test_triage_ranking.py::test_unoffered_and_repeated_evidence_are_told_apart": {
    "count": 10,
