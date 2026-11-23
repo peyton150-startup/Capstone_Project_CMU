@@ -295,7 +295,7 @@ def score_case(
         scenario_id=scenario_id,
         status=verdict.status,
         reason=verdict.reason,
-        valid=verdict.status != "rejected",
+        valid=verdict.status in ("accepted", "abstained"),
         abstained=verdict.status == "abstained",
         top1_correct=bool(right) and right[0],
         top2_correct=any(right),
